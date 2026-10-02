@@ -7,6 +7,8 @@ set(QGC_APP_NAME "NX-GroundControl" CACHE STRING "App Name" FORCE)
 set(QGC_ORG_NAME "NX-GroundControl" CACHE STRING "Org Name" FORCE)
 set(QGC_APP_DESCRIPTION "Ground control station for ArduRover ground vehicles" CACHE STRING "Application description" FORCE)
 
+set(QGC_WINDOWS_ICON_PATH "${CMAKE_SOURCE_DIR}/${QGC_CUSTOM_DIR}/deploy/windows/NxGroundControl.ico" CACHE FILEPATH "Windows Icon Path" FORCE)
+
 # Without this the app runs as "<name> Daily", with a separate settings directory to match.
 set(QGC_STABLE_BUILD ON CACHE BOOL "Stable release build" FORCE)
 
