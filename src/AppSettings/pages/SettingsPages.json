@@ -96,6 +96,11 @@
             "visible": "QGroundControl.settingsManager.videoSettings.userVisible"
         },
         {
+            "name": "Vehicle Models",
+            "qml": "VehicleModelsSettings.qml",
+            "icon": "qrc:/InstrumentValueIcons/drone.svg"
+        },
+        {
             "divider": true
         },
         {

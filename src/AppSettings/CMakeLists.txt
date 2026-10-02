@@ -96,6 +96,7 @@ qt_add_qml_module(AppSettingsModule
         SettingsPage.qml
         TcpSettings.qml
         UdpSettings.qml
+        VehicleModelsSettings.qml
     NO_PLUGIN
 )
 
