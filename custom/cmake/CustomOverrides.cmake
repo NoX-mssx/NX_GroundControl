@@ -7,6 +7,9 @@ set(QGC_APP_NAME "NX-GroundControl" CACHE STRING "App Name" FORCE)
 set(QGC_ORG_NAME "NX-GroundControl" CACHE STRING "Org Name" FORCE)
 set(QGC_APP_DESCRIPTION "Ground control station for ArduRover ground vehicles" CACHE STRING "Application description" FORCE)
 
+# Without this the app runs as "<name> Daily", with a separate settings directory to match.
+set(QGC_STABLE_BUILD ON CACHE BOOL "Stable release build" FORCE)
+
 set(QGC_DISABLE_PX4_PLUGIN_FACTORY ON CACHE BOOL "Disable PX4 Plugin Factory" FORCE)
 # Replaced by NxFirmwarePluginFactory, which only accepts ArduRover vehicles.
 set(QGC_DISABLE_APM_PLUGIN_FACTORY ON CACHE BOOL "Disable APM Plugin Factory" FORCE)

@@ -14,6 +14,7 @@ public:
 
     /// Vehicles are driven by joystick only, so mission planning is not offered.
     bool showPlanView() const final { return false; }
+    bool showTakeoffLandActions() const final { return false; }
     bool showPX4LogTransferOptions() const final { return false; }
     bool showSensorCalibrationAirspeed() const final { return false; }
 };
@@ -30,6 +31,9 @@ public:
     static QGCCorePlugin *instance();
 
     QGCOptions *options() final { return _options; }
+    bool overrideSettingsGroupVisibility(const QString &name) final;
+    void adjustSettingMetaData(const QString &settingsGroup, FactMetaData &metaData, bool &userVisible) final;
+    void factValueGridCreateDefaultSettings(FactValueGrid *factValueGrid) final;
 
 private:
     NxOptions *_options = nullptr;

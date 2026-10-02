@@ -25,7 +25,8 @@
             "name": "Plan View",
             "qml": "PlanViewSettings.qml",
             "icon": "qrc:/qmlimages/Plan.svg",
-            "pageDefinition": "PlanView.SettingsUI.json"
+            "pageDefinition": "PlanView.SettingsUI.json",
+            "visible": "QGroundControl.settingsManager.planViewSettings.userVisible"
         },
         {
             "divider": true
@@ -34,7 +35,8 @@
             "name": "ADSB Server",
             "qml": "ADSBServerSettings.qml",
             "icon": "qrc:/InstrumentValueIcons/airplane.svg",
-            "pageDefinition": "ADSBVehicleManager.SettingsUI.json"
+            "pageDefinition": "ADSBVehicleManager.SettingsUI.json",
+            "visible": "QGroundControl.settingsManager.adsbVehicleManagerSettings.userVisible"
         },
         {
             "name": "Comm Links",
@@ -63,7 +65,7 @@
             "name": "NTRIP/RTK",
             "qml": "NTRIPSettings.qml",
             "icon": "qrc:/InstrumentValueIcons/globe.svg",
-            "visible": "QGroundControl.settingsManager && QGroundControl.settingsManager.ntripSettings !== undefined",
+            "visible": "QGroundControl.settingsManager && QGroundControl.settingsManager.ntripSettings !== undefined && QGroundControl.settingsManager.ntripSettings.userVisible",
             "pageDefinition": "NTRIP.SettingsUI.json"
         },
         {
@@ -77,7 +79,8 @@
             "name": "Remote ID",
             "qml": "RemoteIDSettings.qml",
             "icon": "qrc:/qmlimages/RidIconManNoID.svg",
-            "pageDefinition": "RemoteID.SettingsUI.json"
+            "pageDefinition": "RemoteID.SettingsUI.json",
+            "visible": "QGroundControl.settingsManager.remoteIDSettings.userVisible"
         },
         {
             "name": "Telemetry",
