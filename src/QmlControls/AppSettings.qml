@@ -254,7 +254,7 @@ Rectangle {
                     property bool pageAvailable: pageVisible() &&
                                                  (pageSections.length === 0 || visiblePageSections.length > 0)
                     property bool isSelected: settingsView._selectedPageIndex === index
-                    property bool hasMultipleSections: visiblePageSections.length > 1
+                    property bool hasMultipleSections: QGroundControl.corePlugin.options.showSettingsPageSections && visiblePageSections.length > 1
                     property bool isSearching: settingsView._searchQuery.trim() !== ""
                     property bool matchesSearch: pageAvailable && settingsView._pageMatchesSearch(index)
                     property bool isExpanded: hasMultipleSections && (isSearching ? matchesSearch : settingsView._isExpanded(index))

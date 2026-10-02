@@ -98,7 +98,7 @@
         {
             "name": "Vehicle Models",
             "qml": "VehicleModelsSettings.qml",
-            "icon": "qrc:/InstrumentValueIcons/drone.svg"
+            "icon": "qrc:/res/VehicleWheel.svg"
         },
         {
             "divider": true

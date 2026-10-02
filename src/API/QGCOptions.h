@@ -61,6 +61,7 @@ class QGCOptions : public QObject
     Q_PROPERTY(bool showOfflineMapExport            READ showOfflineMapExport           NOTIFY showOfflineMapExportChanged)
     Q_PROPERTY(bool showOfflineMapImport            READ showOfflineMapImport           NOTIFY showOfflineMapImportChanged)
     Q_PROPERTY(bool showPlanView                    READ showPlanView                   CONSTANT)
+    Q_PROPERTY(bool showSettingsPageSections        READ showSettingsPageSections       CONSTANT)
     Q_PROPERTY(bool showTakeoffLandActions          READ showTakeoffLandActions         CONSTANT)
     Q_PROPERTY(bool showPX4LogTransferOptions       READ showPX4LogTransferOptions      CONSTANT)
     Q_PROPERTY(bool showSensorCalibrationAccel      READ showSensorCalibrationAccel     NOTIFY showSensorCalibrationAccelChanged)
@@ -131,6 +132,8 @@ public:
     virtual bool showOfflineMapExport() const { return true; }
     virtual bool showOfflineMapImport() const { return true; }
     virtual bool showPlanView() const { return true; }
+    /// @return false: the settings sidebar lists pages only, without the expandable section entries
+    virtual bool showSettingsPageSections() const { return true; }
     virtual bool showTakeoffLandActions() const { return true; }
     virtual bool showPX4LogTransferOptions() const { return true; }
     virtual bool showSimpleMissionStart() const { return false; }
