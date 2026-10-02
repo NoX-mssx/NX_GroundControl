@@ -33,6 +33,33 @@
             "type": "bool",
             "default": true,
             "label": "Consolidate multiple battery readings"
+        },
+        {
+            "name": "percentFromVoltage",
+            "shortDesc": "Calculate charge percentage from battery voltage instead of the value reported by the vehicle",
+            "type": "bool",
+            "default": false,
+            "label": "Percentage from voltage"
+        },
+        {
+            "name": "percentVoltageMin",
+            "shortDesc": "Battery voltage displayed as 0%",
+            "type": "double",
+            "decimalPlaces": 1,
+            "min": 0,
+            "default": 18.0,
+            "units": "V",
+            "label": "Empty voltage"
+        },
+        {
+            "name": "percentVoltageMax",
+            "shortDesc": "Battery voltage displayed as 100%",
+            "type": "double",
+            "decimalPlaces": 1,
+            "min": 0,
+            "default": 25.2,
+            "units": "V",
+            "label": "Full voltage"
         }
     ]
 }

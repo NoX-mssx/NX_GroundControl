@@ -18,6 +18,9 @@ public:
     DEFINE_SETTINGFACT(threshold1)              // First threshold for battery level
     DEFINE_SETTINGFACT(threshold2)              // Second threshold for battery level
     DEFINE_SETTINGFACT(consolidateMultipleBatteries)
+    DEFINE_SETTINGFACT(percentFromVoltage)      // Derive charge percentage from the voltage range below
+    DEFINE_SETTINGFACT(percentVoltageMin)       // Voltage shown as 0%
+    DEFINE_SETTINGFACT(percentVoltageMax)       // Voltage shown as 100%
 
     Q_INVOKABLE void setThreshold1(int value);  // Set threshold1 with validation
     Q_INVOKABLE void setThreshold2(int value);  // Set threshold2 with validation

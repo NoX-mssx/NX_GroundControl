@@ -30,6 +30,23 @@ Item {
     property int threshold1: _batterySettings.threshold1.rawValue
     property int threshold2: _batterySettings.threshold2.rawValue
 
+    property bool   _percentFromVoltage: _batterySettings.percentFromVoltage.rawValue
+    property real   _percentVoltageMin:  _batterySettings.percentVoltageMin.rawValue
+    property real   _percentVoltageMax:  _batterySettings.percentVoltageMax.rawValue
+
+    /// Charge percentage for display: derived from the configured voltage range when enabled, otherwise
+    /// the value reported by the vehicle. NaN when not available.
+    function batteryPercent(battery) {
+        if (_percentFromVoltage) {
+            let voltage = battery.voltage.rawValue
+            if (isNaN(voltage) || _percentVoltageMax <= _percentVoltageMin) {
+                return NaN
+            }
+            return Math.max(0, Math.min(100, (voltage - _percentVoltageMin) * 100 / (_percentVoltageMax - _percentVoltageMin)))
+        }
+        return battery.percentRemaining.rawValue
+    }
+
     function _recalcLowestBatteryIdFromVoltage() {
         if (_activeVehicle) {
             // If there is only one battery then it is the lowest
@@ -209,12 +226,16 @@ Item {
             spacing:            ScreenTools.defaultFontPixelWidth / 4
 
             function getBatteryColor() {
+                let percent = control.batteryPercent(battery)
+                if (control._percentFromVoltage && !isNaN(percent)) {
+                    return percent > threshold1 ? qgcPal.colorGreen : (percent > threshold2 ? qgcPal.colorYellowGreen : qgcPal.colorYellow)
+                }
                 switch (battery.chargeState.rawValue) {
                     case MAVLinkEnums.MAV_BATTERY_CHARGE_STATE_OK:
-                        if (!isNaN(battery.percentRemaining.rawValue)) {
-                            if (battery.percentRemaining.rawValue > threshold1) {
+                        if (!isNaN(percent)) {
+                            if (percent > threshold1) {
                                 return qgcPal.colorGreen
-                            } else if (battery.percentRemaining.rawValue > threshold2) {
+                            } else if (percent > threshold2) {
                                 return qgcPal.colorYellowGreen
                             } else {
                                 return qgcPal.colorYellow
@@ -235,12 +256,16 @@ Item {
             }
 
             function getBatterySvgSource() {
+                let percent = control.batteryPercent(battery)
+                if (control._percentFromVoltage && !isNaN(percent)) {
+                    return percent > threshold1 ? "/qmlimages/BatteryGreen.svg" : (percent > threshold2 ? "/qmlimages/BatteryYellowGreen.svg" : "/qmlimages/BatteryYellow.svg")
+                }
                 switch (battery.chargeState.rawValue) {
                     case MAVLinkEnums.MAV_BATTERY_CHARGE_STATE_OK:
-                        if (!isNaN(battery.percentRemaining.rawValue)) {
-                            if (battery.percentRemaining.rawValue > threshold1) {
+                        if (!isNaN(percent)) {
+                            if (percent > threshold1) {
                                 return "/qmlimages/BatteryGreen.svg"
-                            } else if (battery.percentRemaining.rawValue > threshold2) {
+                            } else if (percent > threshold2) {
                                 return "/qmlimages/BatteryYellowGreen.svg"
                             } else {
                                 return "/qmlimages/BatteryYellow.svg"
@@ -260,6 +285,10 @@ Item {
             }
 
             function getBatteryPercentageText() {
+                if (control._percentFromVoltage) {
+                    let percent = control.batteryPercent(battery)
+                    return isNaN(percent) ? qsTr("n/a") : Math.round(percent) + "%"
+                }
                 if (!isNaN(battery.percentRemaining.rawValue)) {
                     if (battery.percentRemaining.rawValue > 98.9) {
                         return qsTr("100%")
@@ -352,6 +381,45 @@ Item {
 
         ColumnLayout {
             spacing: ScreenTools.defaultFontPixelHeight / 2
+
+            SettingsGroupLayout {
+                heading:            qsTr("Charge Display")
+                Layout.fillWidth:   true
+
+                LabelledFactComboBox {
+                    Layout.fillWidth:   true
+                    label:              qsTr("Value")
+                    fact:               _batterySettings.valueDisplay
+                }
+
+                FactCheckBoxSlider {
+                    Layout.fillWidth:   true
+                    fact:               _batterySettings.percentFromVoltage
+                    text:               qsTr("Percentage from voltage")
+                }
+
+                LabelledFactTextField {
+                    Layout.fillWidth:   true
+                    label:              qsTr("Empty (0%)")
+                    fact:               _batterySettings.percentVoltageMin
+                    enabled:            control._percentFromVoltage
+                }
+
+                LabelledFactTextField {
+                    Layout.fillWidth:   true
+                    label:              qsTr("Full (100%)")
+                    fact:               _batterySettings.percentVoltageMax
+                    enabled:            control._percentFromVoltage
+                }
+
+                QGCLabel {
+                    Layout.fillWidth:   true
+                    wrapMode:           Text.WordWrap
+                    color:              qgcPal.colorOrange
+                    text:               qsTr("Full voltage must be higher than empty voltage")
+                    visible:            control._percentFromVoltage && control._percentVoltageMax <= control._percentVoltageMin
+                }
+            }
 
             Component {
                 id: batteryValuesAvailableComponent
