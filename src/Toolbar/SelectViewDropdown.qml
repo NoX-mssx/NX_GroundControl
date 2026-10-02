@@ -36,6 +36,7 @@ ToolIndicatorPage {
                 Layout.fillWidth: true
                 text: qsTr("Plan")
                 imageResource: "/qmlimages/Plan.svg"
+                visible: QGroundControl.corePlugin.options.showPlanView
                 onClicked: {
                     if (mainWindow.allowViewSwitch()) {
                         mainWindow.closeIndicatorDrawer()

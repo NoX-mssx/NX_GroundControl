@@ -1,0 +1,116 @@
+name: NX Windows
+
+# Lean replacement for windows.yml on this fork: AMD64 only, and it follows the custom app name instead
+# of the hardcoded QGroundControl.exe paths the upstream workflow verifies.
+
+on:
+  push:
+    branches:
+      - rover
+    paths-ignore:
+      - 'docs/**'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  AQT_SOURCE: 'git+https://github.com/miurahr/aqtinstall.git@8d961e61720b3c06583517fbc68d57ec0a4e9f95'
+  APP_NAME: NX-GroundControl
+
+jobs:
+  build:
+    name: Build installer
+    runs-on: windows-2022
+    timeout-minutes: 120
+
+    defaults:
+      run:
+        shell: cmd
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Build Setup
+        id: build-setup
+        uses: ./.github/actions/build-setup
+        with:
+          qt-host: windows
+          qt-arch: win64_msvc2022_64
+          aqt-source: ${{ env.AQT_SOURCE }}
+          build-type: Release
+
+      - name: Configure
+        uses: ./.github/actions/cmake-configure
+        with:
+          build-dir: ${{ runner.temp }}/build
+          build-type: Release
+          extra-args: -DQGC_ENABLE_GST_VIDEOSTREAMING=ON
+
+      - name: Resolve GStreamer root
+        id: gst-root
+        shell: bash
+        run: |
+          python3 "${GITHUB_WORKSPACE}/.github/scripts/cmake_helper.py" cache-var \
+            --build-dir "${RUNNER_TEMP}/build" \
+            --name GStreamer_ROOT_DIR \
+            --required \
+            --output-key gst_root
+
+      - name: Add GStreamer to PATH
+        shell: bash
+        run: echo "${GST_ROOT}/bin" >> "$GITHUB_PATH"
+        env:
+          GST_ROOT: ${{ steps.gst-root.outputs.gst_root }}
+
+      - name: Build
+        uses: ./.github/actions/cmake-build
+        with:
+          build-dir: ${{ runner.temp }}/build
+          build-type: Release
+
+      - name: Create Installer
+        uses: ./.github/actions/cmake-install
+        with:
+          build-dir: ${{ runner.temp }}\build
+          build-type: Release
+
+      - name: Install and verify installer
+        shell: pwsh
+        run: |
+          $installerExe = Get-ChildItem -Path "${{ runner.temp }}\build" -Filter "*installer*.exe" | Select-Object -First 1
+          if (-not $installerExe) {
+            Write-Error "Installer .exe not found"
+            exit 1
+          }
+          $installDir = "${{ runner.temp }}\nx-install-test"
+          Start-Process -FilePath $installerExe.FullName -ArgumentList "/S", "/D=$installDir" -Wait -NoNewWindow
+          $binary = Join-Path $installDir "bin\$env:APP_NAME.exe"
+          if (-not (Test-Path $binary)) {
+            Write-Error "$binary not found after install"
+            Get-ChildItem -Path $installDir -Recurse | Select-Object FullName
+            exit 1
+          }
+          $pluginCount = (Get-ChildItem -Path (Join-Path $installDir "lib\gstreamer-1.0") -Filter "*.dll" | Measure-Object).Count
+          Write-Host "GStreamer plugins found: $pluginCount"
+          if ($pluginCount -eq 0) {
+            Write-Error "No GStreamer plugin DLLs installed"
+            exit 1
+          }
+          "INSTALLER_PATH=$($installerExe.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.APP_NAME }}-installer-AMD64
+          path: ${{ env.INSTALLER_PATH }}
+          compression-level: 0
+          retention-days: 30

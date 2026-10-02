@@ -60,6 +60,7 @@ class QGCOptions : public QObject
     Q_PROPERTY(bool showMissionStatus               READ showMissionStatus              CONSTANT)
     Q_PROPERTY(bool showOfflineMapExport            READ showOfflineMapExport           NOTIFY showOfflineMapExportChanged)
     Q_PROPERTY(bool showOfflineMapImport            READ showOfflineMapImport           NOTIFY showOfflineMapImportChanged)
+    Q_PROPERTY(bool showPlanView                    READ showPlanView                   CONSTANT)
     Q_PROPERTY(bool showPX4LogTransferOptions       READ showPX4LogTransferOptions      CONSTANT)
     Q_PROPERTY(bool showSensorCalibrationAccel      READ showSensorCalibrationAccel     NOTIFY showSensorCalibrationAccelChanged)
     Q_PROPERTY(bool showSensorCalibrationAirspeed   READ showSensorCalibrationAirspeed  NOTIFY showSensorCalibrationAirspeedChanged)
@@ -128,6 +129,7 @@ public:
     virtual bool showMissionAbsoluteAltitude() const { return true; }
     virtual bool showOfflineMapExport() const { return true; }
     virtual bool showOfflineMapImport() const { return true; }
+    virtual bool showPlanView() const { return true; }
     virtual bool showPX4LogTransferOptions() const { return true; }
     virtual bool showSimpleMissionStart() const { return false; }
 
