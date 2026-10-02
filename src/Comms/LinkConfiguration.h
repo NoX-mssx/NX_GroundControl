@@ -26,6 +26,7 @@ class LinkConfiguration : public QObject
     Q_PROPERTY(QString          settingsURL     READ settingsURL                            CONSTANT)
     Q_PROPERTY(QString          settingsTitle   READ settingsTitle                          CONSTANT)
     Q_PROPERTY(bool             highLatency     READ isHighLatency  WRITE setHighLatency    NOTIFY highLatencyChanged)
+    Q_PROPERTY(QString          vehicleModel    READ vehicleModel   WRITE setVehicleModel   NOTIFY vehicleModelChanged)
 
 public:
     LinkConfiguration(const QString &name, QObject *parent = nullptr);
@@ -55,6 +56,10 @@ public:
 
     /// Set if this is this a forwarding link configuration. (decided at runtime)
     void setForwarding(bool forwarding = true) { _forwarding = forwarding; };
+
+    /// Name of the vehicle model (see VehicleModelManager) describing the vehicle behind this link, empty for none.
+    QString vehicleModel() const { return _vehicleModel; }
+    void setVehicleModel(const QString &vehicleModel);
 
     bool isAutoConnect() const { return _autoConnect; }
 
@@ -155,6 +160,7 @@ signals:
     void dynamicChanged();
     void autoConnectChanged();
     void highLatencyChanged();
+    void vehicleModelChanged();
 
 protected:
     std::weak_ptr<LinkInterface> _link; ///< Link currently using this configuration (if any)
@@ -165,6 +171,7 @@ private:
     bool _forwarding = false;  ///< Automatically added Mavlink forwarding connection
     bool _autoConnect = false; ///< This connection is started automatically at boot
     bool _highLatency = false;
+    QString _vehicleModel;
     bool _suppressAutoReconnect = false; ///< User disconnected; skip auto-reconnect until manually reconnected (runtime only)
     bool _autoConnectStarted = false;    ///< Link was started at boot or manually connected; gates timer reconnect (runtime only)
     int _reconnectAttempts = 0;          ///< Consecutive failed auto-reconnect attempts (runtime only)

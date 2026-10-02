@@ -34,8 +34,30 @@ Item {
         topEdgeLeftInset:       parentToolInsets.topEdgeLeftInset
         topEdgeCenterInset:     parentToolInsets.topEdgeCenterInset
         topEdgeRightInset:      parentToolInsets.topEdgeRightInset
-        bottomEdgeLeftInset:    parentToolInsets.bottomEdgeLeftInset
+        bottomEdgeLeftInset:    Math.max(parentToolInsets.bottomEdgeLeftInset, modelButtonRow.visible ? modelButtonRow.height + (modelButtonRow.anchors.margins * 2) : 0)
         bottomEdgeCenterInset:  parentToolInsets.bottomEdgeCenterInset
         bottomEdgeRightInset:   parentToolInsets.bottomEdgeRightInset
+    }
+
+    // Buttons of the active vehicle model, each driving the servo/relay outputs configured for it
+    Row {
+        id:                 modelButtonRow
+        anchors.margins:    ScreenTools.defaultFontPixelWidth
+        anchors.left:       parent.left
+        anchors.bottom:     parent.bottom
+        spacing:            ScreenTools.defaultFontPixelWidth
+        visible:            modelButtonRepeater.count > 0
+
+        Repeater {
+            id:     modelButtonRepeater
+            model:  VehicleModelManager.activeModel.buttons || []
+
+            QGCButton {
+                required property var modelData
+
+                text:       modelData.name
+                onClicked:  VehicleModelManager.runButton(modelData)
+            }
+        }
     }
 }

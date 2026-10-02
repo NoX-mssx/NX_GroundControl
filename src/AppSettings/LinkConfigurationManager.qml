@@ -143,6 +143,15 @@ SettingsGroupLayout {
                     }
                 }
 
+                LabelledComboBox {
+                    id:         vehicleModelCombo
+                    label:      qsTr("Vehicle Model")
+                    model:      [ qsTr("None") ].concat(VehicleModelManager.modelNames)
+                    // Index 0 is "None"; a model deleted since the link was saved also falls back to it.
+                    Component.onCompleted: currentIndex = VehicleModelManager.modelNames.indexOf(editingConfig.vehicleModel) + 1
+                    onActivated: (index) => editingConfig.vehicleModel = index > 0 ? VehicleModelManager.modelNames[index - 1] : ""
+                }
+
                 QGCCheckBoxSlider {
                     Layout.fillWidth:   true
                     text:               qsTr("Automatically Connect on Start")

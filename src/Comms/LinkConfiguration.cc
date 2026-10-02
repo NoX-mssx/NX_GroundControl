@@ -27,6 +27,7 @@ LinkConfiguration::LinkConfiguration(const LinkConfiguration *copy, QObject *par
     , _dynamic(copy->isDynamic())
     , _autoConnect(copy->isAutoConnect())
     , _highLatency(copy->isHighLatency())
+    , _vehicleModel(copy->vehicleModel())
 {
     qCDebug(LinkConfigurationLog) << this;
 
@@ -47,6 +48,7 @@ void LinkConfiguration::copyFrom(const LinkConfiguration *source)
     setDynamic(source->isDynamic());
     setAutoConnect(source->isAutoConnect());
     setHighLatency(source->isHighLatency());
+    setVehicleModel(source->vehicleModel());
 }
 
 LinkConfiguration *LinkConfiguration::createSettings(int type, const QString &name)
@@ -154,6 +156,14 @@ void LinkConfiguration::setAutoConnect(bool autoc)
         _autoConnect = autoc;
         emit autoConnectChanged();
         emit linkActiveChanged();
+    }
+}
+
+void LinkConfiguration::setVehicleModel(const QString &vehicleModel)
+{
+    if (vehicleModel != _vehicleModel) {
+        _vehicleModel = vehicleModel;
+        emit vehicleModelChanged();
     }
 }
 

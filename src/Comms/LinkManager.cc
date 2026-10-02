@@ -357,6 +357,7 @@ void LinkManager::saveLinkConfigurationList()
         settings.setValue(root + "/type", linkConfig->type());
         settings.setValue(root + "/auto", linkConfig->isAutoConnect());
         settings.setValue(root + "/high_latency", linkConfig->isHighLatency());
+        settings.setValue(root + "/vehicle_model", linkConfig->vehicleModel());
         linkConfig->saveSettings(settings, root);
     }
 
@@ -429,6 +430,7 @@ void LinkManager::loadLinkConfigurationList()
                 link->setAutoConnect(autoConnect);
                 const bool highLatency = settings.value(root + "/high_latency").toBool();
                 link->setHighLatency(highLatency);
+                link->setVehicleModel(settings.value(root + "/vehicle_model").toString());
                 link->loadSettings(settings, root);
                 addConfiguration(link);
             }

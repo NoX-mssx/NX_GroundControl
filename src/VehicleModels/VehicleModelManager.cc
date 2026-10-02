@@ -1,6 +1,13 @@
 #include "VehicleModelManager.h"
+#include "LinkConfiguration.h"
+#include "LinkInterface.h"
+#include "MultiVehicleManager.h"
 #include "QGCLoggingCategory.h"
 #include "SecretProtector.h"
+#include "SettingsManager.h"
+#include "Vehicle.h"
+#include "VehicleLinkManager.h"
+#include "VideoSettings.h"
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -201,6 +208,75 @@ VehicleModelManager::VehicleModelManager(QObject *parent)
     : QObject(parent)
 {
     _load();
+
+    (void) connect(MultiVehicleManager::instance(), &MultiVehicleManager::activeVehicleChanged,
+                   this, &VehicleModelManager::_activeVehicleChanged);
+    (void) connect(this, &VehicleModelManager::modelsChanged, this, &VehicleModelManager::_updateActiveModel);
+    _activeVehicleChanged(MultiVehicleManager::instance()->activeVehicle());
+}
+
+void VehicleModelManager::_activeVehicleChanged(Vehicle *vehicle)
+{
+    if (_activeVehicle) {
+        (void) disconnect(_activeVehicle->vehicleLinkManager(), nullptr, this, nullptr);
+    }
+
+    _activeVehicle = vehicle;
+    if (_activeVehicle) {
+        (void) connect(_activeVehicle->vehicleLinkManager(), &VehicleLinkManager::primaryLinkChanged,
+                       this, &VehicleModelManager::_updateActiveModel);
+    }
+
+    _updateActiveModel();
+}
+
+void VehicleModelManager::_updateActiveModel()
+{
+    QVariantMap activeModel;
+    if (_activeVehicle) {
+        const SharedLinkInterfacePtr link = _activeVehicle->vehicleLinkManager()->primaryLink().lock();
+        if (link && link->linkConfiguration()) {
+            activeModel = model(link->linkConfiguration()->vehicleModel());
+        }
+    }
+
+    if (activeModel == _activeModel) {
+        return;
+    }
+    _activeModel = activeModel;
+    emit activeModelChanged();
+
+    // The first camera of the model becomes the video stream. Without a model the user's own video
+    // settings are left alone.
+    const QVariantList cameras = _activeModel.value(QLatin1String(kCamerasKey)).toList();
+    if (cameras.isEmpty()) {
+        return;
+    }
+    const QString mainUrl = cameras.first().toMap().value(QStringLiteral("mainUrl")).toString();
+    if (mainUrl.isEmpty()) {
+        return;
+    }
+    VideoSettings *const videoSettings = SettingsManager::instance()->videoSettings();
+    videoSettings->rtspUrl()->setRawValue(mainUrl);
+    videoSettings->videoSource()->setRawValue(VideoSettings::videoSourceRTSP);
+}
+
+void VehicleModelManager::runButton(const QVariantMap &button) const
+{
+    if (!_activeVehicle) {
+        return;
+    }
+
+    const QVariantList functions = button.value(QStringLiteral("functions")).toList();
+    for (const QVariant &functionVar : functions) {
+        const QVariantMap function = functionVar.toMap();
+        const bool gpio = function.value(QStringLiteral("kind")).toString() == QLatin1String("gpio");
+        _activeVehicle->sendMavCommand(_activeVehicle->defaultComponentId(),
+                                       gpio ? MAV_CMD_DO_SET_RELAY : MAV_CMD_DO_SET_SERVO,
+                                       true,
+                                       function.value(QStringLiteral("channel")).toFloat(),
+                                       function.value(QStringLiteral("value")).toFloat());
+    }
 }
 
 QStringList VehicleModelManager::modelNames() const

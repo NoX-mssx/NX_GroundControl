@@ -3,12 +3,16 @@
 #include <QtCore/QJsonArray>
 #include <QtCore/QLoggingCategory>
 #include <QtCore/QObject>
+#include <QtCore/QPointer>
 #include <QtCore/QStringList>
 #include <QtCore/QVariantList>
 #include <QtCore/QVariantMap>
 #include <QtQmlIntegration/QtQmlIntegration>
 
+#include "Vehicle.h"
+
 Q_DECLARE_LOGGING_CATEGORY(VehicleModelManagerLog)
+
 
 /// Stores per-vehicle profiles ("models"): the cameras on board and the on-screen buttons that drive servo
 /// or relay outputs. Models are plain maps so the settings page can edit a copy and save it back whole:
@@ -25,6 +29,7 @@ class VehicleModelManager : public QObject
     Q_PROPERTY(QVariantList models      READ models         NOTIFY modelsChanged)
     Q_PROPERTY(QStringList  modelNames  READ modelNames     NOTIFY modelsChanged)
     Q_PROPERTY(QStringList  cameraTypes READ cameraTypes    CONSTANT)
+    Q_PROPERTY(QVariantMap  activeModel READ activeModel    NOTIFY activeModelChanged)
 
 public:
     explicit VehicleModelManager(QObject *parent = nullptr);
@@ -32,6 +37,12 @@ public:
     QVariantList models() const { return _models; }
     QStringList modelNames() const;
     QStringList cameraTypes() const;
+
+    /// Model selected in the link configuration of the active vehicle's primary link, empty if none.
+    QVariantMap activeModel() const { return _activeModel; }
+
+    /// Sends every output of a model button to the active vehicle: a servo PWM value or a relay state.
+    Q_INVOKABLE void runButton(const QVariantMap &button) const;
 
     /// @return the named model, or an empty map
     Q_INVOKABLE QVariantMap model(const QString &name) const;
@@ -59,6 +70,11 @@ public:
 
 signals:
     void modelsChanged();
+    void activeModelChanged();
+
+private slots:
+    void _activeVehicleChanged(Vehicle *vehicle);
+    void _updateActiveModel();
 
 private:
     int _indexOf(const QString &name) const;
@@ -68,4 +84,6 @@ private:
     QString _filePath() const;
 
     QVariantList _models;
+    QVariantMap _activeModel;
+    QPointer<Vehicle> _activeVehicle;
 };
