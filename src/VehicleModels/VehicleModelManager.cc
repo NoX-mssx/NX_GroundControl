@@ -20,10 +20,11 @@ constexpr const char *kModelsKey = "models";
 constexpr const char *kNameKey = "name";
 constexpr const char *kCamerasKey = "cameras";
 constexpr const char *kPasswordKey = "password";
-constexpr const char *kPasswordProtectedKey = "passwordProtected";
+constexpr const char *kProtectedSuffix = "Protected";
 
 struct CameraType {
     const char *name;
+    const char *exchangeId;     ///< modelName in the exchange format
     const char *mainPath;
     const char *secondaryPath;
 };
@@ -31,25 +32,163 @@ struct CameraType {
 // Stream paths are the vendors' documented defaults; a camera with a changed channel layout needs the
 // URLs edited by hand, which the settings page allows.
 constexpr CameraType kCameraTypes[] = {
-    {"Generic", "", ""},
-    {"Dahua (DH-IPC-HFW2449T)", "/cam/realmonitor?channel=1&subtype=0", "/cam/realmonitor?channel=1&subtype=1"},
-    {"Dahua (DH-IPC-HDW5541TM)", "/cam/realmonitor?channel=1&subtype=0", "/cam/realmonitor?channel=1&subtype=1"},
-    {"UNV (Ultra 265)", "/media/video1", "/media/video2"},
-    {"Hikvision (DS-2CD)", "/Streaming/Channels/101", "/Streaming/Channels/102"},
+    {"Generic", "generic", "", ""},
+    {"Dahua (DH-IPC-HFW2449T)", "dahua_hfw2449t", "/cam/realmonitor?channel=1&subtype=0", "/cam/realmonitor?channel=1&subtype=1"},
+    {"Dahua (DH-IPC-HDW5541TM)", "dahua_hdw5541tm", "/cam/realmonitor?channel=1&subtype=0", "/cam/realmonitor?channel=1&subtype=1"},
+    {"UNV (Ultra 265)", "unv_ultra_265", "/cam/realmonitor?channel=1&subtype=0", "/cam/realmonitor?channel=1&subtype=1"},
+    {"Hikvision (DS-2CD)", "hikvision_ds2cd", "/Streaming/Channels/101", "/Streaming/Channels/102"},
 };
 
-/// Swaps the camera password field between its in-memory and on-disk form.
-QVariantList convertCameraPasswords(const QVariantList &cameras, bool forDisk)
+/// Only "unv_ultra_265" is a known identifier of the exchange format; the others are matched loosely so
+/// files using a different spelling still land on the right camera type.
+QString cameraTypeFromExchangeId(const QString &exchangeId)
 {
+    for (const CameraType &type : kCameraTypes) {
+        if (exchangeId.compare(QLatin1String(type.exchangeId), Qt::CaseInsensitive) == 0) {
+            return QString::fromLatin1(type.name);
+        }
+    }
+
+    const QString id = exchangeId.toLower();
+    if (id.contains(QLatin1String("5541"))) {
+        return QString::fromLatin1(kCameraTypes[2].name);
+    }
+    if (id.contains(QLatin1String("dahua")) || id.contains(QLatin1String("2449"))) {
+        return QString::fromLatin1(kCameraTypes[1].name);
+    }
+    if (id.contains(QLatin1String("unv"))) {
+        return QString::fromLatin1(kCameraTypes[3].name);
+    }
+    if (id.contains(QLatin1String("hik"))) {
+        return QString::fromLatin1(kCameraTypes[4].name);
+    }
+    return QString::fromLatin1(kCameraTypes[0].name);
+}
+
+QString exchangeIdFromCameraType(const QString &typeName)
+{
+    for (const CameraType &type : kCameraTypes) {
+        if (typeName == QLatin1String(type.name)) {
+            return QString::fromLatin1(type.exchangeId);
+        }
+    }
+    return QString::fromLatin1(kCameraTypes[0].exchangeId);
+}
+
+QVariantMap modelFromExchange(const QJsonObject &exchange)
+{
+    QVariantList cameras;
+    const QJsonArray exchangeCameras = exchange.value(QLatin1String("camerasArray")).toArray();
+    for (const QJsonValue &cameraValue : exchangeCameras) {
+        const QJsonObject camera = cameraValue.toObject();
+        cameras.append(QVariantMap{
+            {QStringLiteral("type"), cameraTypeFromExchangeId(camera.value(QLatin1String("modelName")).toString())},
+            {QStringLiteral("name"), camera.value(QLatin1String("name")).toString()},
+            {QStringLiteral("ip"), camera.value(QLatin1String("ip")).toString()},
+            {QStringLiteral("user"), camera.value(QLatin1String("login")).toString()},
+            {QStringLiteral("password"), camera.value(QLatin1String("password")).toString()},
+            {QStringLiteral("mainUrl"), camera.value(QLatin1String("url")).toString()},
+            {QStringLiteral("secondaryUrl"), camera.value(QLatin1String("secondaryUrl")).toString()},
+            {QStringLiteral("audio"), camera.value(QLatin1String("audioEnabled")).toBool()},
+        });
+    }
+
+    QVariantList buttons;
+    const QJsonArray exchangeButtons = exchange.value(QLatin1String("buttonsArray")).toArray();
+    for (const QJsonValue &buttonValue : exchangeButtons) {
+        const QJsonObject button = buttonValue.toObject();
+        QVariantList functions;
+        const QJsonArray exchangeFunctions = button.value(QLatin1String("functionsArray")).toArray();
+        for (const QJsonValue &functionValue : exchangeFunctions) {
+            const QJsonObject function = functionValue.toObject();
+            const bool gpio = function.value(QLatin1String("signal")).toString().compare(QLatin1String("GPIO"), Qt::CaseInsensitive) == 0;
+            functions.append(QVariantMap{
+                {QStringLiteral("channel"), function.value(QLatin1String("channel")).toInt()},
+                {QStringLiteral("kind"), gpio ? QStringLiteral("gpio") : QStringLiteral("pwm")},
+                {QStringLiteral("value"), function.value(QLatin1String("value")).toInt()},
+            });
+        }
+        buttons.append(QVariantMap{
+            {QStringLiteral("name"), button.value(QLatin1String("name")).toString()},
+            {QStringLiteral("functions"), functions},
+        });
+    }
+
+    return QVariantMap{
+        {QString::fromLatin1(kNameKey), exchange.value(QLatin1String("text")).toString().trimmed()},
+        {QString::fromLatin1(kCamerasKey), cameras},
+        {QStringLiteral("buttons"), buttons},
+    };
+}
+
+QJsonObject modelToExchange(const QVariantMap &model)
+{
+    QJsonArray cameras;
+    const QVariantList modelCameras = model.value(QLatin1String(kCamerasKey)).toList();
+    for (const QVariant &cameraVar : modelCameras) {
+        const QVariantMap camera = cameraVar.toMap();
+        cameras.append(QJsonObject{
+            {QStringLiteral("modelName"), exchangeIdFromCameraType(camera.value(QStringLiteral("type")).toString())},
+            {QStringLiteral("name"), camera.value(QStringLiteral("name")).toString()},
+            {QStringLiteral("url"), camera.value(QStringLiteral("mainUrl")).toString()},
+            {QStringLiteral("secondaryUrl"), camera.value(QStringLiteral("secondaryUrl")).toString()},
+            {QStringLiteral("login"), camera.value(QStringLiteral("user")).toString()},
+            {QStringLiteral("password"), camera.value(QLatin1String(kPasswordKey)).toString()},
+            {QStringLiteral("ip"), camera.value(QStringLiteral("ip")).toString()},
+            {QStringLiteral("audioEnabled"), camera.value(QStringLiteral("audio")).toBool()},
+        });
+    }
+
+    QJsonArray buttons;
+    const QVariantList modelButtons = model.value(QStringLiteral("buttons")).toList();
+    for (const QVariant &buttonVar : modelButtons) {
+        const QVariantMap button = buttonVar.toMap();
+        QJsonArray functions;
+        const QVariantList buttonFunctions = button.value(QStringLiteral("functions")).toList();
+        for (const QVariant &functionVar : buttonFunctions) {
+            const QVariantMap function = functionVar.toMap();
+            const bool gpio = function.value(QStringLiteral("kind")).toString() == QLatin1String("gpio");
+            functions.append(QJsonObject{
+                {QStringLiteral("channel"), function.value(QStringLiteral("channel")).toInt()},
+                {QStringLiteral("signal"), gpio ? QStringLiteral("GPIO") : QStringLiteral("PWM")},
+                {QStringLiteral("value"), function.value(QStringLiteral("value")).toInt()},
+            });
+        }
+        buttons.append(QJsonObject{
+            {QStringLiteral("name"), button.value(QStringLiteral("name")).toString()},
+            {QStringLiteral("functionsArray"), functions},
+        });
+    }
+
+    return QJsonObject{
+        {QStringLiteral("text"), model.value(QLatin1String(kNameKey)).toString()},
+        {QStringLiteral("camerasArray"), cameras},
+        {QStringLiteral("buttonsArray"), buttons},
+    };
+}
+
+/// Swaps the secret camera fields between their in-memory and on-disk form. The stream URLs count as
+/// secret because they embed the camera credentials.
+QVariantList convertCameraSecrets(const QVariantList &cameras, bool forDisk)
+{
+    static const QStringList secretKeys = {
+        QString::fromLatin1(kPasswordKey),
+        QStringLiteral("mainUrl"),
+        QStringLiteral("secondaryUrl"),
+    };
+
     QVariantList converted;
     for (const QVariant &cameraVar : cameras) {
         QVariantMap camera = cameraVar.toMap();
-        if (forDisk) {
-            camera[kPasswordProtectedKey] = SecretProtector::protect(camera.value(kPasswordKey).toString());
-            camera.remove(kPasswordKey);
-        } else {
-            camera[kPasswordKey] = SecretProtector::unprotect(camera.value(kPasswordProtectedKey).toString());
-            camera.remove(kPasswordProtectedKey);
+        for (const QString &key : secretKeys) {
+            const QString protectedKey = key + QLatin1String(kProtectedSuffix);
+            if (forDisk) {
+                camera[protectedKey] = SecretProtector::protect(camera.value(key).toString());
+                camera.remove(key);
+            } else {
+                camera[key] = SecretProtector::unprotect(camera.value(protectedKey).toString());
+                camera.remove(protectedKey);
+            }
         }
         converted.append(camera);
     }
@@ -166,6 +305,74 @@ QVariantMap VehicleModelManager::cameraUrls(const QString &type, const QString &
     return urls;
 }
 
+QString VehicleModelManager::importModels(const QString &filePath)
+{
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly)) {
+        return tr("Could not open the file: %1").arg(file.errorString());
+    }
+
+    QJsonParseError parseError;
+    const QJsonDocument document = QJsonDocument::fromJson(file.readAll(), &parseError);
+    if (parseError.error != QJsonParseError::NoError) {
+        return tr("The file is not valid JSON: %1").arg(parseError.errorString());
+    }
+
+    // A file holds either a list of models or a single model object.
+    const QJsonArray exchangeModels = document.isArray() ? document.array() : QJsonArray{document.object()};
+
+    const QVariantList previous = _models;
+    QStringList importedNames;
+    for (const QJsonValue &exchangeValue : exchangeModels) {
+        QVariantMap model = modelFromExchange(exchangeValue.toObject());
+        const QString name = model.value(QLatin1String(kNameKey)).toString();
+        if (name.isEmpty()) {
+            continue;
+        }
+        model[QString::fromLatin1(kNameKey)] = _uniqueName(name);
+        _models.append(model);
+        importedNames.append(model.value(QLatin1String(kNameKey)).toString());
+    }
+
+    if (importedNames.isEmpty()) {
+        return tr("No vehicle models found in the file.");
+    }
+    if (!_save()) {
+        _models = previous;
+        return tr("Could not write the vehicle models file.");
+    }
+
+    emit modelsChanged();
+    return tr("Imported: %1").arg(importedNames.join(QStringLiteral(", ")));
+}
+
+QString VehicleModelManager::exportModel(const QString &name, const QString &filePath) const
+{
+    const int index = _indexOf(name);
+    if (index < 0) {
+        return tr("Save the model before exporting it.");
+    }
+
+    QSaveFile file(filePath);
+    if (!file.open(QIODevice::WriteOnly)) {
+        return tr("Could not write the file: %1").arg(file.errorString());
+    }
+    (void) file.write(QJsonDocument(QJsonArray{modelToExchange(_models.at(index).toMap())}).toJson());
+    if (!file.commit()) {
+        return tr("Could not write the file: %1").arg(file.errorString());
+    }
+    return QString();
+}
+
+QString VehicleModelManager::_uniqueName(const QString &name) const
+{
+    QString candidate = name;
+    for (int suffix = 2; _indexOf(candidate) >= 0; suffix++) {
+        candidate = QStringLiteral("%1 (%2)").arg(name).arg(suffix);
+    }
+    return candidate;
+}
+
 int VehicleModelManager::_indexOf(const QString &name) const
 {
     if (name.isEmpty()) {
@@ -207,7 +414,7 @@ void VehicleModelManager::_load()
     const QVariantList stored = document.object().value(QLatin1String(kModelsKey)).toArray().toVariantList();
     for (const QVariant &modelVar : stored) {
         QVariantMap model = modelVar.toMap();
-        model[kCamerasKey] = convertCameraPasswords(model.value(kCamerasKey).toList(), false);
+        model[kCamerasKey] = convertCameraSecrets(model.value(kCamerasKey).toList(), false);
         _models.append(model);
     }
 }
@@ -217,7 +424,7 @@ bool VehicleModelManager::_save() const
     QVariantList stored;
     for (const QVariant &modelVar : _models) {
         QVariantMap model = modelVar.toMap();
-        model[kCamerasKey] = convertCameraPasswords(model.value(kCamerasKey).toList(), true);
+        model[kCamerasKey] = convertCameraSecrets(model.value(kCamerasKey).toList(), true);
         stored.append(model);
     }
 

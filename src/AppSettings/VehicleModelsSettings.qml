@@ -92,6 +92,26 @@ Rectangle {
 
     QGCPalette { id: qgcPal; colorGroupEnabled: true }
 
+    QGCFileDialog {
+        id:             fileDialog
+        title:          qsTr("Vehicle Model")
+        folder:         QGroundControl.settingsManager.appSettings.settingsSavePath
+        nameFilters:    [ qsTr("Vehicle Models (*.json)"), qsTr("All Files (*)") ]
+        defaultSuffix:  "json"
+
+        onAcceptedForLoad: (file) => {
+            close()
+            root._errorText = VehicleModelManager.importModels(file)
+        }
+
+        // Exports the stored model, so unsaved edits are not part of the file.
+        onAcceptedForSave: (file) => {
+            close()
+            let error = VehicleModelManager.exportModel(root._originalName, file)
+            root._errorText = error === "" ? qsTr("Exported to %1").arg(file) : error
+        }
+    }
+
     QGCFlickable {
         anchors.margins:    _margins
         anchors.fill:       parent
@@ -134,6 +154,24 @@ Rectangle {
                         text:               qsTr("Save")
                         primary:            true
                         onClicked:          root._save()
+                    }
+                }
+
+                RowLayout {
+                    Layout.fillWidth:   true
+                    spacing:            ScreenTools.defaultFontPixelWidth
+
+                    QGCButton {
+                        Layout.fillWidth:   true
+                        text:               qsTr("Import...")
+                        onClicked:          fileDialog.openForLoad()
+                    }
+
+                    QGCButton {
+                        Layout.fillWidth:   true
+                        text:               qsTr("Export...")
+                        enabled:            root._originalName !== ""
+                        onClicked:          fileDialog.openForSave()
                     }
                 }
 

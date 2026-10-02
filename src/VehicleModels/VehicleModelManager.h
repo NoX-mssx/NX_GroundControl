@@ -16,7 +16,7 @@ Q_DECLARE_LOGGING_CATEGORY(VehicleModelManagerLog)
 ///     { name, cameras: [{ type, name, ip, user, password, mainUrl, secondaryUrl, audio }],
 ///             buttons: [{ name, functions: [{ channel, kind: "pwm"|"gpio", value }] }] }
 ///
-/// Camera passwords are encrypted on disk, see SecretProtector.
+/// Camera passwords and stream URLs (which embed the credentials) are encrypted on disk, see SecretProtector.
 class VehicleModelManager : public QObject
 {
     Q_OBJECT
@@ -47,11 +47,22 @@ public:
     Q_INVOKABLE QVariantMap cameraUrls(const QString &type, const QString &ip, const QString &user,
                                        const QString &password) const;
 
+    /// Imports every model from a file in the exchange format (see exportModel). A model whose name is
+    /// already taken is imported under a numbered name rather than replacing the existing one.
+    /// @return a message for the user describing the outcome
+    Q_INVOKABLE QString importModels(const QString &filePath);
+
+    /// Writes one model to a JSON file in the exchange format, which keeps the field names of the files
+    /// QGC Nova writes so models can move between the two. Camera passwords are written as plain text.
+    /// @return an empty string on success, otherwise a message for the user
+    Q_INVOKABLE QString exportModel(const QString &name, const QString &filePath) const;
+
 signals:
     void modelsChanged();
 
 private:
     int _indexOf(const QString &name) const;
+    QString _uniqueName(const QString &name) const;
     void _load();
     bool _save() const;
     QString _filePath() const;
