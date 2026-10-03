@@ -4,6 +4,7 @@
 #include <QtCore/QElapsedTimer>
 #include <QtCore/QSettings>
 #include <QtCore/QString>
+#include <QtCore/QVariantMap>
 #include <QtQmlIntegration/QtQmlIntegration>
 
 class LinkInterface;
@@ -29,6 +30,8 @@ class LinkConfiguration : public QObject
     Q_PROPERTY(QString          vehicleModel    READ vehicleModel   WRITE setVehicleModel   NOTIFY vehicleModelChanged)
     /// WireGuard tunnel started before this link connects and stopped when it disconnects, empty for none
     Q_PROPERTY(QString          wireGuardTunnel     MEMBER _wireGuardTunnel     NOTIFY tunnelSettingsChanged)
+    /// Tunnel settings edited in the link dialog, see WireGuardTunnel::installFromSettings
+    Q_PROPERTY(QVariantMap      wireGuardSettings   MEMBER _wireGuardSettings   NOTIFY tunnelSettingsChanged)
     /// Address pinged to measure the link round trip time (the vehicle's router inside the tunnel), empty for none
     Q_PROPERTY(QString          pingAddress         MEMBER _pingAddress         NOTIFY tunnelSettingsChanged)
     /// Scale joystick throttle down while the ping is above the thresholds below
@@ -196,6 +199,7 @@ private:
     bool _highLatency = false;
     QString _vehicleModel;
     QString _wireGuardTunnel;
+    QVariantMap _wireGuardSettings;
     QString _pingAddress;
     bool _throttleLimitEnabled = false;
     int _pingThreshold1Ms = 300;

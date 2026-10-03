@@ -2,6 +2,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QString>
+#include <QtCore/QVariantMap>
 #include <QtQmlIntegration/QtQmlIntegration>
 
 /// Runs a link's WireGuard tunnel through WireGuard for Windows.
@@ -37,6 +38,23 @@ public:
     /// Registers (or replaces) a tunnel from a .conf file. Prompts for elevation.
     /// @return an empty string on success, otherwise a message for the user
     Q_INVOKABLE static QString install(const QString &tunnelName, const QString &confFilePath);
+
+    /// Tunnel settings as edited in the link dialog:
+    ///     { privateKey, address, dns, mtu, peerPublicKey, presharedKey, endpoint, allowedIps, keepalive }
+    /// All values are strings, in the same form as in a WireGuard .conf file.
+
+    /// Registers (or replaces) a tunnel from settings. Prompts for elevation.
+    /// @return an empty string on success, otherwise a message for the user
+    Q_INVOKABLE static QString installFromSettings(const QString &tunnelName, const QVariantMap &settings);
+
+    /// Reads the settings out of a WireGuard .conf file (first [Peer] only).
+    /// @return the settings, or an empty map if the file has no [Interface] private key
+    Q_INVOKABLE static QVariantMap settingsFromConfFile(const QString &confFilePath);
+
+    /// @return a new private key, empty if WireGuard's wg tool could not be run
+    Q_INVOKABLE static QString generatePrivateKey();
+    /// @return the public key matching a private key, empty if it is not a valid key
+    Q_INVOKABLE static QString publicKey(const QString &privateKey);
 
     /// Unregisters a tunnel and deletes its stored configuration. Prompts for elevation.
     /// @return an empty string on success, otherwise a message for the user

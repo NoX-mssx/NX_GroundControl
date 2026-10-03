@@ -115,6 +115,13 @@ SettingsGroupLayout {
             property var editingConfig
 
             onAccepted: {
+                // Register a new or changed tunnel first; if that fails the dialog stays open with the reason.
+                if (WireGuardTunnel.available && tunnelGroup.hasPeer && (tunnelGroup.dirty || editingConfig.wireGuardTunnel === "")) {
+                    if (!tunnelGroup.apply()) {
+                        preventClose = true
+                        return
+                    }
+                }
                 linkSettingsLoader.item.saveSettings()
                 editingConfig.name = nameField.text
                 if (originalConfig) {
@@ -170,20 +177,129 @@ SettingsGroupLayout {
                 }
 
                 SettingsGroupLayout {
+                    id:                 tunnelGroup
                     Layout.fillWidth:   true
                     heading:            qsTr("WireGuard Tunnel")
                     visible:            WireGuardTunnel.available
 
+                    // Working copy of editingConfig.wireGuardSettings; every edit writes the whole map back.
+                    property var    settings:   ({})
+                    property string publicKey:  ""
+                    property string message:    ""
+                    /// Fields changed since the tunnel was last registered with Windows
+                    property bool   dirty:      false
+                    readonly property bool hasPeer: (settings.peerPublicKey ?? "") !== ""
+
+                    function setValue(key, value) {
+                        let updated = Object.assign({}, settings)
+                        updated[key] = value
+                        settings = updated
+                        editingConfig.wireGuardSettings = updated
+                        dirty = true
+                        if (key === "privateKey") {
+                            publicKey = WireGuardTunnel.publicKey(value)
+                        }
+                    }
+
+                    function loadSettings(newSettings) {
+                        settings = Object.assign({}, newSettings)
+                        editingConfig.wireGuardSettings = settings
+                        publicKey = WireGuardTunnel.publicKey(settings.privateKey ?? "")
+                    }
+
+                    /// Registers the tunnel with Windows. @return true on success
+                    function apply() {
+                        let tunnel = editingConfig.wireGuardTunnel !== "" ? editingConfig.wireGuardTunnel
+                                                                          : WireGuardTunnel.tunnelNameForLink(nameField.text)
+                        message = WireGuardTunnel.installFromSettings(tunnel, settings)
+                        if (message !== "") {
+                            return false
+                        }
+                        editingConfig.wireGuardTunnel = tunnel
+                        dirty = false
+                        return true
+                    }
+
+                    Component.onCompleted: {
+                        loadSettings(editingConfig.wireGuardSettings)
+                        // A link gets its key pair the first time its settings are opened.
+                        if ((settings.privateKey ?? "") === "") {
+                            setValue("privateKey", WireGuardTunnel.generatePrivateKey())
+                            dirty = false
+                        }
+                    }
+
                     QGCLabel {
-                        id:                 tunnelStatusLabel
                         Layout.fillWidth:   true
                         wrapMode:           Text.WordWrap
+                        text:               qsTr("Public key of this PC (add it as a peer on the server):")
+                    }
 
-                        property string message: ""
+                    RowLayout {
+                        Layout.fillWidth:   true
+                        spacing:            ScreenTools.defaultFontPixelWidth
 
-                        text: message !== "" ? message
-                                             : (editingConfig.wireGuardTunnel === "" ? qsTr("No tunnel. The link connects over whatever network is up.")
-                                                                                      : qsTr("Tunnel %1 starts when this link connects.").arg(editingConfig.wireGuardTunnel))
+                        QGCTextField {
+                            Layout.fillWidth:   true
+                            text:               tunnelGroup.publicKey
+                            readOnly:           true
+                        }
+
+                        QGCButton {
+                            text:       qsTr("Copy")
+                            enabled:    tunnelGroup.publicKey !== ""
+                            onClicked:  QGroundControl.copyToClipboard(tunnelGroup.publicKey)
+                        }
+                    }
+
+                    Repeater {
+                        model: [
+                            { key: "address",       label: qsTr("Address"),             hint: "10.30.1.252/24" },
+                            { key: "peerPublicKey", label: qsTr("Server public key"),   hint: "" },
+                            { key: "endpoint",      label: qsTr("Endpoint"),            hint: "203.0.113.5:51821" },
+                            { key: "allowedIps",    label: qsTr("Allowed IPs"),         hint: "10.30.1.0/24, 192.168.106.0/24" },
+                            { key: "keepalive",     label: qsTr("Persistent keepalive"), hint: "25" },
+                            { key: "presharedKey",  label: qsTr("Preshared key"),       hint: qsTr("optional") },
+                            { key: "dns",           label: qsTr("DNS"),                 hint: qsTr("optional") },
+                            { key: "mtu",           label: qsTr("MTU"),                 hint: qsTr("optional") }
+                        ]
+
+                        RowLayout {
+                            required property var modelData
+
+                            Layout.fillWidth:   true
+                            spacing:            ScreenTools.defaultFontPixelWidth
+
+                            QGCLabel {
+                                Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 20
+                                text:                   modelData.label
+                            }
+
+                            QGCTextField {
+                                Layout.fillWidth:   true
+                                text:               tunnelGroup.settings[modelData.key] ?? ""
+                                placeholderText:    modelData.hint
+                                onTextEdited:       tunnelGroup.setValue(modelData.key, text)
+                            }
+                        }
+                    }
+
+                    QGCLabel {
+                        Layout.fillWidth:   true
+                        wrapMode:           Text.WordWrap
+                        color:              tunnelGroup.message !== "" ? QGroundControl.globalPalette.colorOrange : QGroundControl.globalPalette.text
+                        text: {
+                            if (tunnelGroup.message !== "") {
+                                return tunnelGroup.message
+                            }
+                            if (!tunnelGroup.hasPeer) {
+                                return qsTr("No tunnel. The link connects over whatever network is up.")
+                            }
+                            if (tunnelGroup.dirty || editingConfig.wireGuardTunnel === "") {
+                                return qsTr("Saving the link will register this tunnel with Windows (administrator rights are requested once).")
+                            }
+                            return qsTr("Tunnel %1 starts when this link connects.").arg(editingConfig.wireGuardTunnel)
+                        }
                     }
 
                     RowLayout {
@@ -193,8 +309,13 @@ SettingsGroupLayout {
                         QGCButton {
                             Layout.fillWidth:   true
                             text:               qsTr("Import .conf...")
-                            enabled:            nameField.text !== ""
                             onClicked:          tunnelFileDialog.openForLoad()
+                        }
+
+                        QGCButton {
+                            Layout.fillWidth:   true
+                            text:               qsTr("New Key")
+                            onClicked:          tunnelGroup.setValue("privateKey", WireGuardTunnel.generatePrivateKey())
                         }
 
                         QGCButton {
@@ -202,9 +323,10 @@ SettingsGroupLayout {
                             text:               qsTr("Remove Tunnel")
                             enabled:            editingConfig.wireGuardTunnel !== ""
                             onClicked: {
-                                tunnelStatusLabel.message = WireGuardTunnel.remove(editingConfig.wireGuardTunnel)
-                                if (tunnelStatusLabel.message === "") {
+                                tunnelGroup.message = WireGuardTunnel.remove(editingConfig.wireGuardTunnel)
+                                if (tunnelGroup.message === "") {
                                     editingConfig.wireGuardTunnel = ""
+                                    tunnelGroup.dirty = tunnelGroup.hasPeer
                                 }
                             }
                         }
@@ -216,15 +338,17 @@ SettingsGroupLayout {
                         folder:         QGroundControl.settingsManager.appSettings.settingsSavePath
                         nameFilters:    [ qsTr("WireGuard Configuration (*.conf)"), qsTr("All Files (*)") ]
 
+                        // Fills the fields from an existing tunnel file, keeping its key pair.
                         onAcceptedForLoad: (file) => {
                             close()
-                            // A link keeps its tunnel name once it has one, so re-importing replaces the tunnel.
-                            let tunnel = editingConfig.wireGuardTunnel !== "" ? editingConfig.wireGuardTunnel
-                                                                              : WireGuardTunnel.tunnelNameForLink(nameField.text)
-                            tunnelStatusLabel.message = WireGuardTunnel.install(tunnel, file)
-                            if (tunnelStatusLabel.message === "") {
-                                editingConfig.wireGuardTunnel = tunnel
+                            let imported = WireGuardTunnel.settingsFromConfFile(file)
+                            if (imported.privateKey === undefined) {
+                                tunnelGroup.message = qsTr("The file is not a WireGuard configuration.")
+                                return
                             }
+                            tunnelGroup.message = ""
+                            tunnelGroup.loadSettings(imported)
+                            tunnelGroup.dirty = true
                         }
                     }
                 }

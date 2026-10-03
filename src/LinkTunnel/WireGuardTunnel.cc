@@ -2,8 +2,13 @@
 #include "QGCLoggingCategory.h"
 
 #include <QtCore/QDir>
+#include <QtCore/QFile>
 #include <QtCore/QFileInfo>
+#include <QtCore/QHash>
+#include <QtCore/QProcess>
 #include <QtCore/QRegularExpression>
+#include <QtCore/QStandardPaths>
+#include <QtCore/QTemporaryFile>
 #include <QtCore/QThread>
 
 #ifdef Q_OS_WIN
@@ -82,6 +87,42 @@ DWORD serviceState(SC_HANDLE service)
 }
 
 #endif // Q_OS_WIN
+
+/// Runs WireGuard's wg tool, feeding it @p input, and returns its trimmed output (empty on failure).
+QString runWg(const QStringList &arguments, const QByteArray &input = QByteArray())
+{
+#ifdef Q_OS_WIN
+    const QString wgPath = QDir(qEnvironmentVariable("ProgramFiles")).filePath(QStringLiteral("WireGuard/wg.exe"));
+    if (!QFileInfo::exists(wgPath)) {
+        return QString();
+    }
+
+    constexpr int kTimeoutMs = 5000;
+    QProcess process;
+    process.start(wgPath, arguments);
+    if (!process.waitForStarted(kTimeoutMs)) {
+        return QString();
+    }
+    if (!input.isEmpty()) {
+        (void) process.write(input);
+    }
+    process.closeWriteChannel();
+    if (!process.waitForFinished(kTimeoutMs) || (process.exitStatus() != QProcess::NormalExit) || (process.exitCode() != 0)) {
+        process.kill();
+        return QString();
+    }
+    return QString::fromLatin1(process.readAllStandardOutput()).trimmed();
+#else
+    Q_UNUSED(arguments);
+    Q_UNUSED(input);
+    return QString();
+#endif
+}
+
+QString settingValue(const QVariantMap &settings, const char *key)
+{
+    return settings.value(QLatin1String(key)).toString().trimmed();
+}
 
 // WireGuard for Windows accepts [a-zA-Z0-9_=+.-]{1,32} as a tunnel name.
 constexpr int kMaxTunnelNameLength = 32;
@@ -167,6 +208,132 @@ QString WireGuardTunnel::install(const QString &tunnelName, const QString &confF
     Q_UNUSED(confFilePath);
     return tr("WireGuard tunnels are only supported on Windows.");
 #endif
+}
+
+QString WireGuardTunnel::installFromSettings(const QString &tunnelName, const QVariantMap &settings)
+{
+    const QString privateKey = settingValue(settings, "privateKey");
+    const QString address = settingValue(settings, "address");
+    const QString peerPublicKey = settingValue(settings, "peerPublicKey");
+    const QString endpoint = settingValue(settings, "endpoint");
+    const QString allowedIps = settingValue(settings, "allowedIps");
+    if (privateKey.isEmpty() || address.isEmpty() || peerPublicKey.isEmpty() || endpoint.isEmpty() || allowedIps.isEmpty()) {
+        return tr("Fill in the address, the peer public key, the endpoint and the allowed IPs.");
+    }
+
+    QStringList lines = {
+        QStringLiteral("[Interface]"),
+        QStringLiteral("PrivateKey = ") + privateKey,
+        QStringLiteral("Address = ") + address,
+    };
+    if (const QString dns = settingValue(settings, "dns"); !dns.isEmpty()) {
+        lines.append(QStringLiteral("DNS = ") + dns);
+    }
+    if (const QString mtu = settingValue(settings, "mtu"); !mtu.isEmpty()) {
+        lines.append(QStringLiteral("MTU = ") + mtu);
+    }
+    lines.append(QString());
+    lines.append(QStringLiteral("[Peer]"));
+    lines.append(QStringLiteral("PublicKey = ") + peerPublicKey);
+    if (const QString presharedKey = settingValue(settings, "presharedKey"); !presharedKey.isEmpty()) {
+        lines.append(QStringLiteral("PresharedKey = ") + presharedKey);
+    }
+    lines.append(QStringLiteral("Endpoint = ") + endpoint);
+    lines.append(QStringLiteral("AllowedIPs = ") + allowedIps);
+    if (const QString keepalive = settingValue(settings, "keepalive"); !keepalive.isEmpty()) {
+        lines.append(QStringLiteral("PersistentKeepalive = ") + keepalive);
+    }
+
+    // The elevated installer copies this into the protected tunnel directory; the temporary copy, which
+    // holds the private key, is removed again when this function returns.
+    QTemporaryFile confFile(QDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation)).filePath(QStringLiteral("nx-tunnel-XXXXXX.conf")));
+    if (!confFile.open()) {
+        return tr("Could not write the tunnel configuration.");
+    }
+    (void) confFile.write(lines.join(QLatin1Char('\n')).toUtf8());
+    (void) confFile.write("\n");
+    confFile.close();
+
+    return install(tunnelName, confFile.fileName());
+}
+
+QVariantMap WireGuardTunnel::settingsFromConfFile(const QString &confFilePath)
+{
+    QFile file(confFilePath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return QVariantMap();
+    }
+
+    static const QHash<QString, QString> interfaceKeys = {
+        {QStringLiteral("privatekey"), QStringLiteral("privateKey")},
+        {QStringLiteral("address"), QStringLiteral("address")},
+        {QStringLiteral("dns"), QStringLiteral("dns")},
+        {QStringLiteral("mtu"), QStringLiteral("mtu")},
+    };
+    static const QHash<QString, QString> peerKeys = {
+        {QStringLiteral("publickey"), QStringLiteral("peerPublicKey")},
+        {QStringLiteral("presharedkey"), QStringLiteral("presharedKey")},
+        {QStringLiteral("endpoint"), QStringLiteral("endpoint")},
+        {QStringLiteral("allowedips"), QStringLiteral("allowedIps")},
+        {QStringLiteral("persistentkeepalive"), QStringLiteral("keepalive")},
+    };
+
+    QVariantMap settings;
+    const QHash<QString, QString> *sectionKeys = nullptr;
+    int peerCount = 0;
+
+    const QStringList lines = QString::fromUtf8(file.readAll()).split(QLatin1Char('\n'));
+    for (const QString &rawLine : lines) {
+        const QString line = rawLine.section(QLatin1Char('#'), 0, 0).trimmed();
+        if (line.isEmpty()) {
+            continue;
+        }
+        if (line.startsWith(QLatin1Char('['))) {
+            const QString section = line.toLower();
+            if (section == QLatin1String("[interface]")) {
+                sectionKeys = &interfaceKeys;
+            } else if (section == QLatin1String("[peer]")) {
+                // Only the first peer is represented in the settings.
+                sectionKeys = (peerCount++ == 0) ? &peerKeys : nullptr;
+            } else {
+                sectionKeys = nullptr;
+            }
+            continue;
+        }
+        if (!sectionKeys) {
+            continue;
+        }
+
+        // Split on the first '=' only: base64 keys end in '='.
+        const qsizetype separator = line.indexOf(QLatin1Char('='));
+        if (separator <= 0) {
+            continue;
+        }
+        const QString key = line.left(separator).trimmed().toLower();
+        const QString value = line.mid(separator + 1).trimmed();
+        const auto it = sectionKeys->constFind(key);
+        if (it == sectionKeys->constEnd()) {
+            continue;
+        }
+        // Address/AllowedIPs/DNS may be repeated across lines; a .conf treats that as one list.
+        const QString existing = settings.value(*it).toString();
+        settings[*it] = existing.isEmpty() ? value : (existing + QStringLiteral(", ") + value);
+    }
+
+    return settings.contains(QStringLiteral("privateKey")) ? settings : QVariantMap();
+}
+
+QString WireGuardTunnel::generatePrivateKey()
+{
+    return runWg({QStringLiteral("genkey")});
+}
+
+QString WireGuardTunnel::publicKey(const QString &privateKey)
+{
+    if (privateKey.trimmed().isEmpty()) {
+        return QString();
+    }
+    return runWg({QStringLiteral("pubkey")}, privateKey.trimmed().toLatin1() + '\n');
 }
 
 QString WireGuardTunnel::remove(const QString &tunnelName)

@@ -1,5 +1,6 @@
 #include "LinkConfiguration.h"
 #include "QGCLoggingCategory.h"
+#include "SecretProtector.h"
 #ifndef QGC_NO_SERIAL_LINK
 #include "SerialLink.h"
 #endif
@@ -10,6 +11,9 @@
 #ifdef QT_DEBUG
 #include "MockLink.h"
 #endif
+
+#include <QtCore/QJsonDocument>
+#include <QtCore/QJsonObject>
 
 QGC_LOGGING_CATEGORY(LinkConfigurationLog, "Comms.LinkConfiguration")
 
@@ -29,6 +33,7 @@ LinkConfiguration::LinkConfiguration(const LinkConfiguration *copy, QObject *par
     , _highLatency(copy->isHighLatency())
     , _vehicleModel(copy->vehicleModel())
     , _wireGuardTunnel(copy->_wireGuardTunnel)
+    , _wireGuardSettings(copy->_wireGuardSettings)
     , _pingAddress(copy->_pingAddress)
     , _throttleLimitEnabled(copy->_throttleLimitEnabled)
     , _pingThreshold1Ms(copy->_pingThreshold1Ms)
@@ -58,6 +63,7 @@ void LinkConfiguration::copyFrom(const LinkConfiguration *source)
     setVehicleModel(source->vehicleModel());
 
     _wireGuardTunnel = source->_wireGuardTunnel;
+    _wireGuardSettings = source->_wireGuardSettings;
     _pingAddress = source->_pingAddress;
     _throttleLimitEnabled = source->_throttleLimitEnabled;
     _pingThreshold1Ms = source->_pingThreshold1Ms;
@@ -67,9 +73,24 @@ void LinkConfiguration::copyFrom(const LinkConfiguration *source)
     emit tunnelSettingsChanged();
 }
 
+static QStringList wireGuardSecretKeys()
+{
+    return {QStringLiteral("privateKey"), QStringLiteral("presharedKey")};
+}
+
 void LinkConfiguration::loadTunnelSettings(const QSettings &settings, const QString &root)
 {
     _wireGuardTunnel = settings.value(root + QStringLiteral("/wireguard_tunnel")).toString();
+
+    // The keys are stored encrypted (see SecretProtector), the other tunnel settings as plain JSON.
+    _wireGuardSettings = QJsonDocument::fromJson(settings.value(root + QStringLiteral("/wireguard_settings")).toByteArray()).object().toVariantMap();
+    for (const QString &secretKey : wireGuardSecretKeys()) {
+        const QString protectedKey = secretKey + QStringLiteral("Protected");
+        const QString secret = SecretProtector::unprotect(_wireGuardSettings.take(protectedKey).toString());
+        if (!secret.isEmpty()) {
+            _wireGuardSettings[secretKey] = secret;
+        }
+    }
     _pingAddress = settings.value(root + QStringLiteral("/ping_address")).toString();
     _throttleLimitEnabled = settings.value(root + QStringLiteral("/throttle_limit")).toBool();
     _pingThreshold1Ms = settings.value(root + QStringLiteral("/ping_threshold_1"), _pingThreshold1Ms).toInt();
@@ -82,6 +103,15 @@ void LinkConfiguration::loadTunnelSettings(const QSettings &settings, const QStr
 void LinkConfiguration::saveTunnelSettings(QSettings &settings, const QString &root) const
 {
     settings.setValue(root + QStringLiteral("/wireguard_tunnel"), _wireGuardTunnel);
+
+    QVariantMap stored = _wireGuardSettings;
+    for (const QString &secretKey : wireGuardSecretKeys()) {
+        const QString secret = stored.take(secretKey).toString();
+        if (!secret.isEmpty()) {
+            stored[secretKey + QStringLiteral("Protected")] = SecretProtector::protect(secret);
+        }
+    }
+    settings.setValue(root + QStringLiteral("/wireguard_settings"), QJsonDocument(QJsonObject::fromVariantMap(stored)).toJson(QJsonDocument::Compact));
     settings.setValue(root + QStringLiteral("/ping_address"), _pingAddress);
     settings.setValue(root + QStringLiteral("/throttle_limit"), _throttleLimitEnabled);
     settings.setValue(root + QStringLiteral("/ping_threshold_1"), _pingThreshold1Ms);
