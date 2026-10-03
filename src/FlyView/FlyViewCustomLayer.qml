@@ -122,10 +122,118 @@ Item {
 
         QGCButton {
             width:      ScreenTools.defaultFontPixelWidth * 8
+            text:       qsTr("Control")
+            checkable:  true
+            checked:    cameraCommandPanel.visible
+            onClicked: {
+                cameraSelectionPanel.visible = false
+                cameraCommandPanel.visible = !cameraCommandPanel.visible
+            }
+        }
+
+        QGCButton {
+            width:      ScreenTools.defaultFontPixelWidth * 8
             text:       qsTr("Cams")
             checkable:  true
             checked:    cameraSelectionPanel.visible
-            onClicked:  cameraSelectionPanel.visible = !cameraSelectionPanel.visible
+            onClicked: {
+                cameraCommandPanel.visible = false
+                cameraSelectionPanel.visible = !cameraSelectionPanel.visible
+            }
+        }
+    }
+
+    // Day/night, illuminator and reboot commands for every camera of the model
+    Rectangle {
+        id:                     cameraCommandPanel
+        anchors.right:          cameraControls.left
+        anchors.rightMargin:    ScreenTools.defaultFontPixelWidth
+        anchors.verticalCenter: cameraControls.verticalCenter
+        width:                  cameraCommandColumn.width + (ScreenTools.defaultFontPixelWidth * 2)
+        height:                 cameraCommandColumn.height + ScreenTools.defaultFontPixelHeight
+        radius:                 ScreenTools.defaultFontPixelHeight / 4
+        color:                  qgcPal.window
+        border.color:           qgcPal.groupBorder
+        visible:                false
+
+        readonly property real _buttonWidth: ScreenTools.defaultFontPixelWidth * 18
+        // Camera index whose Reboot was pressed once and is waiting for the confirming second press
+        property int _rebootArmedIndex: -1
+
+        Timer {
+            id:             rebootDisarmTimer
+            interval:       4000
+            onTriggered:    cameraCommandPanel._rebootArmedIndex = -1
+        }
+
+        Column {
+            id:                 cameraCommandColumn
+            anchors.centerIn:   parent
+            spacing:            ScreenTools.defaultFontPixelHeight / 2
+
+            Row {
+                id:         cameraCommandRow
+                spacing:    ScreenTools.defaultFontPixelWidth * 2
+
+                Repeater {
+                    model: VehicleModelManager.activeModel.cameras || []
+
+                    Column {
+                        id: cameraCommands
+
+                        required property var modelData
+                        required property int index
+
+                        spacing: ScreenTools.defaultFontPixelHeight / 3
+
+                        QGCLabel {
+                            text:       cameraCommands.modelData.name !== "" ? cameraCommands.modelData.name : qsTr("Camera %1").arg(cameraCommands.index + 1)
+                            font.bold:  true
+                        }
+
+                        Repeater {
+                            model: [
+                                { command: "day",   label: qsTr("Day Mode") },
+                                { command: "night", label: qsTr("Night Mode") },
+                                { command: "irOn",  label: qsTr("IR Light On") },
+                                { command: "irOff", label: qsTr("IR Light Off") }
+                            ]
+
+                            QGCButton {
+                                required property var modelData
+
+                                width:      cameraCommandPanel._buttonWidth
+                                text:       modelData.label
+                                onClicked:  CameraControl.run(cameraCommands.modelData, modelData.command)
+                            }
+                        }
+
+                        // A reboot drops the video for about a minute, so it takes two presses.
+                        QGCButton {
+                            readonly property bool armed: cameraCommandPanel._rebootArmedIndex === cameraCommands.index
+
+                            width:  cameraCommandPanel._buttonWidth
+                            text:   armed ? qsTr("Confirm Reboot") : qsTr("Reboot")
+                            onClicked: {
+                                if (armed) {
+                                    cameraCommandPanel._rebootArmedIndex = -1
+                                    CameraControl.run(cameraCommands.modelData, "reboot")
+                                } else {
+                                    cameraCommandPanel._rebootArmedIndex = cameraCommands.index
+                                    rebootDisarmTimer.restart()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            QGCLabel {
+                width:      cameraCommandRow.width
+                wrapMode:   Text.WordWrap
+                text:       CameraControl.busy ? qsTr("Sending...") : CameraControl.status
+                visible:    text !== ""
+            }
         }
     }
 

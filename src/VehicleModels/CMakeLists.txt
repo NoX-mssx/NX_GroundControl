@@ -1,5 +1,7 @@
 target_sources(${CMAKE_PROJECT_NAME}
     PRIVATE
+        CameraControl.cc
+        CameraControl.h
         SecretProtector.cc
         SecretProtector.h
         VehicleModelManager.cc
