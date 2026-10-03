@@ -4,6 +4,7 @@
 #include <chrono>
 
 #include <QtCore/QFuture>
+#include <QtCore/QHash>
 #include <QtCore/QMutex>
 #include <QtCore/QPromise>
 #include <QtCore/QObject>
@@ -57,6 +58,10 @@ public:
     Q_INVOKABLE void startVideo();
     Q_INVOKABLE void stopRecording();
     Q_INVOKABLE void stopVideo();
+
+    /// Sets the stream shown by an auxiliary video item (objectName "auxVideo<index + 1>").
+    /// An empty URI stops that stream.
+    void setAuxiliaryVideoUri(int index, const QString &uri);
 
     void init(QQuickWindow *mainWindow);
     void startVideoBackendInit();
@@ -126,6 +131,7 @@ private:
     static void _cleanupOldVideos();
 
     QList<VideoReceiver*> _videoReceivers;
+    QHash<QString, QString> _auxiliaryUris;     ///< Requested URI per auxiliary receiver name
     SubtitleWriter *_subtitleWriter = nullptr;
     VideoSettings *_videoSettings = nullptr;
     QQuickWindow *_mainWindow = nullptr;

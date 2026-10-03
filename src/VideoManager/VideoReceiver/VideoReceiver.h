@@ -24,6 +24,9 @@ public:
     {}
 
     bool isThermal() const { return (_name == QStringLiteral("thermalVideo")); }
+    /// Extra streams shown next to the main video; their URI is set directly rather than derived from settings.
+    bool isAuxiliary() const { return _name.startsWith(QStringLiteral("auxVideo")); }
+    bool isPrimary() const { return !isThermal() && !isAuxiliary(); }
 
     VideoSinkHandle sink() const { return _sink; }
     QQuickItem *widget() { return _widget; }

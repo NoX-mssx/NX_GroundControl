@@ -94,6 +94,7 @@ Item {
             anchors.left:           parent.left
             anchors.bottom:         parent.bottom
             anchors.margins:        _toolsMargin
+            anchors.bottomMargin:   _toolsMargin + customOverlay.bottomLeftReservedHeight
             item1IsFullSettingsKey: "MainFlyWindowIsMap"
             item1:                  mapControl
             item2:                  QGroundControl.videoManager.hasVideo ? videoControl : null
@@ -102,7 +103,7 @@ Item {
             z:                      QGroundControl.zOrderWidgets
 
             property real leftEdgeBottomInset: visible ? width + anchors.margins : 0
-            property real bottomEdgeLeftInset: visible ? height + anchors.margins : 0
+            property real bottomEdgeLeftInset: visible ? height + anchors.bottomMargin : 0
         }
 
         FlyViewWidgetLayer {

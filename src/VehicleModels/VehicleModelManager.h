@@ -30,6 +30,13 @@ class VehicleModelManager : public QObject
     Q_PROPERTY(QStringList  modelNames  READ modelNames     NOTIFY modelsChanged)
     Q_PROPERTY(QStringList  cameraTypes READ cameraTypes    CONSTANT)
     Q_PROPERTY(QVariantMap  activeModel READ activeModel    NOTIFY activeModelChanged)
+    /// Cameras of the active model with their display state: [{ name, enabled, main }]
+    Q_PROPERTY(QVariantList cameraStates        READ cameraStates       NOTIFY cameraStatesChanged)
+    /// Camera index shown by each auxiliary video item, -1 for an unused item
+    Q_PROPERTY(QList<int>   auxiliaryCameras    READ auxiliaryCameras   NOTIFY cameraStatesChanged)
+    Q_PROPERTY(QString      mainCameraName      READ mainCameraName     NOTIFY cameraStatesChanged)
+    /// true: every camera plays its secondary (SD) stream instead of the main (HD) one
+    Q_PROPERTY(bool         secondaryStream     READ secondaryStream    WRITE setSecondaryStream NOTIFY secondaryStreamChanged)
 
 public:
     explicit VehicleModelManager(QObject *parent = nullptr);
@@ -40,6 +47,20 @@ public:
 
     /// Model selected in the link configuration of the active vehicle's primary link, empty if none.
     QVariantMap activeModel() const { return _activeModel; }
+
+    QVariantList cameraStates() const;
+    QList<int> auxiliaryCameras() const;
+    QString mainCameraName() const;
+    bool secondaryStream() const { return _secondaryStream; }
+    void setSecondaryStream(bool secondaryStream);
+
+    /// Shows or hides a camera. The main camera cannot be hidden.
+    Q_INVOKABLE void setCameraEnabled(int cameraIndex, bool enabled);
+    /// Moves a camera to the main video; the previous main camera takes an auxiliary item.
+    Q_INVOKABLE void setMainCamera(int cameraIndex);
+
+    /// Number of auxiliary video items in the fly view
+    static constexpr int kAuxiliaryCameraCount = 2;
 
     /// Sends every output of a model button to the active vehicle: a servo PWM value or a relay state.
     Q_INVOKABLE void runButton(const QVariantMap &button) const;
@@ -71,6 +92,8 @@ public:
 signals:
     void modelsChanged();
     void activeModelChanged();
+    void cameraStatesChanged();
+    void secondaryStreamChanged();
 
 private slots:
     void _activeVehicleChanged(Vehicle *vehicle);
@@ -79,6 +102,9 @@ private slots:
 private:
     int _indexOf(const QString &name) const;
     QString _uniqueName(const QString &name) const;
+    QVariantList _activeCameras() const;
+    QString _cameraUri(int cameraIndex) const;
+    void _applyCameraStreams();
     void _load();
     bool _save() const;
     QString _filePath() const;
@@ -86,4 +112,7 @@ private:
     QVariantList _models;
     QVariantMap _activeModel;
     QPointer<Vehicle> _activeVehicle;
+    QList<bool> _cameraEnabled;         ///< Per camera of the active model
+    int _mainCameraIndex = 0;
+    bool _secondaryStream = false;
 };

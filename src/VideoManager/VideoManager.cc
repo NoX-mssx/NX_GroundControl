@@ -280,7 +280,9 @@ void VideoManager::_createVideoReceivers()
 #endif
     static const QStringList videoStreamList = {
         "videoContent",
-        "thermalVideo"
+        "thermalVideo",
+        "auxVideo1",
+        "auxVideo2"
     };
 
     QStringList existing;
@@ -414,7 +416,7 @@ double VideoManager::aspectRatio() const
 
     for (VideoReceiver *receiver : _videoReceivers) {
         QGCVideoStreamInfo *pInfo = receiver->videoStreamInfo();
-        if (!receiver->isThermal() && pInfo && !pInfo->isThermal()) {
+        if (receiver->isPrimary() && pInfo && !pInfo->isThermal()) {
             return pInfo->aspectRatio();
         }
     }
@@ -438,7 +440,7 @@ double VideoManager::hfov() const
 {
     for (VideoReceiver *receiver : _videoReceivers) {
         QGCVideoStreamInfo *pInfo = receiver->videoStreamInfo();
-        if (!receiver->isThermal() && pInfo && !pInfo->isThermal()) {
+        if (receiver->isPrimary() && pInfo && !pInfo->isThermal()) {
             return pInfo->hfov();
         }
     }
@@ -519,7 +521,9 @@ void VideoManager::_videoSourceChanged()
         QGCCameraManager* camMgr = _activeVehicle->cameraManager();
         for (VideoReceiver *receiver : std::as_const(_videoReceivers)) {
             QGCVideoStreamInfo* info = nullptr;
-            if (receiver->isThermal()) {
+            if (receiver->isAuxiliary()) {
+                info = nullptr;
+            } else if (receiver->isThermal()) {
                 info = camMgr ? camMgr->thermalStreamInstance() : nullptr;
             } else {
                 info = camMgr ? camMgr->currentStreamInstance() : nullptr;
@@ -578,7 +582,7 @@ bool VideoManager::autoStreamConfigured() const
 {
     for (VideoReceiver *receiver : _videoReceivers) {
         QGCVideoStreamInfo *pInfo = receiver->videoStreamInfo();
-        if (!receiver->isThermal() && pInfo && !pInfo->isThermal()) {
+        if (receiver->isPrimary() && pInfo && !pInfo->isThermal()) {
             return !pInfo->uri().isEmpty();
         }
     }
@@ -630,7 +634,7 @@ bool VideoManager::_updateAutoStream(VideoReceiver *receiver)
 
     const bool settingsChanged = _updateVideoUri(receiver, url);
     if (settingsChanged) {
-        if (!receiver->isThermal()) {
+        if (receiver->isPrimary()) {
             _videoSettings->videoSource()->setRawValue(source);
         }
 
@@ -685,7 +689,7 @@ bool VideoManager::_updateSettings(VideoReceiver *receiver)
         // No settingsChanged: autoReconnect is live, doesn't require pipeline restart.
     }
 
-    if (receiver->isThermal()) {
+    if (!receiver->isPrimary()) {
         return settingsChanged;
     }
 
@@ -758,7 +762,9 @@ void VideoManager::_setActiveVehicle(Vehicle *vehicle)
         }
 
         for (VideoReceiver *receiver : std::as_const(_videoReceivers)) {
-            if (_activeVehicle->cameraManager()) {
+            if (receiver->isAuxiliary()) {
+                receiver->setVideoStreamInfo(nullptr);
+            } else if (_activeVehicle->cameraManager()) {
                 if (receiver->isThermal()) {
                     receiver->setVideoStreamInfo(_activeVehicle->cameraManager()->thermalStreamInstance());
                 } else {
@@ -913,7 +919,7 @@ void VideoManager::_initVideoReceiver(VideoReceiver *receiver, QQuickWindow *win
 
     (void) connect(receiver, &VideoReceiver::streamingChanged, this, [this, receiver](bool active) {
         qCDebug(VideoManagerLog) << "Video" << receiver->name() << "streaming changed, active:" << (active ? "yes" : "no");
-        if (!receiver->isThermal()) {
+        if (receiver->isPrimary()) {
             _streaming = active;
             emit streamingChanged();
         }
@@ -921,7 +927,7 @@ void VideoManager::_initVideoReceiver(VideoReceiver *receiver, QQuickWindow *win
 
     (void) connect(receiver, &VideoReceiver::decodingChanged, this, [this, receiver](bool active) {
         qCDebug(VideoManagerLog) << "Video" << receiver->name() << "decoding changed, active:" << (active ? "yes" : "no");
-        if (!receiver->isThermal()) {
+        if (receiver->isPrimary()) {
             _decoding = active;
             emit decodingChanged();
         }
@@ -929,7 +935,7 @@ void VideoManager::_initVideoReceiver(VideoReceiver *receiver, QQuickWindow *win
 
     (void) connect(receiver, &VideoReceiver::recordingChanged, this, [this, receiver](bool active) {
         qCDebug(VideoManagerLog) << "Video" << receiver->name() << "recording changed, active:" << (active ? "yes" : "no");
-        if (!receiver->isThermal()) {
+        if (receiver->isPrimary()) {
             _recording = active;
             if (!active) {
                 _subtitleWriter->stopCapturingTelemetry();
@@ -940,14 +946,14 @@ void VideoManager::_initVideoReceiver(VideoReceiver *receiver, QQuickWindow *win
 
     (void) connect(receiver, &VideoReceiver::recordingStarted, this, [this, receiver](const QString &filename) {
         qCDebug(VideoManagerLog) << "Video" << receiver->name() << "recording started";
-        if (!receiver->isThermal()) {
+        if (receiver->isPrimary()) {
             _subtitleWriter->startCapturingTelemetry(filename, videoSize());
         }
     });
 
     (void) connect(receiver, &VideoReceiver::videoSizeChanged, this, [this, receiver](QSize size) {
         qCDebug(VideoManagerLog) << "Video" << receiver->name() << "resized. New resolution:" << size.width() << "x" << size.height();
-        if (!receiver->isThermal()) {
+        if (receiver->isPrimary()) {
             _videoSize = size;
             emit videoSizeChanged();
             emit aspectRatioChanged();
@@ -971,8 +977,31 @@ void VideoManager::_initVideoReceiver(VideoReceiver *receiver, QQuickWindow *win
 
     (void) _updateSettings(receiver);
 
+    if (receiver->isAuxiliary()) {
+        // A URI may have been requested before the receivers existed.
+        (void) _updateVideoUri(receiver, _auxiliaryUris.value(receiver->name()));
+        _startReceiver(receiver);
+        return;
+    }
+
     if (hasVideo()) {
         _startReceiver(receiver);
+    }
+}
+
+void VideoManager::setAuxiliaryVideoUri(int index, const QString &uri)
+{
+    const QString name = QStringLiteral("auxVideo%1").arg(index + 1);
+    _auxiliaryUris[name] = uri;
+
+    for (VideoReceiver *receiver : std::as_const(_videoReceivers)) {
+        if (receiver->name() != name) {
+            continue;
+        }
+        if (_updateVideoUri(receiver, uri)) {
+            _restartVideo(receiver);
+        }
+        return;
     }
 }
 

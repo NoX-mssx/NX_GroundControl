@@ -7,6 +7,7 @@
 #include "SettingsManager.h"
 #include "Vehicle.h"
 #include "VehicleLinkManager.h"
+#include "VideoManager.h"
 #include "VideoSettings.h"
 
 #include <QtCore/QDir>
@@ -246,19 +247,118 @@ void VehicleModelManager::_updateActiveModel()
     _activeModel = activeModel;
     emit activeModelChanged();
 
-    // The first camera of the model becomes the video stream. Without a model the user's own video
-    // settings are left alone.
-    const QVariantList cameras = _activeModel.value(QLatin1String(kCamerasKey)).toList();
-    if (cameras.isEmpty()) {
+    _mainCameraIndex = 0;
+    _cameraEnabled.clear();
+    for (qsizetype i = 0; i < _activeCameras().count(); i++) {
+        _cameraEnabled.append(true);
+    }
+    emit cameraStatesChanged();
+    _applyCameraStreams();
+}
+
+QVariantList VehicleModelManager::_activeCameras() const
+{
+    return _activeModel.value(QLatin1String(kCamerasKey)).toList();
+}
+
+QVariantList VehicleModelManager::cameraStates() const
+{
+    QVariantList states;
+    const QVariantList cameras = _activeCameras();
+    for (qsizetype i = 0; i < cameras.count(); i++) {
+        states.append(QVariantMap{
+            {QStringLiteral("name"), cameras.at(i).toMap().value(QLatin1String(kNameKey)).toString()},
+            {QStringLiteral("enabled"), _cameraEnabled.value(i, true)},
+            {QStringLiteral("main"), i == _mainCameraIndex},
+        });
+    }
+    return states;
+}
+
+QList<int> VehicleModelManager::auxiliaryCameras() const
+{
+    QList<int> auxiliary;
+    for (qsizetype i = 0; (i < _activeCameras().count()) && (auxiliary.count() < kAuxiliaryCameraCount); i++) {
+        if ((i != _mainCameraIndex) && _cameraEnabled.value(i, true)) {
+            auxiliary.append(static_cast<int>(i));
+        }
+    }
+    while (auxiliary.count() < kAuxiliaryCameraCount) {
+        auxiliary.append(-1);
+    }
+    return auxiliary;
+}
+
+QString VehicleModelManager::mainCameraName() const
+{
+    return _activeCameras().value(_mainCameraIndex).toMap().value(QLatin1String(kNameKey)).toString();
+}
+
+void VehicleModelManager::setSecondaryStream(bool secondaryStream)
+{
+    if (secondaryStream == _secondaryStream) {
         return;
     }
-    const QString mainUrl = cameras.first().toMap().value(QStringLiteral("mainUrl")).toString();
-    if (mainUrl.isEmpty()) {
+    _secondaryStream = secondaryStream;
+    emit secondaryStreamChanged();
+    _applyCameraStreams();
+}
+
+void VehicleModelManager::setCameraEnabled(int cameraIndex, bool enabled)
+{
+    if ((cameraIndex < 0) || (cameraIndex >= _cameraEnabled.count()) || (cameraIndex == _mainCameraIndex) ||
+        (_cameraEnabled.at(cameraIndex) == enabled)) {
         return;
     }
-    VideoSettings *const videoSettings = SettingsManager::instance()->videoSettings();
-    videoSettings->rtspUrl()->setRawValue(mainUrl);
-    videoSettings->videoSource()->setRawValue(VideoSettings::videoSourceRTSP);
+    _cameraEnabled[cameraIndex] = enabled;
+    emit cameraStatesChanged();
+    _applyCameraStreams();
+}
+
+void VehicleModelManager::setMainCamera(int cameraIndex)
+{
+    if ((cameraIndex < 0) || (cameraIndex >= _cameraEnabled.count()) || (cameraIndex == _mainCameraIndex)) {
+        return;
+    }
+    _mainCameraIndex = cameraIndex;
+    _cameraEnabled[cameraIndex] = true;
+    emit cameraStatesChanged();
+    _applyCameraStreams();
+}
+
+QString VehicleModelManager::_cameraUri(int cameraIndex) const
+{
+    const QVariantMap camera = _activeCameras().value(cameraIndex).toMap();
+    const QString mainUrl = camera.value(QStringLiteral("mainUrl")).toString();
+    const QString secondaryUrl = camera.value(QStringLiteral("secondaryUrl")).toString();
+    // A camera with only one stream configured keeps playing it in either mode.
+    if (_secondaryStream) {
+        return secondaryUrl.isEmpty() ? mainUrl : secondaryUrl;
+    }
+    return mainUrl.isEmpty() ? secondaryUrl : mainUrl;
+}
+
+void VehicleModelManager::_applyCameraStreams()
+{
+    // Without cameras in the model the user's own video settings are left alone.
+    if (_activeCameras().isEmpty()) {
+        for (int i = 0; i < kAuxiliaryCameraCount; i++) {
+            VideoManager::instance()->setAuxiliaryVideoUri(i, QString());
+        }
+        return;
+    }
+
+    const QString mainUri = _cameraUri(_mainCameraIndex);
+    if (!mainUri.isEmpty()) {
+        VideoSettings *const videoSettings = SettingsManager::instance()->videoSettings();
+        videoSettings->rtspUrl()->setRawValue(mainUri);
+        videoSettings->videoSource()->setRawValue(VideoSettings::videoSourceRTSP);
+    }
+
+    const QList<int> auxiliary = auxiliaryCameras();
+    for (int i = 0; i < kAuxiliaryCameraCount; i++) {
+        VideoManager::instance()->setAuxiliaryVideoUri(i, (auxiliary.at(i) < 0) ? QString() : _cameraUri(auxiliary.at(i)));
+    }
 }
 
 void VehicleModelManager::runButton(const QVariantMap &button) const
