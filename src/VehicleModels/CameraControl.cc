@@ -3,7 +3,9 @@
 
 #include <QtCore/QCryptographicHash>
 #include <QtCore/QDateTime>
+#include <QtCore/QHash>
 #include <QtCore/QRandomGenerator>
+#include <QtCore/QStringList>
 #include <QtCore/QTimeZone>
 #include <QtCore/QXmlStreamReader>
 #include <QtNetwork/QAuthenticator>
@@ -73,7 +75,7 @@ QString xmlAttribute(const QByteArray &xml, QLatin1String localName, QLatin1Stri
 
 /// Camera clock minus this computer's clock, from a GetSystemDateAndTime response. Cameras on a vehicle
 /// often have no time source, and WS-Security rejects tokens whose timestamp is far from the camera's own.
-qint64 clockOffsetSecs(const QByteArray &xml)
+qint64 parseClockOffsetSecs(const QByteArray &xml)
 {
     QXmlStreamReader reader(xml);
     bool inUtc = false;
@@ -200,7 +202,7 @@ void CameraControl::_runOnvif(const Camera &camera, const QString &command, cons
             _finish(label, false, tr("the camera does not answer ONVIF requests"));
             return;
         }
-        const qint64 offset = clockOffsetSecs(body);
+        const qint64 offset = parseClockOffsetSecs(body);
 
         if (command == QLatin1String("reboot")) {
             const QString request = QStringLiteral("<SystemReboot xmlns=\"http://www.onvif.org/ver10/device/wsdl\"/>");
