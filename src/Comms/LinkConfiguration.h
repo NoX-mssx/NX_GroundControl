@@ -27,6 +27,16 @@ class LinkConfiguration : public QObject
     Q_PROPERTY(QString          settingsTitle   READ settingsTitle                          CONSTANT)
     Q_PROPERTY(bool             highLatency     READ isHighLatency  WRITE setHighLatency    NOTIFY highLatencyChanged)
     Q_PROPERTY(QString          vehicleModel    READ vehicleModel   WRITE setVehicleModel   NOTIFY vehicleModelChanged)
+    /// WireGuard tunnel started before this link connects and stopped when it disconnects, empty for none
+    Q_PROPERTY(QString          wireGuardTunnel     MEMBER _wireGuardTunnel     NOTIFY tunnelSettingsChanged)
+    /// Address pinged to measure the link round trip time (the vehicle's router inside the tunnel), empty for none
+    Q_PROPERTY(QString          pingAddress         MEMBER _pingAddress         NOTIFY tunnelSettingsChanged)
+    /// Scale joystick throttle down while the ping is above the thresholds below
+    Q_PROPERTY(bool             throttleLimitEnabled    MEMBER _throttleLimitEnabled    NOTIFY tunnelSettingsChanged)
+    Q_PROPERTY(int              pingThreshold1Ms        MEMBER _pingThreshold1Ms        NOTIFY tunnelSettingsChanged)
+    Q_PROPERTY(int              throttlePercent1        MEMBER _throttlePercent1        NOTIFY tunnelSettingsChanged)
+    Q_PROPERTY(int              pingThreshold2Ms        MEMBER _pingThreshold2Ms        NOTIFY tunnelSettingsChanged)
+    Q_PROPERTY(int              throttlePercent2        MEMBER _throttlePercent2        NOTIFY tunnelSettingsChanged)
 
 public:
     LinkConfiguration(const QString &name, QObject *parent = nullptr);
@@ -60,6 +70,18 @@ public:
     /// Name of the vehicle model (see VehicleModelManager) describing the vehicle behind this link, empty for none.
     QString vehicleModel() const { return _vehicleModel; }
     void setVehicleModel(const QString &vehicleModel);
+
+    QString wireGuardTunnel() const { return _wireGuardTunnel; }
+    QString pingAddress() const { return _pingAddress; }
+    bool throttleLimitEnabled() const { return _throttleLimitEnabled; }
+    int pingThreshold1Ms() const { return _pingThreshold1Ms; }
+    int throttlePercent1() const { return _throttlePercent1; }
+    int pingThreshold2Ms() const { return _pingThreshold2Ms; }
+    int throttlePercent2() const { return _throttlePercent2; }
+
+    /// Loads/saves the tunnel, ping and throttle limit settings shared by all link types.
+    void loadTunnelSettings(const QSettings &settings, const QString &root);
+    void saveTunnelSettings(QSettings &settings, const QString &root) const;
 
     bool isAutoConnect() const { return _autoConnect; }
 
@@ -161,6 +183,7 @@ signals:
     void autoConnectChanged();
     void highLatencyChanged();
     void vehicleModelChanged();
+    void tunnelSettingsChanged();
 
 protected:
     std::weak_ptr<LinkInterface> _link; ///< Link currently using this configuration (if any)
@@ -172,6 +195,13 @@ private:
     bool _autoConnect = false; ///< This connection is started automatically at boot
     bool _highLatency = false;
     QString _vehicleModel;
+    QString _wireGuardTunnel;
+    QString _pingAddress;
+    bool _throttleLimitEnabled = false;
+    int _pingThreshold1Ms = 300;
+    int _throttlePercent1 = 50;
+    int _pingThreshold2Ms = 600;
+    int _throttlePercent2 = 25;
     bool _suppressAutoReconnect = false; ///< User disconnected; skip auto-reconnect until manually reconnected (runtime only)
     bool _autoConnectStarted = false;    ///< Link was started at boot or manually connected; gates timer reconnect (runtime only)
     int _reconnectAttempts = 0;          ///< Consecutive failed auto-reconnect attempts (runtime only)

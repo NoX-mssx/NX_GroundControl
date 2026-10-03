@@ -8,6 +8,7 @@
 #include "QmlObjectListModel.h"
 
 #include <QtCore/QApplicationStatic>
+#include <QtCore/QUrl>
 
 QGC_LOGGING_CATEGORY(NxCorePluginLog, "Custom.NxCorePlugin")
 
@@ -96,4 +97,15 @@ void NxCorePlugin::factValueGridCreateDefaultSettings(FactValueGrid *factValueGr
             value->setShowUnits(cell.showUnits);
         }
     }
+}
+
+const QVariantList &NxCorePlugin::toolBarIndicators()
+{
+    static const QVariantList indicators = [this]() {
+        QVariantList list = QGCCorePlugin::toolBarIndicators();
+        list.append(QVariant::fromValue(QUrl::fromUserInput(QStringLiteral("qrc:/qml/QGroundControl/Toolbar/LinkQualityIndicator.qml"))));
+        return list;
+    }();
+
+    return indicators;
 }

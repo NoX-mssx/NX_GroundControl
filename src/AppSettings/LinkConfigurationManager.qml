@@ -159,11 +159,147 @@ SettingsGroupLayout {
                     onCheckedChanged:   editingConfig.autoConnect = checked
                 }
 
+                // Stock option for very slow links: it stops joystick control altogether, which is never
+                // wanted here, so it is not offered.
                 QGCCheckBoxSlider {
                     Layout.fillWidth:   true
                     text:               qsTr("High Latency")
                     checked:            editingConfig.highLatency
                     onCheckedChanged:   editingConfig.highLatency = checked
+                    visible:            false
+                }
+
+                SettingsGroupLayout {
+                    Layout.fillWidth:   true
+                    heading:            qsTr("WireGuard Tunnel")
+                    visible:            WireGuardTunnel.available
+
+                    QGCLabel {
+                        id:                 tunnelStatusLabel
+                        Layout.fillWidth:   true
+                        wrapMode:           Text.WordWrap
+
+                        property string message: ""
+
+                        text: message !== "" ? message
+                                             : (editingConfig.wireGuardTunnel === "" ? qsTr("No tunnel. The link connects over whatever network is up.")
+                                                                                      : qsTr("Tunnel %1 starts when this link connects.").arg(editingConfig.wireGuardTunnel))
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth:   true
+                        spacing:            ScreenTools.defaultFontPixelWidth
+
+                        QGCButton {
+                            Layout.fillWidth:   true
+                            text:               qsTr("Import .conf...")
+                            enabled:            nameField.text !== ""
+                            onClicked:          tunnelFileDialog.openForLoad()
+                        }
+
+                        QGCButton {
+                            Layout.fillWidth:   true
+                            text:               qsTr("Remove Tunnel")
+                            enabled:            editingConfig.wireGuardTunnel !== ""
+                            onClicked: {
+                                tunnelStatusLabel.message = WireGuardTunnel.remove(editingConfig.wireGuardTunnel)
+                                if (tunnelStatusLabel.message === "") {
+                                    editingConfig.wireGuardTunnel = ""
+                                }
+                            }
+                        }
+                    }
+
+                    QGCFileDialog {
+                        id:             tunnelFileDialog
+                        title:          qsTr("WireGuard Configuration")
+                        folder:         QGroundControl.settingsManager.appSettings.settingsSavePath
+                        nameFilters:    [ qsTr("WireGuard Configuration (*.conf)"), qsTr("All Files (*)") ]
+
+                        onAcceptedForLoad: (file) => {
+                            close()
+                            // A link keeps its tunnel name once it has one, so re-importing replaces the tunnel.
+                            let tunnel = editingConfig.wireGuardTunnel !== "" ? editingConfig.wireGuardTunnel
+                                                                              : WireGuardTunnel.tunnelNameForLink(nameField.text)
+                            tunnelStatusLabel.message = WireGuardTunnel.install(tunnel, file)
+                            if (tunnelStatusLabel.message === "") {
+                                editingConfig.wireGuardTunnel = tunnel
+                            }
+                        }
+                    }
+                }
+
+                SettingsGroupLayout {
+                    Layout.fillWidth:   true
+                    heading:            qsTr("Link Quality")
+
+                    RowLayout {
+                        Layout.fillWidth:   true
+                        spacing:            ScreenTools.defaultFontPixelWidth
+
+                        QGCLabel { text: qsTr("Ping address") }
+                        QGCTextField {
+                            Layout.fillWidth:   true
+                            text:               editingConfig.pingAddress
+                            placeholderText:    qsTr("Vehicle router, e.g. 10.30.1.101")
+                            onTextEdited:       editingConfig.pingAddress = text.trim()
+                        }
+                    }
+
+                    QGCCheckBoxSlider {
+                        Layout.fillWidth:   true
+                        text:               qsTr("Limit throttle on high ping")
+                        checked:            editingConfig.throttleLimitEnabled
+                        onCheckedChanged:   editingConfig.throttleLimitEnabled = checked
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth:   true
+                        spacing:            ScreenTools.defaultFontPixelWidth
+                        enabled:            editingConfig.throttleLimitEnabled
+
+                        QGCLabel { text: qsTr("Above") }
+                        QGCTextField {
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 8
+                            text:                   editingConfig.pingThreshold1Ms
+                            numericValuesOnly:      true
+                            validator:              IntValidator { bottom: 1; top: 10000 }
+                            onTextEdited:           editingConfig.pingThreshold1Ms = parseInt(text) || 0
+                        }
+                        QGCLabel { text: qsTr("ms throttle") }
+                        QGCTextField {
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 6
+                            text:                   editingConfig.throttlePercent1
+                            numericValuesOnly:      true
+                            validator:              IntValidator { bottom: 0; top: 100 }
+                            onTextEdited:           editingConfig.throttlePercent1 = parseInt(text) || 0
+                        }
+                        QGCLabel { text: qsTr("%") }
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth:   true
+                        spacing:            ScreenTools.defaultFontPixelWidth
+                        enabled:            editingConfig.throttleLimitEnabled
+
+                        QGCLabel { text: qsTr("Above") }
+                        QGCTextField {
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 8
+                            text:                   editingConfig.pingThreshold2Ms
+                            numericValuesOnly:      true
+                            validator:              IntValidator { bottom: 1; top: 10000 }
+                            onTextEdited:           editingConfig.pingThreshold2Ms = parseInt(text) || 0
+                        }
+                        QGCLabel { text: qsTr("ms throttle") }
+                        QGCTextField {
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 6
+                            text:                   editingConfig.throttlePercent2
+                            numericValuesOnly:      true
+                            validator:              IntValidator { bottom: 0; top: 100 }
+                            onTextEdited:           editingConfig.throttlePercent2 = parseInt(text) || 0
+                        }
+                        QGCLabel { text: qsTr("%") }
+                    }
                 }
 
                 LabelledComboBox {

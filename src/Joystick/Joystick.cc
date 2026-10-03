@@ -1,4 +1,5 @@
 #include "Joystick.h"
+#include "LinkQualityMonitor.h"
 #include "Fact.h"
 #include "MavlinkAction.h"
 #include "MavlinkActionManager.h"
@@ -1133,6 +1134,10 @@ void Joystick::_handleAxis()
         } else {
             throttle = (throttle + 1.0f) / 2.0f;
         }
+
+        // Link-quality throttle limit. ArduRover takes zero as neutral for the value sent from here, so
+        // scaling towards zero slows the vehicle in either direction.
+        throttle *= LinkQualityMonitor::throttleScale();
 
         if (additionalAxesFunctionIsManualControl) {
             qCDebug(JoystickVerboseLog)

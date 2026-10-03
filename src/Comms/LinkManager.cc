@@ -4,6 +4,7 @@
 #include "MAVLinkProtocol.h"
 #include "MultiVehicleManager.h"
 #include "AppMessages.h"
+#include "QGCApplication.h"
 #include "QGCLoggingCategory.h"
 #include "QmlObjectListModel.h"
 #include "SettingsManager.h"
@@ -11,6 +12,7 @@
 #include "AutoConnectSettings.h"
 #include "TCPLink.h"
 #include "UDPLink.h"
+#include "WireGuardTunnel.h"
 
 #include "BluetoothLink.h"
 
@@ -181,6 +183,17 @@ bool LinkManager::createConnectedLink(SharedLinkConfigurationPtr &config)
 
     MAVLinkProtocol::instance()->resetMetadataForLink(link.get());
 
+    if (!config->wireGuardTunnel().isEmpty()) {
+        const QString tunnelError = WireGuardTunnel::start(config->wireGuardTunnel());
+        if (!tunnelError.isEmpty()) {
+            qgcApp()->showAppMessage(tunnelError, config->name());
+            (void) disconnect(link.get(), nullptr, this, nullptr);
+            (void) disconnect(link.get(), nullptr, MAVLinkProtocol::instance(), nullptr);
+            link->_freeMavlinkChannel();
+            return false;
+        }
+    }
+
     // Try to connect before adding to active links list
     if (!link->_connect()) {
         (void) disconnect(link.get(), &LinkInterface::communicationError, this, &LinkManager::_communicationError);
@@ -295,6 +308,10 @@ void LinkManager::_linkDisconnected()
         return;
     }
 
+    if (config && !config->wireGuardTunnel().isEmpty()) {
+        WireGuardTunnel::stop(config->wireGuardTunnel());
+    }
+
     if (config) {
         config->noteDisconnected();
         config->setLink(nullptr);
@@ -358,6 +375,7 @@ void LinkManager::saveLinkConfigurationList()
         settings.setValue(root + "/auto", linkConfig->isAutoConnect());
         settings.setValue(root + "/high_latency", linkConfig->isHighLatency());
         settings.setValue(root + "/vehicle_model", linkConfig->vehicleModel());
+        linkConfig->saveTunnelSettings(settings, root);
         linkConfig->saveSettings(settings, root);
     }
 
@@ -431,6 +449,7 @@ void LinkManager::loadLinkConfigurationList()
                 const bool highLatency = settings.value(root + "/high_latency").toBool();
                 link->setHighLatency(highLatency);
                 link->setVehicleModel(settings.value(root + "/vehicle_model").toString());
+                link->loadTunnelSettings(settings, root);
                 link->loadSettings(settings, root);
                 addConfiguration(link);
             }

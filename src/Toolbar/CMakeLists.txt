@@ -28,6 +28,7 @@ qt_add_qml_module(ToolbarModule
         RCRSSIIndicator.qml
         RemoteIDIndicator.qml
         RemoteIDIndicatorPage.qml
+        LinkQualityIndicator.qml
         RTKGPSIndicator.qml
         SelectViewDropdown.qml
         SignalStrength.qml

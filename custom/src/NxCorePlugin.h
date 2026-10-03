@@ -32,6 +32,7 @@ public:
     static QGCCorePlugin *instance();
 
     QGCOptions *options() final { return _options; }
+    const QVariantList &toolBarIndicators() final;
     bool overrideSettingsGroupVisibility(const QString &name) final;
     void adjustSettingMetaData(const QString &settingsGroup, FactMetaData &metaData, bool &userVisible) final;
     void factValueGridCreateDefaultSettings(FactValueGrid *factValueGrid) final;
