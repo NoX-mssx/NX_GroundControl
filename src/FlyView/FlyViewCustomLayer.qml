@@ -44,6 +44,7 @@ Item {
 
     readonly property var  _cameraStates:       VehicleModelManager.cameraStates
     readonly property var  _auxiliaryCameras:   VehicleModelManager.auxiliaryCameras
+    readonly property bool _anyCameraHasAudio:  (VehicleModelManager.activeModel.cameras || []).some(function(camera) { return camera.audio === true })
     readonly property real _windowMargin:       ScreenTools.defaultFontPixelWidth
     readonly property real _auxiliaryWidth:     ScreenTools.defaultFontPixelWidth * 40
     readonly property real _auxiliaryHeight:    (ScreenTools.defaultFontPixelHeight * 1.6) + (_auxiliaryWidth * 9 / 16)
@@ -105,6 +106,13 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
         spacing:                ScreenTools.defaultFontPixelHeight / 2
         visible:                _root._cameraStates.length > 0
+
+        QGCButton {
+            width:      ScreenTools.defaultFontPixelWidth * 8
+            text:       QGroundControl.videoManager.audioMuted ? qsTr("Muted") : qsTr("Sound")
+            visible:    _root._anyCameraHasAudio
+            onClicked:  QGroundControl.videoManager.audioMuted = !QGroundControl.videoManager.audioMuted
+        }
 
         QGCButton {
             width:      ScreenTools.defaultFontPixelWidth * 8

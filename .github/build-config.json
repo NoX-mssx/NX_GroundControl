@@ -60,7 +60,7 @@
       ],
       "android": ["androidmedia", "dav1d"],
       "apple": ["applemedia", "dav1d"],
-      "windows": ["d3d", "d3d11", "d3d12", "dav1d", "nvcodec"],
+      "windows": ["alaw", "audioconvert", "audioparsers", "audioresample", "autodetect", "d3d", "d3d11", "d3d12", "dav1d", "directsound", "mulaw", "nvcodec", "volume", "wasapi", "wasapi2"],
       "linux": ["nvcodec", "qsv", "va", "vulkan"]
     },
     "checksums": {

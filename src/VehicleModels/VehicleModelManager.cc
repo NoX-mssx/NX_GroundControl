@@ -343,21 +343,30 @@ void VehicleModelManager::_applyCameraStreams()
     // Without cameras in the model the user's own video settings are left alone.
     if (_activeCameras().isEmpty()) {
         for (int i = 0; i < kAuxiliaryCameraCount; i++) {
-            VideoManager::instance()->setAuxiliaryVideoUri(i, QString());
+            VideoManager::instance()->setAuxiliaryVideo(i, QString(), false);
         }
         return;
     }
 
+    const auto cameraHasAudio = [this](int cameraIndex) {
+        return (cameraIndex >= 0) && _activeCameras().value(cameraIndex).toMap().value(QStringLiteral("audio")).toBool();
+    };
+
+    VideoSettings *const videoSettings = SettingsManager::instance()->videoSettings();
     const QString mainUri = _cameraUri(_mainCameraIndex);
+    // Changing the URL below restarts the main stream, which then picks the audio setting up by itself.
+    const bool mainUrlChanges = !mainUri.isEmpty() && (videoSettings->rtspUrl()->rawValue().toString() != mainUri);
+    VideoManager::instance()->setMainStreamAudio(cameraHasAudio(_mainCameraIndex), !mainUrlChanges);
     if (!mainUri.isEmpty()) {
-        VideoSettings *const videoSettings = SettingsManager::instance()->videoSettings();
         videoSettings->rtspUrl()->setRawValue(mainUri);
         videoSettings->videoSource()->setRawValue(VideoSettings::videoSourceRTSP);
     }
 
     const QList<int> auxiliary = auxiliaryCameras();
     for (int i = 0; i < kAuxiliaryCameraCount; i++) {
-        VideoManager::instance()->setAuxiliaryVideoUri(i, (auxiliary.at(i) < 0) ? QString() : _cameraUri(auxiliary.at(i)));
+        const int cameraIndex = auxiliary.at(i);
+        VideoManager::instance()->setAuxiliaryVideo(i, (cameraIndex < 0) ? QString() : _cameraUri(cameraIndex),
+                                                    cameraHasAudio(cameraIndex));
     }
 }
 

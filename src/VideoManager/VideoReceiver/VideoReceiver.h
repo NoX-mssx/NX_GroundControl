@@ -36,6 +36,8 @@ public:
     bool lowLatency() const { return _lowLatency; }
     int rtpJitterLatencyMs() const { return _rtpJitterLatencyMs; }
     bool autoReconnect() const { return _autoReconnect; }
+    bool audioEnabled() const { return _audioEnabled; }
+    bool audioMuted() const { return _audioMuted; }
     QGCVideoStreamInfo *videoStreamInfo() { return _videoStreamInfo; }
     QString recordingOutput() const { return _recordingOutput; }
 
@@ -46,6 +48,10 @@ public:
     void setStarted(bool started) { if (started != _started) { _started = started; emit startedChanged(_started); } }
     void setLowLatency(bool lowLatency) { if (lowLatency != _lowLatency) { _lowLatency = lowLatency; emit lowLatencyChanged(_lowLatency); } }
     void setRtpJitterLatencyMs(int ms) { if (ms != _rtpJitterLatencyMs) { _rtpJitterLatencyMs = ms; emit rtpJitterLatencyMsChanged(_rtpJitterLatencyMs); } }
+    /// Whether the source's audio stream is played. Takes effect the next time the receiver starts.
+    void setAudioEnabled(bool enabled) { _audioEnabled = enabled; }
+    /// Mutes or unmutes audio, including on a running stream.
+    virtual void setAudioMuted(bool muted) { _audioMuted = muted; }
     void setAutoReconnect(bool enabled) { if (enabled != _autoReconnect) { _autoReconnect = enabled; emit autoReconnectChanged(_autoReconnect); } }
     void setVideoStreamInfo(QGCVideoStreamInfo *videoStreamInfo) { if (videoStreamInfo != _videoStreamInfo) { _videoStreamInfo = videoStreamInfo; emit videoStreamInfoChanged(); } }
 
@@ -121,6 +127,8 @@ protected:
     bool _lowLatency = false;
     int _rtpJitterLatencyMs = 80;
     // Written live on the GUI thread, read on the receiver worker thread.
+    std::atomic<bool> _audioEnabled = false;
+    std::atomic<bool> _audioMuted = false;
     std::atomic<bool> _autoReconnect = true;     ///< RTSP/UDP auto-reconnect with exponential backoff on watchdog/error.
     bool _resetVideoSink = false;
     bool _endOfStream = false;

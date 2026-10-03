@@ -28,6 +28,8 @@ class VideoManager : public QObject
     QML_UNCREATABLE("")
     Q_MOC_INCLUDE("Vehicle.h")
 
+    /// Mutes the audio of every stream that has audio enabled
+    Q_PROPERTY(bool     audioMuted              READ audioMuted             WRITE setAudioMuted NOTIFY audioMutedChanged)
     Q_PROPERTY(bool     autoStreamConfigured    READ autoStreamConfigured                       NOTIFY autoStreamConfiguredChanged)
     Q_PROPERTY(bool     decoding                READ decoding                                   NOTIFY decodingChanged)
     Q_PROPERTY(bool     fullScreen              READ fullScreen             WRITE setfullScreen NOTIFY fullScreenChanged)
@@ -59,9 +61,17 @@ public:
     Q_INVOKABLE void stopRecording();
     Q_INVOKABLE void stopVideo();
 
-    /// Sets the stream shown by an auxiliary video item (objectName "auxVideo<index + 1>").
-    /// An empty URI stops that stream.
-    void setAuxiliaryVideoUri(int index, const QString &uri);
+    /// Sets the stream shown by an auxiliary video item (objectName "auxVideo<index + 1>") and whether
+    /// its audio is played. An empty URI stops that stream.
+    void setAuxiliaryVideo(int index, const QString &uri, bool audio);
+
+    /// Enables or disables audio playback of the main stream. Audio is selected when the stream
+    /// connects, so a running stream only picks the change up on restart: pass @p restart = false
+    /// when the caller is about to change the stream URL anyway.
+    void setMainStreamAudio(bool enabled, bool restart);
+
+    bool audioMuted() const { return _audioMuted; }
+    void setAudioMuted(bool muted);
 
     void init(QQuickWindow *mainWindow);
     void startVideoBackendInit();
@@ -86,6 +96,7 @@ public:
     void setfullScreen(bool on);
 
 signals:
+    void audioMutedChanged();
     void aspectRatioChanged();
     void autoStreamConfiguredChanged();
     void decodingChanged();
@@ -132,6 +143,8 @@ private:
 
     QList<VideoReceiver*> _videoReceivers;
     QHash<QString, QString> _auxiliaryUris;     ///< Requested URI per auxiliary receiver name
+    QHash<QString, bool> _streamAudio;          ///< Requested audio playback per receiver name
+    bool _audioMuted = false;
     SubtitleWriter *_subtitleWriter = nullptr;
     VideoSettings *_videoSettings = nullptr;
     QQuickWindow *_mainWindow = nullptr;

@@ -975,6 +975,9 @@ void VideoManager::_initVideoReceiver(VideoReceiver *receiver, QQuickWindow *win
         (void) _updateAutoStream(receiver);
     });
 
+    receiver->setAudioEnabled(_streamAudio.value(receiver->name(), false));
+    receiver->setAudioMuted(_audioMuted);
+
     (void) _updateSettings(receiver);
 
     if (receiver->isAuxiliary()) {
@@ -989,30 +992,53 @@ void VideoManager::_initVideoReceiver(VideoReceiver *receiver, QQuickWindow *win
     }
 }
 
-void VideoManager::setAuxiliaryVideoUri(int index, const QString &uri)
+void VideoManager::setMainStreamAudio(bool enabled, bool restart)
 {
-    const QString name = QStringLiteral("auxVideo%1").arg(index + 1);
-    _auxiliaryUris[name] = uri;
+    const QString name = QStringLiteral("videoContent");
+    _streamAudio[name] = enabled;
 
     for (VideoReceiver *receiver : std::as_const(_videoReceivers)) {
         if (receiver->name() != name) {
             continue;
         }
-        if (_updateVideoUri(receiver, uri)) {
-            _restartVideo(receiver);
+        if (receiver->audioEnabled() != enabled) {
+            receiver->setAudioEnabled(enabled);
+            if (restart && receiver->started()) {
+                _restartVideo(receiver);
+            }
         }
         return;
     }
 }
 
-void VideoManager::startVideo()
+void VideoManager::setAudioMuted(bool muted)
 {
-    qCDebug(VideoManagerLog) << "startVideo";
-
-    if (!hasVideo()) {
-        qCDebug(VideoManagerLog) << "Stream not enabled/configured";
+    if (muted == _audioMuted) {
         return;
     }
+    _audioMuted = muted;
+    for (VideoReceiver *receiver : std::as_const(_videoReceivers)) {
+        receiver->setAudioMuted(muted);
+    }
+    emit audioMutedChanged();
+}
 
-    _restartAllVideos();
+void VideoManager::setAuxiliaryVideo(int index, const QString &uri, bool audio)
+{
+    const QString name = QStringLiteral("auxVideo%1").arg(index + 1);
+    _auxiliaryUris[name] = uri;
+    _streamAudio[name] = audio;
+
+    for (VideoReceiver *receiver : std::as_const(_videoReceivers)) {
+        if (receiver->name() != name) {
+            continue;
+        }
+        const bool audioChanged = receiver->audioEnabled() != audio;
+        receiver->setAudioEnabled(audio);
+        // One restart covers a new URI and a changed audio selection alike.
+        if (_updateVideoUri(receiver, uri) || (audioChanged && receiver->started())) {
+            _restartVideo(receiver);
+        }
+        return;
+    }
 }

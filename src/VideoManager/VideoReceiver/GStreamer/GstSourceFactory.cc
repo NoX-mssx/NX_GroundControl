@@ -1,5 +1,6 @@
 #include "GstSourceFactory.h"
 
+#include <QtCore/QByteArray>
 #include <QtCore/QFile>
 #include <QtCore/QUrl>
 #include <gst/gst.h>
@@ -184,6 +185,70 @@ struct DynamicLinkContext
     bool allowJitterBuffer;  // false for RTSP (rtspsrc has its own internal jitterbuffer)
 };
 
+// Plays an RTP audio pad of the source: decode, convert and send to the default audio device.
+// The branch never holds the video back: it does not sync to the clock and keeps its own state
+// changes to itself, so a silent or broken audio stream cannot stall the pipeline.
+void linkAudioPad(GstPad* pad, const DynamicLinkContext& ctx)
+{
+    GstElement* bin = GST_ELEMENT(gst_object_get_parent(GST_OBJECT(ctx.binParser)));
+    if (!bin) {
+        return;
+    }
+
+    const QByteArray description = QByteArrayLiteral("decodebin ! audioconvert ! audioresample ! volume name=") +
+                                   kAudioVolumeElementName + QByteArrayLiteral(" ! autoaudiosink sync=false");
+    GError* error = nullptr;
+    GstElement* audioBin = gst_parse_bin_from_description(description.constData(), TRUE, &error);
+    if (!audioBin) {
+        qCWarning(GstSourceFactoryLog) << "audio branch creation failed:" << (error ? error->message : "unknown error");
+        g_clear_error(&error);
+        gst_object_unref(bin);
+        return;
+    }
+    g_clear_error(&error);
+
+    g_object_set(audioBin, "async-handling", TRUE, nullptr);
+    if (GstElement* volume = gst_bin_get_by_name(GST_BIN(audioBin), kAudioVolumeElementName)) {
+        g_object_set(volume, "mute", ctx.config.audioMuted ? TRUE : FALSE, nullptr);
+        gst_object_unref(volume);
+    }
+
+    if (!gst_bin_add(GST_BIN(bin), audioBin)) {
+        qCWarning(GstSourceFactoryLog) << "gst_bin_add(audio branch) failed";
+        gst_object_unref(audioBin);
+        gst_object_unref(bin);
+        return;
+    }
+
+    GstPad* sinkPad = gst_element_get_static_pad(audioBin, "sink");
+    const bool linked = sinkPad && (gst_pad_link(pad, sinkPad) == GST_PAD_LINK_OK) &&
+                        gst_element_sync_state_with_parent(audioBin);
+    if (sinkPad) {
+        gst_object_unref(sinkPad);
+    }
+    if (!linked) {
+        qCWarning(GstSourceFactoryLog) << "audio branch link failed; continuing without audio";
+        (void) gst_element_set_state(audioBin, GST_STATE_NULL);
+        gst_bin_remove(GST_BIN(bin), audioBin);
+    }
+
+    gst_object_unref(bin);
+}
+
+// rtspsrc "select-stream": @p user_data carries whether audio is wanted. Streams that are neither
+// video nor wanted audio (camera metadata, unused audio) are not set up, which also saves their bandwidth.
+gboolean selectRtspStream([[maybe_unused]] GstElement* rtspsrc, [[maybe_unused]] guint streamIndex, GstCaps* caps,
+                          gpointer user_data)
+{
+    const bool wantAudio = GPOINTER_TO_INT(user_data) != 0;
+    const GstStructure* st = (caps && (gst_caps_get_size(caps) > 0)) ? gst_caps_get_structure(caps, 0) : nullptr;
+    const gchar* media = st ? gst_structure_get_string(st, "media") : nullptr;
+    if (!media || g_str_equal(media, "video")) {
+        return TRUE;
+    }
+    return (wantAudio && g_str_equal(media, "audio")) ? TRUE : FALSE;
+}
+
 void linkPad(GstElement* element, GstPad* pad, gpointer data)
 {
     const auto* ctx = static_cast<const DynamicLinkContext*>(data);
@@ -196,6 +261,7 @@ void linkPad(GstElement* element, GstPad* pad, gpointer data)
 
     bool isVideo = false;
     bool isRtp = false;
+    bool isRtpAudio = false;
     GstCaps* caps = gst_pad_get_current_caps(pad);
     if (!caps) {
         caps = gst_pad_query_caps(pad, nullptr);
@@ -211,12 +277,24 @@ void linkPad(GstElement* element, GstPad* pad, gpointer data)
             if (g_str_has_prefix(sname, "video/")) {
                 isVideo = true;
             } else if (g_str_equal(sname, "application/x-rtp")) {
-                isRtp = true;
-                // RTP carries video; the depayloader/parsebin downstream classifies the payload.
-                isVideo = true;
+                // An RTSP source also exposes audio and metadata streams as RTP pads; only the video
+                // one may reach the parser. RTP without a media field is taken to be video.
+                const gchar* media = gst_structure_get_string(st, "media");
+                if (!media || g_str_equal(media, "video")) {
+                    isRtp = true;
+                    isVideo = true;
+                } else if (g_str_equal(media, "audio")) {
+                    isRtpAudio = true;
+                }
             }
         }
         gst_clear_caps(&caps);
+    }
+    if (isRtpAudio && !isVideo) {
+        if (ctx->config.audio) {
+            linkAudioPad(pad, *ctx);
+        }
+        return;
     }
     if (!isVideo) {
         return;
@@ -321,6 +399,8 @@ GstElement* buildRtspSource(const QString& uri, const QUrl& sourceUrl, const Con
                  "do-retransmission", config.doRetransmission ? TRUE : FALSE, "tcp-timeout", kRtspTcpTimeoutUs,
                  "udp-reconnect", TRUE, "drop-on-latency", dropOnLatency, "retry", kRtspRetry, "protocols",
                  kRtspProtocols, nullptr);
+
+    (void) g_signal_connect(source, "select-stream", G_CALLBACK(selectRtspStream), GINT_TO_POINTER(config.audio ? 1 : 0));
 
     const QString rtspUser = sourceUrl.userName(QUrl::FullyDecoded);
     const QString rtspPassword = sourceUrl.password(QUrl::FullyDecoded);

@@ -226,6 +226,8 @@ void GstVideoReceiver::start(uint32_t timeout)
         // do-retransmission needs ≥40 ms latency headroom over the default 20 ms rtx-delay;
         // forcibly disable for sub-frame latency configurations to avoid retransmit storms.
         sourceConfig.doRetransmission = (_rtpJitterLatencyMs >= 40) && (sourceConfig.jitterBuffer != GStreamer::SourceFactory::JitterBuffer::None);
+        sourceConfig.audio = audioEnabled();
+        sourceConfig.audioMuted = audioMuted();
         _source = GStreamer::SourceFactory::create(_uri, sourceConfig);
         if (!_source) {
             qCCritical(GstVideoReceiverLog) << "SourceFactory::create() failed";
@@ -654,6 +656,24 @@ void GstVideoReceiver::startRecording(const QString &videoFile, FILE_FORMAT form
     qCDebug(GstVideoReceiverLog) << "Recording started" << _uri;
     emit onStartRecordingComplete(STATUS_OK);
     emit recordingChanged(_recording);
+}
+
+void GstVideoReceiver::setAudioMuted(bool muted)
+{
+    VideoReceiver::setAudioMuted(muted);
+
+    if (_needDispatch()) {
+        _worker->dispatch([this, muted]() { setAudioMuted(muted); });
+        return;
+    }
+
+    if (!_pipeline) {
+        return;
+    }
+    if (GstElement *volume = gst_bin_get_by_name(GST_BIN(_pipeline), GStreamer::SourceFactory::kAudioVolumeElementName)) {
+        g_object_set(volume, "mute", muted ? TRUE : FALSE, nullptr);
+        gst_object_unref(volume);
+    }
 }
 
 void GstVideoReceiver::stopRecording()

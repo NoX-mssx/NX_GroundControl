@@ -72,6 +72,7 @@ public slots:
     void stopDecoding() override;
     void startRecording(const QString &videoFile, FILE_FORMAT format) override;
     void stopRecording() override;
+    void setAudioMuted(bool muted) override;
     void takeScreenshot(const QString &imageFile) override;
 
     /// Dump the current pipeline graph to GST_DEBUG_DUMP_DOT_DIR (if set) plus

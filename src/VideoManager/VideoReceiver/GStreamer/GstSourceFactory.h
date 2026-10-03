@@ -22,7 +22,14 @@ struct Config
     JitterBuffer jitterBuffer = JitterBuffer::DropOnLatency;
     int latencyMs = 80;
     bool doRetransmission = true;
+    /// Play the audio stream of an RTSP source. When false the audio stream is not requested at all.
+    bool audio = false;
+    /// Initial mute state of the audio branch; its `volume` element is named kAudioVolumeElementName.
+    bool audioMuted = false;
 };
+
+/// Name of the `volume` element in the audio branch, for changing mute on a running pipeline.
+inline constexpr const char* kAudioVolumeElementName = "qgc-audio-volume";
 
 /// Build a source bin (`source` [+ `tsdemux`] [+ `rtpjitterbuffer`] + `parsebin`)
 /// for `uri`. Supported schemes: rtsp/rtspt, tcp:// (MPEG-TS), udp:// (H.264 RTP),
