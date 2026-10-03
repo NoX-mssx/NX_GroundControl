@@ -15,7 +15,7 @@
 
 #include <memory>
 
-QGC_LOGGING_CATEGORY(CameraControlLog, "VehicleModels.CameraControl")
+QGC_LOGGING_CATEGORY(NxCameraControlLog, "VehicleModels.CameraControl")
 
 namespace {
 
@@ -316,7 +316,7 @@ void CameraControl::_finish(const QString &label, bool ok, const QString &detail
     _status = ok ? tr("%1 - done").arg(label)
                  : (detail.isEmpty() ? tr("%1 - failed").arg(label) : tr("%1 - failed: %2").arg(label, detail));
     if (!ok) {
-        qCWarning(CameraControlLog) << _status;
+        qCWarning(NxCameraControlLog) << _status;
     }
     emit statusChanged();
 

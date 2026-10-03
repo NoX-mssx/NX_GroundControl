@@ -1042,3 +1042,15 @@ void VideoManager::setAuxiliaryVideo(int index, const QString &uri, bool audio)
         return;
     }
 }
+
+void VideoManager::startVideo()
+{
+    qCDebug(VideoManagerLog) << "startVideo";
+
+    if (!hasVideo()) {
+        qCDebug(VideoManagerLog) << "Stream not enabled/configured";
+        return;
+    }
+
+    _restartAllVideos();
+}
