@@ -1,12 +1,17 @@
 #include "WireGuardTunnel.h"
 #include "QGCLoggingCategory.h"
+#include "SecretProtector.h"
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QHash>
+#include <QtCore/QJsonArray>
+#include <QtCore/QJsonDocument>
+#include <QtCore/QJsonObject>
 #include <QtCore/QProcess>
 #include <QtCore/QRegularExpression>
+#include <QtCore/QSaveFile>
 #include <QtCore/QStandardPaths>
 #include <QtCore/QTemporaryFile>
 #include <QtCore/QThread>
@@ -132,6 +137,170 @@ constexpr int kMaxTunnelNameLength = 32;
 WireGuardTunnel::WireGuardTunnel(QObject *parent)
     : QObject(parent)
 {
+}
+
+namespace {
+
+constexpr const char *kProfileNameKey = "name";
+constexpr const char *kProfileTunnelKey = "tunnel";
+
+const QStringList &profileSecretKeys()
+{
+    static const QStringList keys = {QStringLiteral("privateKey"), QStringLiteral("presharedKey")};
+    return keys;
+}
+
+QString profilesFilePath()
+{
+    return QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath(QStringLiteral("WireGuardTunnels.json"));
+}
+
+} // namespace
+
+QVariantList &WireGuardTunnel::_profiles()
+{
+    // Loaded on first use; shared by the QML singleton and the static lookups LinkManager makes.
+    static QVariantList profiles = []() {
+        QVariantList loaded;
+        QFile file(profilesFilePath());
+        if (!file.open(QIODevice::ReadOnly)) {
+            return loaded;
+        }
+        const QJsonArray stored = QJsonDocument::fromJson(file.readAll()).object().value(QLatin1String("tunnels")).toArray();
+        for (const QJsonValue &value : stored) {
+            QVariantMap profile = value.toObject().toVariantMap();
+            for (const QString &secretKey : profileSecretKeys()) {
+                const QString secret = SecretProtector::unprotect(profile.take(secretKey + QStringLiteral("Protected")).toString());
+                if (!secret.isEmpty()) {
+                    profile[secretKey] = secret;
+                }
+            }
+            loaded.append(profile);
+        }
+        return loaded;
+    }();
+    return profiles;
+}
+
+int WireGuardTunnel::_profileIndex(const QString &name)
+{
+    if (name.isEmpty()) {
+        return -1;
+    }
+    const QVariantList &profiles = _profiles();
+    for (int i = 0; i < profiles.count(); i++) {
+        if (profiles.at(i).toMap().value(QLatin1String(kProfileNameKey)).toString() == name) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+bool WireGuardTunnel::_saveProfiles()
+{
+    QJsonArray stored;
+    for (const QVariant &profileVar : std::as_const(_profiles())) {
+        QVariantMap profile = profileVar.toMap();
+        for (const QString &secretKey : profileSecretKeys()) {
+            const QString secret = profile.take(secretKey).toString();
+            if (!secret.isEmpty()) {
+                profile[secretKey + QStringLiteral("Protected")] = SecretProtector::protect(secret);
+            }
+        }
+        stored.append(QJsonObject::fromVariantMap(profile));
+    }
+
+    const QString path = profilesFilePath();
+    if (!QDir().mkpath(QFileInfo(path).absolutePath())) {
+        return false;
+    }
+    QSaveFile file(path);
+    if (!file.open(QIODevice::WriteOnly)) {
+        return false;
+    }
+    (void) file.write(QJsonDocument(QJsonObject{{QStringLiteral("tunnels"), stored}}).toJson());
+    return file.commit();
+}
+
+QStringList WireGuardTunnel::profileNames() const
+{
+    QStringList names;
+    for (const QVariant &profileVar : std::as_const(_profiles())) {
+        names.append(profileVar.toMap().value(QLatin1String(kProfileNameKey)).toString());
+    }
+    return names;
+}
+
+QVariantMap WireGuardTunnel::profile(const QString &name) const
+{
+    const int index = _profileIndex(name);
+    return (index < 0) ? QVariantMap() : _profiles().at(index).toMap();
+}
+
+QString WireGuardTunnel::tunnelForProfile(const QString &profileName)
+{
+    const int index = _profileIndex(profileName);
+    return (index < 0) ? QString() : _profiles().at(index).toMap().value(QLatin1String(kProfileTunnelKey)).toString();
+}
+
+QString WireGuardTunnel::saveProfile(const QString &originalName, const QVariantMap &profile)
+{
+    const QString name = profile.value(QLatin1String(kProfileNameKey)).toString().trimmed();
+    if (name.isEmpty()) {
+        return tr("Enter a tunnel name.");
+    }
+
+    const int originalIndex = _profileIndex(originalName);
+    const int nameIndex = _profileIndex(name);
+    if ((nameIndex >= 0) && (nameIndex != originalIndex)) {
+        return tr("A tunnel named \"%1\" already exists.").arg(name);
+    }
+
+    QVariantMap stored = profile;
+    stored[QLatin1String(kProfileNameKey)] = name;
+    // A profile keeps its Windows tunnel name through renames, so the registered tunnel is replaced, not duplicated.
+    QString tunnel = (originalIndex >= 0) ? _profiles().at(originalIndex).toMap().value(QLatin1String(kProfileTunnelKey)).toString() : QString();
+    if (tunnel.isEmpty()) {
+        tunnel = tunnelNameForLink(name);
+    }
+    stored[QLatin1String(kProfileTunnelKey)] = tunnel;
+
+    const QString installError = installFromSettings(tunnel, stored);
+    if (!installError.isEmpty()) {
+        return installError;
+    }
+
+    const QVariantList previous = _profiles();
+    if (originalIndex >= 0) {
+        _profiles()[originalIndex] = stored;
+    } else {
+        _profiles().append(stored);
+    }
+    if (!_saveProfiles()) {
+        _profiles() = previous;
+        return tr("Could not write the tunnel settings file.");
+    }
+
+    emit profilesChanged();
+    return QString();
+}
+
+QString WireGuardTunnel::deleteProfile(const QString &name)
+{
+    const int index = _profileIndex(name);
+    if (index < 0) {
+        return QString();
+    }
+
+    const QString removeError = remove(_profiles().at(index).toMap().value(QLatin1String(kProfileTunnelKey)).toString());
+    if (!removeError.isEmpty()) {
+        return removeError;
+    }
+
+    _profiles().removeAt(index);
+    (void) _saveProfiles();
+    emit profilesChanged();
+    return QString();
 }
 
 bool WireGuardTunnel::available()

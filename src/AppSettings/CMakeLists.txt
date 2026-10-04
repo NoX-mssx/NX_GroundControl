@@ -97,6 +97,7 @@ qt_add_qml_module(AppSettingsModule
         TcpSettings.qml
         UdpSettings.qml
         VehicleModelsSettings.qml
+        WireGuardSettings.qml
     NO_PLUGIN
 )
 

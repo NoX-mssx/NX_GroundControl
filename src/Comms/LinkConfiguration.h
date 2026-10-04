@@ -28,10 +28,9 @@ class LinkConfiguration : public QObject
     Q_PROPERTY(QString          settingsTitle   READ settingsTitle                          CONSTANT)
     Q_PROPERTY(bool             highLatency     READ isHighLatency  WRITE setHighLatency    NOTIFY highLatencyChanged)
     Q_PROPERTY(QString          vehicleModel    READ vehicleModel   WRITE setVehicleModel   NOTIFY vehicleModelChanged)
-    /// WireGuard tunnel started before this link connects and stopped when it disconnects, empty for none
-    Q_PROPERTY(QString          wireGuardTunnel     MEMBER _wireGuardTunnel     NOTIFY tunnelSettingsChanged)
-    /// Tunnel settings edited in the link dialog, see WireGuardTunnel::installFromSettings
-    Q_PROPERTY(QVariantMap      wireGuardSettings   MEMBER _wireGuardSettings   NOTIFY tunnelSettingsChanged)
+    /// Name of the WireGuard tunnel profile (see WireGuardTunnel) started before this link connects and
+    /// stopped when it disconnects, empty for none
+    Q_PROPERTY(QString          wireGuardProfile    MEMBER _wireGuardProfile    NOTIFY tunnelSettingsChanged)
     /// Address pinged to measure the link round trip time (the vehicle's router inside the tunnel), empty for none
     Q_PROPERTY(QString          pingAddress         MEMBER _pingAddress         NOTIFY tunnelSettingsChanged)
     /// Scale joystick throttle down while the ping is above the thresholds below
@@ -74,7 +73,7 @@ public:
     QString vehicleModel() const { return _vehicleModel; }
     void setVehicleModel(const QString &vehicleModel);
 
-    QString wireGuardTunnel() const { return _wireGuardTunnel; }
+    QString wireGuardProfile() const { return _wireGuardProfile; }
     QString pingAddress() const { return _pingAddress; }
     bool throttleLimitEnabled() const { return _throttleLimitEnabled; }
     int pingThreshold1Ms() const { return _pingThreshold1Ms; }
@@ -198,8 +197,7 @@ private:
     bool _autoConnect = false; ///< This connection is started automatically at boot
     bool _highLatency = false;
     QString _vehicleModel;
-    QString _wireGuardTunnel;
-    QVariantMap _wireGuardSettings;
+    QString _wireGuardProfile;
     QString _pingAddress;
     bool _throttleLimitEnabled = false;
     int _pingThreshold1Ms = 300;

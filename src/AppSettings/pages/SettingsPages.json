@@ -101,6 +101,11 @@
             "icon": "qrc:/res/VehicleWheel.svg"
         },
         {
+            "name": "WireGuard",
+            "qml": "WireGuardSettings.qml",
+            "icon": "qrc:/InstrumentValueIcons/lock-closed.svg"
+        },
+        {
             "divider": true
         },
         {

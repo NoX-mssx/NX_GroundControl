@@ -183,8 +183,11 @@ bool LinkManager::createConnectedLink(SharedLinkConfigurationPtr &config)
 
     MAVLinkProtocol::instance()->resetMetadataForLink(link.get());
 
-    if (!config->wireGuardTunnel().isEmpty()) {
-        const QString tunnelError = WireGuardTunnel::start(config->wireGuardTunnel());
+    if (!config->wireGuardProfile().isEmpty()) {
+        const QString tunnel = WireGuardTunnel::tunnelForProfile(config->wireGuardProfile());
+        const QString tunnelError = tunnel.isEmpty()
+            ? tr("The WireGuard tunnel \"%1\" selected for this link no longer exists.").arg(config->wireGuardProfile())
+            : WireGuardTunnel::start(tunnel);
         if (!tunnelError.isEmpty()) {
             qgcApp()->showAppMessage(tunnelError, config->name());
             (void) disconnect(link.get(), nullptr, this, nullptr);
@@ -308,8 +311,23 @@ void LinkManager::_linkDisconnected()
         return;
     }
 
-    if (config && !config->wireGuardTunnel().isEmpty()) {
-        WireGuardTunnel::stop(config->wireGuardTunnel());
+    if (config && !config->wireGuardProfile().isEmpty()) {
+        const QString tunnel = WireGuardTunnel::tunnelForProfile(config->wireGuardProfile());
+        // Another link still using the same tunnel keeps it up.
+        bool tunnelInUse = false;
+        {
+            QMutexLocker locker(&_linksMutex);
+            for (const SharedLinkInterfacePtr &other : std::as_const(_rgLinks)) {
+                const SharedLinkConfigurationPtr otherConfig = other->linkConfiguration();
+                if (otherConfig && (otherConfig->wireGuardProfile() == config->wireGuardProfile())) {
+                    tunnelInUse = true;
+                    break;
+                }
+            }
+        }
+        if (!tunnel.isEmpty() && !tunnelInUse) {
+            WireGuardTunnel::stop(tunnel);
+        }
     }
 
     if (config) {
