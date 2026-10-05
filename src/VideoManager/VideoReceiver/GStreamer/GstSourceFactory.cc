@@ -434,6 +434,31 @@ GstElement* buildTcpSource(const QUrl& sourceUrl)
     return source;
 }
 
+// SRT carries MPEG-TS. The whole URL goes to srtsrc unchanged, so mode, latency, streamid and
+// passphrase are set as URL query parameters, as in any other SRT client.
+GstElement* buildSrtSource(const QUrl& sourceUrl, guint latencyMs)
+{
+    if (sourceUrl.host().isEmpty() || !validPort(sourceUrl.port())) {
+        qCCritical(GstSourceFactoryLog) << "Invalid SRT URI" << sourceUrl.toDisplayString(QUrl::RemoveQuery);
+        return nullptr;
+    }
+
+    GstElement* source = gst_element_factory_make("srtsrc", "source");
+    if (!source) {
+        qCCritical(GstSourceFactoryLog) << "gst_element_factory_make('srtsrc') failed";
+        return nullptr;
+    }
+
+    // Applied first so that a latency given in the URL wins over the application setting.
+    if (latencyMs > 0) {
+        g_object_set(source, "latency", latencyMs, nullptr);
+    }
+    // auto-reconnect makes the source survive a link dropout instead of posting EOS.
+    g_object_set(source, "uri", sourceUrl.toEncoded().constData(), "wait-for-connection", FALSE,
+                 "auto-reconnect", TRUE, "do-timestamp", TRUE, nullptr);
+    return source;
+}
+
 GstElement* buildUdpSource(const QUrl& sourceUrl, bool isUdpH264, bool isUdpH265)
 {
     const int port = sourceUrl.port();
@@ -605,8 +630,10 @@ GstElement* create(const QString& uri, const Config& config)
     const bool isUdpH265 = (scheme == QLatin1String("udp265"));
     const bool isUdpMPEGTS = (scheme == QLatin1String("mpegts"));
     const bool isTcpMPEGTS = (scheme == QLatin1String("tcp"));
+    const bool isSrt = (scheme == QLatin1String("srt"));
+    const bool isMpegTs = isTcpMPEGTS || isUdpMPEGTS || isSrt;
 
-    if (!isRtsp && !isUdpH264 && !isUdpH265 && !isUdpMPEGTS && !isTcpMPEGTS) {
+    if (!isRtsp && !isUdpH264 && !isUdpH265 && !isMpegTs) {
         qCWarning(GstSourceFactoryLog) << "Unsupported URI scheme:" << scheme << "in" << sourceUrl.toDisplayString(QUrl::RemoveUserInfo);
         return nullptr;
     }
@@ -625,6 +652,8 @@ GstElement* create(const QString& uri, const Config& config)
             source = buildRtspSource(uri, sourceUrl, config, latencyMs);
         } else if (isTcpMPEGTS) {
             source = buildTcpSource(sourceUrl);
+        } else if (isSrt) {
+            source = buildSrtSource(sourceUrl, latencyMs);
         } else {  // isUdpH264 || isUdpH265 || isUdpMPEGTS
             source = buildUdpSource(sourceUrl, isUdpH264, isUdpH265);
         }
@@ -693,7 +722,7 @@ GstElement* create(const QString& uri, const Config& config)
         parser = nullptr;
 
         // Android can't determine MPEG2-TS via parsebin, so create tsdemux explicitly.
-        if (isTcpMPEGTS || isUdpMPEGTS) {
+        if (isMpegTs) {
             tsdemux = gst_element_factory_make("tsdemux", nullptr);
             if (!tsdemux) {
                 qCCritical(GstSourceFactoryLog) << "gst_element_factory_make('tsdemux') failed";
@@ -723,7 +752,7 @@ GstElement* create(const QString& uri, const Config& config)
                 break;
             }
         } else {
-            if (!linkSourceToParser(bin, upstream, binParser, config, latencyMs, isTcpMPEGTS || isUdpMPEGTS, isRtsp)) {
+            if (!linkSourceToParser(bin, upstream, binParser, config, latencyMs, isMpegTs, isRtsp)) {
                 break;
             }
         }

@@ -33,7 +33,7 @@ inline constexpr const char* kAudioVolumeElementName = "qgc-audio-volume";
 
 /// Build a source bin (`source` [+ `tsdemux`] [+ `rtpjitterbuffer`] + `parsebin`)
 /// for `uri`. Supported schemes: rtsp/rtspt, tcp:// (MPEG-TS), udp:// (H.264 RTP),
-/// udp265:// (H.265 RTP), mpegts:// (MPEG-TS over UDP).
+/// udp265:// (H.265 RTP), mpegts:// (MPEG-TS over UDP), srt:// (MPEG-TS over SRT).
 ///
 /// Ghost pads on the returned bin are wired lazily; for `rtspsrc`/`tsdemux`/`parsebin`
 /// they appear only after upstream produces pads, so callers must connect any
