@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="ru" sourcelanguage="en">
+<TS version="2.1" language="ru_RU" sourcelanguage="en">
   <context>
     <name>APMAdvancedTuningCopterComponent</name>
     <message>
@@ -4362,22 +4362,12 @@ Please place your vehicle in water, click the button, and wait. Note that the th
       <translation>Настройки</translation>
     </message>
     <message>
-      <location filename="../src/Settings/AppSettings.cc" line="123" />
+      <location filename="../src/Settings/AppSettings.cc" line="90" />
       <source>Save to SD card specified for application data. But SD card is write protected. Using internal storage.</source>
       <translation>Сохранение на SD-карту, указанную для данных приложения. Но SD-карта защищена от записи. Используется внутренняя память.</translation>
     </message>
     <message>
-      <location filename="../src/Settings/AppSettings.cc" line="250" />
-      <source> (Partial)</source>
-      <translation> (Частично)</translation>
-    </message>
-    <message>
-      <location filename="../src/Settings/AppSettings.cc" line="258" />
-      <source> (Test Only)</source>
-      <translation> (Только тест)</translation>
-    </message>
-    <message>
-      <location filename="../src/Settings/AppSettings.cc" line="265" />
+      <location filename="../src/Settings/AppSettings.cc" line="211" />
       <source>Pseudo Localization (Test Only)</source>
       <translation>Псевдолокализация (только тест)</translation>
     </message>
@@ -4548,122 +4538,134 @@ Click Ok to start the auto-tuning process.
   <context>
     <name>BatteryIndicator</name>
     <message>
-      <location filename="../src/Toolbar/BatteryIndicator.qml" line="294" />
-      <location filename="../src/Toolbar/BatteryIndicator.qml" line="544" />
+      <location filename="../src/Toolbar/BatteryIndicator.qml" line="303" />
+      <location filename="../src/Toolbar/BatteryIndicator.qml" line="553" />
       <source>100%</source>
       <translation>100%</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/BatteryIndicator.qml" line="290" />
-      <location filename="../src/Toolbar/BatteryIndicator.qml" line="303" />
+      <location filename="../src/Toolbar/BatteryIndicator.qml" line="299" />
       <location filename="../src/Toolbar/BatteryIndicator.qml" line="312" />
+      <location filename="../src/Toolbar/BatteryIndicator.qml" line="321" />
       <source>n/a</source>
       <translation>н/д</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/BatteryIndicator.qml" line="386" />
+      <location filename="../src/Toolbar/BatteryIndicator.qml" line="214" />
+      <source>Empty (0%): %1 V
+Full (100%): %2 V</source>
+      <translation>Пустая (0%): %1 В
+Полная (100%): %2 В</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/BatteryIndicator.qml" line="215" />
+      <source>Charge from voltage is off. Click to set the empty and full voltages.</source>
+      <translation>Заряд по напряжению выключен. Нажмите, чтобы задать напряжение пустой и полной батареи.</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/BatteryIndicator.qml" line="395" />
       <source>Charge Display</source>
       <translation>Отображение заряда</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/BatteryIndicator.qml" line="398" />
+      <location filename="../src/Toolbar/BatteryIndicator.qml" line="407" />
       <source>Percentage from voltage</source>
       <translation>Процент по напряжению</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/BatteryIndicator.qml" line="403" />
+      <location filename="../src/Toolbar/BatteryIndicator.qml" line="412" />
       <source>Empty (0%)</source>
       <translation>Пустая (0%)</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/BatteryIndicator.qml" line="410" />
+      <location filename="../src/Toolbar/BatteryIndicator.qml" line="419" />
       <source>Full (100%)</source>
       <translation>Полная (100%)</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/BatteryIndicator.qml" line="419" />
+      <location filename="../src/Toolbar/BatteryIndicator.qml" line="428" />
       <source>Full voltage must be higher than empty voltage</source>
       <translation>Напряжение полного заряда должно быть выше напряжения разряженной батареи</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/BatteryIndicator.qml" line="443" />
+      <location filename="../src/Toolbar/BatteryIndicator.qml" line="452" />
       <source>Battery %1</source>
       <translation>Батарея %1</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/BatteryIndicator.qml" line="443" />
+      <location filename="../src/Toolbar/BatteryIndicator.qml" line="452" />
       <source>Status</source>
       <translation>Состояние</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/BatteryIndicator.qml" line="457" />
+      <location filename="../src/Toolbar/BatteryIndicator.qml" line="466" />
       <source>Charge State</source>
       <translation>Состояние заряда</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/BatteryIndicator.qml" line="463" />
-      <location filename="../src/Toolbar/BatteryIndicator.qml" line="469" />
+      <location filename="../src/Toolbar/BatteryIndicator.qml" line="472" />
+      <location filename="../src/Toolbar/BatteryIndicator.qml" line="478" />
       <source>Remaining</source>
       <translation>Осталось</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/BatteryIndicator.qml" line="475" />
+      <location filename="../src/Toolbar/BatteryIndicator.qml" line="484" />
       <source>Voltage</source>
       <translation>Напряжение</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/BatteryIndicator.qml" line="480" />
+      <location filename="../src/Toolbar/BatteryIndicator.qml" line="489" />
       <source>Consumed</source>
       <translation>Израсходовано</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/BatteryIndicator.qml" line="486" />
+      <location filename="../src/Toolbar/BatteryIndicator.qml" line="495" />
       <source>Temperature</source>
       <translation>Температура</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/BatteryIndicator.qml" line="492" />
+      <location filename="../src/Toolbar/BatteryIndicator.qml" line="501" />
       <source>Function</source>
       <translation>Функция</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/BatteryIndicator.qml" line="512" />
+      <location filename="../src/Toolbar/BatteryIndicator.qml" line="521" />
       <source>Battery Display</source>
       <translation>Отображение батареи</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/BatteryIndicator.qml" line="518" />
+      <location filename="../src/Toolbar/BatteryIndicator.qml" line="527" />
       <source>Only show battery with lowest charge</source>
       <translation>Показывать только батарею с наименьшим зарядом</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/BatteryIndicator.qml" line="391" />
-      <location filename="../src/Toolbar/BatteryIndicator.qml" line="523" />
+      <location filename="../src/Toolbar/BatteryIndicator.qml" line="400" />
+      <location filename="../src/Toolbar/BatteryIndicator.qml" line="532" />
       <source>Value</source>
       <translation>Значение</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/BatteryIndicator.qml" line="529" />
+      <location filename="../src/Toolbar/BatteryIndicator.qml" line="538" />
       <source>Coloring</source>
       <translation>Раскраска</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/BatteryIndicator.qml" line="602" />
+      <location filename="../src/Toolbar/BatteryIndicator.qml" line="611" />
       <source>Low</source>
       <translation>Низкий</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/BatteryIndicator.qml" line="615" />
+      <location filename="../src/Toolbar/BatteryIndicator.qml" line="624" />
       <source>Critical</source>
       <translation>Критическое</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/BatteryIndicator.qml" line="631" />
+      <location filename="../src/Toolbar/BatteryIndicator.qml" line="640" />
       <source>Vehicle Power</source>
       <translation>Питание аппарата</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/BatteryIndicator.qml" line="632" />
+      <location filename="../src/Toolbar/BatteryIndicator.qml" line="641" />
       <source>Configure</source>
       <translation>Настроить</translation>
     </message>
@@ -7650,73 +7652,63 @@ VTOL</translation>
   <context>
     <name>FlyViewCustomLayer</name>
     <message>
-      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="112" />
-      <source>Muted</source>
-      <translation>Без звуку</translation>
-    </message>
-    <message>
-      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="112" />
-      <source>Sound</source>
-      <translation>Звук</translation>
-    </message>
-    <message>
-      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="119" />
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="215" />
       <source>SD</source>
       <translation>SD</translation>
     </message>
     <message>
-      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="119" />
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="215" />
       <source>HD</source>
       <translation>HD</translation>
     </message>
     <message>
-      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="125" />
-      <source>Control</source>
-      <translation>Управление</translation>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="289" />
+      <source>Throttle stopped · no ping reply</source>
+      <translation>Газ остановлен · нет ответа на пинг</translation>
     </message>
     <message>
-      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="136" />
-      <source>Cams</source>
-      <translation>Камеры</translation>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="290" />
+      <source>Throttle limited to %1% · ping %2 ms</source>
+      <translation>Газ ограничен до %1% · пинг %2 мс</translation>
     </message>
     <message>
-      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="190" />
-      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="265" />
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="401" />
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="476" />
       <source>Camera %1</source>
       <translation>Камера %1</translation>
     </message>
     <message>
-      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="196" />
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="407" />
       <source>Day Mode</source>
       <translation>Дневной режим</translation>
     </message>
     <message>
-      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="197" />
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="408" />
       <source>Night Mode</source>
       <translation>Ночной режим</translation>
     </message>
     <message>
-      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="198" />
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="409" />
       <source>IR Light On</source>
       <translation>ИК-подсветка вкл.</translation>
     </message>
     <message>
-      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="199" />
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="410" />
       <source>IR Light Off</source>
       <translation>ИК-подсветка выкл.</translation>
     </message>
     <message>
-      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="216" />
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="427" />
       <source>Confirm Reboot</source>
       <translation>Подтвердить перезагрузку</translation>
     </message>
     <message>
-      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="216" />
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="427" />
       <source>Reboot</source>
       <translation>Перезагрузить</translation>
     </message>
     <message>
-      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="234" />
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="445" />
       <source>Sending...</source>
       <translation>Отправка...</translation>
     </message>
@@ -7878,9 +7870,64 @@ VTOL</translation>
   <context>
     <name>FlyViewToolBar</name>
     <message>
-      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="95" />
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="92" />
+      <source>%1 · comms lost</source>
+      <translation>%1 · связь потеряна</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="93" />
+      <source>Not connected</source>
+      <translation>Не подключено</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="136" />
+      <source>Armed</source>
+      <translation>Armed</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="146" />
+      <source>Disarmed</source>
+      <translation>Disarmed</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="258" />
+      <source>Board ID %1</source>
+      <translation>ID борта %1</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="268" />
       <source>Disconnect</source>
       <translation>Отключить</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="283" />
+      <source>Vehicle Messages</source>
+      <translation>Сообщения аппарата</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="291" />
+      <source>No new vehicle messages</source>
+      <translation>Нет новых сообщений аппарата</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="299" />
+      <source>Select Link to Connect</source>
+      <translation>Выберите линк для подключения</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="303" />
+      <source>No Links Configured</source>
+      <translation>Линки не настроены</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="314" />
+      <source>Connected</source>
+      <translation>Подключено</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="327" />
+      <source>Configure Links</source>
+      <translation>Настроить линки</translation>
     </message>
   </context>
   <context>
@@ -10573,71 +10620,81 @@ VTOL</translation>
       <translation>Введите название</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="148" />
+      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="150" />
+      <source>Board ID</source>
+      <translation>ID борта</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="154" />
+      <source>Board number, e.g. 104</source>
+      <translation>Номер борта, напр. 104</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="161" />
       <source>Vehicle Model</source>
       <translation>Модель техники</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="149" />
-      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="157" />
+      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="162" />
+      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="170" />
       <source>None</source>
       <translation>Нет</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="156" />
+      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="169" />
       <source>WireGuard Tunnel</source>
       <translation>Туннель WireGuard</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="166" />
+      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="179" />
       <source>Automatically Connect on Start</source>
       <translation>Автоматически подключаться при запуске</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="175" />
+      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="188" />
       <source>High Latency</source>
       <translation>Высокая задержка</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="183" />
+      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="196" />
       <source>Link Quality</source>
       <translation>Качество линка</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="189" />
+      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="202" />
       <source>Ping address</source>
       <translation>Адрес ping</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="193" />
+      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="206" />
       <source>Vehicle router, e.g. 10.30.1.101</source>
       <translation>Роутер аппарата, напр. 10.30.1.101</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="200" />
+      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="213" />
       <source>Limit throttle on high ping</source>
       <translation>Ограничивать газ при высоком ping</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="210" />
-      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="234" />
+      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="223" />
+      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="247" />
       <source>Above</source>
       <translation>Свыше</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="218" />
-      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="242" />
+      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="231" />
+      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="255" />
       <source>ms throttle</source>
       <translation>мс газ</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="226" />
-      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="250" />
+      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="239" />
+      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="263" />
       <source>%</source>
       <translation>%</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="255" />
+      <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="268" />
       <source>Type</source>
       <translation>Тип</translation>
     </message>
@@ -10709,24 +10766,14 @@ VTOL</translation>
   <context>
     <name>LinkQualityIndicator</name>
     <message>
-      <location filename="../src/Toolbar/LinkQualityIndicator.qml" line="28" />
-      <source>Ping</source>
-      <translation>Ping</translation>
-    </message>
-    <message>
-      <location filename="../src/Toolbar/LinkQualityIndicator.qml" line="34" />
+      <location filename="../src/Toolbar/LinkQualityIndicator.qml" line="39" />
       <source>no reply</source>
       <translation>нет ответа</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/LinkQualityIndicator.qml" line="34" />
+      <location filename="../src/Toolbar/LinkQualityIndicator.qml" line="39" />
       <source>%1 ms</source>
       <translation>%1 мс</translation>
-    </message>
-    <message>
-      <location filename="../src/Toolbar/LinkQualityIndicator.qml" line="40" />
-      <source>Throttle %1%</source>
-      <translation>Газ %1%</translation>
     </message>
   </context>
   <context>
@@ -12459,12 +12506,12 @@ VTOL</translation>
       <translation>MR(vtol)</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="265" />
+      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="302" />
       <source>Sensor Status</source>
       <translation>Состояние датчиков</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="199" />
+      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="236" />
       <source>Disarm</source>
       <translation>Disarm</translation>
     </message>
@@ -12484,64 +12531,74 @@ VTOL</translation>
       <translation>Отключено — нажмите, чтобы подключить вручную</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="199" />
-      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="396" />
+      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="214" />
+      <source>Board ID %1</source>
+      <translation>ID борта %1</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="220" />
+      <source>Disconnect</source>
+      <translation>Отключить</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="236" />
+      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="433" />
       <source>Force Arm</source>
       <translation>Принудительный Arm</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="199" />
+      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="236" />
       <source>Arm</source>
       <translation>Arm</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="219" />
+      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="256" />
       <source>Primary Link</source>
       <translation>Основной линк</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="250" />
+      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="287" />
       <source>Vehicle Messages</source>
       <translation>Сообщения аппарата</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="258" />
+      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="295" />
       <source>No new vehicle messages</source>
       <translation>Нет новых сообщений аппарата</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="288" />
+      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="325" />
       <source>Overall Status</source>
       <translation>Общее состояние</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="369" />
+      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="406" />
       <source>Edit Parameter</source>
       <translation>Редактировать параметр</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="397" />
+      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="434" />
       <source>Force arming bypasses pre-arm checks. Use with caution.</source>
       <translation>Принудительный Arm обходит проверки перед Arm. Используйте осторожно.</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="402" />
+      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="439" />
       <source>Allow Force Arm</source>
       <translation>Разрешить принудительный Arm</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="418" />
+      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="455" />
       <source>Vehicle Parameters</source>
       <translation>Параметры аппарата</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="420" />
-      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="429" />
+      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="457" />
+      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="466" />
       <source>Configure</source>
       <translation>Настроить</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="427" />
+      <location filename="../src/Toolbar/MainStatusIndicator.qml" line="464" />
       <source>Vehicle Configuration</source>
       <translation>Конфигурация аппарата</translation>
     </message>
@@ -12559,47 +12616,47 @@ VTOL</translation>
       <translation>Линки не настроены</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="42" />
+      <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="44" />
       <source>Connected</source>
       <translation>Подключено</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="62" />
+      <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="64" />
       <source>Communication Links</source>
       <translation>Линки связи</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="63" />
+      <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="65" />
       <source>Configure</source>
       <translation>Настроить</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="74" />
+      <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="76" />
       <source>AutoConnect</source>
       <translation>Автоподключение</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="88" />
+      <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="90" />
       <source>Pixhawk</source>
       <translation>Pixhawk</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="88" />
+      <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="90" />
       <source>SiK Radio</source>
       <translation>SiK Radio</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="88" />
+      <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="90" />
       <source>LibrePilot</source>
       <translation>LibrePilot</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="88" />
+      <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="90" />
       <source>UDP</source>
       <translation>UDP</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="88" />
+      <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="90" />
       <source>RTK</source>
       <translation>RTK</translation>
     </message>
@@ -12684,12 +12741,12 @@ VTOL</translation>
       <translation>Выключить расширенный режим?</translation>
     </message>
     <message>
-      <location filename="../src/MainWindow/MainWindow.qml" line="540" />
+      <location filename="../src/MainWindow/MainWindow.qml" line="541" />
       <source>Vehicle Error</source>
       <translation>Ошибка аппарата</translation>
     </message>
     <message>
-      <location filename="../src/MainWindow/MainWindow.qml" line="564" />
+      <location filename="../src/MainWindow/MainWindow.qml" line="565" />
       <source>Additional errors received</source>
       <translation>Получены дополнительные ошибки</translation>
     </message>
@@ -17361,27 +17418,27 @@ Click 'Ok' to upload the Plan anyway.</source>
   <context>
     <name>QGCApplication</name>
     <message>
-      <location filename="../src/QGCApplication.cc" line="334" />
+      <location filename="../src/QGCApplication.cc" line="341" />
       <source>The current user does not have the correct permissions to access serial devices. You should also remove modemmanager since it also interferes.&lt;br/&gt;&lt;br/&gt;If you are using Ubuntu, execute the following commands to fix these issues:&lt;br/&gt;&lt;pre&gt;sudo usermod -a -G dialout $USER&lt;br/&gt;sudo apt-get remove modemmanager&lt;/pre&gt;</source>
       <translation>Текущий пользователь не имеет нужных прав доступа к последовательным устройствам. Также следует удалить modemmanager, так как он тоже мешает.&lt;br/&gt;&lt;br/&gt;Если вы используете Ubuntu, выполните следующие команды, чтобы устранить эти проблемы:&lt;br/&gt;&lt;pre&gt;sudo usermod -a -G dialout $USER&lt;br/&gt;sudo apt-get remove modemmanager&lt;/pre&gt;</translation>
     </message>
     <message>
-      <location filename="../src/QGCApplication.cc" line="359" />
+      <location filename="../src/QGCApplication.cc" line="366" />
       <source>The format for %1 saved settings has been modified. Your saved settings have been reset to defaults.</source>
       <translation>Формат сохранённых настроек %1 изменён. Сохранённые настройки сброшены к настройкам по умолчанию.</translation>
     </message>
     <message>
-      <location filename="../src/QGCApplication.cc" line="395" />
+      <location filename="../src/QGCApplication.cc" line="402" />
       <source>Parameters are missing from firmware. You may be running a version of firmware which is not fully supported or your firmware has a bug in it. Missing params: %1</source>
       <translation>В прошивке отсутствуют параметры. Возможно, вы используете версию прошивки, которая не полностью поддерживается, или в ней есть ошибка. Отсутствующие параметры: %1</translation>
     </message>
     <message>
-      <location filename="../src/QGCApplication.cc" line="575" />
+      <location filename="../src/QGCApplication.cc" line="582" />
       <source>There is a newer version of %1 available. You can download it from %2.</source>
       <translation>Доступна новая версия %1. Вы можете скачать её здесь: %2.</translation>
     </message>
     <message>
-      <location filename="../src/QGCApplication.cc" line="578" />
+      <location filename="../src/QGCApplication.cc" line="585" />
       <source>New Version Available</source>
       <translation>Доступна новая версия</translation>
     </message>
@@ -19496,37 +19553,32 @@ Click 'Ok' to upload the Plan anyway.</source>
   <context>
     <name>SelectViewDropdown</name>
     <message>
-      <location filename="../src/Toolbar/SelectViewDropdown.qml" line="23" />
-      <source>Fly</source>
-      <translation>Управление</translation>
-    </message>
-    <message>
-      <location filename="../src/Toolbar/SelectViewDropdown.qml" line="37" />
-      <source>Plan</source>
-      <translation>План</translation>
-    </message>
-    <message>
-      <location filename="../src/Toolbar/SelectViewDropdown.qml" line="52" />
+      <location filename="../src/Toolbar/SelectViewDropdown.qml" line="24" />
       <source>Analyze</source>
       <translation>Анализ</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/SelectViewDropdown.qml" line="68" />
-      <source>Configure</source>
-      <translation>Настроить</translation>
+      <location filename="../src/Toolbar/SelectViewDropdown.qml" line="22" />
+      <source>Drive</source>
+      <translation>Управление</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/SelectViewDropdown.qml" line="83" />
-      <source>Settings</source>
-      <translation>Настройки</translation>
+      <location filename="../src/Toolbar/SelectViewDropdown.qml" line="23" />
+      <source>Vehicle Setup</source>
+      <translation>Настройка техники</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/SelectViewDropdown.qml" line="99" />
+      <location filename="../src/Toolbar/SelectViewDropdown.qml" line="25" />
+      <source>Application Settings</source>
+      <translation>Настройки приложения</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/SelectViewDropdown.qml" line="26" />
       <source>Close</source>
       <translation>Закрыть</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/SelectViewDropdown.qml" line="122" />
+      <location filename="../src/Toolbar/SelectViewDropdown.qml" line="104" />
       <source>%1 Version</source>
       <translation>Версия %1</translation>
     </message>
@@ -22108,49 +22160,49 @@ If a vehicle still has this key configured, you will no longer be able to commun
   <context>
     <name>VehicleModelManager</name>
     <message>
-      <location filename="../src/VehicleModels/VehicleModelManager.cc" line="419" />
+      <location filename="../src/VehicleModels/VehicleModelManager.cc" line="456" />
       <source>Enter a model name.</source>
       <translation>Введите название модели.</translation>
     </message>
     <message>
-      <location filename="../src/VehicleModels/VehicleModelManager.cc" line="425" />
+      <location filename="../src/VehicleModels/VehicleModelManager.cc" line="462" />
       <source>A model named "%1" already exists.</source>
       <translation>Модель с названием "%1" уже существует.</translation>
     </message>
     <message>
-      <location filename="../src/VehicleModels/VehicleModelManager.cc" line="440" />
-      <location filename="../src/VehicleModels/VehicleModelManager.cc" line="527" />
+      <location filename="../src/VehicleModels/VehicleModelManager.cc" line="477" />
+      <location filename="../src/VehicleModels/VehicleModelManager.cc" line="564" />
       <source>Could not write the vehicle models file.</source>
       <translation>Не удалось записать файл моделей техники.</translation>
     </message>
     <message>
-      <location filename="../src/VehicleModels/VehicleModelManager.cc" line="497" />
+      <location filename="../src/VehicleModels/VehicleModelManager.cc" line="534" />
       <source>Could not open the file: %1</source>
       <translation>Не удалось открыть файл: %1</translation>
     </message>
     <message>
-      <location filename="../src/VehicleModels/VehicleModelManager.cc" line="503" />
+      <location filename="../src/VehicleModels/VehicleModelManager.cc" line="540" />
       <source>The file is not valid JSON: %1</source>
       <translation>Файл не является корректным JSON: %1</translation>
     </message>
     <message>
-      <location filename="../src/VehicleModels/VehicleModelManager.cc" line="523" />
+      <location filename="../src/VehicleModels/VehicleModelManager.cc" line="560" />
       <source>No vehicle models found in the file.</source>
       <translation>В файле не найдено моделей техники.</translation>
     </message>
     <message>
-      <location filename="../src/VehicleModels/VehicleModelManager.cc" line="531" />
+      <location filename="../src/VehicleModels/VehicleModelManager.cc" line="568" />
       <source>Imported: %1</source>
       <translation>Импортировано: %1</translation>
     </message>
     <message>
-      <location filename="../src/VehicleModels/VehicleModelManager.cc" line="538" />
+      <location filename="../src/VehicleModels/VehicleModelManager.cc" line="575" />
       <source>Save the model before exporting it.</source>
       <translation>Сохраните модель перед экспортом.</translation>
     </message>
     <message>
-      <location filename="../src/VehicleModels/VehicleModelManager.cc" line="543" />
-      <location filename="../src/VehicleModels/VehicleModelManager.cc" line="547" />
+      <location filename="../src/VehicleModels/VehicleModelManager.cc" line="580" />
+      <location filename="../src/VehicleModels/VehicleModelManager.cc" line="584" />
       <source>Could not write the file: %1</source>
       <translation>Не удалось записать файл: %1</translation>
     </message>
@@ -22275,8 +22327,8 @@ If a vehicle still has this key configured, you will no longer be able to commun
     </message>
     <message>
       <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="329" />
-      <source>Functions:</source>
-      <translation>Функции:</translation>
+      <source>Functions (output, type, value when on, value when off):</source>
+      <translation>Функции (выход, тип, значение «вкл.», значение «выкл.»):</translation>
     </message>
     <message>
       <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="355" />
@@ -22289,22 +22341,32 @@ If a vehicle still has this key configured, you will no longer be able to commun
       <translation>GPIO</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="377" />
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="369" />
+      <source>On</source>
+      <translation>Вкл.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="382" />
+      <source>Off</source>
+      <translation>Выключено</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="392" />
       <source>Remove</source>
       <translation>Удалить</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="390" />
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="405" />
       <source>Delete Button</source>
       <translation>Удалить кнопку</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="398" />
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="413" />
       <source>Add Function</source>
       <translation>Добавить функцию</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="410" />
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="425" />
       <source>Add Button</source>
       <translation>Добавить кнопку</translation>
     </message>

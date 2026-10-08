@@ -2,6 +2,10 @@
     <qresource prefix="/fonts">
         <file alias="opensans">resources/fonts/OpenSans-Regular.ttf</file>
         <file alias="opensans-demibold">resources/fonts/OpenSans-Semibold.ttf</file>
+        <file alias="manrope-regular">resources/fonts/Manrope_400Regular.ttf</file>
+        <file alias="manrope-semibold">resources/fonts/Manrope_600SemiBold.ttf</file>
+        <file alias="manrope-bold">resources/fonts/Manrope_700Bold.ttf</file>
+        <file alias="manrope-extrabold">resources/fonts/Manrope_800ExtraBold.ttf</file>
         <file alias="NanumGothic-Regular">resources/fonts/NanumGothic-Regular.ttf</file>
         <file alias="NanumGothic-Bold">resources/fonts/NanumGothic-Bold.ttf</file>
     </qresource>
@@ -16,6 +20,23 @@
         <file alias="rtl.svg">resources/rtl.svg</file>
         <file alias="VehicleWheel.svg">resources/VehicleWheel.svg</file>
         <file alias="Satellite.svg">resources/Satellite.svg</file>
+        <file alias="nx/Camera.svg">resources/nx/Camera.svg</file>
+        <file alias="nx/ChevronDown.svg">resources/nx/ChevronDown.svg</file>
+        <file alias="nx/Disconnect.svg">resources/nx/Disconnect.svg</file>
+        <file alias="nx/Gear.svg">resources/nx/Gear.svg</file>
+        <file alias="nx/Home.svg">resources/nx/Home.svg</file>
+        <file alias="nx/LockClosed.svg">resources/nx/LockClosed.svg</file>
+        <file alias="nx/LockOpen.svg">resources/nx/LockOpen.svg</file>
+        <file alias="nx/MenuAnalyze.svg">resources/nx/MenuAnalyze.svg</file>
+        <file alias="nx/MenuClose.svg">resources/nx/MenuClose.svg</file>
+        <file alias="nx/MenuDrive.svg">resources/nx/MenuDrive.svg</file>
+        <file alias="nx/MenuSettings.svg">resources/nx/MenuSettings.svg</file>
+        <file alias="nx/MenuVehicleSetup.svg">resources/nx/MenuVehicleSetup.svg</file>
+        <file alias="nx/Mic.svg">resources/nx/Mic.svg</file>
+        <file alias="nx/Ping.svg">resources/nx/Ping.svg</file>
+        <file alias="nx/Speaker.svg">resources/nx/Speaker.svg</file>
+        <file alias="nx/SpeakerOff.svg">resources/nx/SpeakerOff.svg</file>
+        <file alias="nx/Warning.svg">resources/nx/Warning.svg</file>
         <file alias="SplashScreen">resources/SplashScreen.png</file>
         <file alias="takeoff.svg">resources/takeoff.svg</file>
         <file alias="TrashCan.svg">resources/TrashCan.svg</file>

@@ -7,12 +7,13 @@ import QGroundControl.Controls
 
 Button {
     id:             control
-    padding:        ScreenTools.defaultFontPixelWidth * 0.75
+    padding:        ScreenTools.defaultFontPixelWidth * 1.2
     hoverEnabled:   !ScreenTools.isMobile
     autoExclusive:  true
     icon.color:     textColor
 
-    property color textColor: checked || pressed ? qgcPal.buttonHighlightText : qgcPal.buttonText
+    // NX: the selected page is a tinted row with accent text
+    property color textColor: checked || pressed ? qgcPal.buttonHighlight : qgcPal.buttonText
     property bool expandable: false
     property bool expanded:   false
 
@@ -24,9 +25,9 @@ Button {
     }
 
     background: Rectangle {
-        color:      qgcPal.buttonHighlight
-        opacity:    checked || pressed ? 1 : enabled && hovered ? .2 : 0
-        radius:     ScreenTools.defaultFontPixelWidth / 2
+        color:      checked || pressed ? Qt.rgba(qgcPal.buttonHighlight.r, qgcPal.buttonHighlight.g, qgcPal.buttonHighlight.b, 0.16)
+                                       : Qt.rgba(1, 1, 1, enabled && hovered ? 0.08 : 0)
+        radius:     ScreenTools.defaultFontPixelHeight * 0.6
     }
 
     contentItem: RowLayout {
@@ -44,6 +45,7 @@ Button {
             Layout.fillWidth:       true
             text:                   control.text
             color:                  control.textColor
+            font.weight:            control.checked ? Font.ExtraBold : Font.DemiBold
             horizontalAlignment:    QGCLabel.AlignLeft
         }
 

@@ -4349,22 +4349,12 @@ Please place your vehicle in water, click the button, and wait. Note that the th
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Settings/AppSettings.cc" line="123"/>
+        <location filename="../src/Settings/AppSettings.cc" line="90"/>
         <source>Save to SD card specified for application data. But SD card is write protected. Using internal storage.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Settings/AppSettings.cc" line="250"/>
-        <source> (Partial)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Settings/AppSettings.cc" line="258"/>
-        <source> (Test Only)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Settings/AppSettings.cc" line="265"/>
+        <location filename="../src/Settings/AppSettings.cc" line="211"/>
         <source>Pseudo Localization (Test Only)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4525,122 +4515,133 @@ Click Ok to start the auto-tuning process.
 <context>
     <name>BatteryIndicator</name>
     <message>
-        <location filename="../src/Toolbar/BatteryIndicator.qml" line="294"/>
-        <location filename="../src/Toolbar/BatteryIndicator.qml" line="544"/>
+        <location filename="../src/Toolbar/BatteryIndicator.qml" line="303"/>
+        <location filename="../src/Toolbar/BatteryIndicator.qml" line="553"/>
         <source>100%</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/BatteryIndicator.qml" line="290"/>
-        <location filename="../src/Toolbar/BatteryIndicator.qml" line="303"/>
+        <location filename="../src/Toolbar/BatteryIndicator.qml" line="299"/>
         <location filename="../src/Toolbar/BatteryIndicator.qml" line="312"/>
+        <location filename="../src/Toolbar/BatteryIndicator.qml" line="321"/>
         <source>n/a</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/BatteryIndicator.qml" line="386"/>
+        <location filename="../src/Toolbar/BatteryIndicator.qml" line="214"/>
+        <source>Empty (0%): %1 V
+Full (100%): %2 V</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/Toolbar/BatteryIndicator.qml" line="215"/>
+        <source>Charge from voltage is off. Click to set the empty and full voltages.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/Toolbar/BatteryIndicator.qml" line="395"/>
         <source>Charge Display</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/BatteryIndicator.qml" line="398"/>
+        <location filename="../src/Toolbar/BatteryIndicator.qml" line="407"/>
         <source>Percentage from voltage</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/BatteryIndicator.qml" line="403"/>
+        <location filename="../src/Toolbar/BatteryIndicator.qml" line="412"/>
         <source>Empty (0%)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/BatteryIndicator.qml" line="410"/>
+        <location filename="../src/Toolbar/BatteryIndicator.qml" line="419"/>
         <source>Full (100%)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/BatteryIndicator.qml" line="419"/>
+        <location filename="../src/Toolbar/BatteryIndicator.qml" line="428"/>
         <source>Full voltage must be higher than empty voltage</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/BatteryIndicator.qml" line="443"/>
+        <location filename="../src/Toolbar/BatteryIndicator.qml" line="452"/>
         <source>Battery %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/BatteryIndicator.qml" line="443"/>
+        <location filename="../src/Toolbar/BatteryIndicator.qml" line="452"/>
         <source>Status</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/BatteryIndicator.qml" line="457"/>
+        <location filename="../src/Toolbar/BatteryIndicator.qml" line="466"/>
         <source>Charge State</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/BatteryIndicator.qml" line="463"/>
-        <location filename="../src/Toolbar/BatteryIndicator.qml" line="469"/>
+        <location filename="../src/Toolbar/BatteryIndicator.qml" line="472"/>
+        <location filename="../src/Toolbar/BatteryIndicator.qml" line="478"/>
         <source>Remaining</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/BatteryIndicator.qml" line="475"/>
+        <location filename="../src/Toolbar/BatteryIndicator.qml" line="484"/>
         <source>Voltage</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/BatteryIndicator.qml" line="480"/>
+        <location filename="../src/Toolbar/BatteryIndicator.qml" line="489"/>
         <source>Consumed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/BatteryIndicator.qml" line="486"/>
+        <location filename="../src/Toolbar/BatteryIndicator.qml" line="495"/>
         <source>Temperature</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/BatteryIndicator.qml" line="492"/>
+        <location filename="../src/Toolbar/BatteryIndicator.qml" line="501"/>
         <source>Function</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/BatteryIndicator.qml" line="512"/>
+        <location filename="../src/Toolbar/BatteryIndicator.qml" line="521"/>
         <source>Battery Display</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/BatteryIndicator.qml" line="518"/>
+        <location filename="../src/Toolbar/BatteryIndicator.qml" line="527"/>
         <source>Only show battery with lowest charge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/BatteryIndicator.qml" line="391"/>
-        <location filename="../src/Toolbar/BatteryIndicator.qml" line="523"/>
+        <location filename="../src/Toolbar/BatteryIndicator.qml" line="400"/>
+        <location filename="../src/Toolbar/BatteryIndicator.qml" line="532"/>
         <source>Value</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/BatteryIndicator.qml" line="529"/>
+        <location filename="../src/Toolbar/BatteryIndicator.qml" line="538"/>
         <source>Coloring</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/BatteryIndicator.qml" line="602"/>
+        <location filename="../src/Toolbar/BatteryIndicator.qml" line="611"/>
         <source>Low</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/BatteryIndicator.qml" line="615"/>
+        <location filename="../src/Toolbar/BatteryIndicator.qml" line="624"/>
         <source>Critical</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/BatteryIndicator.qml" line="631"/>
+        <location filename="../src/Toolbar/BatteryIndicator.qml" line="640"/>
         <source>Vehicle Power</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/BatteryIndicator.qml" line="632"/>
+        <location filename="../src/Toolbar/BatteryIndicator.qml" line="641"/>
         <source>Configure</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7625,73 +7626,63 @@ VTOL</source>
 <context>
     <name>FlyViewCustomLayer</name>
     <message>
-        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="112"/>
-        <source>Muted</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="112"/>
-        <source>Sound</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="119"/>
+        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="215"/>
         <source>SD</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="119"/>
+        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="215"/>
         <source>HD</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="125"/>
-        <source>Control</source>
+        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="289"/>
+        <source>Throttle stopped · no ping reply</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="136"/>
-        <source>Cams</source>
+        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="290"/>
+        <source>Throttle limited to %1% · ping %2 ms</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="190"/>
-        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="265"/>
+        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="401"/>
+        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="476"/>
         <source>Camera %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="196"/>
+        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="407"/>
         <source>Day Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="197"/>
+        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="408"/>
         <source>Night Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="198"/>
+        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="409"/>
         <source>IR Light On</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="199"/>
+        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="410"/>
         <source>IR Light Off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="216"/>
+        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="427"/>
         <source>Confirm Reboot</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="216"/>
+        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="427"/>
         <source>Reboot</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="234"/>
+        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="445"/>
         <source>Sending...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7853,8 +7844,63 @@ VTOL</source>
 <context>
     <name>FlyViewToolBar</name>
     <message>
-        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="95"/>
+        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="92"/>
+        <source>%1 · comms lost</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="93"/>
+        <source>Not connected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="136"/>
+        <source>Armed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="146"/>
+        <source>Disarmed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="258"/>
+        <source>Board ID %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="268"/>
         <source>Disconnect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="283"/>
+        <source>Vehicle Messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="291"/>
+        <source>No new vehicle messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="299"/>
+        <source>Select Link to Connect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="303"/>
+        <source>No Links Configured</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="314"/>
+        <source>Connected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="327"/>
+        <source>Configure Links</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -10548,71 +10594,81 @@ VTOL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="148"/>
+        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="150"/>
+        <source>Board ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="154"/>
+        <source>Board number, e.g. 104</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="161"/>
         <source>Vehicle Model</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="149"/>
-        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="157"/>
+        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="162"/>
+        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="170"/>
         <source>None</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="156"/>
+        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="169"/>
         <source>WireGuard Tunnel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="166"/>
+        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="179"/>
         <source>Automatically Connect on Start</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="175"/>
+        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="188"/>
         <source>High Latency</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="183"/>
+        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="196"/>
         <source>Link Quality</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="189"/>
+        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="202"/>
         <source>Ping address</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="193"/>
+        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="206"/>
         <source>Vehicle router, e.g. 10.30.1.101</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="200"/>
+        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="213"/>
         <source>Limit throttle on high ping</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="210"/>
-        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="234"/>
+        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="223"/>
+        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="247"/>
         <source>Above</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="218"/>
-        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="242"/>
+        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="231"/>
+        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="255"/>
         <source>ms throttle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="226"/>
-        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="250"/>
+        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="239"/>
+        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="263"/>
         <source>%</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="255"/>
+        <location filename="../src/AppSettings/LinkConfigurationManager.qml" line="268"/>
         <source>Type</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10684,23 +10740,13 @@ VTOL</source>
 <context>
     <name>LinkQualityIndicator</name>
     <message>
-        <location filename="../src/Toolbar/LinkQualityIndicator.qml" line="28"/>
-        <source>Ping</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Toolbar/LinkQualityIndicator.qml" line="34"/>
+        <location filename="../src/Toolbar/LinkQualityIndicator.qml" line="39"/>
         <source>no reply</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/LinkQualityIndicator.qml" line="34"/>
+        <location filename="../src/Toolbar/LinkQualityIndicator.qml" line="39"/>
         <source>%1 ms</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Toolbar/LinkQualityIndicator.qml" line="40"/>
-        <source>Throttle %1%</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -12434,12 +12480,12 @@ VTOL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="265"/>
+        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="302"/>
         <source>Sensor Status</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="199"/>
+        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="236"/>
         <source>Disarm</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12459,64 +12505,74 @@ VTOL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="199"/>
-        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="396"/>
+        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="214"/>
+        <source>Board ID %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="220"/>
+        <source>Disconnect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="236"/>
+        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="433"/>
         <source>Force Arm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="199"/>
+        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="236"/>
         <source>Arm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="219"/>
+        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="256"/>
         <source>Primary Link</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="250"/>
+        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="287"/>
         <source>Vehicle Messages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="258"/>
+        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="295"/>
         <source>No new vehicle messages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="288"/>
+        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="325"/>
         <source>Overall Status</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="369"/>
+        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="406"/>
         <source>Edit Parameter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="397"/>
+        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="434"/>
         <source>Force arming bypasses pre-arm checks. Use with caution.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="402"/>
+        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="439"/>
         <source>Allow Force Arm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="418"/>
+        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="455"/>
         <source>Vehicle Parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="420"/>
-        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="429"/>
+        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="457"/>
+        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="466"/>
         <source>Configure</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="427"/>
+        <location filename="../src/Toolbar/MainStatusIndicator.qml" line="464"/>
         <source>Vehicle Configuration</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12534,47 +12590,47 @@ VTOL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="42"/>
+        <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="44"/>
         <source>Connected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="62"/>
+        <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="64"/>
         <source>Communication Links</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="63"/>
+        <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="65"/>
         <source>Configure</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="74"/>
+        <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="76"/>
         <source>AutoConnect</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="88"/>
+        <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="90"/>
         <source>Pixhawk</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="88"/>
+        <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="90"/>
         <source>SiK Radio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="88"/>
+        <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="90"/>
         <source>LibrePilot</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="88"/>
+        <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="90"/>
         <source>UDP</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="88"/>
+        <location filename="../src/Toolbar/MainStatusIndicatorOfflinePage.qml" line="90"/>
         <source>RTK</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12659,12 +12715,12 @@ VTOL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow/MainWindow.qml" line="540"/>
+        <location filename="../src/MainWindow/MainWindow.qml" line="541"/>
         <source>Vehicle Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow/MainWindow.qml" line="564"/>
+        <location filename="../src/MainWindow/MainWindow.qml" line="565"/>
         <source>Additional errors received</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17315,27 +17371,27 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
 <context>
     <name>QGCApplication</name>
     <message>
-        <location filename="../src/QGCApplication.cc" line="334"/>
+        <location filename="../src/QGCApplication.cc" line="341"/>
         <source>The current user does not have the correct permissions to access serial devices. You should also remove modemmanager since it also interferes.&lt;br/&gt;&lt;br/&gt;If you are using Ubuntu, execute the following commands to fix these issues:&lt;br/&gt;&lt;pre&gt;sudo usermod -a -G dialout $USER&lt;br/&gt;sudo apt-get remove modemmanager&lt;/pre&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/QGCApplication.cc" line="359"/>
+        <location filename="../src/QGCApplication.cc" line="366"/>
         <source>The format for %1 saved settings has been modified. Your saved settings have been reset to defaults.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/QGCApplication.cc" line="395"/>
+        <location filename="../src/QGCApplication.cc" line="402"/>
         <source>Parameters are missing from firmware. You may be running a version of firmware which is not fully supported or your firmware has a bug in it. Missing params: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/QGCApplication.cc" line="575"/>
+        <location filename="../src/QGCApplication.cc" line="582"/>
         <source>There is a newer version of %1 available. You can download it from %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/QGCApplication.cc" line="578"/>
+        <location filename="../src/QGCApplication.cc" line="585"/>
         <source>New Version Available</source>
         <translation type="unfinished"></translation>
     </message>
@@ -19442,37 +19498,32 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
 <context>
     <name>SelectViewDropdown</name>
     <message>
-        <location filename="../src/Toolbar/SelectViewDropdown.qml" line="23"/>
-        <source>Fly</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Toolbar/SelectViewDropdown.qml" line="37"/>
-        <source>Plan</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Toolbar/SelectViewDropdown.qml" line="52"/>
+        <location filename="../src/Toolbar/SelectViewDropdown.qml" line="24"/>
         <source>Analyze</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/SelectViewDropdown.qml" line="68"/>
-        <source>Configure</source>
+        <location filename="../src/Toolbar/SelectViewDropdown.qml" line="22"/>
+        <source>Drive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/SelectViewDropdown.qml" line="83"/>
-        <source>Settings</source>
+        <location filename="../src/Toolbar/SelectViewDropdown.qml" line="23"/>
+        <source>Vehicle Setup</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/SelectViewDropdown.qml" line="99"/>
+        <location filename="../src/Toolbar/SelectViewDropdown.qml" line="25"/>
+        <source>Application Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/Toolbar/SelectViewDropdown.qml" line="26"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/SelectViewDropdown.qml" line="122"/>
+        <location filename="../src/Toolbar/SelectViewDropdown.qml" line="104"/>
         <source>%1 Version</source>
         <translation type="unfinished"></translation>
     </message>
@@ -22048,49 +22099,49 @@ If a vehicle still has this key configured, you will no longer be able to commun
 <context>
     <name>VehicleModelManager</name>
     <message>
-        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="419"/>
+        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="456"/>
         <source>Enter a model name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="425"/>
+        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="462"/>
         <source>A model named &quot;%1&quot; already exists.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="440"/>
-        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="527"/>
+        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="477"/>
+        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="564"/>
         <source>Could not write the vehicle models file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="497"/>
+        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="534"/>
         <source>Could not open the file: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="503"/>
+        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="540"/>
         <source>The file is not valid JSON: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="523"/>
+        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="560"/>
         <source>No vehicle models found in the file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="531"/>
+        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="568"/>
         <source>Imported: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="538"/>
+        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="575"/>
         <source>Save the model before exporting it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="543"/>
-        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="547"/>
+        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="580"/>
+        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="584"/>
         <source>Could not write the file: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -22215,7 +22266,7 @@ If a vehicle still has this key configured, you will no longer be able to commun
     </message>
     <message>
         <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="329"/>
-        <source>Functions:</source>
+        <source>Functions (output, type, value when on, value when off):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -22229,22 +22280,32 @@ If a vehicle still has this key configured, you will no longer be able to commun
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="377"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="369"/>
+        <source>On</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="382"/>
+        <source>Off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="392"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="390"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="405"/>
         <source>Delete Button</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="398"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="413"/>
         <source>Add Function</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="410"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="425"/>
         <source>Add Button</source>
         <translation type="unfinished"></translation>
     </message>

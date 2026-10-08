@@ -70,7 +70,7 @@ QString ScreenToolsController::normalFontFamily()
         return QStringLiteral("NanumGothic");
     }
 
-    return QStringLiteral("Open Sans");
+    return QStringLiteral("Manrope");
 }
 
 double ScreenToolsController::defaultFontDescent(int pointSize)

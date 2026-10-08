@@ -31,7 +31,7 @@ Rectangle {
     }
 
     function _blankFunction() {
-        return { channel: 1, kind: "pwm", value: 1500 }
+        return { channel: 1, kind: "pwm", value: 2000, offValue: 1000 }
     }
 
     // Repeaters only notice a new object, so structural edits (add/remove/reorder) reassign a copy.
@@ -326,7 +326,7 @@ Rectangle {
                         onTextEdited:       buttonGroup.button.name = text
                     }
 
-                    QGCLabel { text: qsTr("Functions:") }
+                    QGCLabel { text: qsTr("Functions (output, type, value when on, value when off):") }
 
                     Repeater {
                         model: buttonGroup.modelData.functions
@@ -356,21 +356,36 @@ Rectangle {
                                 currentIndex:           functionRow.modelData.kind === "gpio" ? 1 : 0
                                 onActivated: (kindIndex) => {
                                     functionRow.fn.kind = kindIndex === 1 ? "gpio" : "pwm"
-                                    functionRow.fn.value = kindIndex === 1 ? 0 : 1500
+                                    functionRow.fn.value = kindIndex === 1 ? 1 : 2000
+                                    functionRow.fn.offValue = kindIndex === 1 ? 0 : 1000
                                     root._refresh()
                                 }
                             }
 
-                            // PWM: pulse width in microseconds. GPIO: 0 = off, 1 = on.
+                            // PWM: pulse width in microseconds. GPIO: 0 or 1. Sent when the button is switched on.
                             QGCTextField {
                                 Layout.fillWidth:   true
                                 text:               functionRow.modelData.value
+                                placeholderText:    qsTr("On")
                                 numericValuesOnly:  true
                                 validator:          IntValidator {
                                     bottom: functionRow.modelData.kind === "gpio" ? 0 : 500
                                     top:    functionRow.modelData.kind === "gpio" ? 1 : 2500
                                 }
                                 onTextEdited:       functionRow.fn.value = parseInt(text) || 0
+                            }
+
+                            // Sent when the button is switched off again.
+                            QGCTextField {
+                                Layout.fillWidth:   true
+                                text:               functionRow.modelData.offValue !== undefined ? functionRow.modelData.offValue : ""
+                                placeholderText:    qsTr("Off")
+                                numericValuesOnly:  true
+                                validator:          IntValidator {
+                                    bottom: functionRow.modelData.kind === "gpio" ? 0 : 500
+                                    top:    functionRow.modelData.kind === "gpio" ? 1 : 2500
+                                }
+                                onTextEdited:       functionRow.fn.offValue = parseInt(text) || 0
                             }
 
                             QGCButton {

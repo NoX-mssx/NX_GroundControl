@@ -11,7 +11,7 @@ import QGroundControl.Controls
 Button {
     property bool primary: false
     property bool showBorder: qgcPal.globalTheme === QGCPalette.Light
-    property real backRadius: ScreenTools.defaultBorderRadius
+    property real backRadius: height / 2
     property real heightFactor: 0.5
     property string iconSource: ""
     property real fontWeight: Font.Normal // default for qml Text

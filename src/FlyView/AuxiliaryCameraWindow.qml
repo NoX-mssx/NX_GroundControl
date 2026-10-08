@@ -32,8 +32,9 @@ Rectangle {
     y:          defaultY
     width:      _videoWidth
     height:     _titleHeight + (collapsed ? 0 : _videoWidth / _aspectRatio)
-    color:      "black"
-    border.color: qgcPal.groupBorder
+    color:      "#0E1216"
+    radius:     ScreenTools.defaultFontPixelHeight * 0.6
+    border.color: Qt.rgba(1, 1, 1, 0.14)
     border.width: 1
     // The video item must exist even while hidden so the video receiver can attach to it at startup.
     visible:    cameraIndex >= 0
@@ -97,8 +98,7 @@ Rectangle {
         anchors.left:   parent.left
         anchors.right:  parent.right
         height:         root._titleHeight
-        color:          qgcPal.window
-        opacity:        0.85
+        color:          "transparent"
 
         // Dragging by the title bar, only while unlocked
         MouseArea {

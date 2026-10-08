@@ -245,6 +245,13 @@ void QGCApplication::init()
         qCWarning(QGCApplicationLog) << "Could not load /fonts/opensans-demibold font";
     }
 
+    // Interface font (SIL Open Font License, see resources/fonts/Manrope-OFL.txt)
+    for (const char *manrope : {":/fonts/manrope-regular", ":/fonts/manrope-semibold", ":/fonts/manrope-bold", ":/fonts/manrope-extrabold"}) {
+        if (QFontDatabase::addApplicationFont(QString::fromLatin1(manrope)) < 0) {
+            qCWarning(QGCApplicationLog) << "Could not load font" << manrope;
+        }
+    }
+
     if (_simpleBootTest) {
         // Since GStream builds are so problematic we initialize video during the simple boot test
         // to make sure it works and verfies plugin availability.

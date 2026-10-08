@@ -11,108 +11,90 @@ ToolIndicatorPage {
     property real _toolButtonHeight: ScreenTools.defaultFontPixelHeight * 3
 
     contentComponent: Component {
-        GridLayout {
-            columns: 2
-            columnSpacing: ScreenTools.defaultFontPixelWidth
-            rowSpacing: columnSpacing
+        ColumnLayout {
+            spacing: ScreenTools.defaultFontPixelHeight * 0.15
 
-            SubMenuButton {
-                objectName: "toolbar_viewFly"
-                implicitHeight: root._toolButtonHeight
-                Layout.fillWidth: true
-                text: qsTr("Fly")
-                imageResource: "/res/FlyingPaperPlane.svg"
-                onClicked: {
-                    if (mainWindow.allowViewSwitch()) {
-                        mainWindow.closeIndicatorDrawer()
-                        mainWindow.showFlyView()
+            QGCPalette { id: qgcPal; colorGroupEnabled: true }
+
+            // One row per view, each with its own icon
+            Repeater {
+                model: [
+                    { name: "toolbar_viewFly",       label: qsTr("Drive"),            icon: "/res/nx/MenuDrive.svg",        visible: true },
+                    { name: "toolbar_viewConfigure", label: qsTr("Vehicle Setup"),    icon: "/res/nx/MenuVehicleSetup.svg", visible: true },
+                    { name: "toolbar_viewAnalyze",   label: qsTr("Analyze"),          icon: "/res/nx/MenuAnalyze.svg",      visible: QGroundControl.corePlugin.showAdvancedUI },
+                    { name: "toolbar_viewSettings",  label: qsTr("Application Settings"), icon: "/res/nx/MenuSettings.svg", visible: !QGroundControl.corePlugin.options.combineSettingsAndSetup },
+                    { name: "toolbar_viewClose",     label: qsTr("Close"),            icon: "/res/nx/MenuClose.svg",        visible: true }
+                ]
+
+                delegate: Rectangle {
+                    id:                     menuRow
+                    objectName:             modelData.name
+                    Layout.fillWidth:       true
+                    Layout.minimumWidth:    ScreenTools.defaultFontPixelWidth * 26
+                    implicitHeight:         ScreenTools.defaultFontPixelHeight * 2.4
+                    radius:                 ScreenTools.defaultFontPixelHeight / 2
+                    color:                  menuMouseArea.containsMouse ? Qt.rgba(1, 1, 1, 0.08) : "transparent"
+                    visible:                modelData.visible
+
+                    required property var modelData
+
+                    readonly property bool _isClose: modelData.name === "toolbar_viewClose"
+
+                    RowLayout {
+                        anchors.fill:           parent
+                        anchors.leftMargin:     ScreenTools.defaultFontPixelWidth * 1.2
+                        anchors.rightMargin:    ScreenTools.defaultFontPixelWidth * 1.2
+                        spacing:                ScreenTools.defaultFontPixelWidth * 1.2
+
+                        QGCColoredImage {
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelHeight * 1.3
+                            Layout.preferredHeight: Layout.preferredWidth
+                            sourceSize.height:      Layout.preferredHeight
+                            source:                 menuRow.modelData.icon
+                            color:                  menuRow._isClose ? qgcPal.warningText : qgcPal.text
+                            fillMode:               Image.PreserveAspectFit
+                        }
+
+                        QGCLabel {
+                            Layout.fillWidth:   true
+                            text:               menuRow.modelData.label
+                            font.weight:        Font.DemiBold
+                            color:              menuRow._isClose ? qgcPal.warningText : qgcPal.text
+                        }
+                    }
+
+                    MouseArea {
+                        id:             menuMouseArea
+                        anchors.fill:   parent
+                        hoverEnabled:   true
+                        onClicked: {
+                            if (!mainWindow.allowViewSwitch()) {
+                                return
+                            }
+                            mainWindow.closeIndicatorDrawer()
+                            switch (menuRow.modelData.name) {
+                            case "toolbar_viewFly":         mainWindow.showFlyView(); break
+                            case "toolbar_viewConfigure":   mainWindow.showVehicleConfig(); break
+                            case "toolbar_viewAnalyze":     mainWindow.showAnalyzeTool(); break
+                            case "toolbar_viewSettings":    mainWindow.showSettingsTool(); break
+                            // Route through the window close handler so the active connection checks run.
+                            case "toolbar_viewClose":       mainWindow.close(); break
+                            }
+                        }
                     }
                 }
             }
 
-            SubMenuButton {
-                objectName: "toolbar_viewPlan"
-                implicitHeight: root._toolButtonHeight
-                Layout.fillWidth: true
-                text: qsTr("Plan")
-                imageResource: "/qmlimages/Plan.svg"
-                visible: QGroundControl.corePlugin.options.showPlanView
-                onClicked: {
-                    if (mainWindow.allowViewSwitch()) {
-                        mainWindow.closeIndicatorDrawer()
-                        mainWindow.showPlanView()
-                    }
-                }
-            }
-
-            SubMenuButton {
-                objectName: "toolbar_viewAnalyze"
-                implicitHeight: root._toolButtonHeight
-                Layout.fillWidth: true
-                text: qsTr("Analyze")
-                imageResource: "/qmlimages/Analyze.svg"
-                visible: QGroundControl.corePlugin.showAdvancedUI
-                onClicked: {
-                    if (mainWindow.allowViewSwitch()) {
-                        mainWindow.closeIndicatorDrawer()
-                        mainWindow.showAnalyzeTool()
-                    }
-                }
-            }
-
-            SubMenuButton {
-                id: setupButton
-                objectName: "toolbar_viewConfigure"
-                implicitHeight: root._toolButtonHeight
-                Layout.fillWidth: true
-                text: qsTr("Configure")
-                imageResource: "/res/GearWithPaperPlane.svg"
-                onClicked: {
-                    if (mainWindow.allowViewSwitch()) {
-                        mainWindow.closeIndicatorDrawer()
-                        mainWindow.showVehicleConfig()
-                    }
-                }
-            }
-
-            SubMenuButton {
-                id: settingsButton
-                objectName: "toolbar_viewSettings"
-                implicitHeight: root._toolButtonHeight
-                Layout.fillWidth: true
-                text: qsTr("Settings")
-                imageResource: "/res/QGCLogoWhite.svg"
-                visible: !QGroundControl.corePlugin.options.combineSettingsAndSetup
-                onClicked: {
-                    if (mainWindow.allowViewSwitch()) {
-                        mainWindow.closeIndicatorDrawer()
-                        mainWindow.showSettingsTool()
-                    }
-                }
-            }
-
-            SubMenuButton {
-                id: closeButton
-                objectName: "toolbar_viewClose"
-                implicitHeight: root._toolButtonHeight
-                Layout.fillWidth: true
-                text: qsTr("Close")
-                imageResource: "/res/OpenDoor.svg"
-                onClicked: {
-                    if (mainWindow.allowViewSwitch()) {
-                        mainWindow.closeIndicatorDrawer()
-                        // Route through the window close handler so the unsaved
-                        // mission / pending parameter / active connection checks
-                        // run, matching the desktop window-close behavior.
-                        mainWindow.close()
-                    }
-                }
+            Rectangle {
+                Layout.fillWidth:   true
+                Layout.topMargin:   ScreenTools.defaultFontPixelHeight * 0.3
+                implicitHeight:     1
+                color:              qgcPal.groupBorder
             }
 
             ColumnLayout {
                 id: versionColumnLayout
                 Layout.fillWidth: true
-                Layout.columnSpan: 2
                 spacing: 0
 
                 QGCLabel {

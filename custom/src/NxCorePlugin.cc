@@ -1,4 +1,5 @@
 #include "NxCorePlugin.h"
+#include "AppSettings.h"
 #include "BatteryIndicatorSettings.h"
 #include "Fact.h"
 #include "FactMetaData.h"
@@ -54,6 +55,12 @@ void NxCorePlugin::adjustSettingMetaData(const QString &settingsGroup, FactMetaD
         (metaData.name() == BatteryIndicatorSettings::valueDisplayName)) {
         // Voltage: the vehicle-reported percentage is only meaningful with a configured battery monitor.
         metaData.setRawDefaultValue(1);
+    }
+
+    if ((settingsGroup == AppSettings::settingsGroup) && (metaData.name() == AppSettings::indoorPaletteName)) {
+        // Only the dark (glass) theme is designed; the light one is not offered.
+        metaData.setRawDefaultValue(1);
+        userVisible = false;
     }
 }
 

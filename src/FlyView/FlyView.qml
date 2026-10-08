@@ -61,7 +61,8 @@ Item {
 
     QGCToolInsets {
         id:                     _toolInsets
-        topEdgeLeftInset:       toolbar.height
+        // The map and video start below the opaque toolbar, so nothing is hidden behind it.
+        topEdgeLeftInset:       0
         topEdgeCenterInset:     topEdgeLeftInset
         topEdgeRightInset:      topEdgeLeftInset
         leftEdgeBottomInset:    _pipView.leftEdgeBottomInset
@@ -71,6 +72,7 @@ Item {
     Item {
         id:                 mapHolder
         anchors.fill:       parent
+        anchors.topMargin:  toolbar.visible ? toolbar.height : 0
 
         FlyViewMap {
             id:                     mapControl
@@ -113,7 +115,7 @@ Item {
             anchors.left:           parent.left
             anchors.right:          guidedValueSlider.visible ? guidedValueSlider.left : parent.right
             anchors.margins:        _widgetMargin
-            anchors.topMargin:      toolbar.height + _widgetMargin
+            anchors.topMargin:      _widgetMargin
             z:                      _fullItemZorder + 2
             parentToolInsets:       _toolInsets
             mapControl:             _mapControl
@@ -154,7 +156,6 @@ Item {
             anchors.right:      parent.right
             anchors.top:        parent.top
             anchors.bottom:     parent.bottom
-            anchors.topMargin:  toolbar.height
             z:                  QGroundControl.zOrderTopMost
             visible:            false
         }

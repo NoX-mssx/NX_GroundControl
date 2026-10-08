@@ -83,6 +83,24 @@ QString exchangeIdFromCameraType(const QString &typeName)
     return QString::fromLatin1(kCameraTypes[0].exchangeId);
 }
 
+/// Value sent when a button is switched off and none is configured: the other end of the range.
+int defaultOffValue(bool gpio, int onValue)
+{
+    if (gpio) {
+        return (onValue == 0) ? 1 : 0;
+    }
+    return (onValue >= 1500) ? 1000 : 2000;
+}
+
+int functionOffValue(const QVariantMap &function)
+{
+    if (function.contains(QStringLiteral("offValue"))) {
+        return function.value(QStringLiteral("offValue")).toInt();
+    }
+    return defaultOffValue(function.value(QStringLiteral("kind")).toString() == QLatin1String("gpio"),
+                           function.value(QStringLiteral("value")).toInt());
+}
+
 QVariantMap modelFromExchange(const QJsonObject &exchange)
 {
     QVariantList cameras;
@@ -110,10 +128,15 @@ QVariantMap modelFromExchange(const QJsonObject &exchange)
         for (const QJsonValue &functionValue : exchangeFunctions) {
             const QJsonObject function = functionValue.toObject();
             const bool gpio = function.value(QLatin1String("signal")).toString().compare(QLatin1String("GPIO"), Qt::CaseInsensitive) == 0;
+            const int value = function.value(QLatin1String("value")).toInt();
+            // Nova files have no off value; pick the opposite end of the range.
+            const int offValue = function.contains(QLatin1String("offValue")) ? function.value(QLatin1String("offValue")).toInt()
+                                                                              : defaultOffValue(gpio, value);
             functions.append(QVariantMap{
                 {QStringLiteral("channel"), function.value(QLatin1String("channel")).toInt()},
                 {QStringLiteral("kind"), gpio ? QStringLiteral("gpio") : QStringLiteral("pwm")},
-                {QStringLiteral("value"), function.value(QLatin1String("value")).toInt()},
+                {QStringLiteral("value"), value},
+                {QStringLiteral("offValue"), offValue},
             });
         }
         buttons.append(QVariantMap{
@@ -160,6 +183,7 @@ QJsonObject modelToExchange(const QVariantMap &model)
                 {QStringLiteral("channel"), function.value(QStringLiteral("channel")).toInt()},
                 {QStringLiteral("signal"), gpio ? QStringLiteral("GPIO") : QStringLiteral("PWM")},
                 {QStringLiteral("value"), function.value(QStringLiteral("value")).toInt()},
+                {QStringLiteral("offValue"), functionOffValue(function)},
             });
         }
         buttons.append(QJsonObject{
@@ -245,7 +269,10 @@ void VehicleModelManager::_updateActiveModel()
         return;
     }
     _activeModel = activeModel;
+    // A different vehicle starts with all its buttons shown as off.
+    _buttonStates.clear();
     emit activeModelChanged();
+    emit buttonStatesChanged();
 
     _mainCameraIndex = 0;
     _cameraEnabled.clear();
@@ -370,22 +397,32 @@ void VehicleModelManager::_applyCameraStreams()
     }
 }
 
-void VehicleModelManager::runButton(const QVariantMap &button) const
+void VehicleModelManager::toggleButton(int buttonIndex)
 {
-    if (!_activeVehicle) {
+    const QVariantList buttons = _activeModel.value(QStringLiteral("buttons")).toList();
+    if (!_activeVehicle || (buttonIndex < 0) || (buttonIndex >= buttons.count())) {
         return;
     }
 
-    const QVariantList functions = button.value(QStringLiteral("functions")).toList();
+    while (_buttonStates.count() < buttons.count()) {
+        _buttonStates.append(false);
+    }
+    const bool on = !_buttonStates.at(buttonIndex).toBool();
+
+    const QVariantList functions = buttons.at(buttonIndex).toMap().value(QStringLiteral("functions")).toList();
     for (const QVariant &functionVar : functions) {
         const QVariantMap function = functionVar.toMap();
         const bool gpio = function.value(QStringLiteral("kind")).toString() == QLatin1String("gpio");
+        const int value = on ? function.value(QStringLiteral("value")).toInt() : functionOffValue(function);
         _activeVehicle->sendMavCommand(_activeVehicle->defaultComponentId(),
                                        gpio ? MAV_CMD_DO_SET_RELAY : MAV_CMD_DO_SET_SERVO,
                                        true,
                                        function.value(QStringLiteral("channel")).toFloat(),
-                                       function.value(QStringLiteral("value")).toFloat());
+                                       static_cast<float>(value));
     }
+
+    _buttonStates[buttonIndex] = on;
+    emit buttonStatesChanged();
 }
 
 QStringList VehicleModelManager::modelNames() const

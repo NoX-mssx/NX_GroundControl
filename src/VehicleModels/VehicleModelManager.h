@@ -36,12 +36,15 @@ class VehicleModelManager : public QObject
     Q_PROPERTY(QList<int>   auxiliaryCameras    READ auxiliaryCameras   NOTIFY cameraStatesChanged)
     Q_PROPERTY(QString      mainCameraName      READ mainCameraName     NOTIFY cameraStatesChanged)
     /// true: every camera plays its secondary (SD) stream instead of the main (HD) one
+    /// On/off state of each button of the active model, by index
+    Q_PROPERTY(QVariantList buttonStates        READ buttonStates       NOTIFY buttonStatesChanged)
     Q_PROPERTY(bool         secondaryStream     READ secondaryStream    WRITE setSecondaryStream NOTIFY secondaryStreamChanged)
 
 public:
     explicit VehicleModelManager(QObject *parent = nullptr);
 
     QVariantList models() const { return _models; }
+    QVariantList buttonStates() const { return _buttonStates; }
     QStringList modelNames() const;
     QStringList cameraTypes() const;
 
@@ -63,7 +66,8 @@ public:
     static constexpr int kAuxiliaryCameraCount = 2;
 
     /// Sends every output of a model button to the active vehicle: a servo PWM value or a relay state.
-    Q_INVOKABLE void runButton(const QVariantMap &button) const;
+    /// Switches the active model's button on or off, sending its on or off values.
+    Q_INVOKABLE void toggleButton(int buttonIndex);
 
     /// @return the named model, or an empty map
     Q_INVOKABLE QVariantMap model(const QString &name) const;
@@ -94,6 +98,7 @@ signals:
     void activeModelChanged();
     void cameraStatesChanged();
     void secondaryStreamChanged();
+    void buttonStatesChanged();
 
 private slots:
     void _activeVehicleChanged(Vehicle *vehicle);
@@ -115,4 +120,5 @@ private:
     QList<bool> _cameraEnabled;         ///< Per camera of the active model
     int _mainCameraIndex = 0;
     bool _secondaryStream = false;
+    QVariantList _buttonStates;         ///< Per button of the active model: switched on
 };

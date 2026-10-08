@@ -436,7 +436,7 @@ ApplicationWindow {
             anchors.right:  parent.right
             anchors.top:    parent.top
             height:         ScreenTools.toolbarHeight
-            color:          qgcPal.toolbarBackground
+            color:          "#0E1216"   // NX top bar, same as the drive screen
 
             RowLayout {
                 id:                 toolDrawerToolbarLayout
@@ -450,7 +450,7 @@ ApplicationWindow {
                     id: qgcButton
                     objectName: "toolbar_qgcLogo"
                     height: parent.height
-                    icon.source: "/res/QGCLogoFull.svg"
+                    icon.source: "/res/QGCLogoWhite.svg"
                     logo: true
                     onClicked: mainWindow.showToolSelectDialog()
                 }
@@ -459,6 +459,7 @@ ApplicationWindow {
                     id:             toolbarDrawerText
                     text:           toolDrawer.toolTitle
                     font.pointSize: ScreenTools.largeFontPointSize
+                    font.weight:    Font.ExtraBold
                 }
             }
         }
