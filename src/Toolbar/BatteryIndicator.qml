@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Layouts
 
 import QGroundControl
@@ -203,7 +204,15 @@ Item {
 
     MouseArea {
         anchors.fill:   parent
+        hoverEnabled:   true
         onClicked:      mainWindow.showIndicatorDrawer(batteryPopup, control)
+
+        // Hovering shows the voltages that map to 0% and 100%
+        ToolTip.visible:    containsMouse
+        ToolTip.delay:      300
+        ToolTip.text:       control._percentFromVoltage
+                                ? qsTr("Empty (0%): %1 V\nFull (100%): %2 V").arg(control._percentVoltageMin.toFixed(1)).arg(control._percentVoltageMax.toFixed(1))
+                                : qsTr("Charge from voltage is off. Click to set the empty and full voltages.")
     }
 
     Component {

@@ -189,6 +189,43 @@ RowLayout {
             spacing:    _spacing
 
             property bool parametersReady: QGroundControl.multiVehicleManager.parameterReadyVehicleAvailable
+            property string _primaryLinkName: _activeVehicle ? _activeVehicle.vehicleLinkManager.primaryLinkName : ""
+            property var    _primaryLinkConfig: {
+                let configs = QGroundControl.linkManager.linkConfigurations
+                for (let i = 0; i < configs.count; i++) {
+                    let config = configs.get(i)
+                    if (config && config.name === _primaryLinkName) {
+                        return config
+                    }
+                }
+                return null
+            }
+
+            // Connected link: its name, board ID and a way to disconnect from it
+            ColumnLayout {
+                spacing: 0
+
+                QGCLabel {
+                    text:       mainLayout._primaryLinkName
+                    font.bold:  true
+                    visible:    text !== ""
+                }
+                QGCLabel {
+                    text:           qsTr("Board ID %1").arg(mainLayout._primaryLinkConfig ? mainLayout._primaryLinkConfig.boardId : "")
+                    font.pointSize: ScreenTools.smallFontPointSize
+                    visible:        mainLayout._primaryLinkConfig !== null && mainLayout._primaryLinkConfig.boardId !== ""
+                }
+                QGCButton {
+                    Layout.topMargin:   _spacing
+                    text:               qsTr("Disconnect")
+                    onClicked: {
+                        mainWindow.closeIndicatorDrawer()
+                        if (_activeVehicle) {
+                            _activeVehicle.closeVehicle()
+                        }
+                    }
+                }
+            }
 
             RowLayout {
                 spacing: ScreenTools.defaultFontPixelWidth

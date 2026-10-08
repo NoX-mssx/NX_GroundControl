@@ -143,6 +143,19 @@ SettingsGroupLayout {
                     }
                 }
 
+                RowLayout {
+                    Layout.fillWidth:   true
+                    spacing:            ScreenTools.defaultFontPixelWidth
+
+                    QGCLabel { text: qsTr("Board ID") }
+                    QGCTextField {
+                        Layout.fillWidth:   true
+                        text:               editingConfig.boardId
+                        placeholderText:    qsTr("Board number, e.g. 104")
+                        onTextEdited:       editingConfig.boardId = text.trim()
+                    }
+                }
+
                 LabelledComboBox {
                     id:         vehicleModelCombo
                     label:      qsTr("Vehicle Model")

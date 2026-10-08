@@ -31,6 +31,8 @@ class LinkConfiguration : public QObject
     /// Name of the WireGuard tunnel profile (see WireGuardTunnel) started before this link connects and
     /// stopped when it disconnects, empty for none
     Q_PROPERTY(QString          wireGuardProfile    MEMBER _wireGuardProfile    NOTIFY tunnelSettingsChanged)
+    /// Operator-facing board number of the vehicle behind this link (free text), shown next to the link name
+    Q_PROPERTY(QString          boardId             MEMBER _boardId             NOTIFY tunnelSettingsChanged)
     /// Address pinged to measure the link round trip time (the vehicle's router inside the tunnel), empty for none
     Q_PROPERTY(QString          pingAddress         MEMBER _pingAddress         NOTIFY tunnelSettingsChanged)
     /// Scale joystick throttle down while the ping is above the thresholds below
@@ -75,6 +77,7 @@ public:
 
     QString wireGuardProfile() const { return _wireGuardProfile; }
     QString pingAddress() const { return _pingAddress; }
+    QString boardId() const { return _boardId; }
     bool throttleLimitEnabled() const { return _throttleLimitEnabled; }
     int pingThreshold1Ms() const { return _pingThreshold1Ms; }
     int throttlePercent1() const { return _throttlePercent1; }
@@ -199,6 +202,7 @@ private:
     QString _vehicleModel;
     QString _wireGuardProfile;
     QString _pingAddress;
+    QString _boardId;
     bool _throttleLimitEnabled = false;
     int _pingThreshold1Ms = 300;
     int _throttlePercent1 = 50;

@@ -39,7 +39,9 @@ ToolIndicatorPage {
 
                 delegate: QGCButton {
                     Layout.fillWidth:   true
-                    text:               object.name + (object.link ? " (" + qsTr("Connected") + ")" : "")
+                    // The board ID follows the name in a smaller font (the label renders the <small> markup).
+                    text:               object.name + (object.boardId !== "" ? "  <small>ID " + object.boardId + "</small>" : "") +
+                                        (object.link ? " (" + qsTr("Connected") + ")" : "")
                     visible:            !object.dynamic
                     enabled:            !object.link
                     autoExclusive:      true
