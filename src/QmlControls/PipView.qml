@@ -16,6 +16,7 @@ Item {
     property bool   show:                   true
 
     readonly property string _pipExpandedSettingsKey: "IsPIPVisible"
+    readonly property string _pipLockedSettingsKey:   "IsPIPLocked"
 
     property var    _fullItem
     property var    _pipOrWindowItem
@@ -26,6 +27,11 @@ Item {
     property real   _maxSize:           0.75                // Percentage of parent control size
     property real   _minSize:           0.10
     property bool   _componentComplete: false
+    // Unlocked, the window can be dragged anywhere and resized; locked, it can only be collapsed or expanded.
+    property bool   _locked:            QGroundControl.loadBoolGlobalSetting(_pipLockedSettingsKey, true)
+    property bool   _dragged:           false
+
+    QGCPalette { id: qgcPal; colorGroupEnabled: true }
 
     Component.onCompleted: {
         _initForItems()
@@ -73,6 +79,11 @@ Item {
         QGroundControl.saveBoolGlobalSetting(item1IsFullSettingsKey, item1IsFull)
     }
 
+    function _setLocked(locked) {
+        QGroundControl.saveBoolGlobalSetting(_pipLockedSettingsKey, locked)
+        _locked = locked
+    }
+
     function _setPipIsExpanded(isExpanded) {
         QGroundControl.saveBoolGlobalSetting(_pipExpandedSettingsKey, isExpanded)
         _isExpanded = isExpanded
@@ -103,13 +114,40 @@ Item {
         enabled:        _isExpanded
         preventStealing: true
         hoverEnabled:   true
-        onClicked:      _swapPip()
+        cursorShape:    _locked ? Qt.ArrowCursor : Qt.SizeAllCursor
+        drag.target:    _locked ? null : _root
+        drag.axis:      Drag.XAndYAxis
+        drag.minimumX:  0
+        drag.minimumY:  0
+        drag.maximumX:  _root.parent ? Math.max(0, _root.parent.width - _root.width) : 0
+        drag.maximumY:  _root.parent ? Math.max(0, _root.parent.height - _root.height) : 0
+
+        onPressed: {
+            _dragged = false
+            if (!_locked) {
+                // Free the window from its corner so the drag can move it.
+                _root.anchors.left = undefined
+                _root.anchors.bottom = undefined
+            }
+        }
+        onPositionChanged: {
+            if (drag.active) {
+                _dragged = true
+            }
+        }
+        // A press that moved the window is not a click.
+        onClicked: {
+            if (!_dragged) {
+                _swapPip()
+            }
+        }
     }
 
     // MouseArea to drag in order to resize the PiP area
     MouseArea {
         id:                 pipResize
         anchors.fill:       pipResizeIcon
+        enabled:            _isExpanded && !_locked
         preventStealing:    true
         cursorShape:        Qt.PointingHandCursor
 
@@ -145,10 +183,38 @@ Item {
         mipmap:         true
         anchors.right:  parent.right
         anchors.top:    parent.top
-        visible:        _isExpanded && (ScreenTools.isMobile || pipMouseArea.containsMouse)
+        visible:        _isExpanded && !_locked
         height:         ScreenTools.defaultFontPixelHeight * 2.5
         width:          ScreenTools.defaultFontPixelHeight * 2.5
         sourceSize.height:  height
+    }
+
+    // Lock
+    Rectangle {
+        id:             lockButton
+        anchors.left:   parent.left
+        anchors.top:    parent.top
+        anchors.margins: ScreenTools.defaultFontPixelHeight * 0.25
+        width:          ScreenTools.defaultFontPixelHeight * 1.8
+        height:         width
+        radius:         ScreenTools.defaultFontPixelHeight / 4
+        color:          Qt.rgba(0, 0, 0, 0.6)
+        visible:        _isExpanded
+
+        QGCColoredImage {
+            anchors.centerIn:   parent
+            width:              parent.width * 0.7
+            height:             width
+            sourceSize.height:  height
+            source:             _locked ? "/InstrumentValueIcons/lock-closed.svg" : "/InstrumentValueIcons/lock-open.svg"
+            color:              _locked ? "white" : qgcPal.colorOrange
+            fillMode:           Image.PreserveAspectFit
+        }
+
+        MouseArea {
+            anchors.fill:   parent
+            onClicked:      _root._setLocked(!_root._locked)
+        }
     }
 
     // Check min/max constraints on pip size when when parent is resized
@@ -175,7 +241,7 @@ Item {
         source:         "/qmlimages/PiP.svg"
         mipmap:         true
         fillMode:       Image.PreserveAspectFit
-        anchors.left:   parent.left
+        anchors.left:   lockButton.right
         anchors.top:    parent.top
         visible:        _isExpanded && !ScreenTools.isMobile && pipMouseArea.containsMouse
         height:         ScreenTools.defaultFontPixelHeight * 2.5

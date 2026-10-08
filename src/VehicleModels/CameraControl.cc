@@ -5,6 +5,7 @@
 #include <QtCore/QDateTime>
 #include <QtCore/QHash>
 #include <QtCore/QRandomGenerator>
+#include <QtCore/QRegularExpression>
 #include <QtCore/QStringList>
 #include <QtCore/QTimeZone>
 #include <QtCore/QXmlStreamReader>
@@ -146,8 +147,12 @@ void CameraControl::run(const QVariantMap &camera, const QString &command)
         return;
     }
 
-    if (camera.value(QStringLiteral("type")).toString().startsWith(QLatin1String("Dahua"))) {
+    const QString type = camera.value(QStringLiteral("type")).toString();
+    const bool illuminator = (command == QLatin1String("irOn")) || (command == QLatin1String("irOff"));
+    if (type.startsWith(QLatin1String("Dahua"))) {
         _runDahua(target, command, label);
+    } else if (illuminator && type.startsWith(QLatin1String("Hikvision"))) {
+        _runHikvisionIlluminator(target, command == QLatin1String("irOn"), label);
     } else {
         _runOnvif(target, command, label);
     }
@@ -185,6 +190,34 @@ void CameraControl::_runDahua(const Camera &camera, const QString &command, cons
             }
         });
     }
+}
+
+void CameraControl::_runHikvisionIlluminator(const Camera &camera, bool on, const QString &label)
+{
+    // ISAPI keeps the illuminator under SupplementLight. The current settings are read and written back
+    // with only the mode changed, because the accepted fields differ between models.
+    const QUrl url(QStringLiteral("http://%1/ISAPI/Image/channels/1/SupplementLight").arg(camera.host));
+    _get(camera, url, [this, camera, on, label, url](bool ok, const QByteArray &body) {
+        static const QRegularExpression modeElement(QStringLiteral("<supplementLightMode>[^<]*</supplementLightMode>"));
+        QString settings = QString::fromUtf8(body);
+        if (!ok || !settings.contains(modeElement)) {
+            _finish(label, false, tr("the camera has no switchable illuminator; it follows day/night mode"));
+            return;
+        }
+
+        settings.replace(modeElement, QStringLiteral("<supplementLightMode>%1</supplementLightMode>")
+                                          .arg(on ? QStringLiteral("irLight") : QStringLiteral("close")));
+        if (on) {
+            // A brightness of 0 would leave the light dark in manual brightness mode.
+            static const QRegularExpression zeroBrightness(QStringLiteral("<irLightBrightness>0</irLightBrightness>"));
+            settings.replace(zeroBrightness, QStringLiteral("<irLightBrightness>100</irLightBrightness>"));
+        }
+
+        _put(camera, url, settings.toUtf8(), [this, label](bool putOk, const QByteArray &putBody) {
+            const QString detail = xmlText(putBody, QLatin1String("subStatusCode"));
+            _finish(label, putOk, putOk ? QString() : (detail.isEmpty() ? tr("the camera did not accept the request") : detail));
+        });
+    });
 }
 
 void CameraControl::_runOnvif(const Camera &camera, const QString &command, const QString &label)
@@ -266,6 +299,22 @@ void CameraControl::_get(const Camera &camera, const QUrl &url, const Reply &rep
     (void) connect(networkReply, &QNetworkReply::finished, this, [networkReply, reply]() {
         const QByteArray body = networkReply->readAll();
         reply(networkReply->error() == QNetworkReply::NoError, body);
+        networkReply->deleteLater();
+    });
+}
+
+void CameraControl::_put(const Camera &camera, const QUrl &url, const QByteArray &body, const Reply &reply)
+{
+    QNetworkRequest request(url);
+    request.setTransferTimeout(kTimeoutMs);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/xml"));
+
+    QNetworkReply *const networkReply = _network->put(request, body);
+    networkReply->setProperty("nxUser", camera.user);
+    networkReply->setProperty("nxPassword", camera.password);
+    (void) connect(networkReply, &QNetworkReply::finished, this, [networkReply, reply]() {
+        const QByteArray responseBody = networkReply->readAll();
+        reply(networkReply->error() == QNetworkReply::NoError, responseBody);
         networkReply->deleteLater();
     });
 }

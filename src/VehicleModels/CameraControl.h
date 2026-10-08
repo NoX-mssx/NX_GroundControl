@@ -15,7 +15,8 @@ class QNetworkAccessManager;
 ///
 /// Dahua cameras are driven through their HTTP CGI interface, which covers day/night profiles and the
 /// illuminator. Every other camera type goes through ONVIF, which only standardises the IR cut filter
-/// (day/night) and reboot, so the illuminator commands are reported as unsupported there.
+/// (day/night) and reboot; the illuminator of Hikvision cameras is switched through ISAPI, on other
+/// types it is reported as unsupported.
 class CameraControl : public QObject
 {
     Q_OBJECT
@@ -51,11 +52,14 @@ private:
     using Reply = std::function<void(bool ok, const QByteArray &body)>;
 
     void _runDahua(const Camera &camera, const QString &command, const QString &label);
+    void _runHikvisionIlluminator(const Camera &camera, bool on, const QString &label);
     void _runOnvif(const Camera &camera, const QString &command, const QString &label);
     void _onvifSetIrCutFilter(const Camera &camera, qint64 clockOffsetSecs, bool day, const QString &label);
 
     /// HTTP GET with digest authentication
     void _get(const Camera &camera, const QUrl &url, const Reply &reply);
+    /// HTTP PUT of an XML body with digest authentication
+    void _put(const Camera &camera, const QUrl &url, const QByteArray &body, const Reply &reply);
     /// SOAP request; with @p authenticate a WS-Security header for the camera's clock is added
     void _soap(const Camera &camera, const QUrl &url, const QString &body, bool authenticate, qint64 clockOffsetSecs,
                const Reply &reply);
