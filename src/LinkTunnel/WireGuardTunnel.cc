@@ -557,19 +557,32 @@ QString WireGuardTunnel::start(const QString &tunnelName)
         return tr("The WireGuard tunnel of this link is not registered. Open the link settings and import its configuration again.");
     }
 
+    static constexpr int kPollMs = 100;
+    static constexpr int kMaxPolls = 150;
+    const auto waitWhile = [service](DWORD pendingState) {
+        int polls = 0;
+        while ((serviceState(service) == pendingState) && (polls++ < kMaxPolls)) {
+            QThread::msleep(kPollMs);
+        }
+    };
+
+    // Reconnecting right after a disconnect finds the service still stopping; StartService then
+    // reports it as running, so wait for the stop to finish first.
+    waitWhile(SERVICE_STOP_PENDING);
+
     QString error;
     if (!StartServiceW(service, 0, nullptr) && (GetLastError() != ERROR_SERVICE_ALREADY_RUNNING)) {
         error = tr("The WireGuard tunnel could not be started (error %1).").arg(GetLastError());
     } else {
         // The tunnel has to be up before the link opens its socket.
-        constexpr int kPollMs = 100;
-        constexpr int kMaxPolls = 100;
-        int polls = 0;
-        while ((serviceState(service) != SERVICE_RUNNING) && (polls++ < kMaxPolls)) {
-            QThread::msleep(kPollMs);
-        }
-        if (serviceState(service) != SERVICE_RUNNING) {
-            error = tr("The WireGuard tunnel did not come up.");
+        waitWhile(SERVICE_START_PENDING);
+        SERVICE_STATUS status = {};
+        (void) QueryServiceStatus(service, &status);
+        if (status.dwCurrentState != SERVICE_RUNNING) {
+            const DWORD exitCode = (status.dwWin32ExitCode == ERROR_SERVICE_SPECIFIC_ERROR)
+                ? status.dwServiceSpecificExitCode : status.dwWin32ExitCode;
+            error = tr("The WireGuard tunnel did not come up (state %1, code %2).")
+                        .arg(status.dwCurrentState).arg(exitCode);
         }
     }
 
