@@ -129,9 +129,6 @@ private slots:
 private:
     static QLocale::Language _qLocaleLanguageEarlyAccess(void);
 
-    static QList<QLocale::Language> _rgReleaseLanguages;
-    static QList<QLocale::Language> _rgPartialLanguages;
-
     QString _childSavePath(const char* directory);
 
     typedef struct {
