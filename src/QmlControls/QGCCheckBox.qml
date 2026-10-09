@@ -48,10 +48,10 @@ CheckBox {
         implicitHeight: implicitWidth
         x:              control.leftPadding
         y:              parent.height / 2 - height / 2
-        color:          control.enabled ? "white" : "transparent"
-        border.color:   qgcPal.buttonBorder
+        color:          control.enabled ? qgcPal.textField : "transparent"
+        border.color:   control.checked ? qgcPal.buttonHighlight : Qt.rgba(1, 1, 1, 0.25)
         border.width:   1
-        radius:         ScreenTools.defaultBorderRadius
+        radius:         ScreenTools.defaultFontPixelHeight * 0.3
         opacity:        control.checkedState === Qt.PartiallyChecked ? 0.5 : 1
 
         Rectangle {

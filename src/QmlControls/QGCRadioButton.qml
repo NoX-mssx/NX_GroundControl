@@ -17,8 +17,8 @@ RadioButton {
     indicator: Rectangle {
         implicitWidth:          ScreenTools.radioButtonIndicatorSize
         implicitHeight:         width
-        color:                  control.enabled ? "white" : "transparent"
-        border.color:           qgcPal.buttonBorder
+        color:                  control.enabled ? qgcPal.textField : "transparent"
+        border.color:           control.checked ? qgcPal.buttonHighlight : Qt.rgba(1, 1, 1, 0.25)
         radius:                 height / 2
         x:                      control.leftPadding
         y:                      parent.height / 2 - height / 2

@@ -31,8 +31,8 @@ AbstractButton   {
             id:                     indicator
             anchors.right:          parent.right
             anchors.verticalCenter: parent.verticalCenter
-            height:                 ScreenTools.defaultFontPixelHeight
-            width:                  height * 2
+            height:                 ScreenTools.defaultFontPixelHeight * 1.3
+            width:                  height * 1.8
             radius:                 height / 2
             color:                  checked ? qgcPal.buttonHighlight : qgcPal.button
             border.width:           _showBorder ? 1 : 0
@@ -51,7 +51,7 @@ AbstractButton   {
                 height:                 parent.height - (_sliderInset * 2)
                 width:                  height
                 radius:                 height / 2
-                color:                  qgcPal.buttonText
+                color:                  checked ? qgcPal.buttonHighlightText : qgcPal.buttonText
             }
         }
     }

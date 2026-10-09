@@ -114,8 +114,8 @@ T.ComboBox {
     background: Rectangle {
         color: qgcPal.button
         border.color: qgcPal.buttonBorder
-        border.width: _showBorder ? 1 : 0
-        radius: ScreenTools.defaultBorderRadius
+        border.width: 1
+        radius: ScreenTools.defaultFontPixelHeight * 0.6
 
         Rectangle {
             anchors.fill: parent

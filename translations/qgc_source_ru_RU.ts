@@ -14121,6 +14121,168 @@ Do you wish to proceed?</source>
     </message>
   </context>
   <context>
+    <name>NxLinksSettings</name>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="71" />
+      <source>ID %1</source>
+      <translation>ID %1</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="98" />
+      <source>Links</source>
+      <translation>Линки</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="103" />
+      <source>+ Add</source>
+      <translation>+ Добавить</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="177" />
+      <source>Disconnect</source>
+      <translation>Отключить</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="177" />
+      <source>Connect</source>
+      <translation>Подключить</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="196" />
+      <source>No links yet. Add one to connect to a vehicle.</source>
+      <translation>Линков пока нет. Добавьте линк, чтобы подключиться к технике.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="218" />
+      <source>Select a link on the left, or add a new one.</source>
+      <translation>Выберите линк слева или добавьте новый.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="247" />
+      <source>This link is connected. Disconnect it to change its settings.</source>
+      <translation>Этот линк подключён. Отключите его, чтобы изменить настройки.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="277" />
+      <source>New link</source>
+      <translation>Новый линк</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="286" />
+      <source>Name</source>
+      <translation>Название</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="291" />
+      <source>Enter name</source>
+      <translation>Введите название</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="299" />
+      <source>Board ID</source>
+      <translation>ID борта</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="303" />
+      <source>Board number, e.g. 104</source>
+      <translation>Номер борта, напр. 104</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="310" />
+      <source>Vehicle Model</source>
+      <translation>Модель техники</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="311" />
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="319" />
+      <source>None</source>
+      <translation>Нет</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="318" />
+      <source>WireGuard Tunnel</source>
+      <translation>Туннель WireGuard</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="328" />
+      <source>Automatically Connect on Start</source>
+      <translation>Автоматически подключаться при запуске</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="337" />
+      <source>High Latency</source>
+      <translation>Высокая задержка</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="345" />
+      <source>Link Quality</source>
+      <translation>Качество линка</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="351" />
+      <source>Ping address</source>
+      <translation>Адрес ping</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="355" />
+      <source>Vehicle router, e.g. 10.30.1.101</source>
+      <translation>Роутер аппарата, напр. 10.30.1.101</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="362" />
+      <source>Limit throttle on high ping</source>
+      <translation>Ограничивать газ при высоком ping</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="372" />
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="396" />
+      <source>Above</source>
+      <translation>Свыше</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="380" />
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="404" />
+      <source>ms throttle</source>
+      <translation>мс газ</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="388" />
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="412" />
+      <source>%</source>
+      <translation>%</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="417" />
+      <source>Type</source>
+      <translation>Тип</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="457" />
+      <source>Delete link</source>
+      <translation>Удалить линк</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="464" />
+      <source>Delete Link</source>
+      <translation>Удалить линк</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="465" />
+      <source>Are you sure you want to delete '%1'?</source>
+      <translation>Вы уверены, что хотите удалить '%1'?</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="475" />
+      <source>Cancel</source>
+      <translation>Отмена</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="479" />
+      <source>Save</source>
+      <translation>Сохранить</translation>
+    </message>
+  </context>
+  <context>
     <name>OfflineMapEditor</name>
     <message>
       <location filename="../src/AppSettings/OfflineMapEditor.qml" line="201" />
@@ -22216,7 +22378,6 @@ If a vehicle still has this key configured, you will no longer be able to commun
     </message>
     <message>
       <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="97" />
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="129" />
       <source>Vehicle Model</source>
       <translation>Модель техники</translation>
     </message>
@@ -22236,139 +22397,165 @@ If a vehicle still has this key configured, you will no longer be able to commun
       <translation>Экспортировано в %1</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="147" />
-      <source>Delete</source>
-      <translation>Удалить</translation>
-    </message>
-    <message>
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="154" />
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="569" />
       <source>Save</source>
       <translation>Сохранить</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="166" />
-      <source>Import...</source>
-      <translation>Импорт...</translation>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="179" />
+      <source>Models</source>
+      <translation>Модели</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="172" />
-      <source>Export...</source>
-      <translation>Экспорт...</translation>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="184" />
+      <source>+ New</source>
+      <translation>+ Новая</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="189" />
-      <source>Model Name</source>
-      <translation>Название модели</translation>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="210" />
+      <source>%1 cameras · %2 buttons</source>
+      <translation>камер: %1 · кнопок: %2</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="194" />
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="219" />
+      <source>No models yet. Create one or import a JSON file.</source>
+      <translation>Моделей пока нет. Создайте модель или импортируйте JSON-файл.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="228" />
+      <source>Import from JSON...</source>
+      <translation>Импорт из JSON...</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="266" />
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="273" />
       <source>Model name</source>
       <translation>Название модели</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="205" />
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="281" />
+      <source>Export JSON...</source>
+      <translation>Экспорт JSON...</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="293" />
+      <source>Cameras</source>
+      <translation>Камеры</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="298" />
+      <source>+ Camera</source>
+      <translation>+ Камера</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="319" />
       <source>Camera: %1</source>
       <translation>Камера: %1</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="225" />
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="339" />
       <source>Camera Name</source>
       <translation>Название камеры</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="232" />
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="346" />
       <source>IP address</source>
       <translation>IP-адрес</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="240" />
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="354" />
       <source>User name</source>
       <translation>Имя пользователя</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="248" />
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="362" />
       <source>Password</source>
       <translation>Пароль</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="257" />
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="371" />
       <source>RTSP URL</source>
       <translation>URL RTSP</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="264" />
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="378" />
       <source>Secondary RTSP URL</source>
       <translation>Дополнительный URL RTSP</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="269" />
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="383" />
       <source>Audio Enabled</source>
       <translation>Звук включён</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="290" />
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="404" />
       <source>Delete Camera</source>
       <translation>Удалить камеру</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="302" />
-      <source>Add Camera</source>
-      <translation>Добавить камеру</translation>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="422" />
+      <source>Buttons on screen</source>
+      <translation>Кнопки на экране</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="315" />
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="427" />
+      <source>+ Button</source>
+      <translation>+ Кнопка</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="562" />
+      <source>Delete model</source>
+      <translation>Удалить модель</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="441" />
       <source>Button: %1</source>
       <translation>Кнопка: %1</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="325" />
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="451" />
       <source>Button name</source>
       <translation>Название кнопки</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="329" />
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="455" />
       <source>Functions (output, type, value when on, value when off):</source>
       <translation>Функции (выход, тип, значение «вкл.», значение «выкл.»):</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="355" />
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="481" />
       <source>PWM</source>
       <translation>PWM</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="355" />
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="481" />
       <source>GPIO</source>
       <translation>GPIO</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="369" />
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="495" />
       <source>On</source>
       <translation>Вкл.</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="382" />
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="508" />
       <source>Off</source>
       <translation>Выключено</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="392" />
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="518" />
       <source>Remove</source>
       <translation>Удалить</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="405" />
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="531" />
       <source>Delete Button</source>
       <translation>Удалить кнопку</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="413" />
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="539" />
       <source>Add Function</source>
       <translation>Добавить функцию</translation>
-    </message>
-    <message>
-      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="425" />
-      <source>Add Button</source>
-      <translation>Добавить кнопку</translation>
     </message>
   </context>
   <context>
@@ -22661,111 +22848,112 @@ If a vehicle still has this key configured, you will no longer be able to commun
       <translation>Импортировано. Нажмите «Сохранить», чтобы зарегистрировать туннель.</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/WireGuardSettings.qml" line="107" />
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="106" />
+      <source>Tunnels</source>
+      <translation>Туннели</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="111" />
+      <source>+ New</source>
+      <translation>+ Новая</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="121" />
       <source>WireGuard for Windows is not installed, so tunnels cannot be created.</source>
       <translation>WireGuard для Windows не установлен, поэтому создать туннели невозможно.</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/WireGuardSettings.qml" line="113" />
-      <source>WireGuard Tunnel</source>
-      <translation>Туннель WireGuard</translation>
-    </message>
-    <message>
-      <location filename="../src/AppSettings/WireGuardSettings.qml" line="130" />
-      <source>Delete</source>
-      <translation>Удалить</translation>
-    </message>
-    <message>
-      <location filename="../src/AppSettings/WireGuardSettings.qml" line="137" />
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="345" />
       <source>Save</source>
       <translation>Сохранить</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/WireGuardSettings.qml" line="150" />
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="190" />
       <source>Import .conf...</source>
       <translation>Импорт .conf...</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/WireGuardSettings.qml" line="156" />
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="322" />
       <source>New Key</source>
       <translation>Новый ключ</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/WireGuardSettings.qml" line="172" />
-      <source>Tunnel Name</source>
-      <translation>Название туннеля</translation>
-    </message>
-    <message>
-      <location filename="../src/AppSettings/WireGuardSettings.qml" line="177" />
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="224" />
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="231" />
       <source>Tunnel name</source>
       <translation>Название туннеля</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/WireGuardSettings.qml" line="184" />
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="239" />
       <source>This PC</source>
       <translation>Этот ПК</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/WireGuardSettings.qml" line="185" />
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="240" />
       <source>Add this public key as a peer on the server.</source>
       <translation>Добавьте этот публичный ключ как peer на сервере.</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/WireGuardSettings.qml" line="198" />
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="253" />
       <source>Copy</source>
       <translation>Копировать</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/WireGuardSettings.qml" line="206" />
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="261" />
       <source>Address</source>
       <translation>Адрес</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/WireGuardSettings.qml" line="207" />
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="262" />
       <source>DNS</source>
       <translation>DNS</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/WireGuardSettings.qml" line="207" />
-      <location filename="../src/AppSettings/WireGuardSettings.qml" line="208" />
-      <location filename="../src/AppSettings/WireGuardSettings.qml" line="242" />
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="262" />
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="263" />
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="297" />
       <source>optional</source>
       <translation>необязательно</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/WireGuardSettings.qml" line="208" />
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="263" />
       <source>MTU</source>
       <translation>MTU</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/WireGuardSettings.qml" line="234" />
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="289" />
       <source>Server</source>
       <translation>Сервер</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/WireGuardSettings.qml" line="238" />
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="293" />
       <source>Public key</source>
       <translation>Публичный ключ</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/WireGuardSettings.qml" line="239" />
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="294" />
       <source>Endpoint</source>
       <translation>Endpoint</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/WireGuardSettings.qml" line="240" />
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="295" />
       <source>Allowed IPs</source>
       <translation>Allowed IPs</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/WireGuardSettings.qml" line="241" />
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="296" />
       <source>Persistent keepalive</source>
       <translation>Persistent keepalive</translation>
     </message>
     <message>
-      <location filename="../src/AppSettings/WireGuardSettings.qml" line="242" />
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="297" />
       <source>Preshared key</source>
       <translation>Preshared key</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="338" />
+      <source>Delete tunnel</source>
+      <translation>Удалить туннель</translation>
     </message>
   </context>
   <context>

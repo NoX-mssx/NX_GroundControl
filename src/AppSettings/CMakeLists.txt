@@ -22,7 +22,6 @@ file(GLOB _settings_metadata CONFIGURE_DEPENDS "${SETTINGS_METADATA_DIR}/*.Setti
 # Generated QML outputs (must match what generate_pages.py produces)
 set(_generated_qml_names
     ADSBServerSettings.qml
-    CommLinksSettings.qml
     FlyViewSettings.qml
     GeneralSettings.qml
     LoggingSettings.qml
@@ -73,6 +72,7 @@ qt_add_qml_module(AppSettingsModule
         GcsPositionStatus.qml
         HelpSettings.qml
         LinkConfigurationManager.qml
+        NxLinksSettings.qml
         LogReplaySettings.qml
         MapProviderSettings.qml
         MavlinkActionSettings.qml

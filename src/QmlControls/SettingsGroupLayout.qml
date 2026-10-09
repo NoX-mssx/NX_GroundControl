@@ -25,7 +25,7 @@ ColumnLayout {
     property bool   showDividers:       true
     property bool   showBorder:         true
 
-    property real _margins: ScreenTools.defaultFontPixelHeight / 2
+    property real _margins: ScreenTools.defaultFontPixelHeight * 0.7
 
     // We work with a y sorted list of children for divider visibility checks
     property var _ySortedChildren: {
@@ -45,7 +45,7 @@ ColumnLayout {
         QGCLabel {
             text:           heading
             font.pointSize: headingPointSize
-            font.bold:      true
+            font.weight:    Font.ExtraBold
         }
 
         QGCLabel {
@@ -62,10 +62,11 @@ ColumnLayout {
         Layout.fillWidth:   true
         implicitWidth:      _contentLayout.implicitWidth + (showBorder ? _margins * 2 : 0)
         implicitHeight:     _contentLayout.implicitHeight + (showBorder ? _margins * 2: 0)
-        color:              "transparent"
-        border.color:       outerBorderColor
+        // NX card: faint fill and hairline border
+        color:              showBorder ? Qt.rgba(1, 1, 1, 0.04) : "transparent"
+        border.color:       outerBorderColor === defaultBorderColor ? Qt.rgba(1, 1, 1, 0.10) : outerBorderColor
         border.width:       showBorder ? 1 : 0
-        radius:             ScreenTools.defaultFontPixelHeight / 2
+        radius:             ScreenTools.defaultFontPixelHeight
 
         Repeater {
             model: showDividers ? _ySortedChildren.length : 0
@@ -75,7 +76,7 @@ ColumnLayout {
                 y:          _contentItem ? (_contentItem.y + _contentItem.height + _margins + (showBorder ? _margins : 0)) : 0
                 width:      parent.width - (showBorder ? _margins * 2 : 0)
                 height:     1
-                color:      QGroundControl.globalPalette.groupBorder
+                color:      Qt.rgba(1, 1, 1, 0.08)
                 visible:    _contentItem ? _isContentItemVisible() : false
 
                 property var _contentItem: index < _ySortedChildren.length ? _ySortedChildren[index] : undefined

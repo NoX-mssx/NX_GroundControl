@@ -40,9 +40,8 @@
         },
         {
             "name": "Comm Links",
-            "qml": "CommLinksSettings.qml",
-            "icon": "qrc:/InstrumentValueIcons/usb.svg",
-            "pageDefinition": "CommLinks.SettingsUI.json"
+            "qml": "NxLinksSettings.qml",
+            "icon": "qrc:/InstrumentValueIcons/link.svg"
         },
         {
             "name": "App Logging",
