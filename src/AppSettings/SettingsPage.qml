@@ -21,9 +21,9 @@ Item {
 
         ColumnLayout {
             id:         mainLayout
-            // NX: left aligned in the page card, as wide as the card up to a comfortable reading width
-            x:          ScreenTools.defaultFontPixelWidth * 2
-            width:      Math.max(implicitWidth, Math.min(root.width - x * 2, ScreenTools.defaultFontPixelWidth * 110))
+            // NX: centred in the page card, up to a comfortable reading width
+            x:          Math.max(0, (root.width - width) / 2)
+            width:      Math.max(implicitWidth, Math.min(root.width - ScreenTools.defaultFontPixelWidth * 4, ScreenTools.defaultFontPixelWidth * 90))
             spacing:    ScreenTools.defaultFontPixelHeight
         }
     }

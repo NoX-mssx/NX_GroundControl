@@ -4358,11 +4358,6 @@ Please place your vehicle in water, click the button, and wait. Note that the th
         <source>Pseudo Localization (Test Only)</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../src/QmlControls/AppSettings.qml" line="213"/>
-        <source>Search settings...</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>ArmedIndicator</name>
@@ -7844,63 +7839,63 @@ VTOL</source>
 <context>
     <name>FlyViewToolBar</name>
     <message>
-        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="92"/>
+        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="104"/>
         <source>%1 · comms lost</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="93"/>
+        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="105"/>
         <source>Not connected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="136"/>
+        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="105"/>
+        <source>%1 · waiting for vehicle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="148"/>
         <source>Armed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="146"/>
+        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="158"/>
         <source>Disarmed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="258"/>
+        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="270"/>
         <source>Board ID %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="268"/>
+        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="280"/>
         <source>Disconnect</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="283"/>
+        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="297"/>
         <source>Vehicle Messages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="291"/>
+        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="305"/>
         <source>No new vehicle messages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="299"/>
+        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="313"/>
         <source>Select Link to Connect</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="303"/>
+        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="317"/>
         <source>No Links Configured</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="314"/>
+        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="328"/>
         <source>Connected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Toolbar/FlyViewToolBar.qml" line="327"/>
-        <source>Configure Links</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

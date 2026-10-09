@@ -4371,11 +4371,6 @@ Please place your vehicle in water, click the button, and wait. Note that the th
       <source>Pseudo Localization (Test Only)</source>
       <translation>Псевдолокалізація (лише тест)</translation>
     </message>
-    <message>
-      <location filename="../src/QmlControls/AppSettings.qml" line="213" />
-      <source>Search settings...</source>
-      <translation>Пошук налаштувань...</translation>
-    </message>
   </context>
   <context>
     <name>ArmedIndicator</name>
@@ -7870,64 +7865,64 @@ VTOL</translation>
   <context>
     <name>FlyViewToolBar</name>
     <message>
-      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="92" />
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="104" />
       <source>%1 · comms lost</source>
       <translation>%1 · зв'язок втрачено</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="93" />
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="105" />
       <source>Not connected</source>
       <translation>Не підключено</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="136" />
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="105" />
+      <source>%1 · waiting for vehicle</source>
+      <translation>%1 · очікування техніки</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="148" />
       <source>Armed</source>
       <translation>Armed</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="146" />
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="158" />
       <source>Disarmed</source>
       <translation>Disarmed</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="258" />
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="270" />
       <source>Board ID %1</source>
       <translation>ID борту %1</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="268" />
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="280" />
       <source>Disconnect</source>
       <translation>Відключити</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="283" />
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="297" />
       <source>Vehicle Messages</source>
       <translation>Повідомлення апарата</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="291" />
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="305" />
       <source>No new vehicle messages</source>
       <translation>Немає нових повідомлень апарата</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="299" />
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="313" />
       <source>Select Link to Connect</source>
       <translation>Виберіть лінк для підключення</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="303" />
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="317" />
       <source>No Links Configured</source>
       <translation>Лінки не налаштовано</translation>
     </message>
     <message>
-      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="314" />
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="328" />
       <source>Connected</source>
       <translation>Підключено</translation>
-    </message>
-    <message>
-      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="327" />
-      <source>Configure Links</source>
-      <translation>Налаштувати лінки</translation>
     </message>
   </context>
   <context>

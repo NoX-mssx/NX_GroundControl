@@ -20,7 +20,18 @@ Item {
     property bool   _communicationLost: _activeVehicle ? _activeVehicle.vehicleLinkManager.communicationLost : false
     property bool   _armed:             _activeVehicle ? _activeVehicle.armed : false
     property string _flightMode:        _activeVehicle ? _activeVehicle.flightMode : ""
-    property string _linkName:          _activeVehicle ? _activeVehicle.vehicleLinkManager.primaryLinkName : ""
+    /// A connected link without a vehicle yet (no heartbeat), so it can still be shown and disconnected
+    property var    _connectedConfig: {
+        let configs = QGroundControl.linkManager.linkConfigurations
+        for (let i = 0; i < configs.count; i++) {
+            let config = configs.get(i)
+            if (config && !config.dynamic && config.link) {
+                return config
+            }
+        }
+        return null
+    }
+    property string _linkName:          _activeVehicle ? _activeVehicle.vehicleLinkManager.primaryLinkName : (_connectedConfig ? _connectedConfig.name : "")
     property real   _margins:           ScreenTools.defaultFontPixelWidth
     property var    _guidedController:  globals.guidedControllerFlyView
 
@@ -85,12 +96,13 @@ Item {
                     Layout.preferredWidth:  ScreenTools.defaultFontPixelHeight * 0.55
                     Layout.preferredHeight: Layout.preferredWidth
                     radius:                 width / 2
-                    color:                  !control._activeVehicle ? qgcPal.colorGrey : (control._communicationLost ? qgcPal.colorRed : "#4FD1C5")
+                    color:                  control._activeVehicle ? (control._communicationLost ? qgcPal.colorRed : "#4FD1C5")
+                                                                   : (control._linkName !== "" ? qgcPal.colorOrange : qgcPal.colorGrey)
                 }
 
                 QGCLabel {
                     text:           control._activeVehicle ? (control._communicationLost ? qsTr("%1 · comms lost").arg(control._linkName) : control._linkName)
-                                                           : qsTr("Not connected")
+                                                           : (control._linkName !== "" ? qsTr("%1 · waiting for vehicle").arg(control._linkName) : qsTr("Not connected"))
                     font.pointSize: ScreenTools.largeFontPointSize
                     font.weight:    Font.ExtraBold
                 }
@@ -244,10 +256,10 @@ Item {
                         return null
                     }
 
-                    // Connected
+                    // Connected (with or without a vehicle)
                     ColumnLayout {
                         spacing:    0
-                        visible:    control._activeVehicle !== null
+                        visible:    control._linkName !== ""
 
                         QGCLabel {
                             text:           control._linkName
@@ -262,21 +274,9 @@ Item {
                         }
                     }
 
-                    // Link settings, then disconnect right below it
                     QGCButton {
                         Layout.fillWidth:   true
-                        visible:            control._activeVehicle !== null
-                        text:               qsTr("Configure Links")
-                        onClicked: {
-                            // Untranslated page key from SettingsPages.json — do not qsTr()
-                            mainWindow.showSettingsTool("Comm Links")
-                            mainWindow.closeIndicatorDrawer()
-                        }
-                    }
-
-                    QGCButton {
-                        Layout.fillWidth:   true
-                        visible:            control._activeVehicle !== null
+                        visible:            control._linkName !== ""
                         text:               qsTr("Disconnect")
                         iconSource:         "/res/nx/Disconnect.svg"
                         fontWeight:         Font.ExtraBold
@@ -286,6 +286,8 @@ Item {
                             mainWindow.closeIndicatorDrawer()
                             if (control._activeVehicle) {
                                 control._activeVehicle.closeVehicle()
+                            } else if (control._connectedConfig) {
+                                QGroundControl.linkManager.disconnectLinkConfiguration(control._connectedConfig)
                             }
                         }
                     }
@@ -309,7 +311,7 @@ Item {
                     SettingsGroupLayout {
                         Layout.fillWidth:   true
                         heading:            qsTr("Select Link to Connect")
-                        visible:            control._activeVehicle === null
+                        visible:            control._linkName === ""
 
                         QGCLabel {
                             text:       qsTr("No Links Configured")
@@ -331,16 +333,6 @@ Item {
                                     QGroundControl.linkManager.createConnectedLink(object)
                                     mainWindow.closeIndicatorDrawer()
                                 }
-                            }
-                        }
-
-                        QGCButton {
-                            Layout.fillWidth:   true
-                            text:               qsTr("Configure Links")
-                            onClicked: {
-                                // Untranslated page key from SettingsPages.json — do not qsTr()
-                                mainWindow.showSettingsTool("Comm Links")
-                                mainWindow.closeIndicatorDrawer()
                             }
                         }
                     }

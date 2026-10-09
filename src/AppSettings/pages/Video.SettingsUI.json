@@ -11,38 +11,49 @@
     "groups": [
         {
             "heading": "Video Source",
-            "keywords": ["video source", "camera", "stream"],
+            "keywords": [
+                "camera",
+                "mpegts",
+                "rtsp",
+                "stream",
+                "stream url",
+                "tcp",
+                "udp",
+                "video source",
+                "video url"
+            ],
             "enableWhen": "!autoStreamConfig",
             "headingDescription": "autoStreamConfig ? qsTr(\"Mavlink camera stream is automatically configured\") : \"\"",
             "controls": [
                 {
                     "setting": "videoSettings.videoSource",
                     "control": "combobox"
-                }
-            ]
-        },
-        {
-            "heading": "Connection",
-            "keywords": ["rtsp", "tcp", "udp", "mpegts", "video url", "stream url"],
-            "showWhen": "!sourceDisabled && !autoStreamConfig",
-            "controls": [
+                },
                 {
                     "setting": "videoSettings.rtspUrl",
-                    "showWhen": "videoSource === QGroundControl.settingsManager.videoSettings.rtspVideoSource"
+                    "showWhen": "(!sourceDisabled && !autoStreamConfig) && (videoSource === QGroundControl.settingsManager.videoSettings.rtspVideoSource)"
                 },
                 {
                     "setting": "videoSettings.tcpUrl",
-                    "showWhen": "videoSource === QGroundControl.settingsManager.videoSettings.tcpVideoSource"
+                    "showWhen": "(!sourceDisabled && !autoStreamConfig) && (videoSource === QGroundControl.settingsManager.videoSettings.tcpVideoSource)"
                 },
                 {
                     "setting": "videoSettings.udpUrl",
-                    "showWhen": "videoSource === QGroundControl.settingsManager.videoSettings.udp264VideoSource || videoSource === QGroundControl.settingsManager.videoSettings.udp265VideoSource || videoSource === QGroundControl.settingsManager.videoSettings.mpegtsVideoSource"
+                    "showWhen": "(!sourceDisabled && !autoStreamConfig) && (videoSource === QGroundControl.settingsManager.videoSettings.udp264VideoSource || videoSource === QGroundControl.settingsManager.videoSettings.udp265VideoSource || videoSource === QGroundControl.settingsManager.videoSettings.mpegtsVideoSource)"
                 }
             ]
         },
         {
             "heading": "Settings",
-            "keywords": ["aspect ratio", "low latency", "decoder", "hardware decode", "disable when disarmed", "gpu", "zero-copy"],
+            "keywords": [
+                "aspect ratio",
+                "low latency",
+                "decoder",
+                "hardware decode",
+                "disable when disarmed",
+                "gpu",
+                "zero-copy"
+            ],
             "showWhen": "!sourceDisabled",
             "controls": [
                 {
@@ -75,7 +86,14 @@
         },
         {
             "heading": "Local Video Storage",
-            "keywords": ["record", "recording format", "mp4", "mkv", "storage limit", "video file"],
+            "keywords": [
+                "record",
+                "recording format",
+                "mp4",
+                "mkv",
+                "storage limit",
+                "video file"
+            ],
             "showWhen": "!sourceDisabled",
             "controls": [
                 {

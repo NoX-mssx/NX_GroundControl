@@ -310,10 +310,10 @@ Rectangle {
             visible:            pageCard._visibleSections.length > 1
 
             Row {
-                anchors.left:   parent.left
-                anchors.bottom: parent.bottom
-                height:         parent.height
-                spacing:        _defaultTextWidth * 3
+                anchors.horizontalCenter:   parent.horizontalCenter
+                anchors.bottom:             parent.bottom
+                height:                     parent.height
+                spacing:                    _defaultTextWidth * 3
 
                 Repeater {
                     model: pageCard._visibleSections
