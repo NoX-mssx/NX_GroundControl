@@ -262,6 +262,18 @@ Item {
                         }
                     }
 
+                    // Link settings, then disconnect right below it
+                    QGCButton {
+                        Layout.fillWidth:   true
+                        visible:            control._activeVehicle !== null
+                        text:               qsTr("Configure Links")
+                        onClicked: {
+                            // Untranslated page key from SettingsPages.json — do not qsTr()
+                            mainWindow.showSettingsTool("Comm Links")
+                            mainWindow.closeIndicatorDrawer()
+                        }
+                    }
+
                     QGCButton {
                         Layout.fillWidth:   true
                         visible:            control._activeVehicle !== null

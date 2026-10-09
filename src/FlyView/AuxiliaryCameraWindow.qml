@@ -41,6 +41,9 @@ Rectangle {
 
     QGCPalette { id: qgcPal; colorGroupEnabled: true }
 
+    // Lock, collapse and resize controls appear only while the pointer is over the window.
+    HoverHandler { id: windowHover }
+
     // The default position follows the layout only until the user places the window.
     onDefaultXChanged: if (!_moved) x = defaultX
     onDefaultYChanged: if (!_moved) y = defaultY
@@ -70,7 +73,7 @@ Rectangle {
             width:          ScreenTools.defaultFontPixelHeight
             height:         width
             color:          qgcPal.buttonHighlight
-            visible:        !root.locked
+            visible:        !root.locked && windowHover.hovered
 
             MouseArea {
                 anchors.fill:   parent
@@ -121,6 +124,7 @@ Rectangle {
 
             QGCColoredImage {
                 id:                 lockIcon
+                visible:            windowHover.hovered
                 anchors.verticalCenter: parent.verticalCenter
                 height:             parent.height * 0.8
                 width:              height
@@ -137,6 +141,7 @@ Rectangle {
             }
 
             QGCColoredImage {
+                visible:            windowHover.hovered || root.collapsed
                 anchors.verticalCenter: parent.verticalCenter
                 height:             parent.height * 0.8
                 width:              height

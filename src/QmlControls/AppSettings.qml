@@ -152,7 +152,7 @@ Rectangle {
         for (var i = 0; i < settingsPagesModel.count; i++) {
             var entry = settingsPagesModel.get(i)
             if (entry && entry.nameKey === settingsPage) {
-                _navigateTo(i, -1)
+                _navigateTo(i, _firstSectionIndex(entry))
                 break
             }
         }
@@ -175,7 +175,7 @@ Rectangle {
         for (var i = 0; i < settingsPagesModel.count; i++) {
             var entry = settingsPagesModel.get(i)
             if (entry && entry.url === targetUrl) {
-                _navigateTo(i, -1)
+                _navigateTo(i, _firstSectionIndex(entry))
                 break
             }
         }
@@ -196,204 +196,182 @@ Rectangle {
 
     SettingsPagesModel { id: settingsPagesModel }
 
-    ColumnLayout {
-        id:                 leftPanel
-        width:              Math.max(buttonColumn.implicitWidth + _horizontalMargin, ScreenTools.defaultFontPixelWidth * 22)
-        anchors.topMargin:  _verticalMargin
-        anchors.top:        parent.top
-        anchors.bottom:     parent.bottom
-        anchors.leftMargin: _horizontalMargin
+    // First visible section of a page, so a page with several sections opens on its first tab
+    function _firstSectionIndex(entry) {
+        var sections = _pageSections(entry).filter(function(section) { return section.visible })
+        return sections.length > 1 ? sections[0].index : -1
+    }
+
+    function _openPage(pageIndex) {
+        if (!mainWindow.allowViewSwitch()) {
+            return
+        }
+        _navigateTo(pageIndex, _firstSectionIndex(settingsPagesModel.get(pageIndex)))
+    }
+
+    // ---- Pages as chips across the top ----
+    Flow {
+        id:                 pageChips
+        objectName:         "settings_buttonList"
         anchors.left:       parent.left
-        spacing:            _verticalMargin / 2
+        anchors.right:      parent.right
+        anchors.top:        parent.top
+        anchors.margins:    _defaultTextHeight
+        spacing:            _defaultTextWidth * 0.8
 
-        QGCTextField {
-            id:                 searchField
-            objectName:         "settings_searchField"
-            Layout.fillWidth:   true
-            placeholderText:    qsTr("Search settings...")
+        Repeater {
+            id:     buttonRepeater
+            model:  settingsPagesModel
 
-            onTextChanged: {
-                settingsView._searchQuery = text
+            Rectangle {
+                id:         pageChip
+                objectName: "settingsButton_" + (model.nameKey ?? pageName)
+                height:     _defaultTextHeight * 2.3
+                width:      chipRow.implicitWidth + _defaultTextWidth * 3
+                radius:     height / 2
+                visible:    pageName !== "Divider" && pageAvailable
+                color:      isSelected ? qgcPal.buttonHighlight : (chipMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.10) : Qt.rgba(1, 1, 1, 0.05))
+
+                required property int index
+                required property var model
+
+                property string pageName:       model.name ?? ""
+                property string pageIconUrl:    model.iconUrl ?? ""
+                property var    pageVisible:    model.pageVisible ?? function() { return true }
+                property var    pageSections:   pageVisible() ? settingsView._pageSections(model) : []
+                property bool   pageAvailable:  pageVisible() &&
+                                                (pageSections.length === 0 || pageSections.some(function(section) { return section.visible }))
+                property bool   isSelected:     settingsView._selectedPageIndex === index
+
+                // Make the setter usable as a clickable control for tests and keyboard users
+                function click() { settingsView._openPage(index) }
+
+                onPageAvailableChanged: {
+                    if (isSelected && !pageAvailable) {
+                        settingsView._navigateToFirstAvailablePage()
+                    }
+                }
+
+                Row {
+                    id:                 chipRow
+                    anchors.centerIn:   parent
+                    spacing:            _defaultTextWidth * 0.7
+
+                    QGCColoredImage {
+                        anchors.verticalCenter: parent.verticalCenter
+                        width:                  _defaultTextHeight
+                        height:                 width
+                        sourceSize.height:      height
+                        source:                 pageChip.pageIconUrl
+                        color:                  pageChip.isSelected ? qgcPal.buttonHighlightText : qgcPal.text
+                        visible:                pageChip.pageIconUrl !== ""
+                    }
+                    QGCLabel {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text:                   pageChip.pageName
+                        color:                  pageChip.isSelected ? qgcPal.buttonHighlightText : qgcPal.text
+                        font.weight:            Font.Bold
+                    }
+                }
+
+                MouseArea {
+                    id:             chipMouse
+                    anchors.fill:   parent
+                    hoverEnabled:   true
+                    onClicked:      settingsView._openPage(pageChip.index)
+                }
             }
         }
+    }
 
-        QGCFlickable {
-            id:                 buttonList
-            objectName:         "settings_buttonList"
-            Layout.fillWidth:   true
-            Layout.fillHeight:  true
-            contentHeight:      buttonColumn.height + _verticalMargin
-            flickableDirection:  Flickable.VerticalFlick
-            clip:               true
+    // ---- The selected page in a card, with its sections as tabs ----
+    Rectangle {
+        id:                 pageCard
+        anchors.left:       parent.left
+        anchors.right:      parent.right
+        anchors.top:        pageChips.bottom
+        anchors.bottom:     parent.bottom
+        anchors.margins:    _defaultTextHeight
+        radius:             _defaultTextHeight * 1.1
+        color:              Qt.rgba(1, 1, 1, 0.04)
+        border.color:       Qt.rgba(1, 1, 1, 0.10)
 
-        ColumnLayout {
-            id:         buttonColumn
-            width:      buttonList.width
-            spacing:    0
+        readonly property var _entry:           settingsView._selectedPageIndex >= 0 ? settingsPagesModel.get(settingsView._selectedPageIndex) : null
+        readonly property var _visibleSections: _entry ? settingsView._pageSections(_entry).filter(function(section) { return section.visible }) : []
 
-            Repeater {
-                id:     buttonRepeater
-                model:  settingsPagesModel
+        Item {
+            id:                 sectionTabs
+            anchors.left:       parent.left
+            anchors.right:      parent.right
+            anchors.top:        parent.top
+            anchors.leftMargin: _defaultTextWidth * 3
+            anchors.rightMargin: _defaultTextWidth * 3
+            height:             visible ? _defaultTextHeight * 2.8 : 0
+            visible:            pageCard._visibleSections.length > 1
 
-                ColumnLayout {
-                    id:     pageColumn
-                    spacing: 0
-                    Layout.fillWidth: true
+            Row {
+                anchors.left:   parent.left
+                anchors.bottom: parent.bottom
+                height:         parent.height
+                spacing:        _defaultTextWidth * 3
 
-                    required property int index
-                    required property var model
+                Repeater {
+                    model: pageCard._visibleSections
 
-                    property string pageName:    model.name ?? ""
-                    property string pageUrl:     model.url ?? ""
-                    property string pageIconUrl: model.iconUrl ?? ""
-                    property var    pageVisible: model.pageVisible ?? function() { return true }
-                    property var    pageSections: pageVisible() ? settingsView._pageSections(model) : []
-                    property var    visiblePageSections: pageSections.filter(function(section) {
-                        return section.visible
-                    })
-                    property bool pageAvailable: pageVisible() &&
-                                                 (pageSections.length === 0 || visiblePageSections.length > 0)
-                    property bool isSelected: settingsView._selectedPageIndex === index
-                    property bool hasMultipleSections: QGroundControl.corePlugin.options.showSettingsPageSections && visiblePageSections.length > 1
-                    property bool isSearching: settingsView._searchQuery.trim() !== ""
-                    property bool matchesSearch: pageAvailable && settingsView._pageMatchesSearch(index)
-                    property bool isExpanded: hasMultipleSections && (isSearching ? matchesSearch : settingsView._isExpanded(index))
+                    Item {
+                        id:         sectionTab
+                        width:      sectionLabel.implicitWidth
+                        height:     parent.height
 
-                    onPageSectionsChanged: {
-                        let sections = pageSections ?? []
-                        let visibleCount = sections.filter(function(section) { return section.visible }).length
-                        if (isSelected && pageAvailable && settingsView._selectedSectionIndex !== -1 &&
-                                (visibleCount <= 1 ||
-                                 !settingsView._sectionAvailable(sections, settingsView._selectedSectionIndex))) {
-                            settingsView._navigateTo(index, -1)
+                        required property var modelData
+
+                        readonly property bool _checked: settingsView._selectedSectionIndex === modelData.index
+
+                        QGCLabel {
+                            id:                     sectionLabel
+                            anchors.verticalCenter: parent.verticalCenter
+                            text:                   sectionTab.modelData.name
+                            font.weight:            Font.Bold
+                            color:                  sectionTab._checked ? qgcPal.text : qgcPal.colorGrey
                         }
-                    }
-
-                    onPageAvailableChanged: {
-                        if (isSelected && !pageAvailable) {
-                            settingsView._navigateToFirstAvailablePage()
+                        Rectangle {
+                            anchors.left:   parent.left
+                            anchors.right:  parent.right
+                            anchors.bottom: parent.bottom
+                            height:         2
+                            color:          qgcPal.buttonHighlight
+                            visible:        sectionTab._checked
                         }
-                    }
-
-                    visible: {
-                        if (pageName === "Divider") return settingsView._dividerVisible(index)
-                        if (!pageAvailable) return false
-                        if (isSearching) return matchesSearch
-                        return true
-                    }
-
-                    SidebarDivider {
-                        objectName: pageName === "Divider" ? "settingsDivider_" + index : ""
-                        visible:    pageName === "Divider"
-                    }
-
-                    // Page button
-                    SettingsButton {
-                        Layout.fillWidth: true
-                        objectName:    "settingsButton_" + (model.nameKey ?? pageName)
-                        text:          pageName
-                        icon.source:   pageIconUrl
-                        expandable:    hasMultipleSections
-                        expanded:      isExpanded
-                        checked:       isSelected && settingsView._selectedSectionIndex === -1
-                        visible:       pageName !== "Divider" && pageAvailable
-
-                        onClicked: {
-                            if (mainWindow.allowViewSwitch()) {
-                                settingsView._navigateTo(index, -1)
-                                if (hasMultipleSections) {
-                                    // Toggle expand/collapse when re-clicking the same page
-                                    if (isSelected && isExpanded) {
-                                        settingsView._setExpanded(index, false)
-                                    } else if (!isExpanded) {
-                                        settingsView._setExpanded(index, true)
-                                    }
-                                }
-                            }
-                        }
-
-                        onToggleExpand: {
-                            if (!mainWindow.allowViewSwitch()) {
-                                return
-                            }
-                            var expanding = !isExpanded
-                            settingsView._setExpanded(index, expanding)
-                            if (!expanding && isSelected) {
-                                settingsView._navigateTo(index, -1)
-                            }
-                        }
-                    }
-
-                    // Section sub-items (indented, shown when page is expanded)
-                    Repeater {
-                        model: isExpanded ? visiblePageSections : []
-
-                        Button {
-                            id:             sectionBtn
-                            Layout.fillWidth: true
-                            padding:        ScreenTools.defaultFontPixelWidth * 0.75
-                            leftPadding:    ScreenTools.defaultFontPixelWidth * 3
-                            hoverEnabled:   !ScreenTools.isMobile
-
-                            property int sectionIndex: modelData.index
-                            property bool sectionChecked: pageColumn.isSelected && settingsView._selectedSectionIndex === sectionIndex
-                            property bool sectionMatchesSearch: {
-                                if (!pageColumn.isSearching) return true
-                                var matches = settingsView._matchingSections(pageColumn.index)
-                                return matches.indexOf(sectionIndex) !== -1
-                            }
-                            property color textColor: sectionChecked || pressed ? qgcPal.buttonHighlightText : qgcPal.buttonText
-                            visible: sectionMatchesSearch
-
-                            background: Rectangle {
-                                color:   qgcPal.buttonHighlight
-                                opacity: sectionBtn.sectionChecked || sectionBtn.pressed ? 1 : sectionBtn.enabled && sectionBtn.hovered ? 0.2 : 0
-                                radius:  ScreenTools.defaultFontPixelWidth / 2
-                            }
-
-                            contentItem: QGCLabel {
-                                text:  modelData.name
-                                color: sectionBtn.textColor
-                                font.pointSize: ScreenTools.defaultFontPointSize * 0.9
-                                horizontalAlignment: Text.AlignLeft
-                            }
-
+                        MouseArea {
+                            anchors.fill:   parent
                             onClicked: {
                                 if (mainWindow.allowViewSwitch()) {
-                                    settingsView._navigateTo(pageColumn.index, sectionIndex)
+                                    settingsView._navigateTo(settingsView._selectedPageIndex, sectionTab.modelData.index)
                                 }
                             }
                         }
                     }
                 }
             }
+
+            Rectangle {
+                anchors.left:   parent.left
+                anchors.right:  parent.right
+                anchors.bottom: parent.bottom
+                height:         1
+                color:          Qt.rgba(1, 1, 1, 0.08)
+            }
         }
-    }
-    }
 
-    Rectangle {
-        id:                     divider
-        anchors.topMargin:      _verticalMargin
-        anchors.bottomMargin:   _verticalMargin
-        anchors.leftMargin:     _horizontalMargin
-        anchors.left:           leftPanel.right
-        anchors.top:            parent.top
-        anchors.bottom:         parent.bottom
-        width:                  1
-        color:                  qgcPal.windowShade
-    }
-
-    //-- Panel Contents
-    Loader {
-        id:                     rightPanel
-        objectName:             "settings_rightPanel"
-        anchors.leftMargin:     _horizontalMargin
-        anchors.rightMargin:    _horizontalMargin
-        anchors.topMargin:      _verticalMargin
-        anchors.bottomMargin:   _verticalMargin
-        anchors.left:           divider.right
-        anchors.right:          parent.right
-        anchors.top:            parent.top
-        anchors.bottom:         parent.bottom
+        //-- Panel Contents
+        Loader {
+            id:                     rightPanel
+            objectName:             "settings_rightPanel"
+            anchors.left:           parent.left
+            anchors.right:          parent.right
+            anchors.top:            sectionTabs.bottom
+            anchors.bottom:         parent.bottom
+            anchors.margins:        _defaultTextHeight * 0.6
+        }
     }
 }

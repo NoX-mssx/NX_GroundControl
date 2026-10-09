@@ -33,6 +33,9 @@ Item {
 
     QGCPalette { id: qgcPal; colorGroupEnabled: true }
 
+    // Window controls (lock, resize, pop-out, hide) appear only while the pointer is over the window.
+    HoverHandler { id: pipHover }
+
     Component.onCompleted: {
         _initForItems()
         _componentComplete = true
@@ -183,7 +186,7 @@ Item {
         mipmap:         true
         anchors.right:  parent.right
         anchors.top:    parent.top
-        visible:        _isExpanded && !_locked
+        visible:        _isExpanded && !_locked && pipHover.hovered
         height:         ScreenTools.defaultFontPixelHeight * 2.5
         width:          ScreenTools.defaultFontPixelHeight * 2.5
         sourceSize.height:  height
@@ -199,7 +202,7 @@ Item {
         height:         width
         radius:         ScreenTools.defaultFontPixelHeight / 4
         color:          Qt.rgba(0, 0, 0, 0.6)
-        visible:        _isExpanded
+        visible:        _isExpanded && pipHover.hovered   // only while the pointer is over the window
 
         QGCColoredImage {
             anchors.centerIn:   parent
@@ -243,7 +246,7 @@ Item {
         fillMode:       Image.PreserveAspectFit
         anchors.left:   lockButton.right
         anchors.top:    parent.top
-        visible:        _isExpanded && !ScreenTools.isMobile && pipMouseArea.containsMouse
+        visible:        _isExpanded && !ScreenTools.isMobile && pipHover.hovered
         height:         ScreenTools.defaultFontPixelHeight * 2.5
         width:          ScreenTools.defaultFontPixelHeight * 2.5
         sourceSize.height:  height
@@ -261,7 +264,7 @@ Item {
         fillMode:       Image.PreserveAspectFit
         anchors.left:   parent.left
         anchors.bottom: parent.bottom
-        visible:        _isExpanded && (ScreenTools.isMobile || pipMouseArea.containsMouse)
+        visible:        _isExpanded && (ScreenTools.isMobile || pipHover.hovered)
         height:         ScreenTools.defaultFontPixelHeight * 2.5
         width:          ScreenTools.defaultFontPixelHeight * 2.5
         sourceSize.height:  height

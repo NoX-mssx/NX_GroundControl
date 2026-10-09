@@ -9,7 +9,7 @@ import QGroundControl.Controls
 Rectangle {
     id:             root
     objectName:     "settingsPage_VehicleModels"
-    color:          qgcPal.window
+    color:          "transparent"   // sits in the settings page card
     anchors.fill:   parent
 
     readonly property real _margins:    ScreenTools.defaultFontPixelHeight

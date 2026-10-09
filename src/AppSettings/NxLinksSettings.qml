@@ -10,7 +10,7 @@ import QGroundControl.FactControls
 Rectangle {
     id:             root
     objectName:     "settingsPage_CommLinks"
-    color:          qgcPal.window
+    color:          "transparent"   // sits in the settings page card
     anchors.fill:   parent
 
     readonly property real _margins:    ScreenTools.defaultFontPixelHeight
