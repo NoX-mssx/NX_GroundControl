@@ -185,13 +185,23 @@ struct DynamicLinkContext
     bool allowJitterBuffer;  // false for RTSP (rtspsrc has its own internal jitterbuffer)
 };
 
-// Plays an RTP audio pad of the source: decode, convert and send to the default audio device.
+constexpr const char* kAudioBranchName = "qgc-audio-branch";
+
+// Plays an audio pad of the source (RTP from RTSP, or an elementary stream such as AAC from tsdemux
+// for SRT/MPEG-TS): decode, convert and send to the default audio device.
 // The branch never holds the video back: it does not sync to the clock and keeps its own state
 // changes to itself, so a silent or broken audio stream cannot stall the pipeline.
 void linkAudioPad(GstPad* pad, const DynamicLinkContext& ctx)
 {
     GstElement* bin = GST_ELEMENT(gst_object_get_parent(GST_OBJECT(ctx.binParser)));
     if (!bin) {
+        return;
+    }
+
+    // One audio branch per source; a stream with several audio tracks plays the first.
+    if (GstElement* existing = gst_bin_get_by_name(GST_BIN(bin), kAudioBranchName)) {
+        gst_object_unref(existing);
+        gst_object_unref(bin);
         return;
     }
 
@@ -208,6 +218,7 @@ void linkAudioPad(GstPad* pad, const DynamicLinkContext& ctx)
     g_clear_error(&error);
 
     g_object_set(audioBin, "async-handling", TRUE, nullptr);
+    (void) gst_object_set_name(GST_OBJECT(audioBin), kAudioBranchName);
     if (GstElement* volume = gst_bin_get_by_name(GST_BIN(audioBin), kAudioVolumeElementName)) {
         g_object_set(volume, "mute", ctx.config.audioMuted ? TRUE : FALSE, nullptr);
         gst_object_unref(volume);
@@ -253,8 +264,8 @@ void linkPad(GstElement* element, GstPad* pad, gpointer data)
 {
     const auto* ctx = static_cast<const DynamicLinkContext*>(data);
 
-    // tsdemux fires pad-added for audio/data pads too; only link video src pads so non-video
-    // pads don't trigger a spurious CRITICAL cascade on the expected link failure.
+    // tsdemux fires pad-added for audio/data pads too; video goes to the parser, wanted audio to the
+    // audio branch, anything else is left unlinked.
     if (GST_PAD_DIRECTION(pad) != GST_PAD_SRC) {
         return;
     }
@@ -262,6 +273,7 @@ void linkPad(GstElement* element, GstPad* pad, gpointer data)
     bool isVideo = false;
     bool isRtp = false;
     bool isRtpAudio = false;
+    bool isAudio = false;   // elementary audio stream, e.g. AAC from tsdemux
     GstCaps* caps = gst_pad_get_current_caps(pad);
     if (!caps) {
         caps = gst_pad_query_caps(pad, nullptr);
@@ -276,6 +288,8 @@ void linkPad(GstElement* element, GstPad* pad, gpointer data)
             }
             if (g_str_has_prefix(sname, "video/")) {
                 isVideo = true;
+            } else if (g_str_has_prefix(sname, "audio/")) {
+                isAudio = true;
             } else if (g_str_equal(sname, "application/x-rtp")) {
                 // An RTSP source also exposes audio and metadata streams as RTP pads; only the video
                 // one may reach the parser. RTP without a media field is taken to be video.
@@ -290,7 +304,7 @@ void linkPad(GstElement* element, GstPad* pad, gpointer data)
         }
         gst_clear_caps(&caps);
     }
-    if (isRtpAudio && !isVideo) {
+    if ((isRtpAudio || isAudio) && !isVideo) {
         if (ctx->config.audio) {
             linkAudioPad(pad, *ctx);
         }
