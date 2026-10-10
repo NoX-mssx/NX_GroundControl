@@ -31,6 +31,12 @@ struct Config
 /// Name of the `volume` element in the audio branch, for changing mute on a running pipeline.
 inline constexpr const char* kAudioVolumeElementName = "qgc-audio-volume";
 
+/// Name of the audio branch bin. Errors from inside it only disable the audio, never the video.
+inline constexpr const char* kAudioBranchName = "qgc-audio-branch";
+
+/// True when @p object is the audio branch or inside it.
+bool isInAudioBranch(GstObject* object);
+
 /// Build a source bin (`source` [+ `tsdemux`] [+ `rtpjitterbuffer`] + `parsebin`)
 /// for `uri`. Supported schemes: rtsp/rtspt, tcp:// (MPEG-TS), udp:// (H.264 RTP),
 /// udp265:// (H.265 RTP), mpegts:// (MPEG-TS over UDP), srt:// (MPEG-TS over SRT).

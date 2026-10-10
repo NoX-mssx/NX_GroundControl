@@ -22157,27 +22157,22 @@ If a vehicle still has this key configured, you will no longer be able to commun
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="363"/>
-        <source>Search configuration...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="390"/>
+        <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="416"/>
         <source>Summary</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="537"/>
+        <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="445"/>
         <source>Optical Flow</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="556"/>
+        <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="456"/>
         <source>Parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="569"/>
+        <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="465"/>
         <source>Firmware</source>
         <translation type="unfinished"></translation>
     </message>

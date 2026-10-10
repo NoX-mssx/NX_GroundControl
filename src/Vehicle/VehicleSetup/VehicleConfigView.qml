@@ -346,272 +346,251 @@ Rectangle {
         }
     }
 
-    ColumnLayout {
-        id:                 leftPanel
-        width:              Math.max(buttonColumn.implicitWidth + _horizontalMargin, ScreenTools.defaultFontPixelWidth * 22)
-        anchors.topMargin:  _verticalMargin
-        anchors.top:        parent.top
-        anchors.bottom:     parent.bottom
-        anchors.leftMargin: _horizontalMargin
-        anchors.left:       parent.left
-        spacing:            _verticalMargin / 2
+    /// A page chip across the top (same look as the application settings)
+    component PageChip: Rectangle {
+        id:         chip
+        height:     _defaultTextHeight * 2.3
+        width:      chipRow.implicitWidth + _defaultTextWidth * 3
+        radius:     height / 2
+        color:      checked ? qgcPal.buttonHighlight : (chipMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.10) : Qt.rgba(1, 1, 1, 0.05))
 
-        QGCTextField {
-            id:                 searchField
-            objectName:         "vehicleConfig_searchField"
-            Layout.fillWidth:   true
-            placeholderText:    qsTr("Search configuration...")
-            visible:            _fullParameterVehicleAvailable
+        property bool   checked:        false
+        property string text
+        property string iconSource
+        property bool   setupComplete:  true
 
-            onTextChanged: {
-                vehicleConfigView._searchQuery = text
+        signal clicked()
+
+        Row {
+            id:                 chipRow
+            anchors.centerIn:   parent
+            spacing:            _defaultTextWidth * 0.7
+
+            QGCColoredImage {
+                anchors.verticalCenter: parent.verticalCenter
+                width:                  _defaultTextHeight
+                height:                 width
+                sourceSize.height:      height
+                source:                 chip.iconSource
+                color:                  chip.checked ? qgcPal.buttonHighlightText : qgcPal.text
+                visible:                chip.iconSource !== ""
+            }
+            QGCLabel {
+                anchors.verticalCenter: parent.verticalCenter
+                text:                   chip.text
+                color:                  chip.checked ? qgcPal.buttonHighlightText : qgcPal.text
+                font.weight:            Font.Bold
+            }
+            // Setup still needed
+            Rectangle {
+                anchors.verticalCenter: parent.verticalCenter
+                width:                  _defaultTextWidth
+                height:                 width
+                radius:                 width / 2
+                color:                  qgcPal.colorOrange
+                visible:                !chip.setupComplete
             }
         }
 
-        QGCFlickable {
-            objectName:         "vehicleConfig_sidebarFlickable"
-            Layout.fillWidth:   true
-            Layout.fillHeight:  true
-            contentHeight:      buttonColumn.height + _verticalMargin
-            flickableDirection:  Flickable.VerticalFlick
-            clip:               true
+        MouseArea {
+            id:             chipMouse
+            anchors.fill:   parent
+            hoverEnabled:   true
+            onClicked:      chip.clicked()
+        }
+    }
 
-            ColumnLayout {
-                id:         buttonColumn
-                width:      parent.width
-                spacing:    0
+    // ---- Pages as chips across the top ----
+    Flow {
+        id:                 pageChips
+        objectName:         "vehicleConfig_sidebarFlickable"
+        anchors.left:       parent.left
+        anchors.right:      parent.right
+        anchors.top:        parent.top
+        anchors.margins:    _defaultTextHeight
+        spacing:            _defaultTextWidth * 0.8
 
-                // Summary button
-                ConfigButton {
-                    id:                 summaryButton
-                    objectName:         "vehicleConfig_summary"
-                    icon.source:        "/qmlimages/VehicleSummaryIcon.png"
-                    checked:            vehicleConfigView._selectedSpecial === "summary"
-                    text:               qsTr("Summary")
-                    Layout.fillWidth:   true
-                    visible:            vehicleConfigView._searchQuery.trim() === ""
+        PageChip {
+            id:         summaryButton
+            objectName: "vehicleConfig_summary"
+            text:       qsTr("Summary")
+            checked:    vehicleConfigView._selectedSpecial === "summary"
+            onClicked:  showSummaryPanel()
+        }
 
-                    onClicked: showSummaryPanel()
-                }
+        Repeater {
+            id:     componentRepeater
+            model:  _fullParameterVehicleAvailable ? _activeVehicle.autopilotPlugin.vehicleComponents : 0
 
-                // When the component group is empty only this divider shows, not the second one
-                SidebarDivider {
-                    objectName: "vehicleConfig_summaryDivider"
-                    visible:    summaryButton.visible &&
-                                (vehicleConfigView._anyComponentVisible() || opticalFlowButton.visible ||
-                                 parametersButton.visible || firmwareButton.visible)
-                }
+            PageChip {
+                id:             compChip
+                objectName:     "vehicleConfig_comp_" + (modelData ? modelData.name.replace(/ /g, "") : "")
+                visible:        vehicleConfigView._componentVisible(modelData)
+                text:           modelData ? modelData.name : ""
+                iconSource:     modelData ? modelData.iconResource : ""
+                setupComplete:  modelData ? modelData.setupComplete : true
+                checked:        vehicleConfigView._selectedComponentIndex === index && vehicleConfigView._selectedSpecial === ""
 
-                // Vehicle component tree
+                required property int index
+                required property var modelData
+
+                // A component with several sections opens on its first one
+                onClicked: vehicleConfigView._navigateToComponent(index, (modelData && modelData.sectionIds.length > 1) ? 0 : -1)
+            }
+        }
+
+        PageChip {
+            id:         opticalFlowButton
+            visible:    _activeVehicle ? _activeVehicle.flowImageIndex > 0 : false
+            text:       qsTr("Optical Flow")
+            checked:    vehicleConfigView._selectedSpecial === "opticalflow"
+            onClicked:  showPanel("opticalflow", "qrc:/qml/QGroundControl/VehicleSetup/OpticalFlowSensor.qml")
+        }
+
+        PageChip {
+            id:         parametersButton
+            objectName: "vehicleConfig_parametersButton"
+            visible:    QGroundControl.multiVehicleManager.parameterReadyVehicleAvailable &&
+                        !_activeVehicle.usingHighLatencyLink &&
+                        _corePlugin.showAdvancedUI
+            text:       qsTr("Parameters")
+            checked:    vehicleConfigView._selectedSpecial === "parameters"
+            onClicked:  showPanel("parameters", "qrc:/qml/QGroundControl/VehicleSetup/SetupParameterEditor.qml")
+        }
+
+        PageChip {
+            id:         firmwareButton
+            objectName: "vehicleConfig_firmwareButton"
+            visible:    !ScreenTools.isMobile && _corePlugin.options.showFirmwareUpgrade
+            text:       qsTr("Firmware")
+            checked:    vehicleConfigView._selectedSpecial === "firmware"
+            onClicked:  showPanel("firmware", "qrc:/qml/QGroundControl/VehicleSetup/FirmwareUpgrade.qml")
+        }
+    }
+
+    // ---- The selected page in a card, with its sections as tabs ----
+    Rectangle {
+        id:                 pageCard
+        anchors.left:       parent.left
+        anchors.right:      parent.right
+        anchors.top:        pageChips.bottom
+        anchors.bottom:     parent.bottom
+        anchors.margins:    _defaultTextHeight
+        radius:             _defaultTextHeight * 1.1
+        color:              Qt.rgba(1, 1, 1, 0.04)
+        border.color:       Qt.rgba(1, 1, 1, 0.10)
+
+        readonly property var _component: (_fullParameterVehicleAvailable && vehicleConfigView._selectedSpecial === "" &&
+                                           vehicleConfigView._selectedComponentIndex >= 0)
+                                          ? _activeVehicle.autopilotPlugin.vehicleComponents[vehicleConfigView._selectedComponentIndex] : null
+        readonly property var _sectionIds: _component ? _component.sectionIds : []
+
+        Item {
+            id:                     sectionTabs
+            anchors.left:           parent.left
+            anchors.right:          parent.right
+            anchors.top:            parent.top
+            anchors.leftMargin:     _defaultTextWidth * 3
+            anchors.rightMargin:    _defaultTextWidth * 3
+            height:                 visible ? _defaultTextHeight * 2.8 : 0
+            visible:                pageCard._sectionIds.length > 1 && !vehicleConfigView._showingPrereqMessage
+
+            Row {
+                anchors.horizontalCenter:   parent.horizontalCenter
+                anchors.bottom:             parent.bottom
+                height:                     parent.height
+                spacing:                    _defaultTextWidth * 3
+
                 Repeater {
-                    id:     componentRepeater
-                    model:  _fullParameterVehicleAvailable ? _activeVehicle.autopilotPlugin.vehicleComponents : 0
+                    model: pageCard._sectionIds
 
-                    ColumnLayout {
-                        id:             compColumn
-                        spacing:        0
-                        Layout.fillWidth: true
-
-                        required property int index
-                        required property var modelData
-
-                        property var    comp:           modelData
-                        property string compName:       comp ? comp.name : ""
-                        property var    compSectionIds: comp ? comp.sectionIds : []
-                        property bool   isSelected:     vehicleConfigView._selectedComponentIndex === index && vehicleConfigView._selectedSpecial === ""
-                        property bool   hasSections:    compSectionIds.length > 1
-                        property bool   isSearching:    vehicleConfigView._searchQuery.trim() !== ""
-                        property bool   matchesSearch:  comp ? vehicleConfigView._componentMatchesSearch(comp) : false
-                        property bool   isExpanded:     hasSections && (isSearching ? matchesSearch : vehicleConfigView._isExpanded(index))
-
-                        visible: vehicleConfigView._componentVisible(comp)
-
-                        ConfigButton {
-                            Layout.fillWidth:   true
-                            objectName:         "vehicleConfig_comp_" + compColumn.compName.replace(/ /g, "")
-                            icon.source:        compColumn.comp ? compColumn.comp.iconResource : ""
-                            setupComplete:      compColumn.comp ? compColumn.comp.setupComplete : true
-                            text:               compColumn.compName
-                            expandable:         compColumn.hasSections
-                            expanded:           compColumn.isExpanded
-                            checked:            compColumn.isSelected && vehicleConfigView._selectedSectionIndex === -1
-
-                            onClicked: {
-                                vehicleConfigView._navigateToComponent(compColumn.index, -1)
-                                if (compColumn.hasSections) {
-                                    if (compColumn.isSelected && compColumn.isExpanded) {
-                                        vehicleConfigView._setExpanded(compColumn.index, false)
-                                    } else if (!compColumn.isExpanded) {
-                                        vehicleConfigView._setExpanded(compColumn.index, true)
-                                    }
-                                }
-                            }
-
-                            onToggleExpand: {
-                                if (!mainWindow.allowViewSwitch()) return
-                                var expanding = !compColumn.isExpanded
-                                vehicleConfigView._setExpanded(compColumn.index, expanding)
-                                if (!expanding && compColumn.isSelected) {
-                                    vehicleConfigView._navigateToComponent(compColumn.index, -1)
-                                }
-                            }
+                    Item {
+                        id:         sectionTab
+                        objectName: "vehicleConfig_section_" + modelData.replace(/ /g, "")
+                        width:      sectionRow.implicitWidth
+                        height:     parent.height
+                        visible: {
+                            if (!panelLoader.item || typeof panelLoader.item.sectionVisible !== "function") return true
+                            return panelLoader.item.sectionVisible(modelData)
                         }
 
-                        // Section sub-items
-                        Repeater {
-                            model: compColumn.isExpanded ? compColumn.compSectionIds : []
+                        required property string modelData
+                        required property int    index
 
-                            Button {
-                                id:             sectionBtn
-                                objectName:     "vehicleConfig_section_" + modelData.replace(/ /g, "")
-                                Layout.fillWidth: true
-                                padding:        ScreenTools.defaultFontPixelWidth * 0.75
-                                leftPadding:    ScreenTools.defaultFontPixelWidth * 3
-                                hoverEnabled:   !ScreenTools.isMobile
+                        readonly property bool _checked: vehicleConfigView._selectedSectionIndex === index
+                        readonly property bool _setupComplete: {
+                            if (!pageCard._component) return true
+                            void pageCard._component.setupComplete
+                            return typeof pageCard._component.sectionSetupComplete === "function"
+                                       ? pageCard._component.sectionSetupComplete(modelData) : true
+                        }
 
-                                property int sectionIndex: index
-                                property bool sectionChecked: compColumn.isSelected && vehicleConfigView._selectedSectionIndex === sectionIndex
-                                property bool sectionSetupComplete: {
-                                    if (!compColumn.comp) {
-                                        return true
-                                    }
-                                    // Referencing comp.setupComplete re-evaluates this binding whenever a
-                                    // setup trigger parameter changes, since sectionSetupComplete() is a
-                                    // plain function call which QML cannot otherwise track
-                                    void compColumn.comp.setupComplete
-                                    return typeof compColumn.comp.sectionSetupComplete === "function"
-                                               ? compColumn.comp.sectionSetupComplete(modelData)
-                                               : true
-                                }
-                                property bool sectionMatchesSearch: {
-                                    if (!compColumn.isSearching) return true
-                                    return vehicleConfigView._sectionMatchesSearch(compColumn.comp, modelData)
-                                }
-                                property bool sectionContentVisible: {
-                                    if (!compColumn.isSelected) return true
-                                    if (!panelLoader.item) return true
-                                    if (typeof panelLoader.item.sectionVisible !== "function") return true
-                                    return panelLoader.item.sectionVisible(modelData)
-                                }
-                                property color textColor: sectionChecked || pressed ? qgcPal.buttonHighlightText : qgcPal.buttonText
-                                visible: sectionMatchesSearch && sectionContentVisible
+                        Row {
+                            id:                     sectionRow
+                            anchors.verticalCenter: parent.verticalCenter
+                            spacing:                _defaultTextWidth * 0.5
 
-                                background: Rectangle {
-                                    color:   qgcPal.buttonHighlight
-                                    opacity: sectionBtn.sectionChecked || sectionBtn.pressed ? 1 : sectionBtn.enabled && sectionBtn.hovered ? 0.2 : 0
-                                    radius:  ScreenTools.defaultFontPixelWidth / 2
-                                }
-
-                                contentItem: RowLayout {
-                                    spacing: ScreenTools.defaultFontPixelWidth * 0.5
-
-                                    Rectangle {
-                                        width:   ScreenTools.defaultFontPixelWidth
-                                        height:  width
-                                        radius:  width / 2
-                                        color:   sectionBtn.sectionSetupComplete ? qgcPal.colorGreen : qgcPal.colorOrange
-                                        visible: !sectionBtn.sectionSetupComplete
-                                    }
-
-                                    QGCLabel {
-                                        text:  vehicleConfigView._sectionDisplayName(compColumn.comp, modelData)
-                                        color: sectionBtn.textColor
-                                        font.pointSize: ScreenTools.defaultFontPointSize * 0.9
-                                        horizontalAlignment: Text.AlignLeft
-                                        Layout.fillWidth: true
-                                    }
-                                }
-
-                                onClicked: {
-                                    vehicleConfigView._navigateToComponent(compColumn.index, sectionIndex)
-                                }
+                            Rectangle {
+                                anchors.verticalCenter: parent.verticalCenter
+                                width:                  _defaultTextWidth
+                                height:                 width
+                                radius:                 width / 2
+                                color:                  qgcPal.colorOrange
+                                visible:                !sectionTab._setupComplete
                             }
+                            QGCLabel {
+                                text:           vehicleConfigView._sectionDisplayName(pageCard._component, sectionTab.modelData)
+                                font.weight:    Font.Bold
+                                color:          sectionTab._checked ? qgcPal.text : qgcPal.colorGrey
+                            }
+                        }
+                        Rectangle {
+                            anchors.left:   parent.left
+                            anchors.right:  parent.right
+                            anchors.bottom: parent.bottom
+                            height:         2
+                            color:          qgcPal.buttonHighlight
+                            visible:        sectionTab._checked
+                        }
+                        MouseArea {
+                            anchors.fill:   parent
+                            onClicked:      vehicleConfigView._navigateToComponent(vehicleConfigView._selectedComponentIndex, sectionTab.index)
                         }
                     }
                 }
+            }
 
-                // Optical Flow (special)
-                ConfigButton {
-                    id:                 opticalFlowButton
-                    visible:            _activeVehicle ? _activeVehicle.flowImageIndex > 0 : false
-                    text:               qsTr("Optical Flow")
-                    Layout.fillWidth:   true
-                    checked:            vehicleConfigView._selectedSpecial === "opticalflow"
-                    onClicked:          showPanel("opticalflow", "qrc:/qml/QGroundControl/VehicleSetup/OpticalFlowSensor.qml")
-                }
-
-                SidebarDivider {
-                    objectName: "vehicleConfig_componentsDivider"
-                    visible:    (vehicleConfigView._anyComponentVisible() || opticalFlowButton.visible) &&
-                                (parametersButton.visible || firmwareButton.visible)
-                }
-
-                ConfigButton {
-                    id:                 parametersButton
-                    objectName:         "vehicleConfig_parametersButton"
-                    visible:            QGroundControl.multiVehicleManager.parameterReadyVehicleAvailable &&
-                                        !_activeVehicle.usingHighLatencyLink &&
-                                        _corePlugin.showAdvancedUI &&
-                                        vehicleConfigView._searchQuery.trim() === ""
-                    text:               qsTr("Parameters")
-                    Layout.fillWidth:   true
-                    icon.source:        "/qmlimages/subMenuButtonImage.png"
-                    checked:            vehicleConfigView._selectedSpecial === "parameters"
-                    onClicked:          showPanel("parameters", "qrc:/qml/QGroundControl/VehicleSetup/SetupParameterEditor.qml")
-                }
-
-                ConfigButton {
-                    id:                 firmwareButton
-                    objectName:         "vehicleConfig_firmwareButton"
-                    icon.source:        "/qmlimages/FirmwareUpgradeIcon.png"
-                    visible:            !ScreenTools.isMobile && _corePlugin.options.showFirmwareUpgrade &&
-                                        vehicleConfigView._searchQuery.trim() === ""
-                    text:               qsTr("Firmware")
-                    Layout.fillWidth:   true
-                    checked:            vehicleConfigView._selectedSpecial === "firmware"
-
-                    onClicked: showPanel("firmware", "qrc:/qml/QGroundControl/VehicleSetup/FirmwareUpgrade.qml")
-                }
+            Rectangle {
+                anchors.left:   parent.left
+                anchors.right:  parent.right
+                anchors.bottom: parent.bottom
+                height:         1
+                color:          Qt.rgba(1, 1, 1, 0.08)
             }
         }
-    }
 
-    Rectangle {
-        id:                     divider
-        anchors.topMargin:      _verticalMargin
-        anchors.bottomMargin:   _verticalMargin
-        anchors.leftMargin:     _horizontalMargin
-        anchors.left:           leftPanel.right
-        anchors.top:            parent.top
-        anchors.bottom:         parent.bottom
-        width:                  1
-        color:                  qgcPal.windowShade
-    }
+        Loader {
+            id:                     panelLoader
+            objectName:             "vehicleConfig_panelLoader"
+            anchors.left:           parent.left
+            anchors.right:          parent.right
+            anchors.top:            sectionTabs.bottom
+            anchors.bottom:         parent.bottom
+            anchors.margins:        _defaultTextHeight * 0.6
 
-    Loader {
-        id:                     panelLoader
-        objectName:             "vehicleConfig_panelLoader"
-        anchors.topMargin:      _verticalMargin
-        anchors.bottomMargin:   _verticalMargin
-        anchors.leftMargin:     _horizontalMargin
-        anchors.rightMargin:    _horizontalMargin
-        anchors.left:           divider.right
-        anchors.right:          parent.right
-        anchors.top:            parent.top
-        anchors.bottom:         parent.bottom
+            function setSource(source, vehicleComponent) {
+                panelLoader.source = ""
+                panelLoader.vehicleComponent = vehicleComponent
+                panelLoader.source = source
+            }
 
-        function setSource(source, vehicleComponent) {
-            panelLoader.source = ""
-            panelLoader.vehicleComponent = vehicleComponent
-            panelLoader.source = source
+            function setSourceComponent(sourceComponent, vehicleComponent) {
+                panelLoader.sourceComponent = undefined
+                panelLoader.vehicleComponent = vehicleComponent
+                panelLoader.sourceComponent = sourceComponent
+            }
+
+            property var vehicleComponent
         }
-
-        function setSourceComponent(sourceComponent, vehicleComponent) {
-            panelLoader.sourceComponent = undefined
-            panelLoader.vehicleComponent = vehicleComponent
-            panelLoader.sourceComponent = sourceComponent
-        }
-
-        property var vehicleComponent
     }
 }

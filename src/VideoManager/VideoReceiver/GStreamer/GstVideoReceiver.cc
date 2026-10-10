@@ -1451,6 +1451,16 @@ gboolean GstVideoReceiver::_onBusMessage(GstBus * /* bus */, GstMessage *msg, gp
         gchar *debug = nullptr;
         GError *error = nullptr;
         gst_message_parse_error(msg, &error, &debug);
+
+        // A camera audio problem (unsupported codec, no sound device) only silences the audio.
+        if (GStreamer::SourceFactory::isInAudioBranch(GST_MESSAGE_SRC(msg))) {
+            qCWarning(GstVideoReceiverLog) << "Camera audio disabled:" << (error ? error->message : "unknown error")
+                                           << (debug ? debug : "");
+            g_clear_error(&error);
+            g_clear_pointer(&debug, g_free);
+            break;
+        }
+
         const bool recoverableH265PaciError = isRecoverableH265PaciError(msg, error, debug);
 
         if (debug) {

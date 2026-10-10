@@ -160,6 +160,27 @@ bool validPort(int port)
 
 namespace GStreamer::SourceFactory {
 
+bool isInAudioBranch(GstObject* object)
+{
+    for (GstObject* current = object ? GST_OBJECT(gst_object_ref(object)) : nullptr; current;) {
+        const bool match = g_strcmp0(GST_OBJECT_NAME(current), kAudioBranchName) == 0;
+        if (match) {
+            // Mark the branch so its pad probe drops audio from now on.
+            g_object_set_data(G_OBJECT(current), "qgc-audio-failed", GINT_TO_POINTER(1));
+        }
+        GstObject* parent = gst_object_get_parent(current);
+        gst_object_unref(current);
+        if (match) {
+            if (parent) {
+                gst_object_unref(parent);
+            }
+            return true;
+        }
+        current = parent;
+    }
+    return false;
+}
+
 namespace {
 
 // Shared by the static and dynamic (pad-added) link paths so both apply the identical jitter-buffer
@@ -185,8 +206,6 @@ struct DynamicLinkContext
     bool allowJitterBuffer;  // false for RTSP (rtspsrc has its own internal jitterbuffer)
 };
 
-constexpr const char* kAudioBranchName = "qgc-audio-branch";
-
 // Plays an audio pad of the source (RTP from RTSP, or an elementary stream such as AAC from tsdemux
 // for SRT/MPEG-TS): decode, convert and send to the default audio device.
 // The branch never holds the video back: it does not sync to the clock and keeps its own state
@@ -196,6 +215,17 @@ void linkAudioPad(GstPad* pad, const DynamicLinkContext& ctx)
     GstElement* bin = GST_ELEMENT(gst_object_get_parent(GST_OBJECT(ctx.binParser)));
     if (!bin) {
         return;
+    }
+
+    {
+        GstCaps* audioCaps = gst_pad_get_current_caps(pad);
+        if (!audioCaps) {
+            audioCaps = gst_pad_query_caps(pad, nullptr);
+        }
+        gchar* capsText = audioCaps ? gst_caps_to_string(audioCaps) : nullptr;
+        qCInfo(GstSourceFactoryLog) << "camera audio stream:" << (capsText ? capsText : "unknown format");
+        g_free(capsText);
+        gst_clear_caps(&audioCaps);
     }
 
     // One audio branch per source; a stream with several audio tracks plays the first.
@@ -230,6 +260,14 @@ void linkAudioPad(GstPad* pad, const DynamicLinkContext& ctx)
         gst_object_unref(bin);
         return;
     }
+
+    // Once the branch has failed (see isInAudioBranch), its buffers are dropped here so the failure
+    // cannot travel back up the source and stop the video.
+    (void) gst_pad_add_probe(pad, GST_PAD_PROBE_TYPE_BUFFER,
+                             [](GstPad*, GstPadProbeInfo*, gpointer branch) -> GstPadProbeReturn {
+                                 return g_object_get_data(G_OBJECT(branch), "qgc-audio-failed") ? GST_PAD_PROBE_DROP : GST_PAD_PROBE_OK;
+                             },
+                             gst_object_ref(audioBin), [](gpointer branch) { gst_object_unref(branch); });
 
     GstPad* sinkPad = gst_element_get_static_pad(audioBin, "sink");
     const bool linked = sinkPad && (gst_pad_link(pad, sinkPad) == GST_PAD_LINK_OK) &&
@@ -401,10 +439,9 @@ GstElement* buildRtspSource(const QString& uri, const QUrl& sourceUrl, const Con
     cleanUrl.setUserInfo(QString());
     const QByteArray cleanLocation = cleanUrl.toEncoded();
 
-    // protocols mask enables TCP-interleaved fallback when UDP is blocked; without it
-    // firewalled networks hang until tcp-timeout instead of negotiating TCP.
-    constexpr GstRTSPLowerTrans kRtspProtocols =
-        static_cast<GstRTSPLowerTrans>(GST_RTSP_LOWER_TRANS_UDP | GST_RTSP_LOWER_TRANS_TCP);
+    // NX: RTP is interleaved in the RTSP TCP connection. Over WireGuard and Starlink, RTP over UDP loses
+    // packets of large key frames, which shows as grey flashes; TCP delivers them, at a little latency.
+    constexpr GstRTSPLowerTrans kRtspProtocols = GST_RTSP_LOWER_TRANS_TCP;
 
     // do-retransmission forwards to rtspsrc's internal rtpjitterbuffer (added 1.6);
     // drop-on-latency=TRUE unless jitterBuffer==Buffered (opt out of bounded playout).
