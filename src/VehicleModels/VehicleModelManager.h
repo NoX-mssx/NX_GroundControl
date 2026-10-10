@@ -83,6 +83,10 @@ public:
     Q_INVOKABLE QVariantMap cameraUrls(const QString &type, const QString &ip, const QString &user,
                                        const QString &password) const;
 
+    /// True for a stream address entered by hand (SRT, a MediaMTX path, another port), which the
+    /// settings page keeps instead of regenerating it from the camera type, IP and login.
+    Q_INVOKABLE bool isCustomCameraUrl(const QString &url) const;
+
     /// Imports every model from a file in the exchange format (see exportModel). A model whose name is
     /// already taken is imported under a numbered name rather than replacing the existing one.
     /// @return a message for the user describing the outcome

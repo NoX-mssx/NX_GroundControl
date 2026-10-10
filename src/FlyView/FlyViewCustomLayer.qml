@@ -154,20 +154,25 @@ Item {
         }
     }
 
-    // Extra cameras, stacked upwards from the map/video PiP in the bottom-left corner
-    Repeater {
-        model: 2
+    // Extra cameras, stacked upwards from the map/video PiP in the bottom-left corner.
+    // Declared one by one, not with a Repeater: VideoManager finds the video items by objectName in
+    // the QObject tree at startup, and Repeater delegates are not part of that tree.
+    AuxiliaryCameraWindow {
+        slot:           0
+        cameraIndex:    _root._auxiliaryCameras[0] ?? -1
+        cameraName:     cameraIndex >= 0 && _root._cameraStates[cameraIndex] ? _root._cameraStates[cameraIndex].name : ""
+        defaultWidth:   _root._auxiliaryWidth
+        defaultX:       0
+        defaultY:       _root.height - _root.parentToolInsets.bottomEdgeLeftInset - (_root._auxiliaryHeight + _root._windowMargin)
+    }
 
-        AuxiliaryCameraWindow {
-            required property int index
-
-            slot:           index
-            cameraIndex:    _root._auxiliaryCameras[index] ?? -1
-            cameraName:     cameraIndex >= 0 && _root._cameraStates[cameraIndex] ? _root._cameraStates[cameraIndex].name : ""
-            defaultWidth:   _root._auxiliaryWidth
-            defaultX:       0
-            defaultY:       _root.height - _root.parentToolInsets.bottomEdgeLeftInset - ((index + 1) * (_root._auxiliaryHeight + _root._windowMargin))
-        }
+    AuxiliaryCameraWindow {
+        slot:           1
+        cameraIndex:    _root._auxiliaryCameras[1] ?? -1
+        cameraName:     cameraIndex >= 0 && _root._cameraStates[cameraIndex] ? _root._cameraStates[cameraIndex].name : ""
+        defaultWidth:   _root._auxiliaryWidth
+        defaultX:       0
+        defaultY:       _root.height - _root.parentToolInsets.bottomEdgeLeftInset - (2 * (_root._auxiliaryHeight + _root._windowMargin))
     }
 
     // Name of the camera on the main screen

@@ -126,6 +126,9 @@ private:
     static GstPadProbeReturn _videoSinkProbe(GstPad *pad, GstPadProbeInfo *info, gpointer user_data);
     static GstPadProbeReturn _eosProbe(GstPad *pad, GstPadProbeInfo *info, gpointer user_data);
     static GstPadProbeReturn _keyframeWatch(GstPad *pad, GstPadProbeInfo *info, gpointer user_data);
+    static GstPadProbeReturn _decoderKeyframeGate(GstPad *pad, GstPadProbeInfo *info, gpointer user_data);
+    /// Opens the decoder valve; the decoder then starts from the next key frame.
+    void _openDecoderValve();
 
     GstElement *_decoder = nullptr;
     GstElement *_decoderValve = nullptr;
@@ -146,6 +149,8 @@ private:
     gulong _eosProbeId = 0;
     GstPad *_eosProbePad = nullptr;  // ref-held: probe install pad, kept so removal targets the right pad regardless of _decoder lifecycle
     gulong _keyframeWatchId = 0;
+    std::atomic<bool> _decoderWaitsForKeyframe{true};  ///< Set when the decoder valve opens; cleared by the first key frame
+    std::atomic<int> _decoderGateDropped{0};            ///< Frames dropped while waiting for that key frame
     bool _recordingStopRequested = false;
 
     mutable QMutex _decoderNameMutex;  // QString refcount isn't thread-safe across reader/writer threads

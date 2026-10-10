@@ -443,9 +443,10 @@ GstElement* buildRtspSource(const QString& uri, const QUrl& sourceUrl, const Con
     // packets of large key frames, which shows as grey flashes; TCP delivers them, at a little latency.
     constexpr GstRTSPLowerTrans kRtspProtocols = GST_RTSP_LOWER_TRANS_TCP;
 
-    // do-retransmission forwards to rtspsrc's internal rtpjitterbuffer (added 1.6);
-    // drop-on-latency=TRUE unless jitterBuffer==Buffered (opt out of bounded playout).
-    const gboolean dropOnLatency = (config.jitterBuffer == JitterBuffer::Buffered) ? FALSE : TRUE;
+    // do-retransmission forwards to rtspsrc's internal rtpjitterbuffer (added 1.6).
+    // NX: late packets are dropped only when DropOnLatency is asked for explicitly; low latency mode no
+    // longer drops them, because a dropped packet decodes as grey until the next key frame.
+    const gboolean dropOnLatency = (config.jitterBuffer == JitterBuffer::DropOnLatency) ? TRUE : FALSE;
     g_object_set(source, "location", cleanLocation.constData(), "latency", latencyMs, "do-rtcp", TRUE,
                  "do-retransmission", config.doRetransmission ? TRUE : FALSE, "tcp-timeout", kRtspTcpTimeoutUs,
                  "udp-reconnect", TRUE, "drop-on-latency", dropOnLatency, "retry", kRtspRetry, "protocols",

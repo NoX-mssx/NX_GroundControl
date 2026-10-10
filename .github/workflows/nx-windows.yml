@@ -126,6 +126,40 @@ jobs:
           }
           "INSTALLER_PATH=$($installerExe.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
+      # Loads the stream elements the app needs from the installed copy, the same way the app does,
+      # and reports the result as annotations on the run.
+      - name: Check installed GStreamer elements
+        shell: pwsh
+        env:
+          GST_ROOT: ${{ steps.gst-root.outputs.gst_root }}
+        run: |
+          $installDir = "${{ runner.temp }}\nx-install-test"
+          $binDir = Join-Path $installDir "bin"
+          $pluginDir = Join-Path $installDir "lib\gstreamer-1.0"
+          # Run from the installed bin so the DLLs come from the installer, not from the SDK.
+          $inspect = Join-Path $binDir "nx-gst-inspect.exe"
+          Copy-Item (Join-Path $env:GST_ROOT "bin\gst-inspect-1.0.exe") $inspect
+          $env:GST_PLUGIN_SYSTEM_PATH_1_0 = $pluginDir
+          $env:GST_PLUGIN_PATH_1_0 = ""
+          $env:GST_REGISTRY_1_0 = Join-Path "${{ runner.temp }}" "nx-gst-registry.bin"
+          $scanner = Join-Path $installDir "libexec\gstreamer-1.0\gst-plugin-scanner.exe"
+          if (Test-Path $scanner) { $env:GST_PLUGIN_SCANNER_1_0 = $scanner }
+          $missing = @()
+          foreach ($element in @("srtsrc", "tsdemux", "rtspsrc", "parsebin", "decodebin3", "h264parse", "h265parse", "avdec_h264", "avdec_h265", "avdec_aac", "autoaudiosink")) {
+            & $inspect --exists $element
+            if ($LASTEXITCODE -ne 0) { $missing += $element }
+          }
+          Remove-Item $inspect
+          $plugins = (Get-ChildItem -Path $pluginDir -Filter "gst*.dll" | ForEach-Object { $_.BaseName }) -join " "
+          $srtLibs = (Get-ChildItem -Path $binDir -Filter "*srt*.dll" | ForEach-Object { $_.Name }) -join " "
+          Write-Host "::notice title=GStreamer plugins::$plugins"
+          Write-Host "::notice title=SRT libraries::$srtLibs"
+          if ($missing.Count -gt 0) {
+            Write-Host "::warning title=GStreamer elements not loadable::$($missing -join ' ')"
+          } else {
+            Write-Host "::notice title=GStreamer elements::all stream elements load"
+          }
+
       - name: Upload installer
         uses: actions/upload-artifact@v7
         with:

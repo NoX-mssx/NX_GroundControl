@@ -527,6 +527,28 @@ QVariantMap VehicleModelManager::cameraUrls(const QString &type, const QString &
     return urls;
 }
 
+bool VehicleModelManager::isCustomCameraUrl(const QString &url) const
+{
+    if (url.trimmed().isEmpty()) {
+        return false;
+    }
+
+    const QUrl parsed(url.trimmed());
+    if ((parsed.scheme().compare(QLatin1String("rtsp"), Qt::CaseInsensitive) != 0) ||
+        ((parsed.port() != -1) && (parsed.port() != 554))) {
+        return true;
+    }
+
+    const QString path = parsed.path() + (parsed.hasQuery() ? (QLatin1Char('?') + parsed.query()) : QString());
+    for (const CameraType &cameraType : kCameraTypes) {
+        if ((cameraType.mainPath[0] != '\0') &&
+            ((path == QLatin1String(cameraType.mainPath)) || (path == QLatin1String(cameraType.secondaryPath)))) {
+            return false;
+        }
+    }
+    return true;
+}
+
 QString VehicleModelManager::importModels(const QString &filePath)
 {
     QFile file(filePath);

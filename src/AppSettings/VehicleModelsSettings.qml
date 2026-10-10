@@ -71,6 +71,11 @@ Rectangle {
     }
 
     function _fillCameraUrls(camera) {
+        // Only empty addresses and the camera's own default RTSP addresses follow type, IP and login
+        // changes; an address entered by hand (SRT, MediaMTX) stays as it is.
+        if (VehicleModelManager.isCustomCameraUrl(camera.mainUrl) || VehicleModelManager.isCustomCameraUrl(camera.secondaryUrl)) {
+            return
+        }
         let urls = VehicleModelManager.cameraUrls(camera.type, camera.ip, camera.user, camera.password)
         if (urls.mainUrl !== "") {
             camera.mainUrl = urls.mainUrl

@@ -169,15 +169,10 @@ void GstVideoReceiver::start(uint32_t timeout)
             break;
         }
 
-        // leaky=downstream (2) + tiny depth: the live-display branch must drop the oldest
-        // buffer on backpressure, not stall the streaming thread. Recording branch (below)
-        // keeps default non-leaky semantics so every frame reaches the muxer.
-        g_object_set(decoderQueue,
-                     "leaky", 2,
-                     "max-size-buffers", 2,
-                     "max-size-bytes", 0,
-                     "max-size-time", G_GUINT64_CONSTANT(0),
-                     nullptr);
+        // NX: non-leaky, as in stock QGC. This queue holds compressed frames; dropping one leaves the
+        // decoder without a reference picture, and everything up to the next key frame decodes grey.
+        // Over Starlink, frames arrive in bursts after each short stall, which overflowed the old
+        // two-buffer leaky queue. Late frames are still dropped after decoding, by the video sink.
 
         _decoderValve = gst_element_factory_make("valve", nullptr);
         if (!_decoderValve)  {
@@ -253,6 +248,13 @@ void GstVideoReceiver::start(uint32_t timeout)
         if (!gst_element_link_many(_tee, decoderQueue, _decoderValve, nullptr)) {
             qCCritical(GstVideoReceiverLog) << "Unable to link decoder queue";
             break;
+        }
+
+        // NX: the decoder must start from a key frame. Frames before it reference pictures the decoder
+        // never saw and come out grey; on every start and reconnect that was a grey flash.
+        if (GstPad *valveSrc = gst_element_get_static_pad(_decoderValve, "src")) {
+            (void) gst_pad_add_probe(valveSrc, GST_PAD_PROBE_TYPE_BUFFER, _decoderKeyframeGate, this, nullptr);
+            gst_object_unref(valveSrc);
         }
 
         if (!gst_element_link_many(_tee, recorderQueue, _recorderValve, nullptr)) {
@@ -512,9 +514,7 @@ void GstVideoReceiver::startDecoding(void *sink)
         return;
     }
 
-    g_object_set(_decoderValve,
-                 "drop", FALSE,
-                 nullptr);
+    _openDecoderValve();
 
     qCDebug(GstVideoReceiverLog) << "Decoding started" << _uri;
 
@@ -1041,9 +1041,7 @@ void GstVideoReceiver::_onNewSourcePad(GstPad *pad)
         return;
     }
 
-    g_object_set(_decoderValve,
-                 "drop", FALSE,
-                 nullptr);
+    _openDecoderValve();
 
     qCDebug(GstVideoReceiverLog) << "Decoding started" << _uri;
 }
@@ -1669,6 +1667,41 @@ void GstVideoReceiver::_onNewPad(GstElement *element, GstPad *pad, gpointer data
     } else {
         qCDebug(GstVideoReceiverLog) << "Unexpected call!";
     }
+}
+
+void GstVideoReceiver::_openDecoderValve()
+{
+    _decoderGateDropped.store(0, std::memory_order_relaxed);
+    _decoderWaitsForKeyframe.store(true, std::memory_order_release);
+    g_object_set(_decoderValve, "drop", FALSE, nullptr);
+}
+
+GstPadProbeReturn GstVideoReceiver::_decoderKeyframeGate(GstPad *pad, GstPadProbeInfo *info, gpointer user_data)
+{
+    Q_UNUSED(pad);
+
+    auto *self = static_cast<GstVideoReceiver *>(user_data);
+    if (!self || !self->_decoderWaitsForKeyframe.load(std::memory_order_acquire)) {
+        return GST_PAD_PROBE_OK;
+    }
+
+    GstBuffer *buf = gst_pad_probe_info_get_buffer(info);
+    if (!buf || GST_BUFFER_FLAG_IS_SET(buf, GST_BUFFER_FLAG_HEADER)) {
+        // Parameter sets are needed to decode the key frame itself.
+        return GST_PAD_PROBE_OK;
+    }
+
+    // A stream that never flags key frames is let through after a while rather than kept black.
+    static constexpr int kMaxFramesWithoutKeyframe = 250;
+    if (GST_BUFFER_FLAG_IS_SET(buf, GST_BUFFER_FLAG_DELTA_UNIT) &&
+        (self->_decoderGateDropped.fetch_add(1, std::memory_order_relaxed) < kMaxFramesWithoutKeyframe)) {
+        return GST_PAD_PROBE_DROP;
+    }
+
+    self->_decoderWaitsForKeyframe.store(false, std::memory_order_release);
+    qCDebug(GstVideoReceiverLog) << "Decoder starts at a key frame after skipping"
+                                 << self->_decoderGateDropped.load(std::memory_order_relaxed) << "frames" << self->_uri;
+    return GST_PAD_PROBE_OK;
 }
 
 GstPadProbeReturn GstVideoReceiver::_teeProbe(GstPad *pad, GstPadProbeInfo *info, gpointer user_data)
