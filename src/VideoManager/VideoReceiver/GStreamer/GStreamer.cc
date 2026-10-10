@@ -334,7 +334,12 @@ bool setupQVideoSinkElement(void* sinkBin, QVideoSink* videoSink, QObject* contr
 
     // Clear the GL bridge's exhausted-retry latch so a restart after Qt's globalShareContext
     // appears can prime on the next NEED_CONTEXT. No-op when already primed.
-    HwBuffers::onPipelineRestart();
+    // NX: the reset is global, so an extra camera window (CPU path) starting must not pull the GPU state
+    // out from under the main video.
+    const auto *videoReceiver = qobject_cast<const VideoReceiver *>(controllerParent);
+    if (!videoReceiver || !videoReceiver->isAuxiliary()) {
+        HwBuffers::onPipelineRestart();
+    }
 
     // Accessor returns a transfer-full ref; the guard releases it once the controller has taken
     // its own ref for deferred QObject teardown.

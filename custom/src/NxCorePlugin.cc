@@ -1,6 +1,7 @@
 #include "NxCorePlugin.h"
 #include "AppSettings.h"
 #include "BatteryIndicatorSettings.h"
+#include "VideoSettings.h"
 #include "Fact.h"
 #include "FactMetaData.h"
 #include "FactValueGrid.h"
@@ -55,6 +56,17 @@ void NxCorePlugin::adjustSettingMetaData(const QString &settingsGroup, FactMetaD
         (metaData.name() == BatteryIndicatorSettings::valueDisplayName)) {
         // Voltage: the vehicle-reported percentage is only meaningful with a configured battery monitor.
         metaData.setRawDefaultValue(1);
+    }
+
+    if (settingsGroup == VideoSettings::settingsGroup) {
+        if (metaData.name() == VideoSettings::forceCpuVideoPathName) {
+            // The GPU zero-copy path shares one decoder device across pipelines and resets it whenever a
+            // stream (re)starts, which blanks the other camera windows. Copy frames through the CPU instead.
+            metaData.setRawDefaultValue(true);
+        } else if (metaData.name() == VideoSettings::rtpJitterLatencyMsName) {
+            // Starlink jitter regularly exceeds the stock 80 ms.
+            metaData.setRawDefaultValue(300);
+        }
     }
 
     if ((settingsGroup == AppSettings::settingsGroup) && (metaData.name() == AppSettings::indoorPaletteName)) {

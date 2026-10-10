@@ -116,7 +116,9 @@ void GstVideoReceiver::start(uint32_t timeout)
     }
 
     _timeout = timeout;
-    _buffer = lowLatency() ? -1 : 0;
+    // NX: outside low-latency mode the jitter buffer holds late packets instead of dropping them. Over
+    // Starlink, packets often arrive later than the buffer; dropping them leaves holes that decode grey.
+    _buffer = lowLatency() ? -1 : 1;
 
     qCDebug(GstVideoReceiverLog) << "Starting" << _uri << ", lowLatency" << lowLatency() << ", timeout" << _timeout;
 

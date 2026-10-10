@@ -11,6 +11,7 @@
 #include "GStreamerHelpers.h"
 #include "SettingsManager.h"
 #include "VideoSettings.h"
+#include "VideoReceiver.h"
 #include "Fact.h"
 #else
 #include "QtMultimediaReceiver.h"
@@ -66,6 +67,10 @@ void *VideoBackend::createSink(QQuickItem *widget, QObject *parent)
     const bool forceCpu = vs->forceCpuVideoPath()->rawValue().toBool();
     const bool swDecoder = vs->forceVideoDecoder()->rawValue().toInt() == GStreamer::ForceVideoDecoderSoftware;
     config.gpuZeroCopy = gpuZeroCopyAllowedForCurrentGraphicsApi(forceCpu, swDecoder);
+    // Extra camera windows always copy through the CPU: the GPU import state is shared by all pipelines.
+    if (const auto *videoReceiver = qobject_cast<const VideoReceiver *>(parent); videoReceiver && videoReceiver->isAuxiliary()) {
+        config.gpuZeroCopy = false;
+    }
     return GStreamer::createVideoSink(config);
 #else
     return QtMultimediaReceiver::createVideoSink(widget, parent);
