@@ -6207,8 +6207,8 @@
     <message>
       <extracomment>.QGC.MetaData.Facts[showDamagedFrames].longDesc</extracomment>
       <location filename="../src/Settings/Video.SettingsGroup.json" />
-      <source>When off, a damaged frame is not shown and the picture stays still until the next intact key frame. When on, the picture keeps moving with visible blocks. Applies to the software decoder.</source>
-      <translation>Если выключено, повреждённый кадр не показывается, и картинка замирает до следующего целого ключевого кадра. Если включено, картинка продолжает двигаться с видимыми квадратами. Действует для программного декодера.</translation>
+      <source>When off, a damaged frame is not shown and the picture stays still until the next intact key frame. When on, the picture keeps moving with visible blocks.</source>
+      <translation>Если выключено, повреждённый кадр не показывается, и картинка замирает до следующего целого ключевого кадра. Если включено, картинка продолжает двигаться с видимыми квадратами.</translation>
     </message>
     <message>
       <extracomment>.QGC.MetaData.Facts[showDamagedFrames].label</extracomment>

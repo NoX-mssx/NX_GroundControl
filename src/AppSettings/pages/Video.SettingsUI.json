@@ -54,7 +54,6 @@
                 "gpu",
                 "zero-copy"
             ],
-            "showWhen": "!sourceDisabled",
             "controls": [
                 {
                     "setting": "videoSettings.aspectRatio",
@@ -73,28 +72,22 @@
                     "showWhen": "isStreamSource && rtpLatencyVisible"
                 },
                 {
-                    "setting": "videoSettings.srtLatencyMs",
-                    "showWhen": "isStreamSource"
+                    "setting": "videoSettings.srtLatencyMs"
                 },
                 {
-                    "setting": "videoSettings.showFramesImmediately",
-                    "showWhen": "isStreamSource"
+                    "setting": "videoSettings.showFramesImmediately"
                 },
                 {
-                    "setting": "videoSettings.rtspUseUdp",
-                    "showWhen": "isStreamSource"
+                    "setting": "videoSettings.rtspUseUdp"
                 },
                 {
-                    "setting": "videoSettings.showDamagedFrames",
-                    "showWhen": "isStreamSource"
+                    "setting": "videoSettings.showDamagedFrames"
                 },
                 {
-                    "setting": "videoSettings.rtspTimeout",
-                    "showWhen": "isStreamSource"
+                    "setting": "videoSettings.rtspTimeout"
                 },
                 {
-                    "setting": "videoSettings.rtspAutoReconnect",
-                    "showWhen": "isStreamSource"
+                    "setting": "videoSettings.rtspAutoReconnect"
                 },
                 {
                     "setting": "videoSettings.forceCpuVideoPath"

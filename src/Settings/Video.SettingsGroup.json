@@ -196,7 +196,7 @@
         {
             "name": "showDamagedFrames",
             "shortDesc": "Keep showing the picture while packets are lost.",
-            "longDesc": "When off, a damaged frame is not shown and the picture stays still until the next intact key frame. When on, the picture keeps moving with visible blocks. Applies to the software decoder.",
+            "longDesc": "When off, a damaged frame is not shown and the picture stays still until the next intact key frame. When on, the picture keeps moving with visible blocks.",
             "type": "bool",
             "default": false,
             "label": "Show damaged frames",

@@ -1692,11 +1692,27 @@ GstPadProbeReturn GstVideoReceiver::_decoderKeyframeGate(GstPad *pad, GstPadProb
     Q_UNUSED(pad);
 
     auto *self = static_cast<GstVideoReceiver *>(user_data);
-    if (!self || !self->_decoderWaitsForKeyframe.load(std::memory_order_acquire)) {
+    if (!self) {
         return GST_PAD_PROBE_OK;
     }
 
     GstBuffer *buf = gst_pad_probe_info_get_buffer(info);
+
+    if (!self->_decoderWaitsForKeyframe.load(std::memory_order_acquire)) {
+        // Running. After lost packets the source flags the next buffer as discontinuous or corrupted;
+        // a decoder fed such frames draws grey or blocks. Hold the last good picture and wait for the
+        // next key frame instead, unless damaged frames were asked for in the settings.
+        if (buf && !self->_activeTuning.showDamagedFrames && !GST_BUFFER_FLAG_IS_SET(buf, GST_BUFFER_FLAG_HEADER) &&
+            (GST_BUFFER_FLAG_IS_SET(buf, GST_BUFFER_FLAG_CORRUPTED) ||
+             (GST_BUFFER_FLAG_IS_SET(buf, GST_BUFFER_FLAG_DISCONT) && GST_BUFFER_FLAG_IS_SET(buf, GST_BUFFER_FLAG_DELTA_UNIT)))) {
+            self->_decoderGateDropped.store(1, std::memory_order_relaxed);
+            self->_decoderWaitsForKeyframe.store(true, std::memory_order_release);
+            qCDebug(GstVideoReceiverLog) << "Packets were lost, holding the picture until the next key frame" << self->_uri;
+            return GST_PAD_PROBE_DROP;
+        }
+        return GST_PAD_PROBE_OK;
+    }
+
     if (!buf || GST_BUFFER_FLAG_IS_SET(buf, GST_BUFFER_FLAG_HEADER)) {
         // Parameter sets are needed to decode the key frame itself.
         return GST_PAD_PROBE_OK;
