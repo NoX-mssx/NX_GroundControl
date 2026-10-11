@@ -149,6 +149,14 @@ jobs:
             & $inspect --exists $element
             if ($LASTEXITCODE -ne 0) { $missing += $element }
           }
+          # H.265 decoders on the video card are optional (they depend on the GPU of the machine that
+          # runs the app); report which ones the installed GStreamer can offer at all.
+          $hevc = @()
+          foreach ($element in @("d3d11h265dec", "d3d12h265dec", "qsvh265dec", "nvh265dec")) {
+            & $inspect --exists $element
+            if ($LASTEXITCODE -eq 0) { $hevc += $element }
+          }
+          Write-Host "::notice title=H.265 hardware decoders::$($hevc -join ' ')"
           Remove-Item $inspect
           $plugins = (Get-ChildItem -Path $pluginDir -Filter "gst*.dll" | ForEach-Object { $_.BaseName }) -join " "
           $srtLibs = (Get-ChildItem -Path $binDir -Filter "*srt*.dll" | ForEach-Object { $_.Name }) -join " "
