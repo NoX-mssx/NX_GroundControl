@@ -198,7 +198,7 @@
             "shortDesc": "Keep showing the picture while packets are lost.",
             "longDesc": "When off, a damaged frame is not shown and the picture stays still until the next intact key frame. When on, the picture keeps moving with visible blocks.",
             "type": "bool",
-            "default": false,
+            "default": true,
             "label": "Show damaged frames",
             "keywords": "loss,corrupt,artifacts,advanced"
         },
