@@ -7499,6 +7499,16 @@ Full (100%): %2 V</source>
       <source>VIDEO DISABLED</source>
       <translation>ВИДЕО ОТКЛЮЧЕНО</translation>
     </message>
+      <message>
+      <location filename="../src/FlyView/FlightDisplayViewVideo.qml" line="180" />
+      <source>Starting SD…</source>
+      <translation>Запуск SD…</translation>
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlightDisplayViewVideo.qml" line="180" />
+      <source>Starting HD…</source>
+      <translation>Запуск HD…</translation>
+    </message>
   </context>
   <context>
     <name>FlightMap</name>

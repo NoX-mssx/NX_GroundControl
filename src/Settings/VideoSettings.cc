@@ -155,6 +155,42 @@ DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, rtspAutoReconnect)
     return _rtspAutoReconnectFact;
 }
 
+DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, srtLatencyMs)
+{
+    if (!_srtLatencyMsFact) {
+        _srtLatencyMsFact = _createSettingsFact(srtLatencyMsName);
+        _srtLatencyMsFact->setUserVisible(kGstEnabled);
+    }
+    return _srtLatencyMsFact;
+}
+
+DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, showFramesImmediately)
+{
+    if (!_showFramesImmediatelyFact) {
+        _showFramesImmediatelyFact = _createSettingsFact(showFramesImmediatelyName);
+        _showFramesImmediatelyFact->setUserVisible(kGstEnabled);
+    }
+    return _showFramesImmediatelyFact;
+}
+
+DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, rtspUseUdp)
+{
+    if (!_rtspUseUdpFact) {
+        _rtspUseUdpFact = _createSettingsFact(rtspUseUdpName);
+        _rtspUseUdpFact->setUserVisible(kGstEnabled);
+    }
+    return _rtspUseUdpFact;
+}
+
+DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, showDamagedFrames)
+{
+    if (!_showDamagedFramesFact) {
+        _showDamagedFramesFact = _createSettingsFact(showDamagedFramesName);
+        _showDamagedFramesFact->setUserVisible(kGstEnabled);
+    }
+    return _showDamagedFramesFact;
+}
+
 DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, forceCpuVideoPath)
 {
     if (!_forceCpuVideoPathFact) {

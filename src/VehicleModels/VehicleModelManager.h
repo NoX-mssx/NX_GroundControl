@@ -3,6 +3,7 @@
 #include <QtCore/QJsonArray>
 #include <QtCore/QLoggingCategory>
 #include <QtCore/QObject>
+#include <QtCore/QTimer>
 #include <QtCore/QPointer>
 #include <QtCore/QStringList>
 #include <QtCore/QVariantList>
@@ -39,6 +40,9 @@ class VehicleModelManager : public QObject
     /// On/off state of each button of the active model, by index
     Q_PROPERTY(QVariantList buttonStates        READ buttonStates       NOTIFY buttonStatesChanged)
     Q_PROPERTY(bool         secondaryStream     READ secondaryStream    WRITE setSecondaryStream NOTIFY secondaryStreamChanged)
+    /// true from a change of the main picture (HD/SD, another camera) until the new stream shows its
+    /// first frame; the screen keeps the previous picture meanwhile instead of going black
+    Q_PROPERTY(bool         switchingStream     READ switchingStream    NOTIFY switchingStreamChanged)
 
 public:
     explicit VehicleModelManager(QObject *parent = nullptr);
@@ -55,6 +59,7 @@ public:
     QList<int> auxiliaryCameras() const;
     QString mainCameraName() const;
     bool secondaryStream() const { return _secondaryStream; }
+    bool switchingStream() const { return _switchingStream; }
     void setSecondaryStream(bool secondaryStream);
 
     /// Shows or hides a camera. The main camera cannot be hidden.
@@ -102,11 +107,13 @@ signals:
     void activeModelChanged();
     void cameraStatesChanged();
     void secondaryStreamChanged();
+    void switchingStreamChanged();
     void buttonStatesChanged();
 
 private slots:
     void _activeVehicleChanged(Vehicle *vehicle);
     void _updateActiveModel();
+    void _decodingChanged();
 
 private:
     int _indexOf(const QString &name) const;
@@ -114,6 +121,8 @@ private:
     QVariantList _activeCameras() const;
     QString _cameraUri(int cameraIndex) const;
     void _applyCameraStreams();
+    void _beginStreamSwitch();
+    void _endStreamSwitch();
     void _load();
     bool _save() const;
     QString _filePath() const;
@@ -124,5 +133,8 @@ private:
     QList<bool> _cameraEnabled;         ///< Per camera of the active model
     int _mainCameraIndex = 0;
     bool _secondaryStream = false;
+    bool _switchingStream = false;
+    bool _switchSawStop = false;        ///< The old picture has stopped; the next start ends the switch
+    QTimer _switchTimer;                ///< Gives up waiting for the new stream
     QVariantList _buttonStates;         ///< Per button of the active model: switched on
 };

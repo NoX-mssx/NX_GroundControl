@@ -73,6 +73,26 @@
                     "showWhen": "isStreamSource && rtpLatencyVisible"
                 },
                 {
+                    "setting": "videoSettings.srtLatencyMs",
+                    "showWhen": "isStreamSource"
+                },
+                {
+                    "setting": "videoSettings.showFramesImmediately",
+                    "showWhen": "isStreamSource"
+                },
+                {
+                    "setting": "videoSettings.rtspUseUdp",
+                    "showWhen": "isStreamSource"
+                },
+                {
+                    "setting": "videoSettings.showDamagedFrames",
+                    "showWhen": "isStreamSource"
+                },
+                {
+                    "setting": "videoSettings.rtspTimeout",
+                    "showWhen": "isStreamSource"
+                },
+                {
                     "setting": "videoSettings.rtspAutoReconnect",
                     "showWhen": "isStreamSource"
                 },

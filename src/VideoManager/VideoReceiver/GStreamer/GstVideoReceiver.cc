@@ -119,6 +119,8 @@ void GstVideoReceiver::start(uint32_t timeout)
     // NX: outside low-latency mode the jitter buffer holds late packets instead of dropping them. Over
     // Starlink, packets often arrive later than the buffer; dropping them leaves holes that decode grey.
     _buffer = lowLatency() ? -1 : 1;
+    // Copied once per start: the settings thread may change tuning() while this pipeline runs.
+    _activeTuning = tuning();
 
     qCDebug(GstVideoReceiverLog) << "Starting" << _uri << ", lowLatency" << lowLatency() << ", timeout" << _timeout;
 
@@ -223,6 +225,8 @@ void GstVideoReceiver::start(uint32_t timeout)
         // do-retransmission needs ≥40 ms latency headroom over the default 20 ms rtx-delay;
         // forcibly disable for sub-frame latency configurations to avoid retransmit storms.
         sourceConfig.doRetransmission = (_rtpJitterLatencyMs >= 40) && (sourceConfig.jitterBuffer != GStreamer::SourceFactory::JitterBuffer::None);
+        sourceConfig.srtLatencyMs = _activeTuning.srtLatencyMs;
+        sourceConfig.rtspUdp = _activeTuning.rtspUdp;
         sourceConfig.audio = audioEnabled();
         sourceConfig.audioMuted = audioMuted();
         _source = GStreamer::SourceFactory::create(_uri, sourceConfig);
@@ -1092,6 +1096,13 @@ void GstVideoReceiver::_logDecodebin3SelectedCodec(GstElement *decodebin3)
                 // frame, causing all subsequent frames to be dropped.
                 g_object_set(child, "qos", FALSE, nullptr);
                 qCDebug(GstVideoReceiverLog) << "Disabled QoS on internal decoder" << featureName;
+
+                // Software decoders can drop damaged frames instead of showing them; the picture then
+                // waits for the next intact key frame rather than flashing blocks or grey.
+                if (g_object_class_find_property(G_OBJECT_GET_CLASS(child), "output-corrupt")) {
+                    g_object_set(child, "output-corrupt", _activeTuning.showDamagedFrames ? TRUE : FALSE, nullptr);
+                    qCDebug(GstVideoReceiverLog) << "Damaged frames" << (_activeTuning.showDamagedFrames ? "shown" : "dropped") << "by" << featureName;
+                }
             }
         }
         g_value_reset(&value);
@@ -1165,7 +1176,7 @@ void GstVideoReceiver::_ensureVideoSinkInPipeline()
     }
 
     g_object_set(_videoSink,
-                 "sync", (_buffer >= 0),
+                 "sync", (_buffer >= 0) && !_activeTuning.showImmediately,
                  NULL);
 
     (void) gst_object_ref(_videoSink);

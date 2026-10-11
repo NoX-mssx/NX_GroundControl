@@ -7466,13 +7466,23 @@ Full (100%): %2 V</source>
 <context>
     <name>FlightDisplayViewVideo</name>
     <message>
-        <location filename="../src/FlyView/FlightDisplayViewVideo.qml" line="61"/>
+        <location filename="../src/FlyView/FlightDisplayViewVideo.qml" line="64"/>
         <source>WAITING FOR VIDEO</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/FlyView/FlightDisplayViewVideo.qml" line="61"/>
+        <location filename="../src/FlyView/FlightDisplayViewVideo.qml" line="64"/>
         <source>VIDEO DISABLED</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/FlyView/FlightDisplayViewVideo.qml" line="180"/>
+        <source>Starting SD…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/FlyView/FlightDisplayViewVideo.qml" line="180"/>
+        <source>Starting HD…</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -7621,63 +7631,63 @@ VTOL</source>
 <context>
     <name>FlyViewCustomLayer</name>
     <message>
-        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="215"/>
+        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="220"/>
         <source>SD</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="215"/>
+        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="220"/>
         <source>HD</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="289"/>
+        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="294"/>
         <source>Throttle stopped · no ping reply</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="290"/>
+        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="295"/>
         <source>Throttle limited to %1% · ping %2 ms</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="401"/>
-        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="476"/>
+        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="406"/>
+        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="481"/>
         <source>Camera %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="407"/>
+        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="412"/>
         <source>Day Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="408"/>
+        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="413"/>
         <source>Night Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="409"/>
+        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="414"/>
         <source>IR Light On</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="410"/>
+        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="415"/>
         <source>IR Light Off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="427"/>
+        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="432"/>
         <source>Confirm Reboot</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="427"/>
+        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="432"/>
         <source>Reboot</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="445"/>
+        <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="450"/>
         <source>Sending...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -22251,49 +22261,49 @@ If a vehicle still has this key configured, you will no longer be able to commun
 <context>
     <name>VehicleModelManager</name>
     <message>
-        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="456"/>
+        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="498"/>
         <source>Enter a model name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="462"/>
+        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="504"/>
         <source>A model named &quot;%1&quot; already exists.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="477"/>
-        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="564"/>
+        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="519"/>
+        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="628"/>
         <source>Could not write the vehicle models file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="534"/>
+        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="598"/>
         <source>Could not open the file: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="540"/>
+        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="604"/>
         <source>The file is not valid JSON: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="560"/>
+        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="624"/>
         <source>No vehicle models found in the file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="568"/>
+        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="632"/>
         <source>Imported: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="575"/>
+        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="639"/>
         <source>Save the model before exporting it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="580"/>
-        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="584"/>
+        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="644"/>
+        <location filename="../src/VehicleModels/VehicleModelManager.cc" line="648"/>
         <source>Could not write the file: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -22306,183 +22316,183 @@ If a vehicle still has this key configured, you will no longer be able to commun
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="97"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="102"/>
         <source>Vehicle Model</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="99"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="104"/>
         <source>Vehicle Models (*.json)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="99"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="104"/>
         <source>All Files (*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="111"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="116"/>
         <source>Exported to %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="569"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="574"/>
         <source>Save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="179"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="184"/>
         <source>Models</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="184"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="189"/>
         <source>+ New</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="210"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="215"/>
         <source>%1 cameras · %2 buttons</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="219"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="224"/>
         <source>No models yet. Create one or import a JSON file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="228"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="233"/>
         <source>Import from JSON...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="266"/>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="273"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="271"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="278"/>
         <source>Model name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="281"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="286"/>
         <source>Export JSON...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="293"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="298"/>
         <source>Cameras</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="298"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="303"/>
         <source>+ Camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="319"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="324"/>
         <source>Camera: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="339"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="344"/>
         <source>Camera Name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="346"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="351"/>
         <source>IP address</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="354"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="359"/>
         <source>User name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="362"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="367"/>
         <source>Password</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="371"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="376"/>
         <source>RTSP URL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="378"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="383"/>
         <source>Secondary RTSP URL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="383"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="388"/>
         <source>Audio Enabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="404"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="409"/>
         <source>Delete Camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="422"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="427"/>
         <source>Buttons on screen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="427"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="432"/>
         <source>+ Button</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="562"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="567"/>
         <source>Delete model</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="441"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="446"/>
         <source>Button: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="451"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="456"/>
         <source>Button name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="455"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="460"/>
         <source>Functions (output, type, value when on, value when off):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="481"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="486"/>
         <source>PWM</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="481"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="486"/>
         <source>GPIO</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="495"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="500"/>
         <source>On</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="508"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="513"/>
         <source>Off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="518"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="523"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="531"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="536"/>
         <source>Delete Button</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="539"/>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="544"/>
         <source>Add Function</source>
         <translation type="unfinished"></translation>
     </message>
@@ -22595,12 +22605,12 @@ If a vehicle still has this key configured, you will no longer be able to commun
 <context>
     <name>VideoManager</name>
     <message>
-        <location filename="../src/VideoManager/VideoManager.cc" line="358"/>
+        <location filename="../src/VideoManager/VideoManager.cc" line="363"/>
         <source>Invalid video format defined.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/VideoManager/VideoManager.cc" line="366"/>
+        <location filename="../src/VideoManager/VideoManager.cc" line="371"/>
         <source>Unabled to record video. Video save path must be specified in Settings.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -22608,62 +22618,62 @@ If a vehicle still has this key configured, you will no longer be able to commun
 <context>
     <name>VideoSettings</name>
     <message>
-        <location filename="../src/Settings/VideoSettings.h" line="59"/>
+        <location filename="../src/Settings/VideoSettings.h" line="63"/>
         <source>No Video Available</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Settings/VideoSettings.h" line="60"/>
+        <location filename="../src/Settings/VideoSettings.h" line="64"/>
         <source>Video Stream Disabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Settings/VideoSettings.h" line="61"/>
+        <location filename="../src/Settings/VideoSettings.h" line="65"/>
         <source>RTSP Video Stream</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Settings/VideoSettings.h" line="62"/>
+        <location filename="../src/Settings/VideoSettings.h" line="66"/>
         <source>UDP h.264 Video Stream</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Settings/VideoSettings.h" line="63"/>
+        <location filename="../src/Settings/VideoSettings.h" line="67"/>
         <source>UDP h.265 Video Stream</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Settings/VideoSettings.h" line="64"/>
+        <location filename="../src/Settings/VideoSettings.h" line="68"/>
         <source>TCP-MPEG2 Video Stream</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Settings/VideoSettings.h" line="65"/>
+        <location filename="../src/Settings/VideoSettings.h" line="69"/>
         <source>MPEG-TS Video Stream</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Settings/VideoSettings.h" line="66"/>
+        <location filename="../src/Settings/VideoSettings.h" line="70"/>
         <source>3DR Solo (requires restart)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Settings/VideoSettings.h" line="67"/>
+        <location filename="../src/Settings/VideoSettings.h" line="71"/>
         <source>Parrot Discovery</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Settings/VideoSettings.h" line="68"/>
+        <location filename="../src/Settings/VideoSettings.h" line="72"/>
         <source>Yuneec Mantis G</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Settings/VideoSettings.h" line="69"/>
+        <location filename="../src/Settings/VideoSettings.h" line="73"/>
         <source>Herelink AirUnit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Settings/VideoSettings.h" line="70"/>
+        <location filename="../src/Settings/VideoSettings.h" line="74"/>
         <source>Herelink Hotspot</source>
         <translation type="unfinished"></translation>
     </message>

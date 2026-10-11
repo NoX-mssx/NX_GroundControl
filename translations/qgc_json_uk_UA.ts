@@ -6126,6 +6126,102 @@
       <source>pixel aspect ratio,capsfilter,v4l2,workaround,advanced</source>
       <translation>pixel aspect ratio,capsfilter,v4l2,обхідний шлях,розширені</translation>
     </message>
+      <message>
+      <extracomment>.QGC.MetaData.Facts[srtLatencyMs].shortDesc</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>SRT buffer (ms).</source>
+      <translation>Буфер SRT (мс).</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[srtLatencyMs].longDesc</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>How long the SRT receiver waits for lost packets to be sent again before giving up on them. A larger buffer hides short drops of the link at the price of the same amount of extra delay. An address that carries its own latency= parameter overrides this value.</source>
+      <translation>Скільки приймач SRT чекає на повторну передачу втрачених пакетів, перш ніж відмовитися від них. Більший буфер приховує короткі провали зв'язку ціною такої ж додаткової затримки. Адреса з власним параметром latency= має пріоритет над цим значенням.</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[srtLatencyMs].label</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>SRT buffer</source>
+      <translation>Буфер SRT</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[srtLatencyMs].keywords</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>srt,latency,buffer,advanced</source>
+      <translation>srt,затримка,буфер,додатково</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[showFramesImmediately].shortDesc</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>Show every frame as soon as it arrives.</source>
+      <translation>Показувати кожен кадр одразу, щойно він прийшов.</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[showFramesImmediately].longDesc</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>The player does not line frames up by their time stamps. The delay is lower, but uneven arrival shows as uneven motion.</source>
+      <translation>Плеєр не вирівнює кадри за їхніми мітками часу. Затримка менша, але нерівномірне надходження видно як нерівномірний рух.</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[showFramesImmediately].label</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>Show frames immediately</source>
+      <translation>Показувати кадри одразу</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[showFramesImmediately].keywords</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>sync,latency,advanced</source>
+      <translation>синхронізація,затримка,додатково</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[rtspUseUdp].shortDesc</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>Fetch RTSP video over UDP, falling back to TCP.</source>
+      <translation>Отримувати відео RTSP по UDP, із запасним варіантом TCP.</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[rtspUseUdp].longDesc</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>By default the picture travels inside the RTSP TCP connection, which does not lose packets. UDP is faster to recover on a clean link but loses packets of large key frames on a bad one.</source>
+      <translation>За замовчуванням картинка йде всередині TCP-з'єднання RTSP, яке не втрачає пакети. UDP швидше відновлюється на чистому каналі, але на поганому втрачає пакети великих ключових кадрів.</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[rtspUseUdp].label</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>RTSP over UDP</source>
+      <translation>RTSP по UDP</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[rtspUseUdp].keywords</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>rtsp,udp,tcp,transport,advanced</source>
+      <translation>rtsp,udp,tcp,транспорт,додатково</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[showDamagedFrames].shortDesc</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>Keep showing the picture while packets are lost.</source>
+      <translation>Показувати картинку, поки втрачаються пакети.</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[showDamagedFrames].longDesc</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>When off, a damaged frame is not shown and the picture stays still until the next intact key frame. When on, the picture keeps moving with visible blocks. Applies to the software decoder.</source>
+      <translation>Якщо вимкнено, пошкоджений кадр не показується, і картинка завмирає до наступного цілого ключового кадру. Якщо ввімкнено, картинка рухається далі з видимими квадратами. Діє для програмного декодера.</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[showDamagedFrames].label</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>Show damaged frames</source>
+      <translation>Показувати пошкоджені кадри</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[showDamagedFrames].keywords</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>loss,corrupt,artifacts,advanced</source>
+      <translation>втрати,пошкоджені,артефакти,додатково</translation>
+    </message>
   </context>
   <context>
     <name>OfflineMaps.SettingsGroup.json</name>

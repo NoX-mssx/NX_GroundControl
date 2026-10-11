@@ -131,6 +131,7 @@ private:
     void _openDecoderValve();
 
     GstElement *_decoder = nullptr;
+    Tuning _activeTuning;  ///< tuning() as it was when this pipeline started; only the worker thread touches it
     GstElement *_decoderValve = nullptr;
     GstElement *_fileSink = nullptr;
     GstElement *_pipeline = nullptr;

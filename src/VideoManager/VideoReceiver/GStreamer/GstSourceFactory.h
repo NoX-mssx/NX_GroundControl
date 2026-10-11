@@ -26,6 +26,10 @@ struct Config
     bool audio = false;
     /// Initial mute state of the audio branch; its `volume` element is named kAudioVolumeElementName.
     bool audioMuted = false;
+    /// Buffer of an SRT source in ms; an address that sets latency= overrides it.
+    int srtLatencyMs = 400;
+    /// RTSP over UDP with TCP as fallback. When false the picture is carried inside the RTSP TCP connection.
+    bool rtspUdp = false;
 };
 
 /// Name of the `volume` element in the audio branch, for changing mute on a running pipeline.

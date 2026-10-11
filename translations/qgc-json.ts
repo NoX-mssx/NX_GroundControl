@@ -1050,61 +1050,55 @@
         <message>
             <extracomment>.groups[Video Source].keywords[0]</extracomment>
             <location filename="../src/AppSettings/pages/Video.SettingsUI.json" />
-            <source>video source</source>
+            <source>camera</source>
             <translation type="unfinished" />
         </message>
         <message>
             <extracomment>.groups[Video Source].keywords[1]</extracomment>
             <location filename="../src/AppSettings/pages/Video.SettingsUI.json" />
-            <source>camera</source>
+            <source>mpegts</source>
             <translation type="unfinished" />
         </message>
         <message>
             <extracomment>.groups[Video Source].keywords[2]</extracomment>
             <location filename="../src/AppSettings/pages/Video.SettingsUI.json" />
-            <source>stream</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
-            <extracomment>.groups[Connection].heading</extracomment>
-            <location filename="../src/AppSettings/pages/Video.SettingsUI.json" />
-            <source>Connection</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
-            <extracomment>.groups[Connection].keywords[0]</extracomment>
-            <location filename="../src/AppSettings/pages/Video.SettingsUI.json" />
             <source>rtsp</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <extracomment>.groups[Connection].keywords[1]</extracomment>
+            <extracomment>.groups[Video Source].keywords[3]</extracomment>
+            <location filename="../src/AppSettings/pages/Video.SettingsUI.json" />
+            <source>stream</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <extracomment>.groups[Video Source].keywords[4]</extracomment>
+            <location filename="../src/AppSettings/pages/Video.SettingsUI.json" />
+            <source>stream url</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <extracomment>.groups[Video Source].keywords[5]</extracomment>
             <location filename="../src/AppSettings/pages/Video.SettingsUI.json" />
             <source>tcp</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <extracomment>.groups[Connection].keywords[2]</extracomment>
+            <extracomment>.groups[Video Source].keywords[6]</extracomment>
             <location filename="../src/AppSettings/pages/Video.SettingsUI.json" />
             <source>udp</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <extracomment>.groups[Connection].keywords[3]</extracomment>
+            <extracomment>.groups[Video Source].keywords[7]</extracomment>
             <location filename="../src/AppSettings/pages/Video.SettingsUI.json" />
-            <source>mpegts</source>
+            <source>video source</source>
             <translation type="unfinished" />
         </message>
         <message>
-            <extracomment>.groups[Connection].keywords[4]</extracomment>
+            <extracomment>.groups[Video Source].keywords[8]</extracomment>
             <location filename="../src/AppSettings/pages/Video.SettingsUI.json" />
             <source>video url</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
-            <extracomment>.groups[Connection].keywords[5]</extracomment>
-            <location filename="../src/AppSettings/pages/Video.SettingsUI.json" />
-            <source>stream url</source>
             <translation type="unfinished" />
         </message>
         <message>
@@ -5992,6 +5986,106 @@
             <translatorcomment>Only use english comma ',' to separate strings</translatorcomment>
             <location filename="../src/Settings/Video.SettingsGroup.json" />
             <source>rtp,jitter,latency,rtsp,rtx,retransmission,advanced</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <extracomment>.QGC.MetaData.Facts[srtLatencyMs].shortDesc</extracomment>
+            <location filename="../src/Settings/Video.SettingsGroup.json" />
+            <source>SRT buffer (ms).</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <extracomment>.QGC.MetaData.Facts[srtLatencyMs].longDesc</extracomment>
+            <location filename="../src/Settings/Video.SettingsGroup.json" />
+            <source>How long the SRT receiver waits for lost packets to be sent again before giving up on them. A larger buffer hides short drops of the link at the price of the same amount of extra delay. An address that carries its own latency= parameter overrides this value.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <extracomment>.QGC.MetaData.Facts[srtLatencyMs].label</extracomment>
+            <location filename="../src/Settings/Video.SettingsGroup.json" />
+            <source>SRT buffer</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <extracomment>.QGC.MetaData.Facts[srtLatencyMs].keywords</extracomment>
+            <translatorcomment>Only use english comma ',' to separate strings</translatorcomment>
+            <location filename="../src/Settings/Video.SettingsGroup.json" />
+            <source>srt,latency,buffer,advanced</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <extracomment>.QGC.MetaData.Facts[showFramesImmediately].shortDesc</extracomment>
+            <location filename="../src/Settings/Video.SettingsGroup.json" />
+            <source>Show every frame as soon as it arrives.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <extracomment>.QGC.MetaData.Facts[showFramesImmediately].longDesc</extracomment>
+            <location filename="../src/Settings/Video.SettingsGroup.json" />
+            <source>The player does not line frames up by their time stamps. The delay is lower, but uneven arrival shows as uneven motion.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <extracomment>.QGC.MetaData.Facts[showFramesImmediately].label</extracomment>
+            <location filename="../src/Settings/Video.SettingsGroup.json" />
+            <source>Show frames immediately</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <extracomment>.QGC.MetaData.Facts[showFramesImmediately].keywords</extracomment>
+            <translatorcomment>Only use english comma ',' to separate strings</translatorcomment>
+            <location filename="../src/Settings/Video.SettingsGroup.json" />
+            <source>sync,latency,advanced</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <extracomment>.QGC.MetaData.Facts[rtspUseUdp].shortDesc</extracomment>
+            <location filename="../src/Settings/Video.SettingsGroup.json" />
+            <source>Fetch RTSP video over UDP, falling back to TCP.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <extracomment>.QGC.MetaData.Facts[rtspUseUdp].longDesc</extracomment>
+            <location filename="../src/Settings/Video.SettingsGroup.json" />
+            <source>By default the picture travels inside the RTSP TCP connection, which does not lose packets. UDP is faster to recover on a clean link but loses packets of large key frames on a bad one.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <extracomment>.QGC.MetaData.Facts[rtspUseUdp].label</extracomment>
+            <location filename="../src/Settings/Video.SettingsGroup.json" />
+            <source>RTSP over UDP</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <extracomment>.QGC.MetaData.Facts[rtspUseUdp].keywords</extracomment>
+            <translatorcomment>Only use english comma ',' to separate strings</translatorcomment>
+            <location filename="../src/Settings/Video.SettingsGroup.json" />
+            <source>rtsp,udp,tcp,transport,advanced</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <extracomment>.QGC.MetaData.Facts[showDamagedFrames].shortDesc</extracomment>
+            <location filename="../src/Settings/Video.SettingsGroup.json" />
+            <source>Keep showing the picture while packets are lost.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <extracomment>.QGC.MetaData.Facts[showDamagedFrames].longDesc</extracomment>
+            <location filename="../src/Settings/Video.SettingsGroup.json" />
+            <source>When off, a damaged frame is not shown and the picture stays still until the next intact key frame. When on, the picture keeps moving with visible blocks. Applies to the software decoder.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <extracomment>.QGC.MetaData.Facts[showDamagedFrames].label</extracomment>
+            <location filename="../src/Settings/Video.SettingsGroup.json" />
+            <source>Show damaged frames</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <extracomment>.QGC.MetaData.Facts[showDamagedFrames].keywords</extracomment>
+            <translatorcomment>Only use english comma ',' to separate strings</translatorcomment>
+            <location filename="../src/Settings/Video.SettingsGroup.json" />
+            <source>loss,corrupt,artifacts,advanced</source>
             <translation type="unfinished" />
         </message>
         <message>

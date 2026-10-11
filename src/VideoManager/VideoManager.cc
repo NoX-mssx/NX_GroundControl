@@ -183,6 +183,11 @@ void VideoManager::init(QQuickWindow *mainWindow)
     // rtpJitterLatencyMs needs a pipeline restart; route through _videoSourceChanged so _updateSettings
     // pushes the new value to each receiver and restarts exactly once (no double restart).
     (void) connect(_videoSettings->rtpJitterLatencyMs(), &Fact::rawValueChanged, this, [this](const QVariant &value) { Q_UNUSED(value); _videoSourceChanged(); });
+    // The stream tuning is read when a receiver starts, so a change restarts the streams once.
+    for (Fact *tuningFact : {_videoSettings->srtLatencyMs(), _videoSettings->showFramesImmediately(),
+                             _videoSettings->rtspUseUdp(), _videoSettings->showDamagedFrames()}) {
+        (void) connect(tuningFact, &Fact::rawValueChanged, this, [this](const QVariant &value) { Q_UNUSED(value); _videoSourceChanged(); });
+    }
     // autoReconnect is a live setting — push without restart so an in-flight reconnect
     // can be cancelled mid-backoff.
     (void) connect(_videoSettings->rtspAutoReconnect(), &Fact::rawValueChanged, this, [this](const QVariant &value) {
@@ -680,6 +685,15 @@ bool VideoManager::_updateSettings(VideoReceiver *receiver)
     const int rtpLatencyMs = static_cast<int>(std::min(_videoSettings->rtpJitterLatencyMs()->rawValue().toUInt(), static_cast<uint>(INT_MAX)));
     if (rtpLatencyMs != receiver->rtpJitterLatencyMs()) {
         receiver->setRtpJitterLatencyMs(rtpLatencyMs);
+        settingsChanged = true;
+    }
+
+    VideoReceiver::Tuning tuning;
+    tuning.srtLatencyMs = static_cast<int>(std::min(_videoSettings->srtLatencyMs()->rawValue().toUInt(), static_cast<uint>(INT_MAX)));
+    tuning.showImmediately = _videoSettings->showFramesImmediately()->rawValue().toBool();
+    tuning.rtspUdp = _videoSettings->rtspUseUdp()->rawValue().toBool();
+    tuning.showDamagedFrames = _videoSettings->showDamagedFrames()->rawValue().toBool();
+    if (receiver->setTuning(tuning)) {
         settingsChanged = true;
     }
 

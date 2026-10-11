@@ -164,6 +164,45 @@
             "keywords": "rtp,jitter,latency,rtsp,rtx,retransmission,advanced"
         },
         {
+            "name": "srtLatencyMs",
+            "shortDesc": "SRT buffer (ms).",
+            "longDesc": "How long the SRT receiver waits for lost packets to be sent again before giving up on them. A larger buffer hides short drops of the link at the price of the same amount of extra delay. An address that carries its own latency= parameter overrides this value.",
+            "type": "uint32",
+            "min": 20,
+            "max": 5000,
+            "units": "ms",
+            "default": 400,
+            "label": "SRT buffer",
+            "keywords": "srt,latency,buffer,advanced"
+        },
+        {
+            "name": "showFramesImmediately",
+            "shortDesc": "Show every frame as soon as it arrives.",
+            "longDesc": "The player does not line frames up by their time stamps. The delay is lower, but uneven arrival shows as uneven motion.",
+            "type": "bool",
+            "default": false,
+            "label": "Show frames immediately",
+            "keywords": "sync,latency,advanced"
+        },
+        {
+            "name": "rtspUseUdp",
+            "shortDesc": "Fetch RTSP video over UDP, falling back to TCP.",
+            "longDesc": "By default the picture travels inside the RTSP TCP connection, which does not lose packets. UDP is faster to recover on a clean link but loses packets of large key frames on a bad one.",
+            "type": "bool",
+            "default": false,
+            "label": "RTSP over UDP",
+            "keywords": "rtsp,udp,tcp,transport,advanced"
+        },
+        {
+            "name": "showDamagedFrames",
+            "shortDesc": "Keep showing the picture while packets are lost.",
+            "longDesc": "When off, a damaged frame is not shown and the picture stays still until the next intact key frame. When on, the picture keeps moving with visible blocks. Applies to the software decoder.",
+            "type": "bool",
+            "default": false,
+            "label": "Show damaged frames",
+            "keywords": "loss,corrupt,artifacts,advanced"
+        },
+        {
             "name": "rtspAutoReconnect",
             "shortDesc": "Automatically restart the pipeline on watchdog timeout or pipeline error.",
             "longDesc": "When enabled, the receiver reconnects with exponential backoff (1s → 30s) after a stream timeout or a fatal pipeline error. Disable to fall back to the legacy behaviour of giving up after one failure.",

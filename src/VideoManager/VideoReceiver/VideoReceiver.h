@@ -36,6 +36,19 @@ public:
     bool lowLatency() const { return _lowLatency; }
     int rtpJitterLatencyMs() const { return _rtpJitterLatencyMs; }
     bool autoReconnect() const { return _autoReconnect; }
+
+    /// Stream behaviour chosen in the video settings; takes effect the next time the receiver starts.
+    struct Tuning
+    {
+        int srtLatencyMs = 400;         ///< Buffer of an SRT source, unless its address sets latency=
+        bool showImmediately = false;   ///< Do not line frames up by time stamp
+        bool rtspUdp = false;           ///< RTSP over UDP with TCP as fallback instead of TCP only
+        bool showDamagedFrames = false; ///< Keep showing frames the decoder reports as damaged
+        bool operator==(const Tuning &) const = default;
+    };
+    const Tuning &tuning() const { return _tuning; }
+    /// @return true when the tuning changed
+    bool setTuning(const Tuning &tuning) { if (tuning == _tuning) { return false; } _tuning = tuning; return true; }
     bool audioEnabled() const { return _audioEnabled; }
     bool audioMuted() const { return _audioMuted; }
     QGCVideoStreamInfo *videoStreamInfo() { return _videoStreamInfo; }
@@ -126,6 +139,7 @@ protected:
     bool _streaming = false;
     bool _lowLatency = false;
     int _rtpJitterLatencyMs = 80;
+    Tuning _tuning;
     // Written live on the GUI thread, read on the receiver worker thread.
     std::atomic<bool> _audioEnabled = false;
     std::atomic<bool> _audioMuted = false;

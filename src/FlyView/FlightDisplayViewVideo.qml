@@ -23,7 +23,10 @@ Item {
     property var    _camera:            _isCamera ? _dynamicCameras.cameras.get(_curCameraIndex) : null
     property bool   _hasZoom:           _camera && _camera.hasZoom
     property int    _fitMode:           QGroundControl.settingsManager.videoSettings.videoFit.rawValue
-    property bool   _showStreamLoader:  QGroundControl.videoManager.decoding
+    // While the stream is switched (HD/SD, another camera) the last picture stays on the screen
+    // instead of the "waiting" background; the label below says that the new stream is starting.
+    property bool   _switching:         VehicleModelManager.switchingStream
+    property bool   _showStreamLoader:  QGroundControl.videoManager.decoding || _switching
     property bool   _showUvcLoader:     QGroundControl.videoManager.isUvc
 
     property bool   _isMode_FIT_WIDTH:  _fitMode === 0
@@ -158,6 +161,24 @@ Item {
                     height: 1
                     y:      parent.height * 0.66
                 }
+            }
+        }
+
+        Rectangle {
+            anchors.horizontalCenter:   parent.horizontalCenter
+            anchors.bottom:             parent.bottom
+            anchors.bottomMargin:       ScreenTools.defaultFontPixelHeight * 4
+            width:                      switchingLabel.implicitWidth + ScreenTools.defaultFontPixelWidth * 3
+            height:                     switchingLabel.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.6
+            radius:                     height / 2
+            color:                      Qt.rgba(0, 0, 0, 0.6)
+            visible:                    _switching && !QGroundControl.videoManager.decoding
+
+            QGCLabel {
+                id:                 switchingLabel
+                anchors.centerIn:   parent
+                text:               VehicleModelManager.secondaryStream ? qsTr("Starting SD…") : qsTr("Starting HD…")
+                color:              "white"
             }
         }
 

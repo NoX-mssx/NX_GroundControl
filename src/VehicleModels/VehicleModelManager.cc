@@ -237,6 +237,10 @@ VehicleModelManager::VehicleModelManager(QObject *parent)
     (void) connect(MultiVehicleManager::instance(), &MultiVehicleManager::activeVehicleChanged,
                    this, &VehicleModelManager::_activeVehicleChanged);
     (void) connect(this, &VehicleModelManager::modelsChanged, this, &VehicleModelManager::_updateActiveModel);
+    // A high-definition stream can take a long time to start; after that the old picture is let go anyway.
+    _switchTimer.setSingleShot(true);
+    _switchTimer.setInterval(25000);
+    (void) connect(&_switchTimer, &QTimer::timeout, this, &VehicleModelManager::_endStreamSwitch);
     _activeVehicleChanged(MultiVehicleManager::instance()->activeVehicle());
 }
 
@@ -383,6 +387,9 @@ void VehicleModelManager::_applyCameraStreams()
     const QString mainUri = _cameraUri(_mainCameraIndex);
     // Changing the URL below restarts the main stream, which then picks the audio setting up by itself.
     const bool mainUrlChanges = !mainUri.isEmpty() && (videoSettings->rtspUrl()->rawValue().toString() != mainUri);
+    if (mainUrlChanges && VideoManager::instance()->decoding()) {
+        _beginStreamSwitch();
+    }
     VideoManager::instance()->setMainStreamAudio(cameraHasAudio(_mainCameraIndex), !mainUrlChanges);
     if (!mainUri.isEmpty()) {
         videoSettings->rtspUrl()->setRawValue(mainUri);
@@ -394,6 +401,41 @@ void VehicleModelManager::_applyCameraStreams()
         const int cameraIndex = auxiliary.at(i);
         VideoManager::instance()->setAuxiliaryVideo(i, (cameraIndex < 0) ? QString() : _cameraUri(cameraIndex),
                                                     cameraHasAudio(cameraIndex));
+    }
+}
+
+void VehicleModelManager::_beginStreamSwitch()
+{
+    // The old picture stops first and the new one starts afterwards; the switch ends at that start.
+    _switchSawStop = false;
+    (void) connect(VideoManager::instance(), &VideoManager::decodingChanged, this, &VehicleModelManager::_decodingChanged,
+                   Qt::UniqueConnection);
+    _switchTimer.start();
+    if (!_switchingStream) {
+        _switchingStream = true;
+        emit switchingStreamChanged();
+    }
+}
+
+void VehicleModelManager::_decodingChanged()
+{
+    if (!_switchingStream) {
+        return;
+    }
+    if (!VideoManager::instance()->decoding()) {
+        _switchSawStop = true;
+    } else if (_switchSawStop) {
+        _endStreamSwitch();
+    }
+}
+
+void VehicleModelManager::_endStreamSwitch()
+{
+    _switchTimer.stop();
+    _switchSawStop = false;
+    if (_switchingStream) {
+        _switchingStream = false;
+        emit switchingStreamChanged();
     }
 }
 

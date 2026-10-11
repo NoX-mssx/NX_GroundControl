@@ -441,7 +441,9 @@ GstElement* buildRtspSource(const QString& uri, const QUrl& sourceUrl, const Con
 
     // NX: RTP is interleaved in the RTSP TCP connection. Over WireGuard and Starlink, RTP over UDP loses
     // packets of large key frames, which shows as grey flashes; TCP delivers them, at a little latency.
-    constexpr GstRTSPLowerTrans kRtspProtocols = GST_RTSP_LOWER_TRANS_TCP;
+    const GstRTSPLowerTrans kRtspProtocols = config.rtspUdp
+        ? static_cast<GstRTSPLowerTrans>(GST_RTSP_LOWER_TRANS_UDP | GST_RTSP_LOWER_TRANS_UDP_MCAST | GST_RTSP_LOWER_TRANS_TCP)
+        : GST_RTSP_LOWER_TRANS_TCP;
 
     // do-retransmission forwards to rtspsrc's internal rtpjitterbuffer (added 1.6).
     // NX: late packets are dropped only when DropOnLatency is asked for explicitly; low latency mode no
@@ -705,7 +707,7 @@ GstElement* create(const QString& uri, const Config& config)
         } else if (isTcpMPEGTS) {
             source = buildTcpSource(sourceUrl);
         } else if (isSrt) {
-            source = buildSrtSource(sourceUrl, latencyMs);
+            source = buildSrtSource(sourceUrl, (config.srtLatencyMs < 0) ? 0u : static_cast<guint>(config.srtLatencyMs));
         } else {  // isUdpH264 || isUdpH265 || isUdpMPEGTS
             source = buildUdpSource(sourceUrl, isUdpH264, isUdpH265);
         }
