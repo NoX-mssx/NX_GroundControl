@@ -156,6 +156,7 @@ void GstVideoReceiver::start(uint32_t timeout)
         }
 
         _lastSourceFrameTime = 0;
+        _lastKeyframeMs = 0;
 
         _teeProbeId = gst_pad_add_probe(pad, GST_PAD_PROBE_TYPE_BUFFER, _teeProbe, this, nullptr);
         gst_clear_object(&pad);
@@ -435,6 +436,7 @@ void GstVideoReceiver::stop()
         _source = nullptr;
 
         _lastSourceFrameTime = 0;
+        _lastKeyframeMs = 0;
 
         if (_streaming) {
             _streaming = false;
@@ -1272,7 +1274,7 @@ bool GstVideoReceiver::_addVideoSink(GstPad *pad)
     return true;
 }
 
-void GstVideoReceiver::_noteTeeFrame()
+void GstVideoReceiver::_noteTeeFrame(const GstBuffer *buffer)
 {
     _lastSourceFrameTime.store(QDateTime::currentSecsSinceEpoch(), std::memory_order_relaxed);
     // Successful frame arrival: drop the reconnect backoff so the next failure starts at 1 s,
@@ -1284,11 +1286,36 @@ void GstVideoReceiver::_noteTeeFrame()
             this, [this]() { _reconnectAttempts.store(0, std::memory_order_relaxed); }, Qt::QueuedConnection);
     }
     const quint64 sourceFrames = _sourceFrameCount.fetch_add(1, std::memory_order_relaxed) + 1;
+
+    // Source quality counters for the periodic "Source flow" line: gaps and damaged data coming out
+    // of the demuxer show up here, before the decoder has a chance to hide or amplify them.
+    if (buffer) {
+        const GstBufferFlags flags = static_cast<GstBufferFlags>(GST_BUFFER_FLAGS(buffer));
+        if (flags & GST_BUFFER_FLAG_DISCONT) {
+            _flowDiscont.fetch_add(1, std::memory_order_relaxed);
+        }
+        if (flags & GST_BUFFER_FLAG_CORRUPTED) {
+            _flowCorrupted.fetch_add(1, std::memory_order_relaxed);
+        }
+        if (!(flags & GST_BUFFER_FLAG_DELTA_UNIT)) {
+            const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+            const qint64 lastMs = _lastKeyframeMs.exchange(nowMs, std::memory_order_relaxed);
+            _flowKeyframes.fetch_add(1, std::memory_order_relaxed);
+            if (lastMs != 0 && (nowMs - lastMs) > _flowMaxKeyGapMs.load(std::memory_order_relaxed)) {
+                _flowMaxKeyGapMs.store(static_cast<int>(nowMs - lastMs), std::memory_order_relaxed);
+            }
+        }
+    }
+
     if (sourceFrames == 1) {
         qCInfo(GstVideoReceiverLog).noquote() << "Source receiving frames (tee):" << _uri;
     } else if ((sourceFrames % 300) == 0) {
         qCDebug(GstVideoReceiverLog).noquote()
-            << "Source flow: teeFrames=" << sourceFrames << "decoding=" << _decoding << _uri;
+            << "Source flow: teeFrames=" << sourceFrames << "decoding=" << _decoding
+            << "keyFrames=" << _flowKeyframes.exchange(0, std::memory_order_relaxed)
+            << "maxKeyGapMs=" << _flowMaxKeyGapMs.exchange(0, std::memory_order_relaxed)
+            << "discont=" << _flowDiscont.exchange(0, std::memory_order_relaxed)
+            << "corrupted=" << _flowCorrupted.exchange(0, std::memory_order_relaxed) << _uri;
     }
 }
 
@@ -1733,11 +1760,11 @@ GstPadProbeReturn GstVideoReceiver::_decoderKeyframeGate(GstPad *pad, GstPadProb
 
 GstPadProbeReturn GstVideoReceiver::_teeProbe(GstPad *pad, GstPadProbeInfo *info, gpointer user_data)
 {
-    Q_UNUSED(pad); Q_UNUSED(info)
+    Q_UNUSED(pad)
 
     if (user_data) {
         GstVideoReceiver *pThis = static_cast<GstVideoReceiver*>(user_data);
-        pThis->_noteTeeFrame();
+        pThis->_noteTeeFrame(GST_PAD_PROBE_INFO_TYPE(info) & GST_PAD_PROBE_TYPE_BUFFER ? GST_PAD_PROBE_INFO_BUFFER(info) : nullptr);
     }
 
     return GST_PAD_PROBE_OK;

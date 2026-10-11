@@ -98,7 +98,7 @@ private:
     bool _addDecoder(GstElement *src);
     void _ensureVideoSinkInPipeline();
     bool _addVideoSink(GstPad *pad);
-    void _noteTeeFrame();
+    void _noteTeeFrame(const GstBuffer *buffer);
     void _noteVideoSinkFrame();
     void _noteEndOfStream();
     /// -Unlink the branch from the src pad
@@ -152,6 +152,11 @@ private:
     gulong _keyframeWatchId = 0;
     std::atomic<bool> _decoderWaitsForKeyframe{true};  ///< Set when the decoder valve opens; cleared by the first key frame
     std::atomic<int> _decoderGateDropped{0};            ///< Frames dropped while waiting for that key frame
+    std::atomic<int> _flowKeyframes{0};                 ///< Source diagnostics, reset after every "Source flow" log line
+    std::atomic<int> _flowMaxKeyGapMs{0};
+    std::atomic<int> _flowDiscont{0};
+    std::atomic<int> _flowCorrupted{0};
+    std::atomic<qint64> _lastKeyframeMs{0};
     bool _recordingStopRequested = false;
 
     mutable QMutex _decoderNameMutex;  // QString refcount isn't thread-safe across reader/writer threads
