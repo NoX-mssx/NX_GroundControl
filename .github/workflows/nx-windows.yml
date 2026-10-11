@@ -156,8 +156,11 @@ jobs:
             & $inspect --exists $element
             if ($LASTEXITCODE -eq 0) { $hevc += $element }
           }
-          Write-Host "::notice title=H.265 hardware decoders::$($hevc -join ' ')"
+          $hevcList = if ($hevc.Count -gt 0) { $hevc -join ' ' } else { 'none' }
+          Write-Host "::notice title=H.265 hardware decoders::$hevcList"
           Remove-Item $inspect
+          # A missing optional element leaves a non-zero native exit code that would fail the step.
+          $global:LASTEXITCODE = 0
           $plugins = (Get-ChildItem -Path $pluginDir -Filter "gst*.dll" | ForEach-Object { $_.BaseName }) -join " "
           $srtLibs = (Get-ChildItem -Path $binDir -Filter "*srt*.dll" | ForEach-Object { $_.Name }) -join " "
           Write-Host "::notice title=GStreamer plugins::$plugins"
