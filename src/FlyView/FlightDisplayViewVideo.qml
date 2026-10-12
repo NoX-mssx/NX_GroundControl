@@ -28,6 +28,8 @@ Item {
     property bool   _switching:         VehicleModelManager.switchingStream
     property bool   _showStreamLoader:  QGroundControl.videoManager.decoding || _switching
     property bool   _showUvcLoader:     QGroundControl.videoManager.isUvc
+    // The picture takes the whole window whatever the aspect ratio of the stream is.
+    property bool   _stretchToWindow:   QGroundControl.settingsManager.videoSettings.stretchVideoToWindow.rawValue
 
     property bool   _isMode_FIT_WIDTH:  _fitMode === 0
     property bool   _isMode_FIT_HEIGHT: _fitMode === 1
@@ -75,6 +77,9 @@ Item {
         color:          "black"
         visible:        _showStreamLoader || _showUvcLoader
         function getWidth() {
+            if(_stretchToWindow){
+                return root.width
+            }
             if(_ar != 0.0){
                 if(_isMode_FIT_HEIGHT
                         || (_isMode_FILL && (root.width/root.height < _ar))
@@ -90,6 +95,9 @@ Item {
             return root.width
         }
         function getHeight() {
+            if(_stretchToWindow){
+                return root.height
+            }
             if(_ar != 0.0){
                 if(_isMode_FIT_WIDTH
                         || (_isMode_FILL && (root.width/root.height > _ar))
@@ -115,6 +123,7 @@ Item {
         Component {
             id: videoOutputComponent
             FlightDisplayViewVideoOutput {
+                stretchToContainer: true
             }
         }
         //-- UVC Video (USB Camera or Video Device)

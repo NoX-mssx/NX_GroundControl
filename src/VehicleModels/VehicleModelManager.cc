@@ -101,6 +101,42 @@ int functionOffValue(const QVariantMap &function)
                            function.value(QStringLiteral("value")).toInt());
 }
 
+/// A function writes its off value only when the model asks for it (a button may just ignore the release).
+bool functionSendsOff(const QVariantMap &function)
+{
+    return function.value(QStringLiteral("sendOff"), true).toBool();
+}
+
+/// Values a "steps" button walks through, one per tap (for example 1000, 1500, 2000 for three speeds).
+QList<int> functionSteps(const QVariantMap &function)
+{
+    QList<int> steps;
+    const QVariantList values = function.value(QStringLiteral("steps")).toList();
+    for (const QVariant &value : values) {
+        steps.append(value.toInt());
+    }
+    return steps;
+}
+
+QString buttonMode(const QVariantMap &button)
+{
+    const QString mode = button.value(QStringLiteral("mode")).toString();
+    if ((mode == QLatin1String("momentary")) || (mode == QLatin1String("steps"))) {
+        return mode;
+    }
+    return QStringLiteral("toggle");
+}
+
+int buttonStepCount(const QVariantMap &button)
+{
+    int count = 0;
+    const QVariantList functions = button.value(QStringLiteral("functions")).toList();
+    for (const QVariant &functionVar : functions) {
+        count = qMax(count, static_cast<int>(functionSteps(functionVar.toMap()).count()));
+    }
+    return count;
+}
+
 QVariantMap modelFromExchange(const QJsonObject &exchange)
 {
     QVariantList cameras;
@@ -132,15 +168,23 @@ QVariantMap modelFromExchange(const QJsonObject &exchange)
             // Nova files have no off value; pick the opposite end of the range.
             const int offValue = function.contains(QLatin1String("offValue")) ? function.value(QLatin1String("offValue")).toInt()
                                                                               : defaultOffValue(gpio, value);
+            QVariantList steps;
+            const QJsonArray exchangeSteps = function.value(QLatin1String("steps")).toArray();
+            for (const QJsonValue &step : exchangeSteps) {
+                steps.append(step.toInt());
+            }
             functions.append(QVariantMap{
                 {QStringLiteral("channel"), function.value(QLatin1String("channel")).toInt()},
                 {QStringLiteral("kind"), gpio ? QStringLiteral("gpio") : QStringLiteral("pwm")},
                 {QStringLiteral("value"), value},
                 {QStringLiteral("offValue"), offValue},
+                {QStringLiteral("sendOff"), function.value(QLatin1String("sendOff")).toBool(true)},
+                {QStringLiteral("steps"), steps},
             });
         }
         buttons.append(QVariantMap{
             {QStringLiteral("name"), button.value(QLatin1String("name")).toString()},
+            {QStringLiteral("mode"), buttonMode(button.toVariantMap())},
             {QStringLiteral("functions"), functions},
         });
     }
@@ -179,15 +223,22 @@ QJsonObject modelToExchange(const QVariantMap &model)
         for (const QVariant &functionVar : buttonFunctions) {
             const QVariantMap function = functionVar.toMap();
             const bool gpio = function.value(QStringLiteral("kind")).toString() == QLatin1String("gpio");
+            QJsonArray steps;
+            for (const int step : functionSteps(function)) {
+                steps.append(step);
+            }
             functions.append(QJsonObject{
                 {QStringLiteral("channel"), function.value(QStringLiteral("channel")).toInt()},
                 {QStringLiteral("signal"), gpio ? QStringLiteral("GPIO") : QStringLiteral("PWM")},
                 {QStringLiteral("value"), function.value(QStringLiteral("value")).toInt()},
                 {QStringLiteral("offValue"), functionOffValue(function)},
+                {QStringLiteral("sendOff"), functionSendsOff(function)},
+                {QStringLiteral("steps"), steps},
             });
         }
         buttons.append(QJsonObject{
             {QStringLiteral("name"), button.value(QStringLiteral("name")).toString()},
+            {QStringLiteral("mode"), buttonMode(button)},
             {QStringLiteral("functionsArray"), functions},
         });
     }
@@ -275,6 +326,7 @@ void VehicleModelManager::_updateActiveModel()
     _activeModel = activeModel;
     // A different vehicle starts with all its buttons shown as off.
     _buttonStates.clear();
+    _buttonSteps.clear();
     emit activeModelChanged();
     emit buttonStatesChanged();
 
@@ -439,6 +491,29 @@ void VehicleModelManager::_endStreamSwitch()
     }
 }
 
+void VehicleModelManager::_sendFunction(const QVariantMap &function, int value)
+{
+    const bool gpio = function.value(QStringLiteral("kind")).toString() == QLatin1String("gpio");
+    _activeVehicle->sendMavCommand(_activeVehicle->defaultComponentId(),
+                                   gpio ? MAV_CMD_DO_SET_RELAY : MAV_CMD_DO_SET_SERVO,
+                                   true,
+                                   function.value(QStringLiteral("channel")).toFloat(),
+                                   static_cast<float>(value));
+}
+
+void VehicleModelManager::_setButtonState(int buttonIndex, bool on, int step)
+{
+    while (_buttonStates.count() < (buttonIndex + 1)) {
+        _buttonStates.append(false);
+    }
+    while (_buttonSteps.count() < (buttonIndex + 1)) {
+        _buttonSteps.append(0);
+    }
+    _buttonStates[buttonIndex] = on;
+    _buttonSteps[buttonIndex] = step;
+    emit buttonStatesChanged();
+}
+
 void VehicleModelManager::toggleButton(int buttonIndex)
 {
     const QVariantList buttons = _activeModel.value(QStringLiteral("buttons")).toList();
@@ -446,25 +521,81 @@ void VehicleModelManager::toggleButton(int buttonIndex)
         return;
     }
 
-    while (_buttonStates.count() < buttons.count()) {
-        _buttonStates.append(false);
+    const QVariantMap button = buttons.at(buttonIndex).toMap();
+    const QString mode = buttonMode(button);
+    if (mode == QLatin1String("momentary")) {
+        return;     // driven by pressButton()/releaseButton()
     }
-    const bool on = !_buttonStates.at(buttonIndex).toBool();
 
-    const QVariantList functions = buttons.at(buttonIndex).toMap().value(QStringLiteral("functions")).toList();
+    const QVariantList functions = button.value(QStringLiteral("functions")).toList();
+
+    if (mode == QLatin1String("steps")) {
+        const int stepCount = buttonStepCount(button);
+        if (stepCount < 1) {
+            return;
+        }
+        const int current = (buttonIndex < _buttonSteps.count()) ? _buttonSteps.at(buttonIndex).toInt() : 0;
+        const int next = (current + 1) % stepCount;
+        for (const QVariant &functionVar : functions) {
+            const QVariantMap function = functionVar.toMap();
+            const QList<int> steps = functionSteps(function);
+            if (!steps.isEmpty()) {
+                _sendFunction(function, steps.at(qMin(next, static_cast<int>(steps.count()) - 1)));
+            }
+        }
+        _setButtonState(buttonIndex, next != 0, next);
+        return;
+    }
+
+    const bool on = !((buttonIndex < _buttonStates.count()) && _buttonStates.at(buttonIndex).toBool());
     for (const QVariant &functionVar : functions) {
         const QVariantMap function = functionVar.toMap();
-        const bool gpio = function.value(QStringLiteral("kind")).toString() == QLatin1String("gpio");
-        const int value = on ? function.value(QStringLiteral("value")).toInt() : functionOffValue(function);
-        _activeVehicle->sendMavCommand(_activeVehicle->defaultComponentId(),
-                                       gpio ? MAV_CMD_DO_SET_RELAY : MAV_CMD_DO_SET_SERVO,
-                                       true,
-                                       function.value(QStringLiteral("channel")).toFloat(),
-                                       static_cast<float>(value));
+        if (on) {
+            _sendFunction(function, function.value(QStringLiteral("value")).toInt());
+        } else if (functionSendsOff(function)) {
+            _sendFunction(function, functionOffValue(function));
+        }
     }
+    _setButtonState(buttonIndex, on, 0);
+}
 
-    _buttonStates[buttonIndex] = on;
-    emit buttonStatesChanged();
+void VehicleModelManager::pressButton(int buttonIndex)
+{
+    const QVariantList buttons = _activeModel.value(QStringLiteral("buttons")).toList();
+    if (!_activeVehicle || (buttonIndex < 0) || (buttonIndex >= buttons.count())) {
+        return;
+    }
+    const QVariantMap button = buttons.at(buttonIndex).toMap();
+    if (buttonMode(button) != QLatin1String("momentary")) {
+        return;
+    }
+    const QVariantList functions = button.value(QStringLiteral("functions")).toList();
+    for (const QVariant &functionVar : functions) {
+        const QVariantMap function = functionVar.toMap();
+        _sendFunction(function, function.value(QStringLiteral("value")).toInt());
+    }
+    _setButtonState(buttonIndex, true, 0);
+}
+
+void VehicleModelManager::releaseButton(int buttonIndex)
+{
+    const QVariantList buttons = _activeModel.value(QStringLiteral("buttons")).toList();
+    if (!_activeVehicle || (buttonIndex < 0) || (buttonIndex >= buttons.count())) {
+        return;
+    }
+    const QVariantMap button = buttons.at(buttonIndex).toMap();
+    if ((buttonMode(button) != QLatin1String("momentary"))
+        || !((buttonIndex < _buttonStates.count()) && _buttonStates.at(buttonIndex).toBool())) {
+        return;
+    }
+    const QVariantList functions = button.value(QStringLiteral("functions")).toList();
+    for (const QVariant &functionVar : functions) {
+        const QVariantMap function = functionVar.toMap();
+        if (functionSendsOff(function)) {
+            _sendFunction(function, functionOffValue(function));
+        }
+    }
+    _setButtonState(buttonIndex, false, 0);
 }
 
 QStringList VehicleModelManager::modelNames() const

@@ -6222,6 +6222,30 @@
       <source>loss,corrupt,artifacts,advanced</source>
       <translation>втрати,пошкоджені,артефакти,додатково</translation>
     </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[stretchVideoToWindow].shortDesc</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>Stretch the video over the whole window.</source>
+      <translation>Розтягнути відео на все вікно.</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[stretchVideoToWindow].longDesc</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>When on, the picture fills the whole video window whatever the aspect ratio of the stream is, so a 4:3 camera is shown without black bars. When off, the aspect ratio of the stream is kept.</source>
+      <translation>Якщо увімкнено, картинка займає все вікно відео незалежно від пропорцій потоку, тому камера 4:3 показується без чорних смуг. Якщо вимкнено, пропорції потоку зберігаються.</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[stretchVideoToWindow].label</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>Stretch video to window</source>
+      <translation>Розтягнути відео на все вікно</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[stretchVideoToWindow].keywords</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>stretch,fill,aspect,4:3,16:9</source>
+      <translation>розтягнути,заповнити,пропорції,4:3,16:9</translation>
+    </message>
   </context>
   <context>
     <name>OfflineMaps.SettingsGroup.json</name>

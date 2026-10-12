@@ -22524,8 +22524,33 @@ If a vehicle still has this key configured, you will no longer be able to commun
     </message>
     <message>
       <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="455" />
-      <source>Functions (output, type, value when on, value when off):</source>
-      <translation>Функции (выход, тип, значение «вкл.», значение «выкл.»):</translation>
+      <source>Mode:</source>
+      <translation>Режим:</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="455" />
+      <source>Switch (on / off)</source>
+      <translation>Переключатель (вкл. / выкл.)</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="455" />
+      <source>Hold (on while pressed)</source>
+      <translation>Удержание (включено, пока нажата)</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="455" />
+      <source>Steps (one value per tap)</source>
+      <translation>Шаги (одно значение за нажатие)</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="455" />
+      <source>Functions (output, type, values one after another, for example 1000,1500,2000):</source>
+      <translation>Функции (выход, тип, значения по очереди, например 1000,1500,2000):</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="455" />
+      <source>Functions (output, type, value when on, value when off; leave Off empty to send nothing):</source>
+      <translation>Функции (выход, тип, значение «вкл.», значение «выкл.»; оставьте «выкл.» пустым, чтобы ничего не отправлять):</translation>
     </message>
     <message>
       <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="481" />

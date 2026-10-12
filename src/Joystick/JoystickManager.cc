@@ -212,7 +212,11 @@ void JoystickManager::_setActiveJoystick(Joystick *newActiveJoystick)
         auto activeVehicle = multiVehicleManager->activeVehicle();
 
         if (activeVehicle) {
-            if (_activeJoystick->requiresCalibration() && _joystickEnabledForVehicle(activeVehicle)) {
+            // requiresCalibration() is a constant of the joystick type, so it alone says nothing about this unit:
+            // checking only it switched the joystick off every time it was plugged in again.
+            const bool notCalibrated = _activeJoystick->requiresCalibration()
+                                       && !_activeJoystick->settings()->calibrated()->rawValue().toBool();
+            if (notCalibrated && _joystickEnabledForVehicle(activeVehicle)) {
                 qCWarning(JoystickManagerLog) << "Active joystick not calibrated but enabled, cannot start polling for active vehicle. Setting joystick for vehicle to disabled.";
                 setActiveJoystickEnabledForActiveVehicle(false);
             } else if (_joystickEnabledForVehicle(activeVehicle)) {

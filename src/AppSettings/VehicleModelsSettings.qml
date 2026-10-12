@@ -31,7 +31,7 @@ Rectangle {
     }
 
     function _blankFunction() {
-        return { channel: 1, kind: "pwm", value: 2000, offValue: 1000 }
+        return { channel: 1, kind: "pwm", value: 2000, offValue: 1000, sendOff: true, steps: [1000, 1500, 2000] }
     }
 
     // Repeaters only notice a new object, so structural edits (add/remove/reorder) reassign a copy.
@@ -457,7 +457,31 @@ Rectangle {
                             onTextEdited:       buttonGroup.button.name = text
                         }
 
-                        QGCLabel { text: qsTr("Functions (output, type, value when on, value when off):") }
+                        // How a tap on the button behaves
+                        RowLayout {
+                            spacing: ScreenTools.defaultFontPixelWidth
+
+                            QGCLabel { text: qsTr("Mode:") }
+
+                            QGCComboBox {
+                                id:                     modeCombo
+                                Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 28
+                                model:                  [ qsTr("Switch (on / off)"), qsTr("Hold (on while pressed)"), qsTr("Steps (one value per tap)") ]
+                                currentIndex:           buttonGroup.modelData.mode === "momentary" ? 1 : (buttonGroup.modelData.mode === "steps" ? 2 : 0)
+                                onActivated: (modeIndex) => {
+                                    buttonGroup.button.mode = modeIndex === 1 ? "momentary" : (modeIndex === 2 ? "steps" : "toggle")
+                                    root._refresh()
+                                }
+                            }
+                        }
+
+                        QGCLabel {
+                            Layout.fillWidth:   true
+                            wrapMode:           Text.WordWrap
+                            text:               buttonGroup.modelData.mode === "steps"
+                                                    ? qsTr("Functions (output, type, values one after another, for example 1000,1500,2000):")
+                                                    : qsTr("Functions (output, type, value when on, value when off; leave Off empty to send nothing):")
+                        }
 
                         Repeater {
                             model: buttonGroup.modelData.functions
@@ -493,9 +517,23 @@ Rectangle {
                                     }
                                 }
 
+                                // Steps mode: the values the button walks through, one per tap
+                                QGCTextField {
+                                    Layout.fillWidth:   true
+                                    visible:            buttonGroup.modelData.mode === "steps"
+                                    text:               (functionRow.modelData.steps || []).join(",")
+                                    placeholderText:    "1000,1500,2000"
+                                    onTextEdited: {
+                                        functionRow.fn.steps = text.split(",")
+                                            .map(function(part) { return parseInt(part.trim()) })
+                                            .filter(function(value) { return !isNaN(value) })
+                                    }
+                                }
+
                                 // PWM: pulse width in microseconds. GPIO: 0 or 1. Sent when the button is switched on.
                                 QGCTextField {
                                     Layout.fillWidth:   true
+                                    visible:            buttonGroup.modelData.mode !== "steps"
                                     text:               functionRow.modelData.value
                                     placeholderText:    qsTr("On")
                                     numericValuesOnly:  true
@@ -506,17 +544,25 @@ Rectangle {
                                     onTextEdited:       functionRow.fn.value = parseInt(text) || 0
                                 }
 
-                                // Sent when the button is switched off again.
+                                // Sent when the button is switched off again (or released). Empty: nothing is sent.
                                 QGCTextField {
                                     Layout.fillWidth:   true
-                                    text:               functionRow.modelData.offValue !== undefined ? functionRow.modelData.offValue : ""
+                                    visible:            buttonGroup.modelData.mode !== "steps"
+                                    text:               (functionRow.modelData.sendOff !== false && functionRow.modelData.offValue !== undefined) ? functionRow.modelData.offValue : ""
                                     placeholderText:    qsTr("Off")
                                     numericValuesOnly:  true
                                     validator:          IntValidator {
                                         bottom: functionRow.modelData.kind === "gpio" ? 0 : 500
                                         top:    functionRow.modelData.kind === "gpio" ? 1 : 2500
                                     }
-                                    onTextEdited:       functionRow.fn.offValue = parseInt(text) || 0
+                                    onTextEdited: {
+                                        if (text === "") {
+                                            functionRow.fn.sendOff = false
+                                        } else {
+                                            functionRow.fn.sendOff = true
+                                            functionRow.fn.offValue = parseInt(text) || 0
+                                        }
+                                    }
                                 }
 
                                 QGCButton {

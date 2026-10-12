@@ -1251,6 +1251,15 @@ bool GstVideoReceiver::_addVideoSink(GstPad *pad)
         (void) gst_structure_get_int(structure, "width", &width);
         (void) gst_structure_get_int(structure, "height", &height);
 
+        // Anamorphic streams (for example 704x576 with a 16/11 pixel aspect ratio) are meant to be shown as
+        // 16:9, so the size reported to the UI is the display size: width * PAR / height.
+        gint parNum = 1;
+        gint parDen = 1;
+        if (gst_structure_get_fraction(structure, "pixel-aspect-ratio", &parNum, &parDen) && parNum > 0 && parDen > 0
+            && parNum != parDen && width > 0) {
+            width = static_cast<gint>(qRound(static_cast<double>(width) * parNum / parDen));
+        }
+
         // Swap W×H for 90°/270° streams so QML AR is computed on display dimensions.
         gint orientation = 0;
         if (gst_structure_get_int(structure, "video-orientation", &orientation)

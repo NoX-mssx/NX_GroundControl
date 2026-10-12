@@ -22458,7 +22458,32 @@ If a vehicle still has this key configured, you will no longer be able to commun
     </message>
     <message>
         <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="460"/>
-        <source>Functions (output, type, value when on, value when off):</source>
+        <source>Mode:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="460"/>
+        <source>Switch (on / off)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="460"/>
+        <source>Hold (on while pressed)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="460"/>
+        <source>Steps (one value per tap)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="460"/>
+        <source>Functions (output, type, values one after another, for example 1000,1500,2000):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="460"/>
+        <source>Functions (output, type, value when on, value when off; leave Off empty to send nothing):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

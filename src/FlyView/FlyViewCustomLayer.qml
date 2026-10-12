@@ -134,11 +134,23 @@ Item {
                     required property int index
 
                     readonly property bool _on: VehicleModelManager.buttonStates[index] === true
+                    readonly property bool _momentary:  modelData.mode === "momentary"
+                    readonly property bool _steps:      modelData.mode === "steps"
+                    // Number of positions of a "steps" button: the longest value list of its functions
+                    readonly property int  _stepCount: {
+                        let count = 0
+                        for (const fn of (modelData.functions || [])) {
+                            count = Math.max(count, (fn.steps || []).length)
+                        }
+                        return count
+                    }
 
                     QGCLabel {
                         id:                 modelButtonLabel
                         anchors.centerIn:   parent
-                        text:               modelButton.modelData.name
+                        text:               modelButton._steps && modelButton._stepCount > 0
+                                                ? modelButton.modelData.name + " " + ((VehicleModelManager.buttonSteps[index] || 0) + 1) + "/" + modelButton._stepCount
+                                                : modelButton.modelData.name
                         color:              modelButton._on ? _root._accentText : qgcPal.text
                         font.weight:        Font.ExtraBold
                     }
@@ -148,6 +160,9 @@ Item {
                         anchors.fill:   parent
                         hoverEnabled:   true
                         onClicked:      VehicleModelManager.toggleButton(modelButton.index)
+                        onPressed:      if (modelButton._momentary) VehicleModelManager.pressButton(modelButton.index)
+                        onReleased:     if (modelButton._momentary) VehicleModelManager.releaseButton(modelButton.index)
+                        onCanceled:     if (modelButton._momentary) VehicleModelManager.releaseButton(modelButton.index)
                     }
                 }
             }

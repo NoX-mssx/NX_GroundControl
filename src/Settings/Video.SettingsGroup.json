@@ -75,6 +75,15 @@
             "label": "Video Display Fit"
         },
         {
+            "name": "stretchVideoToWindow",
+            "shortDesc": "Stretch the video over the whole window.",
+            "longDesc": "When on, the picture fills the whole video window whatever the aspect ratio of the stream is, so a 4:3 camera is shown without black bars. When off, the aspect ratio of the stream is kept.",
+            "type": "bool",
+            "default": false,
+            "label": "Stretch video to window",
+            "keywords": "stretch,fill,aspect,4:3,16:9"
+        },
+        {
             "name": "showRecControl",
             "shortDesc": "Show Video Record Control",
             "longDesc": "Show recording control in the UI.",

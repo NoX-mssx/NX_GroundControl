@@ -86,6 +86,7 @@ void VideoSettings::_setDefaults()
 
 DECLARE_SETTINGSFACT(VideoSettings, aspectRatio)
 DECLARE_SETTINGSFACT(VideoSettings, videoFit)
+DECLARE_SETTINGSFACT(VideoSettings, stretchVideoToWindow)
 DECLARE_SETTINGSFACT(VideoSettings, gridLines)
 DECLARE_SETTINGSFACT(VideoSettings, showRecControl)
 DECLARE_SETTINGSFACT(VideoSettings, recordingFormat)

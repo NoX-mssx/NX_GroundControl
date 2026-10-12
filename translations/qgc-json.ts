@@ -6089,6 +6089,31 @@
             <translation type="unfinished" />
         </message>
         <message>
+            <extracomment>.QGC.MetaData.Facts[stretchVideoToWindow].shortDesc</extracomment>
+            <location filename="../src/Settings/Video.SettingsGroup.json" />
+            <source>Stretch the video over the whole window.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <extracomment>.QGC.MetaData.Facts[stretchVideoToWindow].longDesc</extracomment>
+            <location filename="../src/Settings/Video.SettingsGroup.json" />
+            <source>When on, the picture fills the whole video window whatever the aspect ratio of the stream is, so a 4:3 camera is shown without black bars. When off, the aspect ratio of the stream is kept.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <extracomment>.QGC.MetaData.Facts[stretchVideoToWindow].label</extracomment>
+            <location filename="../src/Settings/Video.SettingsGroup.json" />
+            <source>Stretch video to window</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <extracomment>.QGC.MetaData.Facts[stretchVideoToWindow].keywords</extracomment>
+            <translatorcomment>Only use english comma ',' to separate strings</translatorcomment>
+            <location filename="../src/Settings/Video.SettingsGroup.json" />
+            <source>stretch,fill,aspect,4:3,16:9</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
             <extracomment>.QGC.MetaData.Facts[rtspAutoReconnect].shortDesc</extracomment>
             <location filename="../src/Settings/Video.SettingsGroup.json" />
             <source>Automatically restart the pipeline on watchdog timeout or pipeline error.</source>

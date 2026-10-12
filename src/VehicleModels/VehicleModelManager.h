@@ -39,6 +39,8 @@ class VehicleModelManager : public QObject
     /// true: every camera plays its secondary (SD) stream instead of the main (HD) one
     /// On/off state of each button of the active model, by index
     Q_PROPERTY(QVariantList buttonStates        READ buttonStates       NOTIFY buttonStatesChanged)
+    /// Position of each button of the active model that walks through several values ("steps" mode), by index
+    Q_PROPERTY(QVariantList buttonSteps         READ buttonSteps        NOTIFY buttonStatesChanged)
     Q_PROPERTY(bool         secondaryStream     READ secondaryStream    WRITE setSecondaryStream NOTIFY secondaryStreamChanged)
     /// true from a change of the main picture (HD/SD, another camera) until the new stream shows its
     /// first frame; the screen keeps the previous picture meanwhile instead of going black
@@ -49,6 +51,7 @@ public:
 
     QVariantList models() const { return _models; }
     QVariantList buttonStates() const { return _buttonStates; }
+    QVariantList buttonSteps() const { return _buttonSteps; }
     QStringList modelNames() const;
     QStringList cameraTypes() const;
 
@@ -73,6 +76,9 @@ public:
     /// Sends every output of a model button to the active vehicle: a servo PWM value or a relay state.
     /// Switches the active model's button on or off, sending its on or off values.
     Q_INVOKABLE void toggleButton(int buttonIndex);
+    /// "momentary" buttons: the on value goes out while the button is held, the off value when it is released
+    Q_INVOKABLE void pressButton(int buttonIndex);
+    Q_INVOKABLE void releaseButton(int buttonIndex);
 
     /// @return the named model, or an empty map
     Q_INVOKABLE QVariantMap model(const QString &name) const;
@@ -123,6 +129,8 @@ private:
     void _applyCameraStreams();
     void _beginStreamSwitch();
     void _endStreamSwitch();
+    void _sendFunction(const QVariantMap &function, int value);
+    void _setButtonState(int buttonIndex, bool on, int step);
     void _load();
     bool _save() const;
     QString _filePath() const;
@@ -136,5 +144,6 @@ private:
     bool _switchingStream = false;
     bool _switchSawStop = false;        ///< The old picture has stopped; the next start ends the switch
     QTimer _switchTimer;                ///< Gives up waiting for the new stream
+    QVariantList _buttonSteps;          ///< Per button of the active model: position in "steps" mode
     QVariantList _buttonStates;         ///< Per button of the active model: switched on
 };
