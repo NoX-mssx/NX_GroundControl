@@ -20,6 +20,18 @@ Item {
 
     QGCPalette { id: qgcPal }
 
+    // The text width is reserved for the widest value so a jumping ping never moves the neighbouring indicators
+    TextMetrics {
+        id:     widestPing
+        font:   pingLabel.font
+        text:   qsTr("%1 ms").arg(9999)
+    }
+    TextMetrics {
+        id:     widestNoReply
+        font:   pingLabel.font
+        text:   qsTr("no reply")
+    }
+
     Row {
         id:                     valuesRow
         anchors.verticalCenter: parent.verticalCenter
@@ -35,11 +47,39 @@ Item {
         }
 
         QGCLabel {
+            id:                     pingLabel
             anchors.verticalCenter: parent.verticalCenter
+            width:                  Math.ceil(Math.max(widestPing.advanceWidth, widestNoReply.advanceWidth))
+            horizontalAlignment:    Text.AlignLeft
             text:                   control._noReply ? qsTr("no reply") : qsTr("%1 ms").arg(LinkQualityMonitor.pingMs)
             color:                  control._color
             font.weight:            Font.ExtraBold
             font.pointSize:         ScreenTools.mediumFontPointSize
         }
+    }
+
+    MouseArea {
+        anchors.fill:   parent
+        onClicked:      mainWindow.showIndicatorDrawer(starlinkLogPage, control)
+    }
+
+    Component {
+        id: starlinkLogPage
+
+        ToolIndicatorPage {
+            contentComponent: Component {
+                StarlinkLogPanel {
+                    width:              ScreenTools.defaultFontPixelWidth * 70
+                    height:             ScreenTools.defaultFontPixelHeight * 32
+                    preferredHost:      control._serverHost
+                }
+            }
+        }
+    }
+
+    /// The log server runs on the VPS end of the tunnel: address .1 in the subnet of the pinged router
+    readonly property string _serverHost: {
+        const m = /^(\d+\.\d+\.\d+)\.\d+$/.exec(LinkQualityMonitor.pingAddress)
+        return m ? m[1] + ".1" : ""
     }
 }

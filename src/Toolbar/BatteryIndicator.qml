@@ -183,6 +183,13 @@ Item {
 
     QGCPalette { id: qgcPal }
 
+    // Reserve the width of the widest value so changing digits do not move the neighbouring indicators
+    TextMetrics {
+        id:     widestBatteryText
+        font.pointSize: _showBoth ? ScreenTools.defaultFontPointSize : ScreenTools.mediumFontPointSize
+        text:   "100.0 V"
+    }
+
     RowLayout {
         id:             batteryIndicatorRow
         anchors.top:    parent.top
@@ -367,6 +374,8 @@ Item {
 
                 QGCLabel {
                     Layout.alignment:       Qt.AlignHCenter
+                    Layout.minimumWidth:    Math.ceil(widestBatteryText.advanceWidth)
+                    horizontalAlignment:    Text.AlignHCenter
                     verticalAlignment:      Text.AlignVCenter
                     color:                  qgcPal.text
                     text:                   getBatteryPercentageText()
@@ -376,6 +385,8 @@ Item {
 
                 QGCLabel {
                     Layout.alignment:       Qt.AlignHCenter
+                    Layout.minimumWidth:    Math.ceil(widestBatteryText.advanceWidth)
+                    horizontalAlignment:    Text.AlignHCenter
                     font.pointSize:         _showBoth ? ScreenTools.defaultFontPointSize : ScreenTools.mediumFontPointSize
                     color:                  qgcPal.text
                     text:                   getBatteryVoltageText()

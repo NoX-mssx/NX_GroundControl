@@ -23,6 +23,8 @@ class LinkQualityMonitor : public QObject
     QML_SINGLETON
     /// true when the active link has a ping address configured
     Q_PROPERTY(bool monitoring          READ monitoring         NOTIFY configurationChanged)
+    /// Address being pinged (the vehicle's router), empty when not monitoring
+    Q_PROPERTY(QString pingAddress      READ pingAddress        NOTIFY configurationChanged)
     /// Averaged round trip time in milliseconds, -1 while there is no reply
     Q_PROPERTY(int  pingMs              READ pingMs             NOTIFY pingChanged)
     Q_PROPERTY(bool throttleLimitEnabled READ throttleLimitEnabled NOTIFY configurationChanged)
@@ -33,6 +35,7 @@ public:
     explicit LinkQualityMonitor(QObject *parent = nullptr);
 
     bool monitoring() const { return !_pingAddress.isEmpty(); }
+    QString pingAddress() const { return _pingAddress; }
     int pingMs() const { return _pingMs; }
     bool throttleLimitEnabled() const { return _throttleLimitEnabled; }
     int throttlePercent() const;

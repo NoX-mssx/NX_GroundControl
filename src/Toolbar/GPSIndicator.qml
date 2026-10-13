@@ -17,6 +17,12 @@ Item {
 
     QGCPalette { id: qgcPal }
 
+    TextMetrics {
+        id:     widestGpsText
+        font:   gpsLabel.font
+        text:   "99.9"
+    }
+
     Row {
         id:             gpsIndicatorRow
         anchors.top:    parent.top
@@ -53,17 +59,20 @@ Item {
         Column {
             id:                     gpsValuesColumn
             anchors.verticalCenter: parent.verticalCenter
-            visible:                _activeVehicle && !isNaN(_activeVehicle.gps.hdop.value)
+            // Keeps its place while there is no HDOP so the indicators on the right do not jump
+            opacity:                (_activeVehicle && !isNaN(_activeVehicle.gps.hdop.value)) ? 1 : 0
             spacing:                0
+            width:                  Math.ceil(Math.max(widestGpsText.advanceWidth, implicitWidth))
 
             QGCLabel {
-                anchors.horizontalCenter:   hdopValue.horizontalCenter
+                anchors.horizontalCenter:   parent.horizontalCenter
                 color:              qgcPal.text
                 text:               _activeVehicle ? _activeVehicle.gps.count.valueString : ""
             }
 
             QGCLabel {
                 id:     hdopValue
+                anchors.horizontalCenter:   parent.horizontalCenter
                 color:  qgcPal.text
                 text:   _activeVehicle ? _activeVehicle.gps.hdop.value.toFixed(1) : ""
             }

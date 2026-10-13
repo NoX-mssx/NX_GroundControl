@@ -23223,4 +23223,132 @@ If a vehicle still has this key configured, you will no longer be able to commun
       <translation>Некорректное количество стресс-тестов (должно быть &gt; 0): %1</translation>
     </message>
   </context>
+  <context>
+    <name>StarlinkLogPanel</name>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>30 min</source>
+      <translation>30 мин</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>1 hour</source>
+      <translation>1 час</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>3 hours</source>
+      <translation>3 часа</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>6 hours</source>
+      <translation>6 часов</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>24 hours</source>
+      <translation>24 часа</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>Custom</source>
+      <translation>Свой период</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>3 days</source>
+      <translation>3 дня</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>invalid server response</source>
+      <translation>некорректный ответ сервера</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>no connection</source>
+      <translation>нет соединения</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>timeout</source>
+      <translation>таймаут</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>Log server is unreachable: check that the vehicle tunnel is up</source>
+      <translation>Сервер логов недоступен: проверьте, что туннель борта поднят</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>Looking for the log server...</source>
+      <translation>Поиск сервера логов...</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>Invalid period. Format: 2026-10-11 11:00 (time of this computer)</source>
+      <translation>Неверный период. Формат: 2026-10-11 11:00 (время этого компьютера)</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>Loading...</source>
+      <translation>Загрузка...</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>Error: %1</source>
+      <translation>Ошибка: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>no data for the period</source>
+      <translation>данных за период нет</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>no problems found</source>
+      <translation>проблем не найдено</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>no deviations from normal</source>
+      <translation>отклонений от нормы нет</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>%1 events</source>
+      <translation>событий: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>%1 deviations</source>
+      <translation>отклонений: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>Problems</source>
+      <translation>Проблемы</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>Details</source>
+      <translation>Детально</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>Refresh</source>
+      <translation>Обновить</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>from</source>
+      <translation>с</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>to</source>
+      <translation>по</translation>
+    </message>
+  </context>
 </TS>

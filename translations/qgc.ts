@@ -23157,4 +23157,132 @@ If a vehicle still has this key configured, you will no longer be able to commun
         <translation type="unfinished"></translation>
     </message>
 </context>
+  <context>
+    <name>StarlinkLogPanel</name>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>30 min</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>1 hour</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>3 hours</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>6 hours</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>24 hours</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>Custom</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>3 days</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>invalid server response</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>no connection</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>timeout</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>Log server is unreachable: check that the vehicle tunnel is up</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>Looking for the log server...</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>Invalid period. Format: 2026-10-11 11:00 (time of this computer)</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>Loading...</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>Error: %1</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>no data for the period</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>no problems found</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>no deviations from normal</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>%1 events</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>%1 deviations</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>Problems</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>Details</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>Refresh</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>from</source>
+      <translation type="unfinished"></translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/StarlinkLogPanel.qml" line="1" />
+      <source>to</source>
+      <translation type="unfinished"></translation>
+    </message>
+  </context>
 </TS>
