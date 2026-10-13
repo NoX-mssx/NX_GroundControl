@@ -96,7 +96,7 @@ Item {
                     Layout.preferredWidth:  ScreenTools.defaultFontPixelHeight * 0.55
                     Layout.preferredHeight: Layout.preferredWidth
                     radius:                 width / 2
-                    color:                  control._activeVehicle ? (control._communicationLost ? qgcPal.colorRed : "#4FD1C5")
+                    color:                  control._activeVehicle ? (control._communicationLost ? qgcPal.colorRed : "#DB6536")
                                                                    : (control._linkName !== "" ? qgcPal.colorOrange : qgcPal.colorGrey)
                 }
 
@@ -181,7 +181,7 @@ Item {
                     fontWeight:         Font.ExtraBold
                     showBorder:         false
                     checkable:          false
-                    backgroundColor:    control._flightMode === modelData ? "#4FD1C5" : "transparent"
+                    backgroundColor:    control._flightMode === modelData ? "#DB6536" : "transparent"
                     textColor:          control._flightMode === modelData ? "#0B1F1D" : qgcPal.text
                     onClicked:          control._activeVehicle.flightMode = modelData
                 }

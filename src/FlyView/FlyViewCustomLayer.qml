@@ -53,7 +53,7 @@ Item {
     readonly property color _glassColor:        Qt.rgba(14 / 255, 18 / 255, 22 / 255, 0.72)
     readonly property color _glassBorder:       Qt.rgba(1, 1, 1, 0.12)
     readonly property color _glassButton:       Qt.rgba(1, 1, 1, 0.10)
-    readonly property color _accent:            "#4FD1C5"
+    readonly property color _accent:            "#DB6536"
     readonly property color _accentText:        "#0B1F1D"
     readonly property real _auxiliaryWidth:     ScreenTools.defaultFontPixelWidth * 40
     readonly property real _auxiliaryHeight:    (ScreenTools.defaultFontPixelHeight * 1.6) + (_auxiliaryWidth * 9 / 16)
