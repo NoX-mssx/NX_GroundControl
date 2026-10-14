@@ -84,6 +84,22 @@
             "keywords": "stretch,fill,aspect,4:3,16:9"
         },
         {
+            "name": "showSpeedOverlay",
+            "shortDesc": "Show the speed on the drive screen.",
+            "longDesc": "Shows the ground speed at the bottom centre of the drive screen.",
+            "type": "bool",
+            "default": true,
+            "label": "Show speed"
+        },
+        {
+            "name": "showHomeDistanceOverlay",
+            "shortDesc": "Show the distance to home on the drive screen.",
+            "longDesc": "Shows the distance to home at the bottom right of the drive screen.",
+            "type": "bool",
+            "default": true,
+            "label": "Show distance to home"
+        },
+        {
             "name": "showRecControl",
             "shortDesc": "Show Video Record Control",
             "longDesc": "Show recording control in the UI.",

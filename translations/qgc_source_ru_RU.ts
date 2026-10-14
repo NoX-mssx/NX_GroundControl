@@ -7717,6 +7717,16 @@ VTOL</translation>
       <source>Sending...</source>
       <translation>Отправка...</translation>
     </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>Speed</source>
+      <translation>Скорость</translation>
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>Distance to home</source>
+      <translation>Расстояние до дома</translation>
+    </message>
   </context>
   <context>
     <name>FlyViewGripperButton</name>

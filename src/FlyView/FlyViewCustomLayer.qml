@@ -48,6 +48,7 @@ Item {
     readonly property real _windowMargin:       ScreenTools.defaultFontPixelWidth
     readonly property var  _activeVehicle:      QGroundControl.multiVehicleManager.activeVehicle
     readonly property bool _throttleLimited:    LinkQualityMonitor.throttleLimitEnabled && LinkQualityMonitor.throttlePercent < 100
+    readonly property var  _videoSettings:      QGroundControl.settingsManager.videoSettings
     readonly property real _railButtonSize:     ScreenTools.defaultFontPixelHeight * 2.8
     // NX glass surfaces over the video
     readonly property color _glassColor:        Qt.rgba(14 / 255, 18 / 255, 22 / 255, 0.72)
@@ -316,6 +317,7 @@ Item {
 
         Rectangle {
             anchors.horizontalCenter:   parent.horizontalCenter
+            visible:                    _root._videoSettings.showSpeedOverlay.rawValue
             width:                      speedRow.implicitWidth + ScreenTools.defaultFontPixelWidth * 6
             height:                     _root._railButtonSize + ScreenTools.defaultFontPixelWidth
             radius:                     height / 2
@@ -352,7 +354,7 @@ Item {
         radius:         height / 2
         color:          _root._glassColor
         border.color:   _root._glassBorder
-        visible:        _root._activeVehicle !== null
+        visible:        _root._activeVehicle !== null && _root._videoSettings.showHomeDistanceOverlay.rawValue
 
         RowLayout {
             id:                 homeRow
@@ -498,6 +500,18 @@ Item {
                     enabled:    !modelData.main
                     onClicked:  VehicleModelManager.setCameraEnabled(index, checked)
                 }
+            }
+
+            QGCCheckBox {
+                text:       qsTr("Speed")
+                checked:    _root._videoSettings.showSpeedOverlay.rawValue
+                onClicked:  _root._videoSettings.showSpeedOverlay.rawValue = checked
+            }
+
+            QGCCheckBox {
+                text:       qsTr("Distance to home")
+                checked:    _root._videoSettings.showHomeDistanceOverlay.rawValue
+                onClicked:  _root._videoSettings.showHomeDistanceOverlay.rawValue = checked
             }
         }
     }

@@ -20,6 +20,8 @@ public:
     DEFINE_SETTINGFACT(aspectRatio)
     DEFINE_SETTINGFACT(videoFit)
     DEFINE_SETTINGFACT(stretchVideoToWindow)
+    DEFINE_SETTINGFACT(showSpeedOverlay)
+    DEFINE_SETTINGFACT(showHomeDistanceOverlay)
     DEFINE_SETTINGFACT(gridLines)
     DEFINE_SETTINGFACT(showRecControl)
     DEFINE_SETTINGFACT(recordingFormat)

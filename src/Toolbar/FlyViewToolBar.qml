@@ -207,7 +207,7 @@ Item {
         messageDisplay:             guidedActionMessageDisplay
     }
 
-    // ---- Right: satellites, ping, battery, joystick ----
+    // ---- Right: battery, ping, satellites, joystick ----
     Row {
         id:                     rightLayout
         anchors.right:          parent.right
@@ -220,9 +220,9 @@ Item {
 
         Repeater {
             model: control._activeVehicle ? [
-                "qrc:/qml/QGroundControl/Toolbar/VehicleGPSIndicator.qml",
-                "qrc:/qml/QGroundControl/Toolbar/LinkQualityIndicator.qml",
                 "qrc:/qml/QGroundControl/Toolbar/BatteryIndicator.qml",
+                "qrc:/qml/QGroundControl/Toolbar/LinkQualityIndicator.qml",
+                "qrc:/qml/QGroundControl/Toolbar/VehicleGPSIndicator.qml",
                 "qrc:/qml/QGroundControl/Toolbar/JoystickIndicator.qml"
             ] : [ "qrc:/qml/QGroundControl/Toolbar/LinkQualityIndicator.qml" ]
 
