@@ -22196,6 +22196,11 @@ If a vehicle still has this key configured, you will no longer be able to commun
         <source>Firmware</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Search</source>
+      <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>VehicleLinkManager</name>
