@@ -744,6 +744,16 @@ void LinkManager::moveConfiguration(int from, int to)
     saveLinkConfigurationList();
 }
 
+void LinkManager::setConfigurationShownInMenu(LinkConfiguration *config, bool show)
+{
+    if (!config) {
+        return;
+    }
+
+    config->setShowInMenu(show);
+    saveLinkConfigurationList();
+}
+
 SharedLinkConfigurationPtr LinkManager::addConfiguration(LinkConfiguration *config)
 {
     (void) _qmlConfigurations->append(config);

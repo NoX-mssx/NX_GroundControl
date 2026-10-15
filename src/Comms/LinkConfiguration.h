@@ -33,6 +33,8 @@ class LinkConfiguration : public QObject
     Q_PROPERTY(QString          wireGuardProfile    MEMBER _wireGuardProfile    NOTIFY tunnelSettingsChanged)
     /// Operator-facing board number of the vehicle behind this link (free text), shown next to the link name
     Q_PROPERTY(QString          boardId             MEMBER _boardId             NOTIFY tunnelSettingsChanged)
+    /// Whether the link is offered in the connect menu of the fly view
+    Q_PROPERTY(bool             showInMenu          MEMBER _showInMenu          NOTIFY tunnelSettingsChanged)
     /// Address pinged to measure the link round trip time (the vehicle's router inside the tunnel), empty for none
     Q_PROPERTY(QString          pingAddress         MEMBER _pingAddress         NOTIFY tunnelSettingsChanged)
     /// Scale joystick throttle down while the ping is above the thresholds below
@@ -78,6 +80,8 @@ public:
     QString wireGuardProfile() const { return _wireGuardProfile; }
     QString pingAddress() const { return _pingAddress; }
     QString boardId() const { return _boardId; }
+    bool showInMenu() const { return _showInMenu; }
+    void setShowInMenu(bool show) { if (_showInMenu != show) { _showInMenu = show; emit tunnelSettingsChanged(); } }
     bool throttleLimitEnabled() const { return _throttleLimitEnabled; }
     int pingThreshold1Ms() const { return _pingThreshold1Ms; }
     int throttlePercent1() const { return _throttlePercent1; }
@@ -203,6 +207,7 @@ private:
     QString _wireGuardProfile;
     QString _pingAddress;
     QString _boardId;
+    bool _showInMenu = true;
     bool _throttleLimitEnabled = false;
     int _pingThreshold1Ms = 300;
     int _throttlePercent1 = 50;

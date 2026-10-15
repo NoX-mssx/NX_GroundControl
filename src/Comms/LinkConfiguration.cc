@@ -31,6 +31,7 @@ LinkConfiguration::LinkConfiguration(const LinkConfiguration *copy, QObject *par
     , _wireGuardProfile(copy->_wireGuardProfile)
     , _pingAddress(copy->_pingAddress)
     , _boardId(copy->_boardId)
+    , _showInMenu(copy->_showInMenu)
     , _throttleLimitEnabled(copy->_throttleLimitEnabled)
     , _pingThreshold1Ms(copy->_pingThreshold1Ms)
     , _throttlePercent1(copy->_throttlePercent1)
@@ -61,6 +62,7 @@ void LinkConfiguration::copyFrom(const LinkConfiguration *source)
     _wireGuardProfile = source->_wireGuardProfile;
     _pingAddress = source->_pingAddress;
     _boardId = source->_boardId;
+    _showInMenu = source->_showInMenu;
     _throttleLimitEnabled = source->_throttleLimitEnabled;
     _pingThreshold1Ms = source->_pingThreshold1Ms;
     _throttlePercent1 = source->_throttlePercent1;
@@ -74,6 +76,7 @@ void LinkConfiguration::loadTunnelSettings(const QSettings &settings, const QStr
     _wireGuardProfile = settings.value(root + QStringLiteral("/wireguard_profile")).toString();
     _pingAddress = settings.value(root + QStringLiteral("/ping_address")).toString();
     _boardId = settings.value(root + QStringLiteral("/board_id")).toString();
+    _showInMenu = settings.value(root + QStringLiteral("/show_in_menu"), true).toBool();
     _throttleLimitEnabled = settings.value(root + QStringLiteral("/throttle_limit")).toBool();
     _pingThreshold1Ms = settings.value(root + QStringLiteral("/ping_threshold_1"), _pingThreshold1Ms).toInt();
     _throttlePercent1 = settings.value(root + QStringLiteral("/throttle_percent_1"), _throttlePercent1).toInt();
@@ -87,6 +90,7 @@ void LinkConfiguration::saveTunnelSettings(QSettings &settings, const QString &r
     settings.setValue(root + QStringLiteral("/wireguard_profile"), _wireGuardProfile);
     settings.setValue(root + QStringLiteral("/ping_address"), _pingAddress);
     settings.setValue(root + QStringLiteral("/board_id"), _boardId);
+    settings.setValue(root + QStringLiteral("/show_in_menu"), _showInMenu);
     settings.setValue(root + QStringLiteral("/throttle_limit"), _throttleLimitEnabled);
     settings.setValue(root + QStringLiteral("/ping_threshold_1"), _pingThreshold1Ms);
     settings.setValue(root + QStringLiteral("/throttle_percent_1"), _throttlePercent1);

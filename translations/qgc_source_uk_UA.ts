@@ -14296,6 +14296,11 @@ Do you wish to proceed?</source>
       <source>Save</source>
       <translation>Зберегти</translation>
     </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="1" />
+      <source>Show this link in the connect menu of the main screen</source>
+      <translation>Показувати цей лінк у меню підключення на головному екрані</translation>
+    </message>
   </context>
   <context>
     <name>OfflineMapEditor</name>

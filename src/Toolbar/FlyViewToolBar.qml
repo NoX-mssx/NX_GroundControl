@@ -326,7 +326,7 @@ Item {
                                 // The board ID follows the name in a smaller font (the label renders the <small> markup).
                                 text:               object.name + (object.boardId !== "" ? "  <small>ID " + object.boardId + "</small>" : "") +
                                                     (object.link ? " (" + qsTr("Connected") + ")" : "")
-                                visible:            !object.dynamic
+                                visible:            !object.dynamic && object.showInMenu
                                 enabled:            !object.link
 
                                 onClicked: {

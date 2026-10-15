@@ -14257,6 +14257,11 @@ Do you wish to proceed?</source>
         <source>Save</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="1" />
+      <source>Show this link in the connect menu of the main screen</source>
+      <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>OfflineMapEditor</name>

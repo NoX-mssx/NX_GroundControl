@@ -211,6 +211,16 @@ Rectangle {
                                 }
                             }
 
+                            // On: the link is offered in the connect menu of the main screen
+                            QGCCheckBox {
+                                checked:            object.showInMenu
+                                onClicked:          root._linkManager.setConfigurationShownInMenu(object, checked)
+
+                                ToolTip.visible:    hovered
+                                ToolTip.delay:      400
+                                ToolTip.text:       qsTr("Show this link in the connect menu of the main screen")
+                            }
+
                             QGCButton {
                                 text:       object.linkActive ? qsTr("Disconnect") : qsTr("Connect")
                                 onClicked: {

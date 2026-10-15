@@ -59,6 +59,8 @@ public:
     Q_INVOKABLE void removeConfiguration(LinkConfiguration *config);
     /// Moves a configuration in the list; the order is stored with the configurations.
     Q_INVOKABLE void moveConfiguration(int from, int to);
+    /// Shows or hides a link in the connect menu of the fly view and stores the choice.
+    Q_INVOKABLE void setConfigurationShownInMenu(LinkConfiguration *config, bool show);
     /// This should only be used by Qml code
     Q_INVOKABLE void createConnectedLink(const LinkConfiguration *config);
     Q_INVOKABLE void disconnectLink(LinkInterface *link);
