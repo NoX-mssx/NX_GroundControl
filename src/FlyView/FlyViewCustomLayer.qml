@@ -318,11 +318,20 @@ Item {
         Rectangle {
             anchors.horizontalCenter:   parent.horizontalCenter
             visible:                    _root._videoSettings.showSpeedOverlay.rawValue
+            // Fixed size: the window is as wide as three digits plus the unit, so a growing speed never resizes it
             width:                      speedRow.implicitWidth + ScreenTools.defaultFontPixelWidth * 6
             height:                     _root._railButtonSize + ScreenTools.defaultFontPixelWidth
             radius:                     height / 2
             color:                      _root._glassColor
             border.color:               _root._glassBorder
+
+            readonly property int _speed: _root._activeVehicle ? Math.min(999, Math.max(0, Math.round(_root._activeVehicle.groundSpeed.value))) : -1
+
+            TextMetrics {
+                id:     widestSpeed
+                font:   speedValue.font
+                text:   "000"
+            }
 
             Row {
                 id:                 speedRow
@@ -330,16 +339,19 @@ Item {
                 spacing:            ScreenTools.defaultFontPixelWidth * 0.6
 
                 QGCLabel {
-                    anchors.baseline:   speedUnits.baseline
-                    text:               _root._activeVehicle ? _root._activeVehicle.groundSpeed.valueString : "--"
-                    font.pointSize:     ScreenTools.largeFontPointSize * 1.4
-                    font.weight:        Font.ExtraBold
+                    id:                     speedValue
+                    anchors.verticalCenter: parent.verticalCenter
+                    width:                  Math.ceil(widestSpeed.advanceWidth)
+                    horizontalAlignment:    Text.AlignHCenter
+                    text:                   parent.parent._speed >= 0 ? parent.parent._speed : "--"
+                    font.pointSize:         ScreenTools.largeFontPointSize * 1.4
+                    font.weight:            Font.ExtraBold
                 }
                 QGCLabel {
-                    id:                 speedUnits
-                    anchors.bottom:     parent.bottom
-                    text:               _root._activeVehicle ? _root._activeVehicle.groundSpeed.units : ""
-                    color:              qgcPal.colorGrey
+                    id:                     speedUnits
+                    anchors.verticalCenter: parent.verticalCenter
+                    text:                   _root._activeVehicle ? _root._activeVehicle.groundSpeed.units : ""
+                    color:                  qgcPal.colorGrey
                 }
             }
         }
