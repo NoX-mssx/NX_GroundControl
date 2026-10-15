@@ -34,6 +34,7 @@ qt_add_qml_module(ToolbarModule
         SelectViewDropdown.qml
         SignalStrength.qml
         TelemetryRSSIIndicator.qml
+        VehicleAlertIndicator.qml
         VehicleGPSIndicator.qml
         VehicleMessageList.qml
     NO_PLUGIN

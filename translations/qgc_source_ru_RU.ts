@@ -23371,4 +23371,12 @@ If a vehicle still has this key configured, you will no longer be able to commun
       <translation>по</translation>
     </message>
   </context>
+  <context>
+    <name>VehicleAlertIndicator</name>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>Vehicle problems</source>
+      <translation>Проблемы борта</translation>
+    </message>
+  </context>
 </TS>

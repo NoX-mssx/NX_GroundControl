@@ -162,7 +162,7 @@ Item {
         messageDisplay:             guidedActionMessageDisplay
     }
 
-    // ---- Left, after the logo: satellites, ping, battery ----
+    // ---- Left, after the logo: satellites, ping, battery, vehicle problems (hidden when there are none) ----
     Row {
         id:                     indicatorsLayout
         anchors.left:           leftLayout.right
@@ -177,7 +177,8 @@ Item {
             model: control._activeVehicle ? [
                 "qrc:/qml/QGroundControl/Toolbar/VehicleGPSIndicator.qml",
                 "qrc:/qml/QGroundControl/Toolbar/LinkQualityIndicator.qml",
-                "qrc:/qml/QGroundControl/Toolbar/BatteryIndicator.qml"
+                "qrc:/qml/QGroundControl/Toolbar/BatteryIndicator.qml",
+                "qrc:/qml/QGroundControl/Toolbar/VehicleAlertIndicator.qml"
             ] : [ "qrc:/qml/QGroundControl/Toolbar/LinkQualityIndicator.qml" ]
 
             Loader {
