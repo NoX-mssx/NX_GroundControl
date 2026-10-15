@@ -7,8 +7,8 @@ import QGroundControl
 import QGroundControl.Controls
 import QGroundControl.FlyView
 
-/// NX top bar: logo menu and link on the left, arm and drive mode in the centre, satellites, ping and
-/// battery on the right. It is opaque; the map and video start below it.
+/// NX top bar: logo menu, satellites, ping and battery on the left, arm and drive mode in the centre, the
+/// link menu on the right. It is opaque; the map and video start below it.
 Item {
     required property var guidedValueSlider
 
@@ -61,7 +61,7 @@ Item {
         }
     }
 
-    // ---- Left: logo menu and active link ----
+    // ---- Left: logo menu ----
     RowLayout {
         id:                     leftLayout
         anchors.left:           parent.left
@@ -77,51 +77,6 @@ Item {
             icon.source:        "/res/QGCLogoWhite.svg"
             logo:               true
             onClicked:          mainWindow.showToolSelectDialog()
-        }
-
-        Rectangle {
-            id:                     linkButton
-            objectName:             "toolbar_mainStatusIndicator"
-            Layout.preferredHeight: control.height * 0.72
-            Layout.preferredWidth:  linkRow.implicitWidth + control._margins * 2
-            radius:                 ScreenTools.defaultFontPixelHeight / 2
-            color:                  linkMouseArea.containsMouse ? control._buttonColor : "transparent"
-
-            RowLayout {
-                id:                     linkRow
-                anchors.centerIn:       parent
-                spacing:                control._margins
-
-                Rectangle {
-                    Layout.preferredWidth:  ScreenTools.defaultFontPixelHeight * 0.55
-                    Layout.preferredHeight: Layout.preferredWidth
-                    radius:                 width / 2
-                    color:                  control._activeVehicle ? (control._communicationLost ? qgcPal.colorRed : "#DB6536")
-                                                                   : (control._linkName !== "" ? qgcPal.colorOrange : qgcPal.colorGrey)
-                }
-
-                QGCLabel {
-                    text:           control._activeVehicle ? (control._communicationLost ? qsTr("%1 · comms lost").arg(control._linkName) : control._linkName)
-                                                           : (control._linkName !== "" ? qsTr("%1 · waiting for vehicle").arg(control._linkName) : qsTr("Not connected"))
-                    font.pointSize: ScreenTools.largeFontPointSize
-                    font.weight:    Font.ExtraBold
-                }
-
-                QGCColoredImage {
-                    Layout.preferredWidth:  ScreenTools.defaultFontPixelHeight * 0.9
-                    Layout.preferredHeight: Layout.preferredWidth
-                    sourceSize.height:      Layout.preferredHeight
-                    source:                 "/res/nx/ChevronDown.svg"
-                    color:                  qgcPal.text
-                }
-            }
-
-            MouseArea {
-                id:             linkMouseArea
-                anchors.fill:   parent
-                hoverEnabled:   true
-                onClicked:      mainWindow.showIndicatorDrawer(linkPopupComponent, linkButton)
-            }
         }
     }
 
@@ -207,11 +162,11 @@ Item {
         messageDisplay:             guidedActionMessageDisplay
     }
 
-    // ---- Right: battery, ping, satellites, joystick ----
+    // ---- Left, after the logo: satellites, ping, battery ----
     Row {
-        id:                     rightLayout
-        anchors.right:          parent.right
-        anchors.rightMargin:    control._margins * 1.5
+        id:                     indicatorsLayout
+        anchors.left:           leftLayout.right
+        anchors.leftMargin:     control._margins * 1.5
         anchors.top:            parent.top
         anchors.bottom:         parent.bottom
         anchors.topMargin:      control.height * 0.18
@@ -220,10 +175,9 @@ Item {
 
         Repeater {
             model: control._activeVehicle ? [
-                "qrc:/qml/QGroundControl/Toolbar/BatteryIndicator.qml",
-                "qrc:/qml/QGroundControl/Toolbar/LinkQualityIndicator.qml",
                 "qrc:/qml/QGroundControl/Toolbar/VehicleGPSIndicator.qml",
-                "qrc:/qml/QGroundControl/Toolbar/JoystickIndicator.qml"
+                "qrc:/qml/QGroundControl/Toolbar/LinkQualityIndicator.qml",
+                "qrc:/qml/QGroundControl/Toolbar/BatteryIndicator.qml"
             ] : [ "qrc:/qml/QGroundControl/Toolbar/LinkQualityIndicator.qml" ]
 
             Loader {
@@ -232,6 +186,55 @@ Item {
                 source:         modelData
                 visible:        item && item.showIndicator
             }
+        }
+    }
+
+    // ---- Right: the link menu ----
+    Rectangle {
+        id:                     linkButton
+        objectName:             "toolbar_mainStatusIndicator"
+        anchors.right:          parent.right
+        anchors.rightMargin:    control._margins * 1.5
+        anchors.verticalCenter: parent.verticalCenter
+        height:                 control.height * 0.72
+        width:                  linkRow.implicitWidth + control._margins * 2
+        radius:                 ScreenTools.defaultFontPixelHeight / 2
+        color:                  linkMouseArea.containsMouse ? control._buttonColor : "transparent"
+
+        RowLayout {
+            id:                     linkRow
+            anchors.centerIn:       parent
+            spacing:                control._margins
+
+            Rectangle {
+                Layout.preferredWidth:  ScreenTools.defaultFontPixelHeight * 0.55
+                Layout.preferredHeight: Layout.preferredWidth
+                radius:                 width / 2
+                color:                  control._activeVehicle ? (control._communicationLost ? qgcPal.colorRed : "#DB6536")
+                                                               : (control._linkName !== "" ? qgcPal.colorOrange : qgcPal.colorGrey)
+            }
+
+            QGCLabel {
+                text:           control._activeVehicle ? (control._communicationLost ? qsTr("%1 · comms lost").arg(control._linkName) : control._linkName)
+                                                       : (control._linkName !== "" ? qsTr("%1 · waiting for vehicle").arg(control._linkName) : qsTr("Not connected"))
+                font.pointSize: ScreenTools.largeFontPointSize
+                font.weight:    Font.ExtraBold
+            }
+
+            QGCColoredImage {
+                Layout.preferredWidth:  ScreenTools.defaultFontPixelHeight * 0.9
+                Layout.preferredHeight: Layout.preferredWidth
+                sourceSize.height:      Layout.preferredHeight
+                source:                 "/res/nx/ChevronDown.svg"
+                color:                  qgcPal.text
+            }
+        }
+
+        MouseArea {
+            id:             linkMouseArea
+            anchors.fill:   parent
+            hoverEnabled:   true
+            onClicked:      mainWindow.showIndicatorDrawer(linkPopupComponent, linkButton)
         }
     }
 
