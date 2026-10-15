@@ -57,6 +57,8 @@ public:
     Q_INVOKABLE void endConfigurationEditing(LinkConfiguration *config, LinkConfiguration *editedConfig);
     Q_INVOKABLE void endCreateConfiguration(LinkConfiguration *config);
     Q_INVOKABLE void removeConfiguration(LinkConfiguration *config);
+    /// Moves a configuration in the list; the order is stored with the configurations.
+    Q_INVOKABLE void moveConfiguration(int from, int to);
     /// This should only be used by Qml code
     Q_INVOKABLE void createConnectedLink(const LinkConfiguration *config);
     Q_INVOKABLE void disconnectLink(LinkInterface *link);

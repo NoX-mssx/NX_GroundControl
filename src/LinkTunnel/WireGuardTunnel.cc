@@ -303,6 +303,18 @@ QString WireGuardTunnel::deleteProfile(const QString &name)
     return QString();
 }
 
+void WireGuardTunnel::moveProfile(int from, int to)
+{
+    QVariantList &profiles = _profiles();
+    if ((from == to) || (from < 0) || (to < 0) || (from >= profiles.count()) || (to >= profiles.count())) {
+        return;
+    }
+
+    profiles.move(from, to);
+    (void) _saveProfiles();
+    emit profilesChanged();
+}
+
 bool WireGuardTunnel::available()
 {
 #ifdef Q_OS_WIN

@@ -64,6 +64,26 @@ Rectangle {
         editorLoader.active = false
     }
 
+    /// Moves a link up or down by a number of listed cards
+    function _moveLink(config, steps) {
+        if (steps === 0) {
+            return
+        }
+        const links = _linkManager.linkConfigurations
+        const listed = []
+        for (let i = 0; i < links.count; i++) {
+            if (!links.get(i).dynamic) {
+                listed.push(i)
+            }
+        }
+        const position = listed.findIndex(i => links.get(i) === config)
+        if (position < 0) {
+            return
+        }
+        const target = Math.max(0, Math.min(listed.length - 1, position + steps))
+        _linkManager.moveConfiguration(listed[position], listed[target])
+    }
+
     function _subtitle(config) {
         let parts = [ _linkManager.linkTypeStrings[config.linkType] ]
         if (config.vehicleModel !== "") parts.push(config.vehicleModel)
@@ -130,6 +150,24 @@ Rectangle {
                         border.color: _selected ? qgcPal.buttonHighlight : Qt.rgba(1, 1, 1, 0.10)
 
                         readonly property bool _selected: root.originalConfig === object
+
+                        z:          linkDrag.active ? 10 : 0
+                        opacity:    linkDrag.active ? 0.85 : 1
+                        transform:  Translate { y: linkDrag.active ? linkDrag.activeTranslation.y : 0 }
+
+                        // Hold the card and drag it up or down to change the order. The step is counted in
+                        // visible cards, since links made by the app itself are not listed.
+                        DragHandler {
+                            id:                 linkDrag
+                            xAxis.enabled:      false
+                            grabPermissions:    PointerHandler.CanTakeOverFromAnything
+                            onActiveChanged: {
+                                if (!active) {
+                                    const steps = Math.round(activeTranslation.y / (linkCard.height + linkListColumn.spacing))
+                                    root._moveLink(object, steps)
+                                }
+                            }
+                        }
 
                         MouseArea {
                             id:             linkCardMouse

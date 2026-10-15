@@ -89,6 +89,9 @@ public:
 
     Q_INVOKABLE void deleteModel(const QString &name);
 
+    /// Moves a model in the list; the order is stored with the models.
+    Q_INVOKABLE void moveModel(int from, int to);
+
     /// RTSP URLs for a known camera type.
     /// @return { mainUrl, secondaryUrl }, both empty for the generic type
     Q_INVOKABLE QVariantMap cameraUrls(const QString &type, const QString &ip, const QString &user,

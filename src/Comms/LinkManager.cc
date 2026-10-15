@@ -733,6 +733,17 @@ bool LinkManager::containsLink(const LinkInterface *link)
     return false;
 }
 
+void LinkManager::moveConfiguration(int from, int to)
+{
+    if ((from == to) || (from < 0) || (to < 0) || (from >= _rgLinkConfigs.count()) || (to >= _rgLinkConfigs.count())) {
+        return;
+    }
+
+    _qmlConfigurations->move(from, to);
+    _rgLinkConfigs.move(from, to);
+    saveLinkConfigurationList();
+}
+
 SharedLinkConfigurationPtr LinkManager::addConfiguration(LinkConfiguration *config)
 {
     (void) _qmlConfigurations->append(config);

@@ -671,6 +671,22 @@ void VehicleModelManager::deleteModel(const QString &name)
     emit modelsChanged();
 }
 
+void VehicleModelManager::moveModel(int from, int to)
+{
+    if ((from == to) || (from < 0) || (to < 0) || (from >= _models.count()) || (to >= _models.count())) {
+        return;
+    }
+
+    const QVariantList previous = _models;
+    _models.move(from, to);
+    if (!_save()) {
+        _models = previous;
+        return;
+    }
+
+    emit modelsChanged();
+}
+
 QVariantMap VehicleModelManager::cameraUrls(const QString &type, const QString &ip, const QString &user,
                                             const QString &password) const
 {

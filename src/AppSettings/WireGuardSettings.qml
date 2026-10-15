@@ -145,6 +145,24 @@ Rectangle {
                         border.color:   _selected ? qgcPal.buttonHighlight : Qt.rgba(1, 1, 1, 0.10)
 
                         required property string modelData
+                        required property int index
+
+                        z:          tunnelDrag.active ? 10 : 0
+                        opacity:    tunnelDrag.active ? 0.85 : 1
+                        transform:  Translate { y: tunnelDrag.active ? tunnelDrag.activeTranslation.y : 0 }
+
+                        // Hold the card and drag it up or down to change the order
+                        DragHandler {
+                            id:                 tunnelDrag
+                            xAxis.enabled:      false
+                            grabPermissions:    PointerHandler.CanTakeOverFromAnything
+                            onActiveChanged: {
+                                if (!active) {
+                                    const steps = Math.round(activeTranslation.y / (tunnelCard.height + tunnelListColumn.spacing))
+                                    WireGuardTunnel.moveProfile(tunnelCard.index, Math.max(0, Math.min(WireGuardTunnel.profileNames.length - 1, tunnelCard.index + steps)))
+                                }
+                            }
+                        }
 
                         readonly property bool _selected:   modelData === root._originalName
                         readonly property var  _profile:    WireGuardTunnel.profile(modelData)

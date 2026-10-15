@@ -132,6 +132,25 @@ Rectangle {
         property bool   selected: false
 
         signal clicked()
+        signal dropped(int steps)
+
+        readonly property bool dragging: reorderDrag.active
+
+        z:          dragging ? 10 : 0
+        opacity:    dragging ? 0.85 : 1
+        transform:  Translate { y: reorderDrag.active ? reorderDrag.activeTranslation.y : 0 }
+
+        // Hold the card and drag it up or down to change the order
+        DragHandler {
+            id:                 reorderDrag
+            xAxis.enabled:      false
+            grabPermissions:    PointerHandler.CanTakeOverFromAnything
+            onActiveChanged: {
+                if (!active) {
+                    listCard.dropped(Math.round(activeTranslation.y / (listCard.height + listCard.parent.spacing)))
+                }
+            }
+        }
 
         Column {
             id:                     listCardColumn
@@ -208,6 +227,7 @@ Rectangle {
 
                     ListCard {
                         required property string modelData
+                        required property int index
 
                         readonly property var _stored: VehicleModelManager.model(modelData)
 
@@ -215,6 +235,7 @@ Rectangle {
                         subtitle:   qsTr("%1 cameras · %2 buttons").arg((_stored.cameras || []).length).arg((_stored.buttons || []).length)
                         selected:   modelData === root._originalName
                         onClicked:  root._selectModel(modelData)
+                        onDropped:  (steps) => VehicleModelManager.moveModel(index, Math.max(0, Math.min(VehicleModelManager.modelNames.length - 1, index + steps)))
                     }
                 }
 

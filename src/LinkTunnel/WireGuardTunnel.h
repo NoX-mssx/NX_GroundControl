@@ -54,6 +54,9 @@ public:
     /// @return an empty string on success, otherwise a message for the user
     Q_INVOKABLE QString deleteProfile(const QString &name);
 
+    /// Moves a profile in the list; the order is stored with the profiles.
+    Q_INVOKABLE void moveProfile(int from, int to);
+
     /// @return the Windows tunnel name of a profile, empty if there is no such profile
     static QString tunnelForProfile(const QString &profileName);
 
