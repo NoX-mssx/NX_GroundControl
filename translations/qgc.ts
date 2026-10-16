@@ -22331,6 +22331,11 @@ If a vehicle still has this key configured, you will no longer be able to commun
 <context>
     <name>VehicleModelsSettings</name>
     <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Cancel</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
         <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="17"/>
         <source>New model...</source>
         <translation type="unfinished"></translation>
@@ -22796,6 +22801,11 @@ If a vehicle still has this key configured, you will no longer be able to commun
 </context>
 <context>
     <name>WireGuardSettings</name>
+    <message>
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="1" />
+      <source>Cancel</source>
+      <translation type="unfinished" />
+    </message>
     <message>
         <location filename="../src/AppSettings/WireGuardSettings.qml" line="17"/>
         <source>New tunnel...</source>

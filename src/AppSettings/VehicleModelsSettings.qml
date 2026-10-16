@@ -277,7 +277,10 @@ Rectangle {
 
         QGCFlickable {
             id:                 editorFlickable
-            anchors.fill:       parent
+            anchors.left:       parent.left
+            anchors.right:      parent.right
+            anchors.top:        parent.top
+            anchors.bottom:     editorFooter.top
             anchors.margins:    _margins
             contentHeight:      editorColumn.height
             clip:               true
@@ -624,32 +627,45 @@ Rectangle {
                         }
                     }
                 }
+            }
+        }
 
-                QGCLabel {
-                    Layout.fillWidth:   true
-                    wrapMode:           Text.WordWrap
-                    color:              qgcPal.colorOrange
-                    text:               root._errorText
-                    visible:            root._errorText !== ""
+        // Message and buttons stay at the bottom while the settings above scroll
+        ColumnLayout {
+            id:                 editorFooter
+            anchors.left:       parent.left
+            anchors.right:      parent.right
+            anchors.bottom:     parent.bottom
+            anchors.margins:    _margins
+            spacing:            _margins * 0.5
+
+            QGCLabel {
+                Layout.fillWidth:   true
+                wrapMode:           Text.WordWrap
+                color:              qgcPal.colorOrange
+                text:               root._errorText
+                visible:            root._errorText !== ""
+            }
+
+            RowLayout {
+                Layout.fillWidth:   true
+
+                QGCButton {
+                    text:               qsTr("Delete model")
+                    enabled:            root._originalName !== ""
+                    textColor:          qgcPal.warningText
+                    onClicked:          root._delete()
                 }
-
-                RowLayout {
-                    Layout.fillWidth:   true
-                    Layout.topMargin:   _margins * 0.5
-
-                    QGCButton {
-                        text:               qsTr("Delete model")
-                        enabled:            root._originalName !== ""
-                        textColor:          qgcPal.warningText
-                        onClicked:          root._delete()
-                    }
-                    Item { Layout.fillWidth: true }
-                    QGCButton {
-                        text:               qsTr("Save")
-                        primary:            true
-                        fontWeight:         Font.ExtraBold
-                        onClicked:          root._save()
-                    }
+                Item { Layout.fillWidth: true }
+                QGCButton {
+                    text:               qsTr("Cancel")
+                    onClicked:          root._selectModel(root._originalName)
+                }
+                QGCButton {
+                    text:               qsTr("Save")
+                    primary:            true
+                    fontWeight:         Font.ExtraBold
+                    onClicked:          root._save()
                 }
             }
         }
