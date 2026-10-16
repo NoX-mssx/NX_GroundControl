@@ -157,13 +157,20 @@ Rectangle {
 
                         // Hold the card and drag it up or down to change the order. The step is counted in
                         // visible cards, since links made by the app itself are not listed.
+                        // target is null: the card is moved visually only, the list order decides where it ends up
                         DragHandler {
                             id:                 linkDrag
+                            target:             null
                             xAxis.enabled:      false
                             grabPermissions:    PointerHandler.CanTakeOverFromAnything
+
+                            property real lastY: 0
+
+                            onActiveTranslationChanged: if (active) lastY = activeTranslation.y
                             onActiveChanged: {
                                 if (!active) {
-                                    const steps = Math.round(activeTranslation.y / (linkCard.height + linkListColumn.spacing))
+                                    const steps = Math.round(lastY / (linkCard.height + linkListColumn.spacing))
+                                    lastY = 0
                                     root._moveLink(object, steps)
                                 }
                             }

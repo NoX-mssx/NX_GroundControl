@@ -141,13 +141,20 @@ Rectangle {
         transform:  Translate { y: reorderDrag.active ? reorderDrag.activeTranslation.y : 0 }
 
         // Hold the card and drag it up or down to change the order
+        // target is null: the card is moved visually only, the list order decides where it ends up
         DragHandler {
             id:                 reorderDrag
+            target:             null
             xAxis.enabled:      false
             grabPermissions:    PointerHandler.CanTakeOverFromAnything
+
+            property real lastY: 0
+
+            onActiveTranslationChanged: if (active) lastY = activeTranslation.y
             onActiveChanged: {
                 if (!active) {
-                    listCard.dropped(Math.round(activeTranslation.y / (listCard.height + listCard.parent.spacing)))
+                    listCard.dropped(Math.round(lastY / (listCard.height + listCard.parent.spacing)))
+                    lastY = 0
                 }
             }
         }

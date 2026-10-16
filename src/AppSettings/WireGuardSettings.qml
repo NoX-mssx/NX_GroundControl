@@ -152,13 +152,20 @@ Rectangle {
                         transform:  Translate { y: tunnelDrag.active ? tunnelDrag.activeTranslation.y : 0 }
 
                         // Hold the card and drag it up or down to change the order
+                        // target is null: the card is moved visually only, the list order decides where it ends up
                         DragHandler {
                             id:                 tunnelDrag
+                            target:             null
                             xAxis.enabled:      false
                             grabPermissions:    PointerHandler.CanTakeOverFromAnything
+
+                            property real lastY: 0
+
+                            onActiveTranslationChanged: if (active) lastY = activeTranslation.y
                             onActiveChanged: {
                                 if (!active) {
-                                    const steps = Math.round(activeTranslation.y / (tunnelCard.height + tunnelListColumn.spacing))
+                                    const steps = Math.round(lastY / (tunnelCard.height + tunnelListColumn.spacing))
+                                    lastY = 0
                                     WireGuardTunnel.moveProfile(tunnelCard.index, Math.max(0, Math.min(WireGuardTunnel.profileNames.length - 1, tunnelCard.index + steps)))
                                 }
                             }
