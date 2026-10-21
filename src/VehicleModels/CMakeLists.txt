@@ -2,6 +2,8 @@ target_sources(${CMAKE_PROJECT_NAME}
     PRIVATE
         CameraControl.cc
         CameraControl.h
+        MotorTelemetryMonitor.cc
+        MotorTelemetryMonitor.h
         SecretProtector.cc
         SecretProtector.h
         VehicleModelManager.cc

@@ -7657,6 +7657,66 @@ VTOL</translation>
   <context>
     <name>FlyViewCustomLayer</name>
     <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>%1 A</source>
+      <translation>%1 А</translation>
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>%1 V</source>
+      <translation>%1 В</translation>
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>L</source>
+      <translation>Л</translation>
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>R</source>
+      <translation>П</translation>
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>Motor controllers</source>
+      <translation>Контролери моторів</translation>
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>Left (ESC %1)</source>
+      <translation>Лівий (ESC %1)</translation>
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>Right (ESC %1)</source>
+      <translation>Правий (ESC %1)</translation>
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>Temperature</source>
+      <translation>Температура</translation>
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>Current</source>
+      <translation>Струм</translation>
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>Voltage</source>
+      <translation>Напруга</translation>
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>RPM</source>
+      <translation>Оберти</translation>
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>Motor telemetry</source>
+      <translation>Телеметрія моторів</translation>
+    </message>
+    <message>
       <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="215" />
       <source>SD</source>
       <translation>SD</translation>
@@ -22408,6 +22468,61 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <name>VehicleModelsSettings</name>
     <message>
       <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Motor telemetry</source>
+      <translation>Телеметрія моторів</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Temperature and current of the left and right motor controllers (ESC telemetry from the autopilot, DroneCAN controllers). Leave off for controllers that do not report it.</source>
+      <translation>Температура і струм контролерів лівого та правого мотора (телеметрія ESC від польотника, контролери DroneCAN). Для контролерів без телеметрії залиште вимкненим.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Enabled</source>
+      <translation>Увімкнено</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Left</source>
+      <translation>Лівий</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Right</source>
+      <translation>Правий</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>ESC number</source>
+      <translation>Номер ESC</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Warning</source>
+      <translation>Попередження</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Critical</source>
+      <translation>Критичний</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Temperature, °C</source>
+      <translation>Температура, °C</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>off</source>
+      <translation>вимк</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Current, A</source>
+      <translation>Струм, А</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
       <source>Cancel</source>
       <translation>Скасувати</translation>
     </message>
@@ -23393,6 +23508,36 @@ If a vehicle still has this key configured, you will no longer be able to commun
   </context>
   <context>
     <name>VehicleAlertIndicator</name>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>Left motor</source>
+      <translation>Лівий мотор</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>Right motor</source>
+      <translation>Правий мотор</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>%1: temperature %2 °C (limit %3)</source>
+      <translation>%1: температура %2 °C (поріг %3)</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>%1: current %2 A (limit %3)</source>
+      <translation>%1: струм %2 А (поріг %3)</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>No motor telemetry</source>
+      <translation>Немає телеметрії моторів</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>No problems</source>
+      <translation>Проблем немає</translation>
+    </message>
     <message>
       <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
       <source>Vehicle problems</source>

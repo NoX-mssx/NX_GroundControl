@@ -22,6 +22,7 @@ public:
     DEFINE_SETTINGFACT(stretchVideoToWindow)
     DEFINE_SETTINGFACT(showSpeedOverlay)
     DEFINE_SETTINGFACT(showHomeDistanceOverlay)
+    DEFINE_SETTINGFACT(showMotorTelemetryOverlay)
     DEFINE_SETTINGFACT(gridLines)
     DEFINE_SETTINGFACT(showRecControl)
     DEFINE_SETTINGFACT(recordingFormat)

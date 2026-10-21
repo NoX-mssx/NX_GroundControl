@@ -32,6 +32,15 @@ bool EscStatusFactGroupListModel::_shouldHandleMessage(const mavlink_message_t &
         shouldHandle = true;
     }
         break;
+    // ArduPilot reports its ESCs in blocks of four instead of ESC_STATUS / ESC_INFO
+    case MAVLINK_MSG_ID_ESC_TELEMETRY_1_TO_4:
+        firstIndex = 0;
+        shouldHandle = true;
+        break;
+    case MAVLINK_MSG_ID_ESC_TELEMETRY_5_TO_8:
+        firstIndex = 4;
+        shouldHandle = true;
+        break;
     default:
         shouldHandle = false; // Not a message we care about
         break;
@@ -85,9 +94,42 @@ void EscStatusFactGroup::handleMessage(Vehicle *vehicle, const mavlink_message_t
     case MAVLINK_MSG_ID_ESC_STATUS:
         _handleEscStatus(vehicle, message);
         break;
+    case MAVLINK_MSG_ID_ESC_TELEMETRY_1_TO_4:
+    {
+        mavlink_esc_telemetry_1_to_4_t telemetry{};
+        mavlink_msg_esc_telemetry_1_to_4_decode(&message, &telemetry);
+        _handleEscTelemetry(0, telemetry.temperature, telemetry.voltage, telemetry.current, telemetry.rpm);
+    }
+        break;
+    case MAVLINK_MSG_ID_ESC_TELEMETRY_5_TO_8:
+    {
+        mavlink_esc_telemetry_5_to_8_t telemetry{};
+        mavlink_msg_esc_telemetry_5_to_8_decode(&message, &telemetry);
+        _handleEscTelemetry(4, telemetry.temperature, telemetry.voltage, telemetry.current, telemetry.rpm);
+    }
+        break;
     default:
         break;
     }
+}
+
+void EscStatusFactGroup::_handleEscTelemetry(uint32_t firstIndex, const uint8_t *temperature, const uint16_t *voltage,
+                                             const uint16_t *current, const uint16_t *rpm)
+{
+    const uint32_t index = _idFact.rawValue().toUInt();
+    if ((index < firstIndex) || (index >= (firstIndex + 4))) {
+        return;
+    }
+
+    const uint32_t i = index - firstIndex;
+    // Temperature arrives in degrees and is kept in centi-degrees like ESC_INFO; voltage and current arrive in
+    // hundredths.
+    _temperatureFact.setRawValue(static_cast<double>(temperature[i]) * 100.0);
+    _voltageFact.setRawValue(static_cast<double>(voltage[i]) / 100.0);
+    _currentFact.setRawValue(static_cast<double>(current[i]) / 100.0);
+    _rpmFact.setRawValue(rpm[i]);
+
+    _setTelemetryAvailable(true);
 }
 
 void EscStatusFactGroup::_handleEscInfo(Vehicle * /*vehicle*/, const mavlink_message_t &message)

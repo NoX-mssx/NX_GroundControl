@@ -7631,6 +7631,66 @@ VTOL</source>
 <context>
     <name>FlyViewCustomLayer</name>
     <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>%1 A</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>%1 V</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>L</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>R</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>Motor controllers</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>Left (ESC %1)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>Right (ESC %1)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>Temperature</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>Current</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>Voltage</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>RPM</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>Motor telemetry</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
         <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="220"/>
         <source>SD</source>
         <translation type="unfinished"></translation>
@@ -22342,6 +22402,61 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <name>VehicleModelsSettings</name>
     <message>
       <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Motor telemetry</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Temperature and current of the left and right motor controllers (ESC telemetry from the autopilot, DroneCAN controllers). Leave off for controllers that do not report it.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Enabled</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Left</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Right</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>ESC number</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Warning</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Critical</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Temperature, °C</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>off</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Current, A</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
       <source>Cancel</source>
       <translation type="unfinished" />
     </message>
@@ -23327,6 +23442,36 @@ If a vehicle still has this key configured, you will no longer be able to commun
   </context>
   <context>
     <name>VehicleAlertIndicator</name>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>Left motor</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>Right motor</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>%1: temperature %2 °C (limit %3)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>%1: current %2 A (limit %3)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>No motor telemetry</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>No problems</source>
+      <translation type="unfinished" />
+    </message>
     <message>
       <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
       <source>Vehicle problems</source>

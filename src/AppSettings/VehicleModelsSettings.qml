@@ -22,7 +22,12 @@ Rectangle {
     property string _errorText:     ""
 
     function _blankModel() {
-        return { name: "", cameras: [], buttons: [] }
+        return { name: "", cameras: [], buttons: [], motorTelemetry: _blankMotorTelemetry() }
+    }
+
+    // ESC numbers start at 1; a threshold of 0 means it is not set
+    function _blankMotorTelemetry() {
+        return { enabled: false, leftEsc: 1, rightEsc: 2, tempWarn: 0, tempCrit: 0, currentWarn: 0, currentCrit: 0 }
     }
 
     function _blankCamera() {
@@ -48,6 +53,7 @@ Rectangle {
             let copy = JSON.parse(JSON.stringify(stored))
             copy.cameras = copy.cameras || []
             copy.buttons = copy.buttons || []
+            copy.motorTelemetry = Object.assign(_blankMotorTelemetry(), copy.motorTelemetry || {})
             _edit = copy
         } else {
             _originalName = ""
@@ -624,6 +630,92 @@ Rectangle {
                                     root._refresh()
                                 }
                             }
+                        }
+                    }
+                }
+
+                // Motor telemetry: temperature and current of the motor controllers from the autopilot
+                SettingsGroupLayout {
+                    id:                 motorGroup
+                    Layout.fillWidth:   true
+                    Layout.topMargin:   _margins * 0.5
+                    heading:            qsTr("Motor telemetry")
+                    headingDescription: qsTr("Temperature and current of the left and right motor controllers (ESC telemetry from the autopilot, DroneCAN controllers). Leave off for controllers that do not report it.")
+
+                    property var telemetry: root._edit.motorTelemetry || root._blankMotorTelemetry()
+
+                    function numberText(value) {
+                        return value > 0 ? String(value) : ""
+                    }
+
+                    QGCCheckBox {
+                        text:       qsTr("Enabled")
+                        checked:    motorGroup.telemetry.enabled === true
+                        onClicked: {
+                            root._edit.motorTelemetry = motorGroup.telemetry
+                            root._edit.motorTelemetry.enabled = checked
+                            root._refresh()
+                        }
+                    }
+
+                    GridLayout {
+                        columns:        3
+                        columnSpacing:  ScreenTools.defaultFontPixelWidth * 2
+                        rowSpacing:     ScreenTools.defaultFontPixelHeight * 0.3
+                        enabled:        motorGroup.telemetry.enabled === true
+
+                        QGCLabel { text: "" }
+                        QGCLabel { text: qsTr("Left");  font.weight: Font.DemiBold }
+                        QGCLabel { text: qsTr("Right"); font.weight: Font.DemiBold }
+
+                        QGCLabel { text: qsTr("ESC number") }
+                        QGCTextField {
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 10
+                            text:                   String(motorGroup.telemetry.leftEsc)
+                            validator:              IntValidator { bottom: 1; top: 8 }
+                            onTextEdited:           motorGroup.telemetry.leftEsc = parseInt(text) || 1
+                        }
+                        QGCTextField {
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 10
+                            text:                   String(motorGroup.telemetry.rightEsc)
+                            validator:              IntValidator { bottom: 1; top: 8 }
+                            onTextEdited:           motorGroup.telemetry.rightEsc = parseInt(text) || 2
+                        }
+
+                        QGCLabel { text: "" }
+                        QGCLabel { text: qsTr("Warning");  font.weight: Font.DemiBold; color: qgcPal.colorOrange }
+                        QGCLabel { text: qsTr("Critical"); font.weight: Font.DemiBold; color: qgcPal.colorRed }
+
+                        QGCLabel { text: qsTr("Temperature, °C") }
+                        QGCTextField {
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 10
+                            text:                   motorGroup.numberText(motorGroup.telemetry.tempWarn)
+                            placeholderText:        qsTr("off")
+                            validator:              IntValidator { bottom: 0; top: 250 }
+                            onTextEdited:           motorGroup.telemetry.tempWarn = parseInt(text) || 0
+                        }
+                        QGCTextField {
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 10
+                            text:                   motorGroup.numberText(motorGroup.telemetry.tempCrit)
+                            placeholderText:        qsTr("off")
+                            validator:              IntValidator { bottom: 0; top: 250 }
+                            onTextEdited:           motorGroup.telemetry.tempCrit = parseInt(text) || 0
+                        }
+
+                        QGCLabel { text: qsTr("Current, A") }
+                        QGCTextField {
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 10
+                            text:                   motorGroup.numberText(motorGroup.telemetry.currentWarn)
+                            placeholderText:        qsTr("off")
+                            validator:              IntValidator { bottom: 0; top: 650 }
+                            onTextEdited:           motorGroup.telemetry.currentWarn = parseInt(text) || 0
+                        }
+                        QGCTextField {
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 10
+                            text:                   motorGroup.numberText(motorGroup.telemetry.currentCrit)
+                            placeholderText:        qsTr("off")
+                            validator:              IntValidator { bottom: 0; top: 650 }
+                            onTextEdited:           motorGroup.telemetry.currentCrit = parseInt(text) || 0
                         }
                     }
                 }

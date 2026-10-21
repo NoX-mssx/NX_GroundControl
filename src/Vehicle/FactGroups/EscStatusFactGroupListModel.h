@@ -50,6 +50,9 @@ public:
 private:
     void _handleEscInfo(Vehicle *vehicle, const mavlink_message_t &message);
     void _handleEscStatus(Vehicle *vehicle, const mavlink_message_t &message);
+    /// ArduPilot ESC_TELEMETRY_x_TO_y: one block of four ESCs starting at firstIndex
+    void _handleEscTelemetry(uint32_t firstIndex, const uint8_t *temperature, const uint16_t *voltage,
+                             const uint16_t *current, const uint16_t *rpm);
 
     Fact _rpmFact =             Fact(0, QStringLiteral("rpm"),              FactMetaData::valueTypeInt32);
     Fact _currentFact =         Fact(0, QStringLiteral("current"),          FactMetaData::valueTypeFloat);

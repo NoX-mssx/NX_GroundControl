@@ -357,8 +357,159 @@ Item {
         }
     }
 
+    // The motor thresholds come from the active vehicle model
+    Binding {
+        target:     MotorTelemetryMonitor
+        property:   "config"
+        value:      VehicleModelManager.activeModel.motorTelemetry || ({})
+    }
+
+    // Bottom right, left of the distance to home: temperature and current of the left and right motor controllers
+    Rectangle {
+        id:                     motorTelemetryPill
+        anchors.right:          homePill.visible ? homePill.left : parent.right
+        anchors.rightMargin:    homePill.visible ? ScreenTools.defaultFontPixelWidth : 0
+        anchors.bottom:         parent.bottom
+        width:                  motorRow.implicitWidth + ScreenTools.defaultFontPixelWidth * 3.6
+        height:                 _root._railButtonSize + ScreenTools.defaultFontPixelWidth
+        radius:                 height / 2
+        color:                  _root._glassColor
+        border.color:           MotorTelemetryMonitor.level >= 2 ? qgcPal.colorRed
+                              : MotorTelemetryMonitor.level === 1 ? qgcPal.colorOrange : _root._glassBorder
+        visible:                MotorTelemetryMonitor.active && _root._videoSettings.showMotorTelemetryOverlay.rawValue
+
+        function levelColor(level) {
+            return level >= 2 ? qgcPal.colorRed : (level === 1 ? qgcPal.colorOrange : qgcPal.text)
+        }
+
+        // Fixed width per value, so changing digits never resize the window
+        TextMetrics {
+            id:     widestTemperature
+            font:   motorRow.valueFont
+            text:   "000°"
+        }
+        TextMetrics {
+            id:     widestCurrent
+            font:   motorRow.valueFont
+            text:   qsTr("%1 A").arg("000")
+        }
+
+        Row {
+            id:                 motorRow
+            anchors.centerIn:   parent
+            spacing:            ScreenTools.defaultFontPixelWidth * 1.6
+
+            property font valueFont: Qt.font({ family: ScreenTools.normalFontFamily, pointSize: ScreenTools.mediumFontPointSize, weight: Font.ExtraBold })
+
+            Repeater {
+                model: MotorTelemetryMonitor.motors
+
+                Row {
+                    required property var modelData
+                    required property int index
+
+                    spacing: ScreenTools.defaultFontPixelWidth * 0.6
+
+                    QGCLabel {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text:                   modelData.side === "left" ? qsTr("L") : qsTr("R")
+                        color:                  qgcPal.colorGrey
+                        font.weight:            Font.ExtraBold
+                    }
+                    QGCLabel {
+                        anchors.verticalCenter: parent.verticalCenter
+                        width:                  Math.ceil(widestTemperature.advanceWidth)
+                        horizontalAlignment:    Text.AlignRight
+                        text:                   modelData.hasData ? Math.round(modelData.temperature) + "°" : "--"
+                        color:                  modelData.hasData ? motorTelemetryPill.levelColor(modelData.temperatureLevel) : qgcPal.colorGrey
+                        font:                   motorRow.valueFont
+                    }
+                    QGCLabel {
+                        anchors.verticalCenter: parent.verticalCenter
+                        width:                  Math.ceil(widestCurrent.advanceWidth)
+                        horizontalAlignment:    Text.AlignRight
+                        text:                   modelData.hasData ? qsTr("%1 A").arg(Math.round(modelData.current)) : "--"
+                        color:                  modelData.hasData ? motorTelemetryPill.levelColor(modelData.currentLevel) : qgcPal.colorGrey
+                        font:                   motorRow.valueFont
+                    }
+                }
+            }
+        }
+
+        MouseArea {
+            anchors.fill:   parent
+            onClicked:      motorDetailsPanel.visible = !motorDetailsPanel.visible
+        }
+    }
+
+    // All values of both controllers, opened by a click on the window
+    Rectangle {
+        id:                     motorDetailsPanel
+        anchors.right:          motorTelemetryPill.right
+        anchors.bottom:         motorTelemetryPill.top
+        anchors.bottomMargin:   ScreenTools.defaultFontPixelHeight / 2
+        width:                  motorDetailsGrid.implicitWidth + ScreenTools.defaultFontPixelWidth * 3
+        height:                 motorDetailsGrid.implicitHeight + ScreenTools.defaultFontPixelHeight
+        radius:                 ScreenTools.defaultFontPixelHeight / 2
+        color:                  Qt.rgba(16 / 255, 21 / 255, 26 / 255, 0.94)
+        border.color:           _root._glassBorder
+        visible:                false
+
+        readonly property var _motors: MotorTelemetryMonitor.motors
+
+        function valueText(side, key, decimals, format) {
+            const motor = _motors[side]
+            if (!motor || !motor.hasData) {
+                return "--"
+            }
+            return format.arg(Number(motor[key]).toFixed(decimals))
+        }
+
+        onVisibleChanged: if (visible && !motorTelemetryPill.visible) visible = false
+
+        GridLayout {
+            id:                 motorDetailsGrid
+            anchors.centerIn:   parent
+            columns:            3
+            columnSpacing:      ScreenTools.defaultFontPixelWidth * 2
+            rowSpacing:         ScreenTools.defaultFontPixelHeight * 0.2
+
+            QGCLabel { text: qsTr("Motor controllers"); font.weight: Font.ExtraBold }
+            QGCLabel {
+                text:           qsTr("Left (ESC %1)").arg(motorDetailsPanel._motors.length > 0 ? motorDetailsPanel._motors[0].esc : "")
+                font.weight:    Font.DemiBold
+            }
+            QGCLabel {
+                text:           qsTr("Right (ESC %1)").arg(motorDetailsPanel._motors.length > 1 ? motorDetailsPanel._motors[1].esc : "")
+                font.weight:    Font.DemiBold
+            }
+
+            QGCLabel { text: qsTr("Temperature") }
+            QGCLabel { text: motorDetailsPanel.valueText(0, "temperature", 0, "%1 °C") }
+            QGCLabel { text: motorDetailsPanel.valueText(1, "temperature", 0, "%1 °C") }
+
+            QGCLabel { text: qsTr("Current") }
+            QGCLabel { text: motorDetailsPanel.valueText(0, "current", 1, qsTr("%1 A")) }
+            QGCLabel { text: motorDetailsPanel.valueText(1, "current", 1, qsTr("%1 A")) }
+
+            QGCLabel { text: qsTr("Voltage") }
+            QGCLabel { text: motorDetailsPanel.valueText(0, "voltage", 1, qsTr("%1 V")) }
+            QGCLabel { text: motorDetailsPanel.valueText(1, "voltage", 1, qsTr("%1 V")) }
+
+            QGCLabel { text: qsTr("RPM") }
+            QGCLabel { text: motorDetailsPanel.valueText(0, "rpm", 0, "%1") }
+            QGCLabel { text: motorDetailsPanel.valueText(1, "rpm", 0, "%1") }
+        }
+
+        MouseArea {
+            anchors.fill:   parent
+            onClicked:      motorDetailsPanel.visible = false
+        }
+    }
+
     // Bottom right: distance to home
     Rectangle {
+        id:             homePill
         anchors.right:  parent.right
         anchors.bottom: parent.bottom
         width:          homeRow.implicitWidth + ScreenTools.defaultFontPixelWidth * 3.6
@@ -537,6 +688,13 @@ Item {
                 text:       qsTr("Distance to home")
                 checked:    _root._videoSettings.showHomeDistanceOverlay.rawValue
                 onClicked:  _root._videoSettings.showHomeDistanceOverlay.rawValue = checked
+            }
+
+            QGCCheckBox {
+                text:       qsTr("Motor telemetry")
+                visible:    MotorTelemetryMonitor.config.enabled === true
+                checked:    _root._videoSettings.showMotorTelemetryOverlay.rawValue
+                onClicked:  _root._videoSettings.showMotorTelemetryOverlay.rawValue = checked
             }
         }
     }

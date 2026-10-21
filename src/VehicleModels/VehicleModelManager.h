@@ -19,7 +19,8 @@ Q_DECLARE_LOGGING_CATEGORY(VehicleModelManagerLog)
 /// or relay outputs. Models are plain maps so the settings page can edit a copy and save it back whole:
 ///
 ///     { name, cameras: [{ type, name, ip, user, password, mainUrl, secondaryUrl, audio }],
-///             buttons: [{ name, functions: [{ channel, kind: "pwm"|"gpio", value }] }] }
+///             buttons: [{ name, functions: [{ channel, kind: "pwm"|"gpio", value }] }],
+///             motorTelemetry: { enabled, leftEsc, rightEsc, tempWarn, tempCrit, currentWarn, currentCrit } }
 ///
 /// Camera passwords and stream URLs (which embed the credentials) are encrypted on disk, see SecretProtector.
 class VehicleModelManager : public QObject

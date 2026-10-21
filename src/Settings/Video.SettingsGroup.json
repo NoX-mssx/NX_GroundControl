@@ -100,6 +100,14 @@
             "label": "Show distance to home"
         },
         {
+            "name": "showMotorTelemetryOverlay",
+            "shortDesc": "Show motor controller temperature and current on the drive screen.",
+            "longDesc": "Shows the temperature and current of the left and right motor controllers at the bottom right of the drive screen when the vehicle model has motor telemetry enabled.",
+            "type": "bool",
+            "default": true,
+            "label": "Show motor telemetry"
+        },
+        {
             "name": "showRecControl",
             "shortDesc": "Show Video Record Control",
             "longDesc": "Show recording control in the UI.",

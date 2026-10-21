@@ -189,11 +189,16 @@ QVariantMap modelFromExchange(const QJsonObject &exchange)
         });
     }
 
-    return QVariantMap{
+    QVariantMap model{
         {QString::fromLatin1(kNameKey), exchange.value(QLatin1String("text")).toString().trimmed()},
         {QString::fromLatin1(kCamerasKey), cameras},
         {QStringLiteral("buttons"), buttons},
     };
+    // NX only: files from Nova have no motor telemetry block
+    if (exchange.contains(QLatin1String("motorTelemetry"))) {
+        model.insert(QStringLiteral("motorTelemetry"), exchange.value(QLatin1String("motorTelemetry")).toObject().toVariantMap());
+    }
+    return model;
 }
 
 QJsonObject modelToExchange(const QVariantMap &model)
@@ -243,11 +248,15 @@ QJsonObject modelToExchange(const QVariantMap &model)
         });
     }
 
-    return QJsonObject{
+    QJsonObject exchange{
         {QStringLiteral("text"), model.value(QLatin1String(kNameKey)).toString()},
         {QStringLiteral("camerasArray"), cameras},
         {QStringLiteral("buttonsArray"), buttons},
     };
+    if (model.contains(QStringLiteral("motorTelemetry"))) {
+        exchange.insert(QStringLiteral("motorTelemetry"), QJsonObject::fromVariantMap(model.value(QStringLiteral("motorTelemetry")).toMap()));
+    }
+    return exchange;
 }
 
 /// Swaps the secret camera fields between their in-memory and on-disk form. The stream URLs count as
