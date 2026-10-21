@@ -10755,6 +10755,16 @@ VTOL</source>
 <context>
     <name>LinkQualityIndicator</name>
     <message>
+      <location filename="../src/Toolbar/LinkQualityIndicator.qml" line="1" />
+      <source>Lagometer</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LinkQualityIndicator.qml" line="1" />
+      <source>STARLINK</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
         <location filename="../src/Toolbar/LinkQualityIndicator.qml" line="39"/>
         <source>no reply</source>
         <translation type="unfinished"></translation>
@@ -23321,6 +23331,244 @@ If a vehicle still has this key configured, you will no longer be able to commun
       <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
       <source>Vehicle problems</source>
       <translation type="unfinished"></translation>
+    </message>
+  </context>
+  <context>
+    <name>LagometerPanel</name>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>10 min</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>30 min</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>1 hour</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>3 hours</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>invalid server response</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>no connection</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>timeout</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Lagometer server is unreachable: check that the vehicle tunnel is up</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Looking for the lagometer server...</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Error: %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>All is well</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Delay from the vehicle (Starlink or the vehicle)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Starlink lost packets, but no delay built up</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>The channel to the operator cannot cope</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Small losses on the operator's channel</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>No stream from the vehicle</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>The lagometer is not recording</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>No lagometer data for this vehicle</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>The problem is going on right now</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>online %1%</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>delay %1 s</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>%1 ms</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>%1 Mbit/s</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>unrecovered packets %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>%1 min</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>%1 h %2 min</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Delay from the vehicle up to %1 s</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>The stream froze (up to %1 s without frames)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Starlink lost packets (up to %1 per minute)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Operator channel: losses up to %1%, queue up to %2 KB, %3 frames dropped</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Channel server - operator</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Starlink or the vehicle</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>%1 ago</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Ping to the router is not set up for this link</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>No replies from %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Ping to %1: %2 ms</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>going on now</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>%1 s</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>No replies from the router: %1 pings in a row</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Slow replies from the router: up to %1 ms</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Measured by NX on this computer, after the server</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>No losses since NX was started</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>%1 events since NX was started</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Server</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>NX (this computer)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Refresh</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>No problems for the period</source>
+      <translation type="unfinished" />
     </message>
   </context>
 </TS>

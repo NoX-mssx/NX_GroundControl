@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Layouts
 
 import QGroundControl
 import QGroundControl.Controls
@@ -60,7 +61,50 @@ Item {
 
     MouseArea {
         anchors.fill:   parent
-        onClicked:      mainWindow.showIndicatorDrawer(starlinkLogPage, control)
+        onClicked:      mainWindow.showIndicatorDrawer(logChoicePage, control)
+    }
+
+    /// The click offers the two logs: the lagometer (video path) and the Starlink log
+    Component {
+        id: logChoicePage
+
+        ToolIndicatorPage {
+            contentComponent: Component {
+                ColumnLayout {
+                    spacing: ScreenTools.defaultFontPixelHeight / 2
+
+                    QGCButton {
+                        Layout.fillWidth:   true
+                        text:               qsTr("Lagometer")
+                        onClicked:          control._openLog(lagometerPage)
+                    }
+                    QGCButton {
+                        Layout.fillWidth:   true
+                        text:               qsTr("STARLINK")
+                        onClicked:          control._openLog(starlinkLogPage)
+                    }
+                }
+            }
+        }
+    }
+
+    function _openLog(page) {
+        mainWindow.closeIndicatorDrawer()
+        mainWindow.showIndicatorDrawer(page, control)
+    }
+
+    Component {
+        id: lagometerPage
+
+        ToolIndicatorPage {
+            contentComponent: Component {
+                LagometerPanel {
+                    width:              ScreenTools.defaultFontPixelWidth * 70
+                    height:             ScreenTools.defaultFontPixelHeight * 32
+                    preferredHost:      control._serverHost
+                }
+            }
+        }
     }
 
     Component {

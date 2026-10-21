@@ -10781,6 +10781,16 @@ VTOL</translation>
   <context>
     <name>LinkQualityIndicator</name>
     <message>
+      <location filename="../src/Toolbar/LinkQualityIndicator.qml" line="1" />
+      <source>Lagometer</source>
+      <translation>Лагометр</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LinkQualityIndicator.qml" line="1" />
+      <source>STARLINK</source>
+      <translation>STARLINK</translation>
+    </message>
+    <message>
       <location filename="../src/Toolbar/LinkQualityIndicator.qml" line="39" />
       <source>no reply</source>
       <translation>немає відповіді</translation>
@@ -23387,6 +23397,244 @@ If a vehicle still has this key configured, you will no longer be able to commun
       <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
       <source>Vehicle problems</source>
       <translation>Проблеми борту</translation>
+    </message>
+  </context>
+  <context>
+    <name>LagometerPanel</name>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>10 min</source>
+      <translation>10 хв</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>30 min</source>
+      <translation>30 хв</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>1 hour</source>
+      <translation>1 година</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>3 hours</source>
+      <translation>3 години</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>invalid server response</source>
+      <translation>некоректна відповідь сервера</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>no connection</source>
+      <translation>немає з'єднання</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>timeout</source>
+      <translation>таймаут</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Lagometer server is unreachable: check that the vehicle tunnel is up</source>
+      <translation>Сервер лагометра недоступний: перевірте, що тунель борту піднято</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Looking for the lagometer server...</source>
+      <translation>Шукаю сервер лагометра...</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Error: %1</source>
+      <translation>Помилка: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>All is well</source>
+      <translation>Усе гаразд</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Delay from the vehicle (Starlink or the vehicle)</source>
+      <translation>Затримка з борту (Starlink або борт)</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Starlink lost packets, but no delay built up</source>
+      <translation>Starlink губив пакети, але затримка не накопичувалась</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>The channel to the operator cannot cope</source>
+      <translation>Канал до оператора не справляється</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Small losses on the operator's channel</source>
+      <translation>Невеликі втрати в каналі оператора</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>No stream from the vehicle</source>
+      <translation>Потоку з борту немає</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>The lagometer is not recording</source>
+      <translation>Лагометр не записує дані</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>No lagometer data for this vehicle</source>
+      <translation>Немає даних лагометра по цьому борту</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>The problem is going on right now</source>
+      <translation>Проблема триває зараз</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>online %1%</source>
+      <translation>онлайн %1%</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>delay %1 s</source>
+      <translation>затримка %1 с</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>%1 ms</source>
+      <translation>%1 мс</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>%1 Mbit/s</source>
+      <translation>%1 Мбіт/с</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>unrecovered packets %1</source>
+      <translation>невідновлених пакетів %1</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>%1 min</source>
+      <translation>%1 хв</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>%1 h %2 min</source>
+      <translation>%1 год %2 хв</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Delay from the vehicle up to %1 s</source>
+      <translation>Затримка з борту до %1 с</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>The stream froze (up to %1 s without frames)</source>
+      <translation>Потік зупинявся (до %1 с без кадрів)</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Starlink lost packets (up to %1 per minute)</source>
+      <translation>Starlink губив пакети (до %1 за хвилину)</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Operator channel: losses up to %1%, queue up to %2 KB, %3 frames dropped</source>
+      <translation>Канал оператора: втрати до %1%, черга до %2 КБ, відкинуто кадрів: %3</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Channel server - operator</source>
+      <translation>Канал сервер - оператор</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Starlink or the vehicle</source>
+      <translation>Starlink або борт</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>%1 ago</source>
+      <translation>%1 тому</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Ping to the router is not set up for this link</source>
+      <translation>Для цього лінка не задано пінг до роутера</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>No replies from %1</source>
+      <translation>Немає відповідей від %1</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Ping to %1: %2 ms</source>
+      <translation>Пінг до %1: %2 мс</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>going on now</source>
+      <translation>триває зараз</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>%1 s</source>
+      <translation>%1 с</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>No replies from the router: %1 pings in a row</source>
+      <translation>Немає відповідей від роутера: %1 пінгів поспіль</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Slow replies from the router: up to %1 ms</source>
+      <translation>Повільні відповіді роутера: до %1 мс</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Measured by NX on this computer, after the server</source>
+      <translation>Виміряно NX на цьому комп'ютері, після сервера</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>No losses since NX was started</source>
+      <translation>Втрат з моменту запуску NX немає</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>%1 events since NX was started</source>
+      <translation>Подій з моменту запуску NX: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Server</source>
+      <translation>Сервер</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>NX (this computer)</source>
+      <translation>NX (цей комп'ютер)</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>Refresh</source>
+      <translation>Оновити</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
+      <source>No problems for the period</source>
+      <translation>За період проблем немає</translation>
     </message>
   </context>
 </TS>

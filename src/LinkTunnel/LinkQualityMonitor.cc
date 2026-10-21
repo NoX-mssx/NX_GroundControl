@@ -7,6 +7,12 @@
 #include "VehicleLinkManager.h"
 
 #include <QtCore/QCoreApplication>
+#include <QtCore/QDateTime>
+#include <QtCore/QDir>
+#include <QtCore/QFile>
+#include <QtCore/QStandardPaths>
+#include <QtCore/QTextStream>
+#include <QtCore/QVariantMap>
 #include <QtCore/QThread>
 
 #include <algorithm>
@@ -88,8 +94,100 @@ void LinkQualityMonitor::_updateConfiguration()
     emit configurationChanged();
 }
 
+QVariantList LinkQualityMonitor::events() const
+{
+    QVariantList list;
+    auto toMap = [](const Event &e, bool ongoing) {
+        QVariantMap m;
+        m.insert(QStringLiteral("kind"), e.kind);
+        m.insert(QStringLiteral("startMs"), e.startMs);
+        m.insert(QStringLiteral("endMs"), e.endMs);
+        m.insert(QStringLiteral("count"), e.count);
+        m.insert(QStringLiteral("maxMs"), e.maxMs);
+        m.insert(QStringLiteral("ongoing"), ongoing);
+        return m;
+    };
+    if (!_current.kind.isEmpty() && _current.count >= ((_current.kind == QLatin1String("loss")) ? kLossLogMin : kLagSamples)) {
+        list.append(toMap(_current, true));
+    }
+    for (auto it = _events.crbegin(); it != _events.crend(); ++it) {
+        list.append(toMap(*it, false));
+    }
+    return list;
+}
+
+void LinkQualityMonitor::_writeLog(const QVariantMap &event) const
+{
+    // One line per finished event, kept next to the other application data; trimmed when it grows large.
+    const QString dir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    if (dir.isEmpty() || !QDir().mkpath(dir)) {
+        return;
+    }
+    QFile file(dir + QStringLiteral("/link-quality.log"));
+    if (file.size() > 1024 * 1024) {
+        (void) QFile::remove(file.fileName() + QStringLiteral(".old"));
+        (void) file.rename(file.fileName() + QStringLiteral(".old"));
+    }
+    if (!file.open(QIODevice::Append | QIODevice::Text)) {
+        return;
+    }
+    QTextStream out(&file);
+    const qint64 start = event.value(QStringLiteral("startMs")).toLongLong();
+    const qint64 end = event.value(QStringLiteral("endMs")).toLongLong();
+    out << QDateTime::fromMSecsSinceEpoch(start).toString(Qt::ISODate)
+        << ' ' << _pingAddress
+        << ' ' << event.value(QStringLiteral("kind")).toString()
+        << " duration_s=" << QString::number(static_cast<double>(end - start) / 1000.0, 'f', 1)
+        << " count=" << event.value(QStringLiteral("count")).toInt()
+        << " max_ms=" << event.value(QStringLiteral("maxMs")).toInt()
+        << '\n';
+}
+
+void LinkQualityMonitor::_closeEvent()
+{
+    const bool loss = (_current.kind == QLatin1String("loss"));
+    if (!_current.kind.isEmpty() && (_current.count >= (loss ? kLossLogMin : kLagSamples))) {
+        _events.append(_current);
+        while (_events.count() > kMaxEvents) {
+            _events.removeFirst();
+        }
+        QVariantMap m;
+        m.insert(QStringLiteral("kind"), _current.kind);
+        m.insert(QStringLiteral("startMs"), _current.startMs);
+        m.insert(QStringLiteral("endMs"), _current.endMs);
+        m.insert(QStringLiteral("count"), _current.count);
+        m.insert(QStringLiteral("maxMs"), _current.maxMs);
+        _writeLog(m);
+    }
+    _current = Event();
+}
+
+/// Builds the local event list from the ping results: runs of lost pings and runs of slow replies.
+void LinkQualityMonitor::_trackEvents(int roundTripMs)
+{
+    const qint64 now = QDateTime::currentMSecsSinceEpoch();
+    const bool lost = (roundTripMs < 0);
+    const bool slow = !lost && (roundTripMs >= kLagThresholdMs);
+    const QString wanted = lost ? QStringLiteral("loss") : (slow ? QStringLiteral("lag") : QString());
+
+    if (wanted != _current.kind) {
+        _closeEvent();
+        if (!wanted.isEmpty()) {
+            _current.kind = wanted;
+            _current.startMs = now;
+        }
+    }
+    if (!wanted.isEmpty()) {
+        _current.count++;
+        _current.endMs = now;
+        _current.maxMs = std::max(_current.maxMs, roundTripMs);
+    }
+    emit eventsChanged();
+}
+
 void LinkQualityMonitor::_reset()
 {
+    _closeEvent();
     _samples.clear();
     _limitLevel = 0;
     if (_pingMs != -1) {
@@ -131,6 +229,7 @@ void LinkQualityMonitor::_pingFinished(const QString &address, int roundTripMs)
         return;
     }
 
+    _trackEvents(roundTripMs);
     _samples.append(roundTripMs);
     while (_samples.count() > kSampleCount) {
         _samples.removeFirst();
