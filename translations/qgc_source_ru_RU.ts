@@ -9745,6 +9745,16 @@ VTOL</translation>
   <context>
     <name>Joystick</name>
     <message>
+      <location filename="../src/Joystick/Joystick.h" line="1" />
+      <source>Model button %1</source>
+      <translation>Кнопка модели %1</translation>
+    </message>
+    <message>
+      <location filename="../src/Joystick/Joystick.h" line="1" />
+      <source>Video HD / SD</source>
+      <translation>Видео HD / SD</translation>
+    </message>
+    <message>
       <location filename="../src/Joystick/Joystick.h" line="487" />
       <source>No Action</source>
       <translation>Нет действия</translation>
@@ -9932,6 +9942,161 @@ VTOL</translation>
   </context>
   <context>
     <name>JoystickComponent</name>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Not assigned</source>
+      <translation>Не назначено</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Model button %1: %2</source>
+      <translation>Кнопка модели %1: %2</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Model button %1</source>
+      <translation>Кнопка модели %1</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Connected</source>
+      <translation>Подключён</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Not calibrated</source>
+      <translation>Не откалиброван</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Drive the vehicle with the joystick</source>
+      <translation>Управлять бортом с джойстика</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Calibrate</source>
+      <translation>Калибровать</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Calibration</source>
+      <translation>Калибровка</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Disarm the vehicle to calibrate the joystick.</source>
+      <translation>Снимите борт с охраны (дизарм), чтобы откалибровать джойстик.</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Press Calibrate and follow the instructions: centre the sticks, then move each one to its ends.</source>
+      <translation>Нажмите «Калибровать» и следуйте подсказкам: отпустите стики в центр, затем доведите каждый до упора.</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Close</source>
+      <translation>Закрыть</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Axes</source>
+      <translation>Оси</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Move the sticks: the bars show what the vehicle receives.</source>
+      <translation>Подвигайте стики: полоски показывают, что получает борт.</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Throttle: forward / back</source>
+      <translation>Газ: вперёд / назад</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Steering: left / right (Roll)</source>
+      <translation>Руль: влево / вправо (Roll)</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Yaw</source>
+      <translation>Yaw</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Pitch</source>
+      <translation>Pitch</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Reverse</source>
+      <translation>Реверс</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Throttle on the stick</source>
+      <translation>Газ на стике</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Centre is stop: forward and back</source>
+      <translation>Центр — стоп, вперёд и назад</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Bottom is stop: forward only</source>
+      <translation>Низ — стоп, только вперёд</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Smooth throttle</source>
+      <translation>Плавный газ</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Buttons and switches</source>
+      <translation>Кнопки и тумблеры</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Press a button on the transmitter: its row lights up.</source>
+      <translation>Нажмите кнопку на пульте: её строка подсветится.</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Button %1</source>
+      <translation>Кнопка %1</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>No buttons are assigned yet. Press a button on the transmitter to assign it.</source>
+      <translation>Кнопки ещё не назначены. Нажмите кнопку на пульте, чтобы назначить ей действие.</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Show assigned only</source>
+      <translation>Только назначенные</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Show all %1 buttons</source>
+      <translation>Показать все %1</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>More settings</source>
+      <translation>Дополнительные настройки</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Show</source>
+      <translation>Показать</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>No joysticks or gamepads detected. Connect the transmitter to this computer by USB.</source>
+      <translation>Джойстик не найден. Подключите пульт к компьютеру по USB.</translation>
+    </message>
     <message>
       <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="68" />
       <source>Enable</source>
@@ -22262,6 +22427,276 @@ If a vehicle still has this key configured, you will no longer be able to commun
   </context>
   <context>
     <name>VehicleConfigView</name>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>SETUP</source>
+      <translation>ПОДГОТОВКА</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Sensors</source>
+      <translation>Датчики</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Power</source>
+      <translation>Питание</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Motors and outputs</source>
+      <translation>Моторы и выходы</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Outputs</source>
+      <translation>Выходы</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Motor test</source>
+      <translation>Тест моторов</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>ESC</source>
+      <translation>ESC</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Radio and modes</source>
+      <translation>Пульт и режимы</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Radio calibration</source>
+      <translation>Калибровка пульта</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Drive modes</source>
+      <translation>Режимы движения</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Joystick</source>
+      <translation>Джойстик</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>SAFETY</source>
+      <translation>БЕЗОПАСНОСТЬ</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Safety</source>
+      <translation>Безопасность</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Failsafes</source>
+      <translation>Фейлсейфы</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Arming checks</source>
+      <translation>Проверки перед армингом</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Frame</source>
+      <translation>Рама</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Logging</source>
+      <translation>Журналы</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Scripting</source>
+      <translation>Скрипты</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Frame type is set</source>
+      <translation>Тип рамы задан</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Frame type is not set</source>
+      <translation>Тип рамы не задан</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Compass and accelerometer are calibrated</source>
+      <translation>Компас и акселерометр откалиброваны</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>The compass and accelerometer need calibration</source>
+      <translation>Нужна калибровка компаса и акселерометра</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Battery monitor: %1</source>
+      <translation>Монитор батареи: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Battery monitor is not set</source>
+      <translation>Монитор батареи не задан</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Left motor: output %1, right motor: output %2</source>
+      <translation>Левый мотор — выход %1, правый — выход %2</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Throttle: output %1, steering: output %2</source>
+      <translation>Газ — выход %1, руль — выход %2</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Motor outputs are not assigned</source>
+      <translation>Выходы моторов не назначены</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>RC radio</source>
+      <translation>Пульт RC</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>The radio is calibrated</source>
+      <translation>Пульт откалиброван</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>The radio is not calibrated: the channels have default values</source>
+      <translation>Пульт не откалиброван: у каналов значения по умолчанию</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Mode switch on channel %1</source>
+      <translation>Переключатель режимов на канале %1</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>The joystick is not connected</source>
+      <translation>Джойстик не подключён</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>The joystick is not calibrated</source>
+      <translation>Джойстик не откалиброван</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Joystick control is off</source>
+      <translation>Управление с джойстика выключено</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Connected, calibrated, control is on</source>
+      <translation>Подключён, откалиброван, управление включено</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Loss of link with NX</source>
+      <translation>Потеря связи с NX</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Loss of link with NX is not monitored</source>
+      <translation>Потеря связи с NX не отслеживается</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>No action is set: the vehicle keeps doing its last command</source>
+      <translation>Действие не задано: борт продолжит выполнять последнюю команду</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>On link loss: %1</source>
+      <translation>При потере связи: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>RC signal loss</source>
+      <translation>Потеря сигнала пульта RC</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>RC signal loss is monitored</source>
+      <translation>Потеря сигнала пульта отслеживается</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>RC signal loss is not monitored</source>
+      <translation>Потеря сигнала пульта не отслеживается</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Low battery</source>
+      <translation>Низкий заряд батареи</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>On low battery: %1</source>
+      <translation>При низком заряде: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>No action on low battery</source>
+      <translation>При низком заряде действие не задано</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Vehicle readiness</source>
+      <translation>Готовность борта</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>What to check before the vehicle goes out. Open an item to go to its settings.</source>
+      <translation>Что проверить перед выездом. Откройте пункт, чтобы перейти к его настройке.</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>%1 of %2 ready</source>
+      <translation>Готово %1 из %2</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Needs attention: %1</source>
+      <translation>Требует внимания: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Ready: %1</source>
+      <translation>Готово: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Open</source>
+      <translation>Открыть</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Fix</source>
+      <translation>Исправить</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>For specialists</source>
+      <translation>Для специалиста</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>All parameters</source>
+      <translation>Все параметры</translation>
+    </message>
     <message>
       <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="26" />
       <source>This operation cannot be performed while the vehicle is armed.</source>

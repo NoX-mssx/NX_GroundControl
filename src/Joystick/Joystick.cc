@@ -1808,6 +1808,16 @@ void Joystick::_buildAvailableButtonsActionList(Vehicle *vehicle)
     _availableButtonActions->append(new AvailableButtonAction(_buttonActionMotorInterlockDisable,
         [this]() { emit motorInterlock(false); }));
 
+    // NX: the vehicle model buttons and the HD / SD switch. The names are stored untranslated, like the
+    // other actions, so an assignment survives a change of language.
+    for (int i = 0; i < kModelButtonActionCount; i++) {
+        _availableButtonActions->append(new AvailableButtonAction(QString::fromLatin1(_buttonActionModelButton).arg(i + 1),
+            [this, i]() { emit modelButton(i, true); },
+            [this, i]() { emit modelButton(i, false); }));
+    }
+    _availableButtonActions->append(new AvailableButtonAction(_buttonActionVideoQuality,
+        [this]() { emit toggleVideoQuality(); }));
+
     const auto customActions = QGCCorePlugin::instance()->joystickActions();
     for (const auto &action : customActions) {
         // onDown is nullptr — dispatch falls through to unknownAction (DownTransition only).

@@ -22,6 +22,8 @@ ColumnLayout {
     spacing: ScreenTools.defaultFontPixelHeight
 
     property bool useDeadband: false
+    /// false: only the calibration part is shown, without the channel monitor and the additional setup below it
+    property bool showMonitor: true
 
     property real _channelValueDisplayWidth: ScreenTools.defaultFontPixelWidth * 30
     property bool _deadbandActive: useDeadband
@@ -307,12 +309,14 @@ ColumnLayout {
         Layout.fillWidth: true
         implicitHeight: 1
         color: qgcPal.text
+        visible: root.showMonitor
     }
 
     // Additional Setup + Channel Monitor
     RowLayout {
         Layout.fillWidth: true
         spacing: ScreenTools.defaultFontPixelHeight
+        visible: root.showMonitor
 
 
         Item {

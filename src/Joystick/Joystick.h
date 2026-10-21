@@ -368,6 +368,10 @@ signals:
     void landingGearDeploy();
     void landingGearRetract();
     void motorInterlock(bool enable);
+    /// NX: a joystick button assigned to a vehicle model button went down or up (index starts at 0)
+    void modelButton(int index, bool down);
+    /// NX: a joystick button assigned to the HD / SD switch was pressed
+    void toggleVideoQuality();
     void unknownAction(const QString &action);
     void vehicleJoystickData(float roll, float pitch, float yaw, float throttle, uint16_t buttonsLow, uint16_t buttonsHigh, float gimbalPitch, float gimbalYaw);
     void rawChannelValuesChanged(QVector<int> channelValues); ///< Signalled during PollingForConfiguration
@@ -521,5 +525,11 @@ private:
     static constexpr const char *_buttonActionLandingGearRetract=  QT_TR_NOOP("Landing gear retract");
     static constexpr const char *_buttonActionMotorInterlockEnable=   QT_TR_NOOP("Motor Interlock enable");
     static constexpr const char *_buttonActionMotorInterlockDisable=  QT_TR_NOOP("Motor Interlock disable");
+    /// NX: a button of the active vehicle model; %1 is its number, starting at 1
+    static constexpr const char *_buttonActionModelButton =        QT_TR_NOOP("Model button %1");
+    /// NX: switch every camera between its HD and SD stream
+    static constexpr const char *_buttonActionVideoQuality =       QT_TR_NOOP("Video HD / SD");
+    /// Model buttons offered for assignment
+    static constexpr int kModelButtonActionCount = 10;
 
 };

@@ -272,6 +272,7 @@ def render_textfield(
     extra_lines: list[str] | None = None,
     description: str = "",
     tr_context: str = "",
+    text_field_width: str = "",
 ) -> str:
     """Render a ``FactTextField`` (or ``LabelledFactTextField``).
 
@@ -290,6 +291,8 @@ def render_textfield(
         lines.append(f"{ii}{label_line}")
     lines.append(f"{ii}    Layout.fillWidth: true")
     lines.append(f"{ii}    fact: {fact_ref}")
+    if text_field_width and qml_type == "LabelledFactTextField":
+        lines.append(f"{ii}    textFieldPreferredWidth: {text_field_width}")
     if enable_when:
         lines.append(f"{ii}    enabled: {enable_when}")
     if placeholder:

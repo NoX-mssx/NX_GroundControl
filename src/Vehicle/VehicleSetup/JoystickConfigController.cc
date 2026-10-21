@@ -48,6 +48,29 @@ void JoystickConfigController::start(void)
     _joystick->_startPollingForConfiguration();
 }
 
+void JoystickConfigController::setFunctionReversed(int stickFunction, bool reversed)
+{
+    if (!_joystick || calibrating() || (stickFunction < 0) || (stickFunction >= Joystick::maxAxisFunction)) {
+        return;
+    }
+
+    const int axis = _joystick->getChannelForFunction(static_cast<StickFunction>(stickFunction));
+    if ((axis < 0) || (axis >= _joystick->axisCount())) {
+        return;
+    }
+
+    Joystick::AxisCalibration_t calibration = _joystick->getAxisCalibration(axis);
+    if (calibration.reversed == reversed) {
+        return;
+    }
+    calibration.reversed = reversed;
+    _joystick->setAxisCalibration(axis, calibration);
+    _joystick->_saveFromCalibrationDataIntoSettings();
+
+    // Refresh the cached channel info so the reversed flags shown in the UI follow
+    _readStoredCalibrationValues();
+}
+
 void JoystickConfigController::_setJoystick(Joystick* joystick)
 {
     if (!joystick) {

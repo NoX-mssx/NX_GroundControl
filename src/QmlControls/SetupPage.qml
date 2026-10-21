@@ -15,7 +15,7 @@ Item {
     property alias  pageComponent:          pageLoader.sourceComponent
     property string pageName:               vehicleComponent ? vehicleComponent.name : ""
     property string pageDescription:        vehicleComponent ? vehicleComponent.description : ""
-    property real   availableWidth:         width - pageLoader.x
+    property real   availableWidth:         width - pageLoader.x - _contentMargin
     property real   availableHeight:        height - pageLoader.y
     property bool   showAdvanced:           false
     property alias  advanced:               advancedCheckBox.checked
@@ -42,6 +42,10 @@ Item {
     property bool   _disableDueToFlying:    vehicleComponent ? (!_vehicleIsRover && !vehicleComponent.allowSetupWhileFlying && _vehicleFlying) : false
     property string _disableReason:         _disableDueToArmed ? qsTr("armed") : qsTr("flying")
     property real   _margins:               ScreenTools.defaultFontPixelHeight * 0.5
+    /// Left and right margin of the title and the content, the same on every setup page
+    property real   _contentMargin:         ScreenTools.defaultFontPixelHeight
+
+    QGCPalette { id: qgcPal; colorGroupEnabled: true }
 
     Component.onCompleted: {
         if(pageLoader.item && pageLoader.item.setupPageCompleted) {
@@ -60,10 +64,12 @@ Item {
 
         RowLayout {
             id:                 headingRow
+            x:                  _contentMargin
+            y:                  _contentMargin * 0.6
             width:              availableWidth
             spacing:            _margins
             layoutDirection:    Qt.RightToLeft
-            visible:            showAdvanced || (pageDescription !== "" && !ScreenTools.isShortScreen)
+            visible:            showAdvanced || pageName !== "" || (pageDescription !== "" && !ScreenTools.isShortScreen)
 
             QGCCheckBox {
                 id:         advancedCheckBox
@@ -72,13 +78,22 @@ Item {
             }
 
             ColumnLayout {
-                spacing:            _margins
+                spacing:            _margins * 0.5
                 Layout.fillWidth:   true
+
+                QGCLabel {
+                    Layout.fillWidth:   true
+                    text:               pageName
+                    font.pointSize:     ScreenTools.largeFontPointSize
+                    font.weight:        Font.DemiBold
+                    visible:            pageName !== ""
+                }
 
                 QGCLabel {
                     Layout.fillWidth:   true
                     wrapMode:           Text.WordWrap
                     text:               pageDescription
+                    color:              qgcPal.colorGrey
                     visible:            pageDescription !== "" && !ScreenTools.isShortScreen
                 }
 
@@ -95,7 +110,8 @@ Item {
         Loader {
             id:                 pageLoader
             objectName:         "setupPage_contentLoader"
-            anchors.topMargin:  _margins
+            x:                  _contentMargin
+            anchors.topMargin:  _contentMargin
             anchors.top:        headingRow.bottom
         }
 

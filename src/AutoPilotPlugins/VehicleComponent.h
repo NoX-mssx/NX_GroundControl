@@ -35,12 +35,15 @@ class VehicleComponent : public QObject
     Q_PROPERTY(QVariantMap sectionKeywords                                  READ sectionKeywords        NOTIFY sectionIdsChanged)
     Q_PROPERTY(QString  vehicleConfigJson                                   READ vehicleConfigJson      CONSTANT)
     Q_PROPERTY(bool     showFirstSectionOnRootClick                         READ showFirstSectionOnRootClick CONSTANT)
+    /// C++ class name: a stable, untranslated key the setup view uses to group pages
+    Q_PROPERTY(QString  className                                           READ className              CONSTANT)
 
 public:
     explicit VehicleComponent(Vehicle *vehicle, AutoPilotPlugin *autopilot, AutoPilotPlugin::KnownVehicleComponent KnownVehicleComponent, QObject *parent = nullptr);
     virtual ~VehicleComponent();
 
     virtual QString name() const = 0;
+    QString className() const { return QString::fromLatin1(metaObject()->className()); }
     virtual QString description() const { return QString(); }
     virtual QString iconResource() const = 0;
     virtual bool requiresSetup() const = 0;

@@ -1,4 +1,6 @@
 #include "VehicleModelManager.h"
+#include "Joystick.h"
+#include "JoystickManager.h"
 #include "LinkConfiguration.h"
 #include "LinkInterface.h"
 #include "MultiVehicleManager.h"
@@ -296,6 +298,10 @@ VehicleModelManager::VehicleModelManager(QObject *parent)
 
     (void) connect(MultiVehicleManager::instance(), &MultiVehicleManager::activeVehicleChanged,
                    this, &VehicleModelManager::_activeVehicleChanged);
+    // Joystick buttons can be assigned to the model buttons and to the HD / SD switch
+    (void) connect(JoystickManager::instance(), &JoystickManager::activeJoystickChanged,
+                   this, &VehicleModelManager::_activeJoystickChanged);
+    _activeJoystickChanged(JoystickManager::instance()->activeJoystick());
     (void) connect(this, &VehicleModelManager::modelsChanged, this, &VehicleModelManager::_updateActiveModel);
     // A high-definition stream can take a long time to start; after that the old picture is let go anyway.
     _switchTimer.setSingleShot(true);
@@ -521,6 +527,31 @@ void VehicleModelManager::_setButtonState(int buttonIndex, bool on, int step)
     _buttonStates[buttonIndex] = on;
     _buttonSteps[buttonIndex] = step;
     emit buttonStatesChanged();
+}
+
+void VehicleModelManager::_activeJoystickChanged(Joystick *joystick)
+{
+    if (_joystick) {
+        (void) disconnect(_joystick, nullptr, this, nullptr);
+    }
+    _joystick = joystick;
+    if (!_joystick) {
+        return;
+    }
+    (void) connect(_joystick, &Joystick::modelButton, this, &VehicleModelManager::_joystickModelButton);
+    (void) connect(_joystick, &Joystick::toggleVideoQuality, this, [this]() { setSecondaryStream(!_secondaryStream); });
+}
+
+void VehicleModelManager::_joystickModelButton(int buttonIndex, bool down)
+{
+    // Each call only acts on the button mode it belongs to: a press-and-hold button follows the joystick
+    // button, the others switch on the press.
+    if (down) {
+        pressButton(buttonIndex);
+        toggleButton(buttonIndex);
+    } else {
+        releaseButton(buttonIndex);
+    }
 }
 
 void VehicleModelManager::toggleButton(int buttonIndex)

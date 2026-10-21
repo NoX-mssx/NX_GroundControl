@@ -754,6 +754,8 @@ SetupPage {
                     QGCButton {
                         width:      _buttonWidth
                         text:       _calibratePressureText
+                        // NX: a ground vehicle does not use the barometer altitude
+                        visible:    globals.activeVehicle ? !globals.activeVehicle.rover : true
                         onClicked:  QGroundControl.showMessageDialog(sensorsPage, _calibratePressureText,
                                                                  qsTr("Pressure calibration will set the %1 to zero at the current pressure reading. %2").arg(_altText).arg(_helpTextFW),
                                                                  Dialog.Cancel | Dialog.Ok,
@@ -767,7 +769,8 @@ SetupPage {
                     QGCButton {
                         width:      _buttonWidth
                         text:       qsTr("CompassMot")
-                        visible:    globals.activeVehicle ? globals.activeVehicle.supports.motorInterference : false
+                        // NX: the procedure is written for copters with propellers; not offered on a rover
+                        visible:    globals.activeVehicle ? (globals.activeVehicle.supports.motorInterference && !globals.activeVehicle.rover) : false
                         onClicked:  compassMotDialogFactory.open()
                     }
 

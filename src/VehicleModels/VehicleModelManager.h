@@ -12,6 +12,8 @@
 
 #include "Vehicle.h"
 
+class Joystick;
+
 Q_DECLARE_LOGGING_CATEGORY(VehicleModelManagerLog)
 
 
@@ -124,6 +126,8 @@ private slots:
     void _activeVehicleChanged(Vehicle *vehicle);
     void _updateActiveModel();
     void _decodingChanged();
+    void _activeJoystickChanged(Joystick *joystick);
+    void _joystickModelButton(int buttonIndex, bool down);
 
 private:
     int _indexOf(const QString &name) const;
@@ -142,6 +146,7 @@ private:
     QVariantList _models;
     QVariantMap _activeModel;
     QPointer<Vehicle> _activeVehicle;
+    QPointer<Joystick> _joystick;
     QList<bool> _cameraEnabled;         ///< Per camera of the active model
     int _mainCameraIndex = 0;
     bool _secondaryStream = false;

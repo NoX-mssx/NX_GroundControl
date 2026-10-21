@@ -21,6 +21,10 @@ public:
     // Overrides from RemoteControlCalibrationController
     void start() final override;
 
+    /// Reverses the joystick axis that drives a stick function (RemoteControlCalibrationController::StickFunction)
+    /// without a new calibration. Ignored while calibrating or when no axis drives the function.
+    Q_INVOKABLE void setFunctionReversed(int stickFunction, bool reversed);
+
 signals:
    void joystickChanged(Joystick* joystick);
 

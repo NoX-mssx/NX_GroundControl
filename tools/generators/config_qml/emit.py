@@ -140,6 +140,7 @@ def _qml_control(
                     label_source=f"{fact_ref}.shortDescription",
                     qml_type="LabelledFactTextField",
                     tr_context=tr_context,
+                    text_field_width="ScreenTools.defaultFontPixelWidth * 30",
                 )
 
             qml = (
@@ -356,6 +357,7 @@ def _qml_control(
         qml_type="LabelledFactTextField",
         description=ctrl.description,
         tr_context=tr_context,
+        text_field_width="ScreenTools.defaultFontPixelWidth * 30",
     )
     # When description is set, render_textfield wraps in a ColumnLayout which
     # has no `fact` property, so we must use the full fact_ref expression.

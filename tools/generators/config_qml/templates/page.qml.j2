@@ -107,8 +107,9 @@ SetupPage {
             ColumnLayout {
                 id: outerColumn
                 spacing: _margins * 1.25
+                // Same width and left edge on every page, so the cards and their fields line up
+                width: Math.min(availableWidth, ScreenTools.defaultFontPixelWidth * 110)
                 anchors.left: parent.left
-                anchors.leftMargin: Math.min((parent.width - width) / 2, _maxLeftMargin)
 {% for sec_qml in sections %}
 
 {{ sec_qml }}
