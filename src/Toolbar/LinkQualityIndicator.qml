@@ -25,12 +25,12 @@ Item {
     TextMetrics {
         id:     widestPing
         font:   pingLabel.font
-        text:   qsTr("%1 ms").arg(9999)
+        text:   qsTr("%1 ms").arg(999)
     }
     TextMetrics {
         id:     widestNoReply
         font:   pingLabel.font
-        text:   qsTr("no reply")
+        text:   "---"
     }
 
     Row {
@@ -52,7 +52,7 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             width:                  Math.ceil(Math.max(widestPing.advanceWidth, widestNoReply.advanceWidth))
             horizontalAlignment:    Text.AlignLeft
-            text:                   control._noReply ? qsTr("no reply") : qsTr("%1 ms").arg(LinkQualityMonitor.pingMs)
+            text:                   control._noReply ? "---" : qsTr("%1 ms").arg(LinkQualityMonitor.pingMs)
             color:                  control._color
             font.weight:            Font.ExtraBold
             font.pointSize:         ScreenTools.mediumFontPointSize

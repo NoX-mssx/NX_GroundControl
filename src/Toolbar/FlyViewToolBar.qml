@@ -171,7 +171,7 @@ Item {
         anchors.bottom:         parent.bottom
         anchors.topMargin:      control.height * 0.18
         anchors.bottomMargin:   control.height * 0.18
-        spacing:                ScreenTools.defaultFontPixelWidth * 2
+        spacing:                ScreenTools.defaultFontPixelWidth * 0.8
 
         Repeater {
             model: control._activeVehicle ? [
