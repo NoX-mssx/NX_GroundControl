@@ -16,6 +16,32 @@ Rectangle {
     readonly property real _margins:    ScreenTools.defaultFontPixelHeight
     property var _linkManager:          QGroundControl.linkManager
 
+    /// Room whose links are listed: the current room when this computer is its admin, otherwise the computer's own links
+    readonly property string _room:     RoomManager.currentRole === "admin" ? RoomManager.currentRoom : ""
+
+    /// Rooms this computer administers: a link can be moved into one of them, or back to this computer
+    readonly property var _adminRooms: RoomManager.rooms.filter(room => room.role === "admin" && room.status === "active")
+    /// Room of the link being edited
+    property string _editRoom: ""
+
+    function _listed(config) {
+        return config && !config.dynamic && config.room === _room
+    }
+
+    /// The room vehicle published from a link, or null
+    function _board(config) {
+        if (!config || config.room === "" || config.roomBoardId === "") {
+            return null
+        }
+        const boards = RoomManager.boards
+        for (let i = 0; i < boards.length; i++) {
+            if (boards[i].boardId === config.roomBoardId) {
+                return boards[i]
+            }
+        }
+        return null
+    }
+
     // Stored configuration selected in the list (null while adding a new link)
     property var originalConfig:    null
     // Working copy being edited (null when nothing is open)
@@ -33,6 +59,7 @@ Rectangle {
     function _openEditor(config) {
         _closeEditor()
         originalConfig = config
+        _editRoom = config ? config.room : _room
         if (config && config.link) {
             // A connected link is shown but not edited; disconnect it first.
             editorLoader.active = true
@@ -52,6 +79,12 @@ Rectangle {
             editor.linkSettings.saveSettings()
         }
         editingConfig.name = editor.nameText
+        // A link moved to another room leaves the old one first and becomes a new vehicle there
+        if (originalConfig && originalConfig.room !== _editRoom && originalConfig.roomBoardId !== "") {
+            RoomManager.unpublishLink(originalConfig)
+            editingConfig.roomBoardId = ""
+        }
+        editingConfig.room = _editRoom
         if (originalConfig) {
             _linkManager.endConfigurationEditing(originalConfig, editingConfig)
         } else {
@@ -62,6 +95,7 @@ Rectangle {
         editingConfig = null
         originalConfig = null
         editorLoader.active = false
+        RoomManager.publishRoomLinks()
     }
 
     /// Moves a link up or down by a number of listed cards
@@ -72,7 +106,7 @@ Rectangle {
         const links = _linkManager.linkConfigurations
         const listed = []
         for (let i = 0; i < links.count; i++) {
-            if (!links.get(i).dynamic) {
+            if (_listed(links.get(i))) {
                 listed.push(i)
             }
         }
@@ -89,8 +123,13 @@ Rectangle {
         if (config.vehicleModel !== "") parts.push(config.vehicleModel)
         if (config.wireGuardProfile !== "") parts.push(config.wireGuardProfile)
         if (config.boardId !== "") parts.push(qsTr("ID %1").arg(config.boardId))
+        const board = _board(config)
+        if (board && board.occupiedBy !== "") parts.push(qsTr("Driven by %1").arg(board.occupiedBy))
         return parts.join(" · ")
     }
+
+    // Another room shows other links: an open editor belongs to the previous one
+    on_RoomChanged: _closeEditor()
 
     Component.onDestruction: {
         if (editingConfig) {
@@ -145,7 +184,7 @@ Rectangle {
                         width:      linkListColumn.width
                         height:     linkCardRow.implicitHeight + ScreenTools.defaultFontPixelHeight * 1.2
                         radius:     ScreenTools.defaultFontPixelHeight
-                        visible:    !object.dynamic
+                        visible:    root._listed(object)
                         color:      _selected ? Qt.rgba(79 / 255, 209 / 255, 197 / 255, 0.08) : (linkCardMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.07) : Qt.rgba(1, 1, 1, 0.04))
                         border.color: _selected ? qgcPal.buttonHighlight : Qt.rgba(1, 1, 1, 0.10)
 
@@ -248,9 +287,18 @@ Rectangle {
                 QGCLabel {
                     width:      parent.width
                     wrapMode:   Text.WordWrap
-                    text:       qsTr("No links yet. Add one to connect to a vehicle.")
+                    text:       root._room !== "" ? qsTr("No vehicles in this room yet. Add a link: it becomes a vehicle of the room that you can give to operators in Access.")
+                                                  : qsTr("No links yet. Add one to connect to a vehicle.")
                     color:      qgcPal.colorGrey
-                    visible:    _linkManager.linkConfigurations.count === 0
+                    visible: {
+                        const links = _linkManager.linkConfigurations
+                        for (let i = 0; i < links.count; i++) {
+                            if (root._listed(links.get(i))) {
+                                return false
+                            }
+                        }
+                        return true
+                    }
                 }
             }
         }
@@ -358,6 +406,15 @@ Rectangle {
                             placeholderText:    qsTr("Board number, e.g. 104")
                             onTextEdited:       root.editingConfig.boardId = text.trim()
                         }
+                    }
+
+                    // Links of a room are its vehicles, given to the room's operators
+                    LabelledComboBox {
+                        label:      qsTr("Room")
+                        visible:    root._adminRooms.length > 0
+                        model:      [ qsTr("This computer") ].concat(root._adminRooms.map(room => room.name))
+                        Component.onCompleted: currentIndex = root._adminRooms.findIndex(room => room.key === root._editRoom) + 1
+                        onActivated: (index) => root._editRoom = index > 0 ? root._adminRooms[index - 1].key : ""
                     }
 
                     LabelledComboBox {
@@ -521,6 +578,8 @@ Rectangle {
                             Dialog.Ok | Dialog.Cancel,
                             function () {
                                 root._closeEditor()
+                                // Operators lose the vehicle with the link
+                                RoomManager.unpublishLink(config)
                                 root._linkManager.removeConfiguration(config)
                             })
                     }

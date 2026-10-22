@@ -4,6 +4,18 @@
     <context>
         <name>SettingsPages.json</name>
         <message>
+            <extracomment>.pages[Rover].name</extracomment>
+            <location filename="../src/AppSettings/pages/SettingsPages.json" />
+            <source>Rover</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <extracomment>.pages[Access].name</extracomment>
+            <location filename="../src/AppSettings/pages/SettingsPages.json" />
+            <source>Access</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
             <extracomment>.pages[General].name</extracomment>
             <location filename="../src/AppSettings/pages/SettingsPages.json" />
             <source>General</source>

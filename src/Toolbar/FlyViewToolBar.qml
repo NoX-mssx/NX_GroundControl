@@ -25,7 +25,7 @@ Item {
         let configs = QGroundControl.linkManager.linkConfigurations
         for (let i = 0; i < configs.count; i++) {
             let config = configs.get(i)
-            if (config && !config.dynamic && config.link) {
+            if (config && (!config.dynamic || config.fromRoom) && config.link) {
                 return config
             }
         }
@@ -40,6 +40,50 @@ Item {
     readonly property color  _barColor:     "#0E1216"
     readonly property color  _pillColor:    Qt.rgba(1, 1, 1, 0.06)
     readonly property color  _buttonColor:  Qt.rgba(1, 1, 1, 0.10)
+
+    /// Links offered in the connect menu. An operator in a room gets only the vehicles the admin gave him; the admin
+    /// of a room gets the room's links; otherwise this computer's own links.
+    function _menuLink(config) {
+        if (!config) {
+            return false
+        }
+        if (RoomManager.operatorMode) {
+            return config.fromRoom
+        }
+        const room = RoomManager.currentRole === "admin" ? RoomManager.currentRoom : ""
+        return !config.dynamic && config.showInMenu && config.room === room
+    }
+
+    /// The room vehicle of a link, or null
+    function _roomBoard(config) {
+        const boardId = config.fromRoom || config.room !== "" ? config.roomBoardId : ""
+        if (boardId === "") {
+            return null
+        }
+        const boards = RoomManager.boards
+        for (let i = 0; i < boards.length; i++) {
+            if (boards[i].boardId === boardId) {
+                return boards[i]
+            }
+        }
+        return null
+    }
+
+    function _menuText(config) {
+        // The board ID follows the name in a smaller font (the label renders the <small> markup).
+        let text = config.name + (config.boardId !== "" ? "  <small>ID " + config.boardId + "</small>" : "")
+        if (config.link) {
+            return text + " (" + qsTr("Connected") + ")"
+        }
+        if (config.fromRoom && RoomManager.connectingBoard === config.roomBoardId) {
+            return text + " (" + qsTr("Connecting…") + ")"
+        }
+        const board = _roomBoard(config)
+        if (board && board.occupiedBy !== "" && !board.occupiedByMe) {
+            return text + "  <small>" + qsTr("occupied by %1").arg(board.occupiedBy) + "</small>"
+        }
+        return text
+    }
 
     /// Opens the link popup, which also lists the vehicle messages (called for critical messages).
     function dropMainStatusIndicatorTool() {
@@ -314,12 +358,23 @@ Item {
                     // Not connected
                     SettingsGroupLayout {
                         Layout.fillWidth:   true
-                        heading:            qsTr("Select Link to Connect")
+                        heading:            RoomManager.currentRoom !== "" && RoomManager.currentRoomInfo.name !== undefined
+                                                ? qsTr("Select Link to Connect: %1").arg(RoomManager.currentRoomInfo.name)
+                                                : qsTr("Select Link to Connect")
                         visible:            control._linkName === ""
 
                         QGCLabel {
-                            text:       qsTr("No Links Configured")
-                            visible:    QGroundControl.linkManager.linkConfigurations.count === 0
+                            text: RoomManager.operatorMode ? qsTr("The admin has not given you any vehicles yet")
+                                                           : qsTr("No Links Configured")
+                            visible: {
+                                const configs = QGroundControl.linkManager.linkConfigurations
+                                for (let i = 0; i < configs.count; i++) {
+                                    if (control._menuLink(configs.get(i))) {
+                                        return false
+                                    }
+                                }
+                                return true
+                            }
                         }
 
                         Repeater {
@@ -327,14 +382,17 @@ Item {
 
                             delegate: QGCButton {
                                 Layout.fillWidth:   true
-                                // The board ID follows the name in a smaller font (the label renders the <small> markup).
-                                text:               object.name + (object.boardId !== "" ? "  <small>ID " + object.boardId + "</small>" : "") +
-                                                    (object.link ? " (" + qsTr("Connected") + ")" : "")
-                                visible:            !object.dynamic && object.showInMenu
-                                enabled:            !object.link
+                                text:               control._menuText(object)
+                                visible:            control._menuLink(object)
+                                enabled:            !object.link && RoomManager.connectingBoard === ""
 
                                 onClicked: {
-                                    QGroundControl.linkManager.createConnectedLink(object)
+                                    if (object.fromRoom) {
+                                        // Reserves the vehicle on the room server first; a busy vehicle is reported there
+                                        RoomManager.connectBoard(object.roomBoardId)
+                                    } else {
+                                        QGroundControl.linkManager.createConnectedLink(object)
+                                    }
                                     mainWindow.closeIndicatorDrawer()
                                 }
                             }

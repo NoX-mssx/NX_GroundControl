@@ -66,7 +66,7 @@ ToolIndicatorPage {
 
                     onClicked: {
                         // Untranslated page key from SettingsPages.json — do not qsTr()
-                        mainWindow.showSettingsTool("Comm Links")
+                        mainWindow.showSettingsTool("Rover")
                         mainWindow.closeIndicatorDrawer()
                     }
                 }

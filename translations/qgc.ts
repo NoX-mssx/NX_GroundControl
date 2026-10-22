@@ -7919,6 +7919,26 @@ VTOL</source>
 <context>
     <name>FlyViewToolBar</name>
     <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
+      <source>Connecting…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
+      <source>occupied by %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
+      <source>Select Link to Connect: %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
+      <source>The admin has not given you any vehicles yet</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
         <location filename="../src/Toolbar/FlyViewToolBar.qml" line="104"/>
         <source>%1 · comms lost</source>
         <translation type="unfinished"></translation>
@@ -12943,6 +12963,11 @@ VTOL</source>
 <context>
     <name>MainWindow</name>
     <message>
+      <location filename="../src/MainWindow/MainWindow.qml" line="1" />
+      <source>Vehicle</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
         <location filename="../src/MainWindow/MainWindow.qml" line="157"/>
         <source>Analyze Tools</source>
         <translation type="unfinished"></translation>
@@ -14388,6 +14413,26 @@ Do you wish to proceed?</source>
 </context>
 <context>
     <name>NxLinksSettings</name>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="1" />
+      <source>Room</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="1" />
+      <source>This computer</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="1" />
+      <source>Driven by %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="1" />
+      <source>No vehicles in this room yet. Add a link: it becomes a vehicle of the room that you can give to operators in Access.</source>
+      <translation type="unfinished" />
+    </message>
     <message>
         <location filename="../src/AppSettings/NxLinksSettings.qml" line="71"/>
         <source>ID %1</source>
@@ -24218,6 +24263,710 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <message>
       <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
       <source>No problems for the period</source>
+      <translation type="unfinished" />
+    </message>
+  </context>
+  <context>
+    <name>RoomManager</name>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Disconnect from the vehicle before switching rooms.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The server's certificate does not match the token. The connection was refused for safety.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The room server is not reachable (%1).</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Cannot connect to the vehicle. It is in use by another connection.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Cannot connect to the vehicle. It is occupied by another operator: %1.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The room token is not valid. Ask the admin for a new one.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Wrong server key.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Too many attempts. Try again in a minute.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>No access: the admin has not given you this vehicle or has turned your access off.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Only the room admin can do this.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Only a server admin can create rooms. Add the server key first.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The vehicle's tunnel was not found on the server. Ask the admin to check the vehicle's WireGuard settings.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The vehicle is no longer reserved for you.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The server does not know this computer. Enter the room token again.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The vehicle was removed from the room.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The room was not found.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The server did not accept this computer's WireGuard key.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>This vehicle already belongs to another room.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>You cannot take away your own admin rights.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The tunnel address of the vehicle is not valid.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Server error (%1).</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>WireGuard for Windows is not installed. It is needed to connect to the vehicles of a room.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>This is not a server key. A server key starts with %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The server %1 was added. You can create rooms on it now.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Add the server key first: rooms are created on your server.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Enter a room name.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Room %1 was created. Give its token to the operators.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>This is not a room token. A room token starts with %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>You are in room %1.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The request to join %1 was sent. The admin has to let you in.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Disconnect from the vehicle before leaving the room.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The room has a new token. The old one no longer works.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Link "%1": only UDP and TCP links can be given to operators.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Link "%1" has no WireGuard tunnel, so operators cannot reach the vehicle. Choose a tunnel for it.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The WireGuard tunnel "%1" of link "%2" was not found.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The WireGuard tunnel "%1" has no IPv4 address.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The admin took vehicle %1 away from you.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>This vehicle is no longer available.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The connection to %1 was closed. %2</source>
+      <translation type="unfinished" />
+    </message>
+  </context>
+  <context>
+    <name>RoverSettings</name>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>%1 (waiting)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Waiting for the admin</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Request rejected</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Access turned off</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Admin</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Operator</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Room</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>This computer</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Updating…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Hide</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Rooms…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Join a room</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Paste the room token from the admin (nxr1.…)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Send request</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>New room</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Room name, e.g. Room1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Create</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Server key</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Added. Another server: paste its key (nxs1.…)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Admin only: the key printed when the server was installed (nxs1.…)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Add server</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Name the admin sees</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Code %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>If you leave the room, nobody will be able to manage it.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>To come back you will need the room token again.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Leave room</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Leave Room</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Leave room "%1"?</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>The request to join "%1" was sent. The admin sees it in Access → Requests with this computer's name "%2" and code %3. The vehicles appear here once the admin lets you in.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>The admin rejected the request. You can send it again with the room token.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>The admin turned off your access to this room.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Vehicles</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>The admin of "%1" gave you these vehicles. Connect here or from the link menu on the main screen. Only one operator can drive a vehicle at a time.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Connected</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Connecting…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Occupied by %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Free</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Disconnect</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Connect</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>No vehicles yet: the admin has to give you one.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Links of room "%1": each one is a vehicle of the room, sent to the server with its model and the server side of its tunnel. Give vehicles to operators in Access.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Links</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Vehicle Models</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>WireGuard</source>
+      <translation type="unfinished" />
+    </message>
+  </context>
+  <context>
+    <name>AccessSettings</name>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>not given yet</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Admin</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Operator</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>code %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>driving %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>access off</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Access: %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Updating…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Room token</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Hide</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Show</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Copy</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>The token is copied. Send it to the operator.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>New token</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>New Room Token</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>The old token will stop working for new requests. Operators already in the room keep their access.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>The operator pastes the token in Rover → Rooms; the request then appears under Requests.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Operators (%1)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Requests (%1)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Requests</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>%1 (you)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Access to the room</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>No operators yet. Send them the room token.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Code %1 · %2</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Reject</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Let in as admin</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Second Admin</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>"%1" will manage the room like you: its vehicles, operators and requests.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Let in</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>No requests. When an operator pastes the room token, the request appears here with his computer's name and code: check the code with him before letting him in.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>last seen %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Vehicles</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>driving now</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>occupied by %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Take away</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Admins can drive every vehicle of the room.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>No vehicles given yet.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Remove from room</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Remove Operator</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Remove "%1" from the room? To come back he will need the room token and your approval.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Back to vehicles</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Give a vehicle</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Vehicles of the room</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Select an operator on the left to give him vehicles. The vehicles are the links of this room in Rover.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>driven by %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>given to %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>its link was deleted</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Free</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Free Vehicle</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Take %1 away from %2? His connection to the vehicle stops.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Remove</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>No vehicles in the room yet. Add links in Rover → Links while this room is selected.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Give a Vehicle to %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Choose the vehicles. The operator sees them in his link menu at once; several operators may share a vehicle, but only one drives it at a time.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>All vehicles of the room are already given to this operator.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>%1 (driven by %2)</source>
       <translation type="unfinished" />
     </message>
   </context>

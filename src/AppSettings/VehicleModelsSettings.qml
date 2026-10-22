@@ -66,6 +66,8 @@ Rectangle {
         if (_errorText === "") {
             _originalName = _edit.name.trim()
             _selectModel(_originalName)
+            // Room vehicles using the model get the change
+            RoomManager.publishRoomLinks()
         }
     }
 
@@ -113,6 +115,7 @@ Rectangle {
         onAcceptedForLoad: (file) => {
             close()
             root._errorText = VehicleModelManager.importModels(file)
+            RoomManager.publishRoomLinks()
         }
 
         // Exports the stored model, so unsaved edits are not part of the file.

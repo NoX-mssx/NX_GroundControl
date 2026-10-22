@@ -86,6 +86,15 @@ public:
     /// @return the named model, or an empty map
     Q_INVOKABLE QVariantMap model(const QString &name) const;
 
+    ~VehicleModelManager() override { if (_instance == this) { _instance = nullptr; } }
+
+    /// The instance QML created, nullptr before that
+    static VehicleModelManager *instance() { return _instance; }
+
+    /// Models of the vehicles received from a room, keyed by the name their links use ("room:<id>").
+    /// They are looked up like the user's own models but never saved or listed.
+    void setRoomModels(const QVariantMap &models);
+
     /// Adds a model, or replaces the one called originalName (which may differ from the new name).
     /// @return an empty string on success, otherwise a message for the user
     Q_INVOKABLE QString saveModel(const QString &originalName, const QVariantMap &model);
@@ -144,6 +153,8 @@ private:
     QString _filePath() const;
 
     QVariantList _models;
+    QVariantMap _roomModels;
+    static VehicleModelManager *_instance;
     QVariantMap _activeModel;
     QPointer<Vehicle> _activeVehicle;
     QPointer<Joystick> _joystick;

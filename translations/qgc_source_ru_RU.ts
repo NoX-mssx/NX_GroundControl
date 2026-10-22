@@ -7945,6 +7945,26 @@ VTOL</translation>
   <context>
     <name>FlyViewToolBar</name>
     <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
+      <source>Connecting…</source>
+      <translation>Подключение…</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
+      <source>occupied by %1</source>
+      <translation>занят: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
+      <source>Select Link to Connect: %1</source>
+      <translation>Выберите линк для подключения: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
+      <source>The admin has not given you any vehicles yet</source>
+      <translation>Администратор ещё не выдал вам борта</translation>
+    </message>
+    <message>
       <location filename="../src/Toolbar/FlyViewToolBar.qml" line="104" />
       <source>%1 · comms lost</source>
       <translation>%1 · связь потеряна</translation>
@@ -12969,6 +12989,11 @@ VTOL</translation>
   <context>
     <name>MainWindow</name>
     <message>
+      <location filename="../src/MainWindow/MainWindow.qml" line="1" />
+      <source>Vehicle</source>
+      <translation>Борт</translation>
+    </message>
+    <message>
       <location filename="../src/MainWindow/MainWindow.qml" line="157" />
       <source>Analyze Tools</source>
       <translation>Инструменты анализа</translation>
@@ -14427,6 +14452,26 @@ Do you wish to proceed?</source>
   </context>
   <context>
     <name>NxLinksSettings</name>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="1" />
+      <source>Room</source>
+      <translation>Комната</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="1" />
+      <source>This computer</source>
+      <translation>Этот компьютер</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="1" />
+      <source>Driven by %1</source>
+      <translation>Управляет: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="1" />
+      <source>No vehicles in this room yet. Add a link: it becomes a vehicle of the room that you can give to operators in Access.</source>
+      <translation>В этой комнате пока нет бортов. Добавьте линк: он станет бортом комнаты, который можно выдать операторам в разделе Доступ.</translation>
+    </message>
     <message>
       <location filename="../src/AppSettings/NxLinksSettings.qml" line="71" />
       <source>ID %1</source>
@@ -24285,6 +24330,710 @@ If a vehicle still has this key configured, you will no longer be able to commun
       <location filename="../src/Toolbar/LagometerPanel.qml" line="1" />
       <source>No problems for the period</source>
       <translation>За период проблем нет</translation>
+    </message>
+  </context>
+  <context>
+    <name>RoomManager</name>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Disconnect from the vehicle before switching rooms.</source>
+      <translation>Отключитесь от борта, прежде чем менять комнату.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The server's certificate does not match the token. The connection was refused for safety.</source>
+      <translation>Сертификат сервера не совпадает с токеном. Соединение отклонено ради безопасности.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The room server is not reachable (%1).</source>
+      <translation>Сервер комнат недоступен (%1).</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Cannot connect to the vehicle. It is in use by another connection.</source>
+      <translation>Подключение к борту невозможно. Он используется другим подключением.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Cannot connect to the vehicle. It is occupied by another operator: %1.</source>
+      <translation>Подключение к борту невозможно. Занято другим оператором: %1.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The room token is not valid. Ask the admin for a new one.</source>
+      <translation>Токен комнаты недействителен. Попросите у администратора новый.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Wrong server key.</source>
+      <translation>Неверный ключ сервера.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Too many attempts. Try again in a minute.</source>
+      <translation>Слишком много попыток. Повторите через минуту.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>No access: the admin has not given you this vehicle or has turned your access off.</source>
+      <translation>Нет доступа: администратор не выдал вам этот борт или отключил ваш доступ.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Only the room admin can do this.</source>
+      <translation>Это может только администратор комнаты.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Only a server admin can create rooms. Add the server key first.</source>
+      <translation>Создавать комнаты может только администратор сервера. Сначала добавьте ключ сервера.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The vehicle's tunnel was not found on the server. Ask the admin to check the vehicle's WireGuard settings.</source>
+      <translation>Туннель борта не найден на сервере. Попросите администратора проверить настройки WireGuard борта.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The vehicle is no longer reserved for you.</source>
+      <translation>Борт больше не закреплён за вами.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The server does not know this computer. Enter the room token again.</source>
+      <translation>Сервер не знает этот компьютер. Введите токен комнаты заново.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The vehicle was removed from the room.</source>
+      <translation>Борт удалён из комнаты.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The room was not found.</source>
+      <translation>Комната не найдена.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The server did not accept this computer's WireGuard key.</source>
+      <translation>Сервер не принял ключ WireGuard этого компьютера.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>This vehicle already belongs to another room.</source>
+      <translation>Этот борт уже относится к другой комнате.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>You cannot take away your own admin rights.</source>
+      <translation>Нельзя снять права администратора с самого себя.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The tunnel address of the vehicle is not valid.</source>
+      <translation>Адрес туннеля борта неверный.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Server error (%1).</source>
+      <translation>Ошибка сервера (%1).</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>WireGuard for Windows is not installed. It is needed to connect to the vehicles of a room.</source>
+      <translation>WireGuard для Windows не установлен. Он нужен для подключения к бортам комнаты.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>This is not a server key. A server key starts with %1</source>
+      <translation>Это не ключ сервера. Ключ сервера начинается с %1</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The server %1 was added. You can create rooms on it now.</source>
+      <translation>Сервер %1 добавлен. Теперь на нём можно создавать комнаты.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Add the server key first: rooms are created on your server.</source>
+      <translation>Сначала добавьте ключ сервера: комнаты создаются на вашем сервере.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Enter a room name.</source>
+      <translation>Введите название комнаты.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Room %1 was created. Give its token to the operators.</source>
+      <translation>Комната %1 создана. Передайте её токен операторам.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>This is not a room token. A room token starts with %1</source>
+      <translation>Это не токен комнаты. Токен комнаты начинается с %1</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>You are in room %1.</source>
+      <translation>Вы в комнате %1.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The request to join %1 was sent. The admin has to let you in.</source>
+      <translation>Запрос на вход в %1 отправлен. Администратор должен его одобрить.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Disconnect from the vehicle before leaving the room.</source>
+      <translation>Отключитесь от борта, прежде чем выйти из комнаты.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The room has a new token. The old one no longer works.</source>
+      <translation>У комнаты новый токен. Старый больше не действует.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Link "%1": only UDP and TCP links can be given to operators.</source>
+      <translation>Линк «%1»: операторам можно выдавать только UDP- и TCP-линки.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Link "%1" has no WireGuard tunnel, so operators cannot reach the vehicle. Choose a tunnel for it.</source>
+      <translation>У линка «%1» нет туннеля WireGuard, операторы не смогут достучаться до борта. Выберите для него туннель.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The WireGuard tunnel "%1" of link "%2" was not found.</source>
+      <translation>Туннель WireGuard «%1» линка «%2» не найден.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The WireGuard tunnel "%1" has no IPv4 address.</source>
+      <translation>У туннеля WireGuard «%1» нет IPv4-адреса.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The admin took vehicle %1 away from you.</source>
+      <translation>Администратор забрал у вас борт %1.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>This vehicle is no longer available.</source>
+      <translation>Этот борт больше недоступен.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The connection to %1 was closed. %2</source>
+      <translation>Подключение к %1 закрыто. %2</translation>
+    </message>
+  </context>
+  <context>
+    <name>RoverSettings</name>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>%1 (waiting)</source>
+      <translation>%1 (ожидание)</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Waiting for the admin</source>
+      <translation>Ждёт администратора</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Request rejected</source>
+      <translation>Запрос отклонён</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Access turned off</source>
+      <translation>Доступ отключён</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Admin</source>
+      <translation>Администратор</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Operator</source>
+      <translation>Оператор</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Room</source>
+      <translation>Комната</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>This computer</source>
+      <translation>Этот компьютер</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Updating…</source>
+      <translation>Обновление…</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Hide</source>
+      <translation>Скрыть</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Rooms…</source>
+      <translation>Комнаты…</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Join a room</source>
+      <translation>Войти в комнату</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Paste the room token from the admin (nxr1.…)</source>
+      <translation>Вставьте токен комнаты от администратора (nxr1.…)</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Send request</source>
+      <translation>Отправить запрос</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>New room</source>
+      <translation>Новая комната</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Room name, e.g. Room1</source>
+      <translation>Название, например Room1</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Create</source>
+      <translation>Создать</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Server key</source>
+      <translation>Ключ сервера</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Added. Another server: paste its key (nxs1.…)</source>
+      <translation>Добавлен. Другой сервер: вставьте его ключ (nxs1.…)</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Admin only: the key printed when the server was installed (nxs1.…)</source>
+      <translation>Только для администратора: ключ, выданный при установке сервера (nxs1.…)</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Add server</source>
+      <translation>Добавить сервер</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Name the admin sees</source>
+      <translation>Имя, которое видит администратор</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Code %1</source>
+      <translation>Код %1</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>If you leave the room, nobody will be able to manage it.</source>
+      <translation>Если вы выйдете из комнаты, управлять ею будет некому.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>To come back you will need the room token again.</source>
+      <translation>Чтобы вернуться, снова понадобится токен комнаты.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Leave room</source>
+      <translation>Выйти из комнаты</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Leave Room</source>
+      <translation>Выход из комнаты</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Leave room "%1"?</source>
+      <translation>Выйти из комнаты «%1»?</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>The request to join "%1" was sent. The admin sees it in Access → Requests with this computer's name "%2" and code %3. The vehicles appear here once the admin lets you in.</source>
+      <translation>Запрос на вход в «%1» отправлен. Администратор увидит его в разделе Доступ → Запросы с именем этого компьютера «%2» и кодом %3. Борта появятся здесь, когда администратор вас впустит.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>The admin rejected the request. You can send it again with the room token.</source>
+      <translation>Администратор отклонил запрос. Его можно отправить снова с токеном комнаты.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>The admin turned off your access to this room.</source>
+      <translation>Администратор отключил ваш доступ к этой комнате.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Vehicles</source>
+      <translation>Борта</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>The admin of "%1" gave you these vehicles. Connect here or from the link menu on the main screen. Only one operator can drive a vehicle at a time.</source>
+      <translation>Администратор «%1» выдал вам эти борта. Подключайтесь здесь или из меню линков на главном экране. Одним бортом одновременно управляет только один оператор.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Connected</source>
+      <translation>Подключён</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Connecting…</source>
+      <translation>Подключение…</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Occupied by %1</source>
+      <translation>Занят: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Free</source>
+      <translation>Свободен</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Disconnect</source>
+      <translation>Отключить</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Connect</source>
+      <translation>Подключить</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>No vehicles yet: the admin has to give you one.</source>
+      <translation>Бортов пока нет: администратор должен выдать вам борт.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Links of room "%1": each one is a vehicle of the room, sent to the server with its model and the server side of its tunnel. Give vehicles to operators in Access.</source>
+      <translation>Линки комнаты «%1»: каждый — это борт комнаты, он уходит на сервер вместе с моделью и серверной частью туннеля. Выдавайте борта операторам в разделе Доступ.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Links</source>
+      <translation>Линки</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Vehicle Models</source>
+      <translation>Модели техники</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>WireGuard</source>
+      <translation>WireGuard</translation>
+    </message>
+  </context>
+  <context>
+    <name>AccessSettings</name>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>not given yet</source>
+      <translation>ещё не выдан</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Admin</source>
+      <translation>Администратор</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Operator</source>
+      <translation>Оператор</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>code %1</source>
+      <translation>код %1</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>driving %1</source>
+      <translation>управляет %1</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>access off</source>
+      <translation>доступ отключён</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Access: %1</source>
+      <translation>Доступ: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Updating…</source>
+      <translation>Обновление…</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Room token</source>
+      <translation>Токен комнаты</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Hide</source>
+      <translation>Скрыть</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Show</source>
+      <translation>Показать</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Copy</source>
+      <translation>Копировать</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>The token is copied. Send it to the operator.</source>
+      <translation>Токен скопирован. Отправьте его оператору.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>New token</source>
+      <translation>Новый токен</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>New Room Token</source>
+      <translation>Новый токен комнаты</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>The old token will stop working for new requests. Operators already in the room keep their access.</source>
+      <translation>Старый токен перестанет работать для новых запросов. Операторы, уже вошедшие в комнату, сохранят доступ.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>The operator pastes the token in Rover → Rooms; the request then appears under Requests.</source>
+      <translation>Оператор вставляет токен в Rover → Комнаты; после этого запрос появится во вкладке Запросы.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Operators (%1)</source>
+      <translation>Операторы (%1)</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Requests (%1)</source>
+      <translation>Запросы (%1)</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Requests</source>
+      <translation>Запросы</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>%1 (you)</source>
+      <translation>%1 (вы)</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Access to the room</source>
+      <translation>Доступ в комнату</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>No operators yet. Send them the room token.</source>
+      <translation>Операторов пока нет. Отправьте им токен комнаты.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Code %1 · %2</source>
+      <translation>Код %1 · %2</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Reject</source>
+      <translation>Отклонить</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Let in as admin</source>
+      <translation>Впустить как админа</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Second Admin</source>
+      <translation>Второй администратор</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>"%1" will manage the room like you: its vehicles, operators and requests.</source>
+      <translation>«%1» будет управлять комнатой наравне с вами: бортами, операторами и запросами.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Let in</source>
+      <translation>Впустить</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>No requests. When an operator pastes the room token, the request appears here with his computer's name and code: check the code with him before letting him in.</source>
+      <translation>Запросов нет. Когда оператор вставит токен комнаты, запрос появится здесь с именем и кодом его компьютера: сверьте код с оператором, прежде чем впустить.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>last seen %1</source>
+      <translation>был в сети %1</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Vehicles</source>
+      <translation>Борта</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>driving now</source>
+      <translation>управляет сейчас</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>occupied by %1</source>
+      <translation>занят: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Take away</source>
+      <translation>Забрать</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Admins can drive every vehicle of the room.</source>
+      <translation>Администраторы могут управлять любым бортом комнаты.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>No vehicles given yet.</source>
+      <translation>Борта пока не выданы.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Remove from room</source>
+      <translation>Удалить из комнаты</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Remove Operator</source>
+      <translation>Удаление оператора</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Remove "%1" from the room? To come back he will need the room token and your approval.</source>
+      <translation>Удалить «%1» из комнаты? Чтобы вернуться, ему понадобятся токен комнаты и ваше одобрение.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Back to vehicles</source>
+      <translation>К бортам комнаты</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Give a vehicle</source>
+      <translation>Передать борт</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Vehicles of the room</source>
+      <translation>Борта комнаты</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Select an operator on the left to give him vehicles. The vehicles are the links of this room in Rover.</source>
+      <translation>Выберите оператора слева, чтобы выдать ему борта. Борта — это линки этой комнаты в разделе Rover.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>driven by %1</source>
+      <translation>управляет %1</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>given to %1</source>
+      <translation>выдан операторам: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>its link was deleted</source>
+      <translation>его линк удалён</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Free</source>
+      <translation>Освободить</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Free Vehicle</source>
+      <translation>Освободить борт</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Take %1 away from %2? His connection to the vehicle stops.</source>
+      <translation>Забрать %1 у %2? Его подключение к борту прервётся.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Remove</source>
+      <translation>Удалить</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>No vehicles in the room yet. Add links in Rover → Links while this room is selected.</source>
+      <translation>В комнате пока нет бортов. Добавьте линки в Rover → Линки, когда выбрана эта комната.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Give a Vehicle to %1</source>
+      <translation>Передать борт: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Choose the vehicles. The operator sees them in his link menu at once; several operators may share a vehicle, but only one drives it at a time.</source>
+      <translation>Выберите борта. Оператор сразу увидит их в меню линков; один борт можно выдать нескольким операторам, но управляет им одновременно только один.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>All vehicles of the room are already given to this operator.</source>
+      <translation>Все борта комнаты уже выданы этому оператору.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>%1 (driven by %2)</source>
+      <translation>%1 (управляет %2)</translation>
     </message>
   </context>
 </TS>

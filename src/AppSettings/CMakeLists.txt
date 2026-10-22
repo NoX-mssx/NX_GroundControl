@@ -66,6 +66,7 @@ qt_add_qml_module(AppSettingsModule
         ${_generated_qml}
 
         # Hand-coded pages and components
+        AccessSettings.qml
         AppLogging.qml
         BluetoothSettings.qml
         DebugWindow.qml
@@ -92,6 +93,7 @@ qt_add_qml_module(AppSettingsModule
         PX4LogUploadSettings.qml
         QmlTest.qml
         RemoteIDGpsLocation.qml
+        RoverSettings.qml
         SerialSettings.qml
         SettingsPage.qml
         TcpSettings.qml

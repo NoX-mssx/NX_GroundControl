@@ -231,6 +231,18 @@ ApplicationWindow {
         function onActiveVehicleChanged() { mainWindow.clearVehicleNotices() }
     }
 
+    // A room vehicle could not be connected (e.g. another operator drives it) or was taken back
+    Connections {
+        target: RoomManager
+        function onConnectFailed(message) {
+            if (_noticesInsteadOfDialogs()) {
+                addVehicleNotice(message, 2, false)
+                return
+            }
+            _showMessageDialogWorker(mainWindow, qsTr("Vehicle"), message)
+        }
+    }
+
     // This variant is only meant to be called by QGCApplication
     function _showMessageDialog(dialogTitle, dialogText) {
         if (_noticesInsteadOfDialogs()) {

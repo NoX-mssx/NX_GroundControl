@@ -59,6 +59,8 @@ public:
 
     /// @return the Windows tunnel name of a profile, empty if there is no such profile
     static QString tunnelForProfile(const QString &profileName);
+    /// A stored profile with its keys, for packing it into a room vehicle; empty when unknown
+    static QVariantMap profileSettings(const QString &name);
 
     /// Tunnel name derived from a link name: WireGuard only allows a limited character set and length.
     Q_INVOKABLE static QString tunnelNameForLink(const QString &linkName);

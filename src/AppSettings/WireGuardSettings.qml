@@ -54,6 +54,8 @@ Rectangle {
         if (_message === "") {
             _selectProfile(_edit.name.trim())
             _message = qsTr("Saved. The tunnel is registered with Windows.")
+            // Room vehicles using the tunnel get the change
+            RoomManager.publishRoomLinks()
         }
     }
 

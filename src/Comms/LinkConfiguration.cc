@@ -32,6 +32,9 @@ LinkConfiguration::LinkConfiguration(const LinkConfiguration *copy, QObject *par
     , _pingAddress(copy->_pingAddress)
     , _boardId(copy->_boardId)
     , _showInMenu(copy->_showInMenu)
+    , _room(copy->_room)
+    , _roomBoardId(copy->_roomBoardId)
+    , _fromRoom(copy->_fromRoom)
     , _throttleLimitEnabled(copy->_throttleLimitEnabled)
     , _pingThreshold1Ms(copy->_pingThreshold1Ms)
     , _throttlePercent1(copy->_throttlePercent1)
@@ -63,6 +66,9 @@ void LinkConfiguration::copyFrom(const LinkConfiguration *source)
     _pingAddress = source->_pingAddress;
     _boardId = source->_boardId;
     _showInMenu = source->_showInMenu;
+    _room = source->_room;
+    _roomBoardId = source->_roomBoardId;
+    _fromRoom = source->_fromRoom;
     _throttleLimitEnabled = source->_throttleLimitEnabled;
     _pingThreshold1Ms = source->_pingThreshold1Ms;
     _throttlePercent1 = source->_throttlePercent1;
@@ -77,11 +83,28 @@ void LinkConfiguration::loadTunnelSettings(const QSettings &settings, const QStr
     _pingAddress = settings.value(root + QStringLiteral("/ping_address")).toString();
     _boardId = settings.value(root + QStringLiteral("/board_id")).toString();
     _showInMenu = settings.value(root + QStringLiteral("/show_in_menu"), true).toBool();
+    _room = settings.value(root + QStringLiteral("/room")).toString();
+    _roomBoardId = settings.value(root + QStringLiteral("/room_board_id")).toString();
     _throttleLimitEnabled = settings.value(root + QStringLiteral("/throttle_limit")).toBool();
     _pingThreshold1Ms = settings.value(root + QStringLiteral("/ping_threshold_1"), _pingThreshold1Ms).toInt();
     _throttlePercent1 = settings.value(root + QStringLiteral("/throttle_percent_1"), _throttlePercent1).toInt();
     _pingThreshold2Ms = settings.value(root + QStringLiteral("/ping_threshold_2"), _pingThreshold2Ms).toInt();
     _throttlePercent2 = settings.value(root + QStringLiteral("/throttle_percent_2"), _throttlePercent2).toInt();
+    emit tunnelSettingsChanged();
+}
+
+void LinkConfiguration::setTunnelSettings(const QString &wireGuardProfile, const QString &pingAddress, const QString &boardId,
+                                          bool throttleLimitEnabled, int pingThreshold1Ms, int throttlePercent1,
+                                          int pingThreshold2Ms, int throttlePercent2)
+{
+    _wireGuardProfile = wireGuardProfile;
+    _pingAddress = pingAddress;
+    _boardId = boardId;
+    _throttleLimitEnabled = throttleLimitEnabled;
+    _pingThreshold1Ms = pingThreshold1Ms;
+    _throttlePercent1 = throttlePercent1;
+    _pingThreshold2Ms = pingThreshold2Ms;
+    _throttlePercent2 = throttlePercent2;
     emit tunnelSettingsChanged();
 }
 
@@ -91,6 +114,8 @@ void LinkConfiguration::saveTunnelSettings(QSettings &settings, const QString &r
     settings.setValue(root + QStringLiteral("/ping_address"), _pingAddress);
     settings.setValue(root + QStringLiteral("/board_id"), _boardId);
     settings.setValue(root + QStringLiteral("/show_in_menu"), _showInMenu);
+    settings.setValue(root + QStringLiteral("/room"), _room);
+    settings.setValue(root + QStringLiteral("/room_board_id"), _roomBoardId);
     settings.setValue(root + QStringLiteral("/throttle_limit"), _throttleLimitEnabled);
     settings.setValue(root + QStringLiteral("/ping_threshold_1"), _pingThreshold1Ms);
     settings.setValue(root + QStringLiteral("/throttle_percent_1"), _throttlePercent1);

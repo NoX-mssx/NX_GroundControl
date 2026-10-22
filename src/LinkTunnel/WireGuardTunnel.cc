@@ -1,5 +1,6 @@
 #include "WireGuardTunnel.h"
 #include "QGCLoggingCategory.h"
+#include "RoomManager.h"
 #include "SecretProtector.h"
 
 #include <QtCore/QDir>
@@ -237,8 +238,19 @@ QVariantMap WireGuardTunnel::profile(const QString &name) const
     return (index < 0) ? QVariantMap() : _profiles().at(index).toMap();
 }
 
+QVariantMap WireGuardTunnel::profileSettings(const QString &name)
+{
+    const int index = _profileIndex(name);
+    return (index < 0) ? QVariantMap() : _profiles().at(index).toMap();
+}
+
 QString WireGuardTunnel::tunnelForProfile(const QString &profileName)
 {
+    // Vehicles received from a room bring their own tunnel, installed by the room manager
+    if (profileName.startsWith(QLatin1String("room:"))) {
+        return RoomManager::tunnelForBoard(profileName.mid(5));
+    }
+
     const int index = _profileIndex(profileName);
     return (index < 0) ? QString() : _profiles().at(index).toMap().value(QLatin1String(kProfileTunnelKey)).toString();
 }

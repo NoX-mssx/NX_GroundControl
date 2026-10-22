@@ -169,7 +169,7 @@ Rectangle {
         // Find and select the default page
         var targetUrl = globals.commingFromRIDIndicator
             ? "qrc:/qml/QGroundControl/AppSettings/RemoteIDSettings.qml"
-            : "qrc:/qml/QGroundControl/AppSettings/GeneralSettings.qml"
+            : "qrc:/qml/QGroundControl/AppSettings/RoverSettings.qml"
         globals.commingFromRIDIndicator = false
 
         for (var i = 0; i < settingsPagesModel.count; i++) {

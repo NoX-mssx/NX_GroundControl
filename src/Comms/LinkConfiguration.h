@@ -35,6 +35,12 @@ class LinkConfiguration : public QObject
     Q_PROPERTY(QString          boardId             MEMBER _boardId             NOTIFY tunnelSettingsChanged)
     /// Whether the link is offered in the connect menu of the fly view
     Q_PROPERTY(bool             showInMenu          MEMBER _showInMenu          NOTIFY tunnelSettingsChanged)
+    /// Admin side: key of the NX Hub room this link is published to as a vehicle, empty for a local link
+    Q_PROPERTY(QString          room                MEMBER _room                NOTIFY tunnelSettingsChanged)
+    /// Admin side: id of the vehicle on the hub, given on the first publish
+    Q_PROPERTY(QString          roomBoardId         MEMBER _roomBoardId         NOTIFY tunnelSettingsChanged)
+    /// Operator side: the link was received from a room; it is not saved and its settings are not shown
+    Q_PROPERTY(bool             fromRoom            READ fromRoom               CONSTANT)
     /// Address pinged to measure the link round trip time (the vehicle's router inside the tunnel), empty for none
     Q_PROPERTY(QString          pingAddress         MEMBER _pingAddress         NOTIFY tunnelSettingsChanged)
     /// Scale joystick throttle down while the ping is above the thresholds below
@@ -81,6 +87,17 @@ public:
     QString pingAddress() const { return _pingAddress; }
     QString boardId() const { return _boardId; }
     bool showInMenu() const { return _showInMenu; }
+    QString room() const { return _room; }
+    void setRoom(const QString &room) { if (_room != room) { _room = room; emit tunnelSettingsChanged(); } }
+    QString roomBoardId() const { return _roomBoardId; }
+    void setRoomBoardId(const QString &id) { if (_roomBoardId != id) { _roomBoardId = id; emit tunnelSettingsChanged(); } }
+    bool fromRoom() const { return _fromRoom; }
+    /// Marks a link built from a room vehicle; such links are dynamic, so they are never saved
+    void setFromRoom(const QString &boardId) { _fromRoom = true; _roomBoardId = boardId; setDynamic(true); }
+    /// Fills the tunnel, ping and throttle fields shared by all link types
+    void setTunnelSettings(const QString &wireGuardProfile, const QString &pingAddress, const QString &boardId,
+                           bool throttleLimitEnabled, int pingThreshold1Ms, int throttlePercent1,
+                           int pingThreshold2Ms, int throttlePercent2);
     void setShowInMenu(bool show) { if (_showInMenu != show) { _showInMenu = show; emit tunnelSettingsChanged(); } }
     bool throttleLimitEnabled() const { return _throttleLimitEnabled; }
     int pingThreshold1Ms() const { return _pingThreshold1Ms; }
@@ -208,6 +225,9 @@ private:
     QString _pingAddress;
     QString _boardId;
     bool _showInMenu = true;
+    QString _room;
+    QString _roomBoardId;
+    bool _fromRoom = false;
     bool _throttleLimitEnabled = false;
     int _pingThreshold1Ms = 300;
     int _throttlePercent1 = 50;

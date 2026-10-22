@@ -63,6 +63,7 @@ add_subdirectory(Toolbar)
 add_subdirectory(Vehicle)
 add_subdirectory(VehicleModels)
 add_subdirectory(LinkTunnel)
+add_subdirectory(Rooms)
 add_subdirectory(VideoManager)
 add_subdirectory(Viewer3D)
 

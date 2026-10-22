@@ -3,6 +3,20 @@
     "fileType": "SettingsPages",
     "pages": [
         {
+            "name": "Rover",
+            "qml": "RoverSettings.qml",
+            "icon": "qrc:/res/VehicleWheel.svg"
+        },
+        {
+            "name": "Access",
+            "qml": "AccessSettings.qml",
+            "icon": "qrc:/InstrumentValueIcons/lock-closed.svg",
+            "visible": "RoomManager.currentRole === 'admin'"
+        },
+        {
+            "divider": true
+        },
+        {
             "name": "General",
             "qml": "GeneralSettings.qml",
             "icon": "qrc:/res/QGCLogoWhite.svg",
@@ -37,11 +51,6 @@
             "icon": "qrc:/InstrumentValueIcons/airplane.svg",
             "pageDefinition": "ADSBVehicleManager.SettingsUI.json",
             "visible": "QGroundControl.settingsManager.adsbVehicleManagerSettings.userVisible"
-        },
-        {
-            "name": "Comm Links",
-            "qml": "NxLinksSettings.qml",
-            "icon": "qrc:/InstrumentValueIcons/link.svg"
         },
         {
             "name": "App Logging",
@@ -93,16 +102,6 @@
             "icon": "qrc:/InstrumentValueIcons/camera.svg",
             "pageDefinition": "Video.SettingsUI.json",
             "visible": "QGroundControl.settingsManager.videoSettings.userVisible"
-        },
-        {
-            "name": "Vehicle Models",
-            "qml": "VehicleModelsSettings.qml",
-            "icon": "qrc:/res/VehicleWheel.svg"
-        },
-        {
-            "name": "WireGuard",
-            "qml": "WireGuardSettings.qml",
-            "icon": "qrc:/InstrumentValueIcons/lock-closed.svg"
         },
         {
             "divider": true

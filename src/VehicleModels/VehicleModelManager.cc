@@ -291,9 +291,12 @@ QVariantList convertCameraSecrets(const QVariantList &cameras, bool forDisk)
 
 } // namespace
 
+VehicleModelManager *VehicleModelManager::_instance = nullptr;
+
 VehicleModelManager::VehicleModelManager(QObject *parent)
     : QObject(parent)
 {
+    _instance = this;
     _load();
 
     (void) connect(MultiVehicleManager::instance(), &MultiVehicleManager::activeVehicleChanged,
@@ -659,7 +662,19 @@ QStringList VehicleModelManager::cameraTypes() const
 QVariantMap VehicleModelManager::model(const QString &name) const
 {
     const int index = _indexOf(name);
-    return (index < 0) ? QVariantMap() : _models.at(index).toMap();
+    if (index < 0) {
+        return _roomModels.value(name).toMap();
+    }
+    return _models.at(index).toMap();
+}
+
+void VehicleModelManager::setRoomModels(const QVariantMap &models)
+{
+    if (models == _roomModels) {
+        return;
+    }
+    _roomModels = models;
+    _updateActiveModel();
 }
 
 QString VehicleModelManager::saveModel(const QString &originalName, const QVariantMap &model)

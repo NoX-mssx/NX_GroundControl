@@ -72,6 +72,8 @@ public:
     Q_INVOKABLE LogReplayLink *startLogReplay(const QString &logFile);
 
     QList<SharedLinkInterfacePtr> links();
+    /// All configurations, including the dynamic ones
+    QList<SharedLinkConfigurationPtr> linkConfigurationList() const { return _rgLinkConfigs; }
     QStringList linkTypeStrings() const;
     bool mavlinkSupportForwardingEnabled() const { return _mavlinkSupportForwardingEnabled; }
 
