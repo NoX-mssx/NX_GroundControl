@@ -446,7 +446,7 @@ Item {
     Rectangle {
         id:                     motorDetailsPanel
         anchors.right:          motorTelemetryPill.right
-        anchors.bottom:         motorTelemetryPill.top
+        anchors.bottom:         radioPill.visible ? radioPill.top : motorTelemetryPill.top
         anchors.bottomMargin:   ScreenTools.defaultFontPixelHeight / 2
         width:                  motorDetailsGrid.implicitWidth + ScreenTools.defaultFontPixelWidth * 3
         height:                 motorDetailsGrid.implicitHeight + ScreenTools.defaultFontPixelHeight
@@ -504,6 +504,104 @@ Item {
         MouseArea {
             anchors.fill:   parent
             onClicked:      motorDetailsPanel.visible = false
+        }
+    }
+
+    // Bottom right, above the readouts: the radio of the room (play/pause, what plays, volume)
+    Rectangle {
+        id:                     radioPill
+        anchors.right:          parent.right
+        anchors.bottom:         (homePill.visible || motorTelemetryPill.visible) ? homePill.top : parent.bottom
+        anchors.bottomMargin:   (homePill.visible || motorTelemetryPill.visible) ? ScreenTools.defaultFontPixelWidth : 0
+        width:                  radioRow.implicitWidth + ScreenTools.defaultFontPixelWidth * 1.6
+        height:                 _root._railButtonSize + ScreenTools.defaultFontPixelWidth
+        radius:                 height / 2
+        color:                  _root._glassColor
+        border.color:           _root._glassBorder
+        visible:                RoomRadio.supported && RoomRadio.available && RoomRadio.enabled
+
+        RowLayout {
+            id:                 radioRow
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.left:       parent.left
+            anchors.leftMargin: ScreenTools.defaultFontPixelWidth * 0.5
+            spacing:            ScreenTools.defaultFontPixelWidth
+
+            RailButton {
+                Layout.preferredWidth:  _root._railButtonSize * 0.85
+                Layout.preferredHeight: Layout.preferredWidth
+                checked:                RoomRadio.playing
+                iconSource:             RoomRadio.playing ? "/res/nx/Pause.svg" : "/res/nx/Play.svg"
+                onClicked:              RoomRadio.toggle()
+            }
+
+            Column {
+                Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 24
+
+                QGCLabel {
+                    width:          parent.width
+                    text:           qsTr("Radio")
+                    color:          qgcPal.colorGrey
+                    font.pointSize: ScreenTools.smallFontPointSize
+                }
+                QGCLabel {
+                    width:          parent.width
+                    elide:          Text.ElideRight
+                    font.weight:    Font.DemiBold
+                    text: {
+                        if (RoomRadio.playing && RoomRadio.status === "connecting") {
+                            return qsTr("Connecting…")
+                        }
+                        return RoomRadio.nowPlaying !== "" ? RoomRadio.nowPlaying : qsTr("No tracks on air")
+                    }
+                }
+            }
+
+            QGCColoredImage {
+                Layout.preferredWidth:  ScreenTools.defaultFontPixelHeight
+                Layout.preferredHeight: Layout.preferredWidth
+                sourceSize.height:      Layout.preferredHeight
+                source:                 RoomRadio.volume > 0 ? "/res/nx/Speaker.svg" : "/res/nx/SpeakerOff.svg"
+                color:                  qgcPal.text
+            }
+
+            // Volume: a thin bar filled in the accent colour
+            Slider {
+                id:                     radioVolume
+                Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 12
+                Layout.preferredHeight: _root._railButtonSize * 0.6
+                Layout.rightMargin:     ScreenTools.defaultFontPixelWidth
+                padding:                0
+                from:                   0
+                to:                     1
+                value:                  RoomRadio.volume
+                onMoved:                RoomRadio.volume = value
+
+                background: Rectangle {
+                    x:      radioVolume.leftPadding
+                    y:      radioVolume.topPadding + (radioVolume.availableHeight - height) / 2
+                    width:  radioVolume.availableWidth
+                    height: ScreenTools.defaultFontPixelHeight * 0.25
+                    radius: height / 2
+                    color:  Qt.rgba(1, 1, 1, 0.18)
+
+                    Rectangle {
+                        width:  radioVolume.visualPosition * parent.width
+                        height: parent.height
+                        radius: parent.radius
+                        color:  _root._accent
+                    }
+                }
+
+                handle: Rectangle {
+                    x:      radioVolume.leftPadding + radioVolume.visualPosition * (radioVolume.availableWidth - width)
+                    y:      radioVolume.topPadding + (radioVolume.availableHeight - height) / 2
+                    width:  ScreenTools.defaultFontPixelHeight * 0.85
+                    height: width
+                    radius: width / 2
+                    color:  radioVolume.pressed ? _root._accent : qgcPal.text
+                }
+            }
         }
     }
 
@@ -695,6 +793,14 @@ Item {
                 visible:    MotorTelemetryMonitor.config.enabled === true
                 checked:    _root._videoSettings.showMotorTelemetryOverlay.rawValue
                 onClicked:  _root._videoSettings.showMotorTelemetryOverlay.rawValue = checked
+            }
+
+            // Shown while the room broadcasts; off also stops the sound
+            QGCCheckBox {
+                text:       qsTr("Radio")
+                visible:    RoomRadio.supported && RoomRadio.available
+                checked:    RoomRadio.enabled
+                onClicked:  RoomRadio.enabled = checked
             }
         }
     }

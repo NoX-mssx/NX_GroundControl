@@ -196,6 +196,7 @@ Rectangle {
 
             QGCTabButton { text: qsTr("Operators (%1)").arg(RoomManager.members.length) }
             QGCTabButton { text: RoomManager.requests.length > 0 ? qsTr("Requests (%1)").arg(RoomManager.requests.length) : qsTr("Requests") }
+            QGCTabButton { text: qsTr("Radio") }
         }
 
         StackLayout {
@@ -409,6 +410,272 @@ Rectangle {
                             color:      qgcPal.colorGrey
                             visible:    RoomManager.requests.length === 0
                             text:       qsTr("No requests. When an operator pastes the room token, the request appears here with his computer's name and code: check the code with him before letting him in.")
+                        }
+                    }
+                }
+            }
+
+            // ---- Radio: the playlist the room server plays to the operators ----
+            Item {
+                id: radioTab
+
+                readonly property var  _radio:      RoomManager.radio
+                readonly property var  _tracks:     _radio.tracks || []
+                readonly property var  _now:        _radio.now || null
+                readonly property var  _upload:     RoomManager.radioUpload
+                readonly property bool _supported:  _radio.supported === true
+
+                function _duration(seconds) {
+                    const total = Math.round(seconds || 0)
+                    const minutes = Math.floor(total / 60)
+                    const rest = total % 60
+                    return minutes + ":" + (rest < 10 ? "0" : "") + rest
+                }
+
+                function _megabytes(bytes) {
+                    return Math.round((bytes || 0) / (1024 * 1024))
+                }
+
+                // What plays and how far, refreshed while the tab is open
+                Timer {
+                    interval:           5000
+                    repeat:             true
+                    running:            radioTab.visible
+                    triggeredOnStart:   true
+                    onTriggered:        RoomManager.refreshRadio()
+                }
+
+                FileDialog {
+                    id:             trackDialog
+                    title:          qsTr("Add Tracks")
+                    fileMode:       FileDialog.OpenFiles
+                    nameFilters:    radioTab._radio.convert ? [ qsTr("Audio (*.mp3 *.m4a *.aac *.ogg *.opus *.flac *.wav *.wma)"), qsTr("All files (*)") ]
+                                                            : [ qsTr("MP3 (*.mp3)") ]
+                    onAccepted:     RoomManager.uploadRadioTracks(selectedFiles)
+                }
+
+                QGCLabel {
+                    anchors.centerIn:   parent
+                    width:              Math.min(parent.width - _margins * 2, ScreenTools.defaultFontPixelWidth * 70)
+                    horizontalAlignment: Text.AlignHCenter
+                    wrapMode:           Text.WordWrap
+                    color:              qgcPal.colorGrey
+                    visible:            !radioTab._supported
+                    text:               qsTr("The room server does not have the radio yet. Install the new version of NX Hub on the VPS.")
+                }
+
+                ColumnLayout {
+                    anchors.fill:   parent
+                    spacing:        _margins * 0.6
+                    visible:        radioTab._supported
+
+                    // On air, what plays, how many listen
+                    Rectangle {
+                        Layout.fillWidth:       true
+                        Layout.preferredHeight: airRow.implicitHeight + _margins
+                        radius:                 _margins
+                        color:                  _cardColor
+                        border.color:           radioTab._radio.onAir ? qgcPal.buttonHighlight : _cardBorder
+
+                        RowLayout {
+                            id:                     airRow
+                            anchors.left:           parent.left
+                            anchors.right:          parent.right
+                            anchors.verticalCenter: parent.verticalCenter
+                            anchors.leftMargin:     _margins
+                            anchors.rightMargin:    _margins
+                            spacing:                ScreenTools.defaultFontPixelWidth * 2
+
+                            QGCCheckBoxSlider {
+                                text:       qsTr("On air")
+                                checked:    radioTab._radio.onAir === true
+                                onClicked:  RoomManager.setRadioOnAir(checked)
+                            }
+
+                            Column {
+                                Layout.fillWidth: true
+
+                                QGCLabel {
+                                    width:          parent.width
+                                    elide:          Text.ElideRight
+                                    font.weight:    Font.DemiBold
+                                    text: {
+                                        if (!radioTab._radio.onAir) {
+                                            return qsTr("The radio is off. Operators do not see it.")
+                                        }
+                                        if (!radioTab._now) {
+                                            return qsTr("On air, but the playlist is empty")
+                                        }
+                                        return qsTr("Now: %1 (%2 of %3)").arg(radioTab._now.name)
+                                                    .arg(radioTab._duration(Math.min(radioTab._now.elapsed, radioTab._now.duration)))
+                                                    .arg(radioTab._duration(radioTab._now.duration))
+                                    }
+                                }
+                                QGCLabel {
+                                    width:          parent.width
+                                    color:          qgcPal.colorGrey
+                                    font.pointSize: ScreenTools.smallFontPointSize
+                                    visible:        radioTab._radio.onAir === true
+                                    text:           qsTr("Listening now: %1").arg(radioTab._radio.listeners || 0)
+                                }
+                            }
+
+                            QGCButton {
+                                text:       qsTr("Next track")
+                                enabled:    radioTab._radio.onAir === true && radioTab._tracks.length > 1
+                                onClicked:  RoomManager.nextRadioTrack()
+                            }
+                        }
+                    }
+
+                    // Adding tracks
+                    RowLayout {
+                        Layout.fillWidth:   true
+                        spacing:            ScreenTools.defaultFontPixelWidth
+
+                        QGCButton {
+                            text:       qsTr("Add tracks…")
+                            primary:    true
+                            onClicked:  trackDialog.open()
+                        }
+
+                        ColumnLayout {
+                            Layout.fillWidth:   true
+                            spacing:            ScreenTools.defaultFontPixelHeight * 0.2
+                            visible:            radioTab._upload.active === true
+
+                            QGCLabel {
+                                Layout.fillWidth:   true
+                                elide:              Text.ElideRight
+                                text: (radioTab._upload.progress || 0) < 0.9
+                                          ? qsTr("Uploading %1 of %2: %3").arg(radioTab._upload.index).arg(radioTab._upload.count).arg(radioTab._upload.name)
+                                          : qsTr("Converting %1 of %2 on the server: %3").arg(radioTab._upload.index).arg(radioTab._upload.count).arg(radioTab._upload.name)
+                            }
+                            Rectangle {
+                                Layout.fillWidth:       true
+                                Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 0.3
+                                radius:                 height / 2
+                                color:                  Qt.rgba(1, 1, 1, 0.12)
+
+                                Rectangle {
+                                    width:  parent.width * Math.min(1, radioTab._upload.progress || 0)
+                                    height: parent.height
+                                    radius: parent.radius
+                                    color:  qgcPal.buttonHighlight
+                                }
+                            }
+                        }
+
+                        QGCButton {
+                            text:       qsTr("Cancel")
+                            visible:    radioTab._upload.active === true
+                            onClicked:  RoomManager.cancelRadioUpload()
+                        }
+
+                        Item {
+                            Layout.fillWidth:   true
+                            visible:            radioTab._upload.active !== true
+                        }
+
+                        QGCLabel {
+                            color:          qgcPal.colorGrey
+                            font.pointSize: ScreenTools.smallFontPointSize
+                            text:           qsTr("%1 MB of %2 MB").arg(radioTab._megabytes(radioTab._radio.bytes)).arg(radioTab._megabytes(radioTab._radio.maxBytes))
+                        }
+                    }
+
+                    QGCLabel {
+                        Layout.fillWidth:   true
+                        wrapMode:           Text.WordWrap
+                        color:              qgcPal.colorGrey
+                        font.pointSize:     ScreenTools.smallFontPointSize
+                        text:               radioTab._radio.convert
+                                                ? qsTr("MP3, M4A, FLAC, WAV, OGG and other audio files: the server converts them to MP3 128 kbit/s. The playlist plays in a loop, in this order; every operator hears the same moment of it.")
+                                                : qsTr("Only MP3 files: ffmpeg is not installed on the server. The playlist plays in a loop, in this order; every operator hears the same moment of it.")
+                    }
+
+                    // The playlist
+                    QGCFlickable {
+                        Layout.fillWidth:   true
+                        Layout.fillHeight:  true
+                        contentHeight:      trackColumn.height
+                        clip:               true
+
+                        Column {
+                            id:         trackColumn
+                            width:      parent.width
+                            spacing:    _margins * 0.3
+
+                            Repeater {
+                                model: radioTab._tracks
+
+                                Rectangle {
+                                    width:          trackColumn.width
+                                    height:         Math.max(trackRow.implicitHeight, ScreenTools.defaultFontPixelHeight * 2) + ScreenTools.defaultFontPixelHeight * 0.6
+                                    radius:         ScreenTools.defaultFontPixelHeight * 0.6
+                                    color:          _playing ? root._selectedColor : root._cardColor
+                                    border.color:   _playing ? qgcPal.buttonHighlight : root._cardBorder
+
+                                    readonly property bool _playing: radioTab._now !== null && radioTab._now.trackId === modelData.trackId
+
+                                    RowLayout {
+                                        id:                     trackRow
+                                        anchors.left:           parent.left
+                                        anchors.right:          parent.right
+                                        anchors.leftMargin:     ScreenTools.defaultFontPixelWidth * 1.4
+                                        anchors.rightMargin:    ScreenTools.defaultFontPixelWidth * 0.6
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        spacing:                ScreenTools.defaultFontPixelWidth
+
+                                        QGCLabel {
+                                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 3
+                                            text:                   index + 1
+                                            color:                  qgcPal.colorGrey
+                                        }
+                                        QGCLabel {
+                                            Layout.fillWidth:   true
+                                            elide:              Text.ElideRight
+                                            text:               modelData.name
+                                            font.weight:        _playing ? Font.ExtraBold : Font.Normal
+                                        }
+                                        QGCLabel {
+                                            text:   radioTab._duration(modelData.duration)
+                                            color:  qgcPal.colorGrey
+                                        }
+                                        QGCButton {
+                                            text:       "↑"
+                                            enabled:    index > 0
+                                            onClicked:  RoomManager.moveRadioTrack(modelData.trackId, index - 1)
+                                        }
+                                        QGCButton {
+                                            text:       "↓"
+                                            enabled:    index < radioTab._tracks.length - 1
+                                            onClicked:  RoomManager.moveRadioTrack(modelData.trackId, index + 1)
+                                        }
+                                        QGCButton {
+                                            text:       qsTr("Delete")
+                                            textColor:  qgcPal.warningText
+                                            onClicked: {
+                                                const track = modelData
+                                                QGroundControl.showMessageDialog(
+                                                    root,
+                                                    qsTr("Delete Track"),
+                                                    qsTr("Delete \"%1\" from the room's playlist?").arg(track.name),
+                                                    Dialog.Ok | Dialog.Cancel,
+                                                    function () { RoomManager.deleteRadioTrack(track.trackId) })
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            QGCLabel {
+                                width:      parent.width
+                                wrapMode:   Text.WordWrap
+                                color:      qgcPal.colorGrey
+                                visible:    radioTab._tracks.length === 0
+                                text:       qsTr("No tracks yet. Add your own music: the room plays it in a loop to its operators.")
+                            }
                         }
                     }
                 }

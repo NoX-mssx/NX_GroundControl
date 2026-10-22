@@ -12,6 +12,8 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QCryptographicHash>
 #include <QtCore/QEventLoop>
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
 #include <QtCore/QJsonArray>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QRandomGenerator>
@@ -344,6 +346,7 @@ void RoomManager::setCurrentRoom(const QString &roomKey)
     _members.clear();
     _requests.clear();
     _removeRoomLinks();
+    _setRadio(0, QJsonObject());
     emit currentRoomChanged();
     emit boardsChanged();
     emit membersChanged();
@@ -513,13 +516,13 @@ RoomManager::Server *RoomManager::_server(const QString &serverKey)
 
 // ---- HTTPS ---------------------------------------------------------------------------------------------------
 
-void RoomManager::_request(const QString &serverKey, const QString &method, const QString &path, const QJsonObject &body,
-                           const Done &done)
+QNetworkReply *RoomManager::_send(const QString &serverKey, const QByteArray &method, const QString &path,
+                                  const QByteArray &contentType, const QByteArray &data, QIODevice *device, int timeoutMs,
+                                  const QList<QPair<QByteArray, QByteArray>> &headers)
 {
     const Server *const server = _server(serverKey);
     if (!server) {
-        done(0, QJsonObject{{QStringLiteral("error"), QStringLiteral("no_server")}});
-        return;
+        return nullptr;
     }
 
     QUrl url;
@@ -529,19 +532,29 @@ void RoomManager::_request(const QString &serverKey, const QString &method, cons
     url.setPath(path);
 
     QNetworkRequest request(url);
-    request.setTransferTimeout(kRequestTimeoutMs);
+    request.setTransferTimeout(timeoutMs);
     request.setAttribute(QNetworkRequest::Http2AllowedAttribute, false);
-    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
+    if (!contentType.isEmpty()) {
+        request.setHeader(QNetworkRequest::ContentTypeHeader, QString::fromLatin1(contentType));
+    }
     if (!server->token.isEmpty()) {
         request.setRawHeader("Authorization", "Bearer " + server->token.toUtf8());
+    }
+    for (const auto &header : headers) {
+        request.setRawHeader(header.first, header.second);
     }
     // The hub's certificate is self-signed: it is checked against the fingerprint from the token instead
     QSslConfiguration ssl = QSslConfiguration::defaultConfiguration();
     ssl.setPeerVerifyMode(QSslSocket::VerifyNone);
     request.setSslConfiguration(ssl);
 
-    const QByteArray data = (method == QLatin1String("GET")) ? QByteArray() : QJsonDocument(body).toJson(QJsonDocument::Compact);
-    QNetworkReply *const reply = _network->sendCustomRequest(request, method.toLatin1(), data);
+    QNetworkReply *reply = nullptr;
+    if (device) {
+        request.setHeader(QNetworkRequest::ContentLengthHeader, device->size());
+        reply = _network->sendCustomRequest(request, method, device);
+    } else {
+        reply = _network->sendCustomRequest(request, method, data);
+    }
 
     const QString fingerprint = server->fingerprint;
     // Emitted after the TLS handshake and before any data (the token) is sent
@@ -553,9 +566,13 @@ void RoomManager::_request(const QString &serverKey, const QString &method, cons
             reply->abort();
         }
     });
+    return reply;
+}
 
+void RoomManager::_whenFinished(QNetworkReply *reply, const Done &done)
+{
     _setPending(1);
-    (void) connect(reply, &QNetworkReply::finished, this, [this, reply, done, method, path]() {
+    (void) connect(reply, &QNetworkReply::finished, this, [this, reply, done]() {
         reply->deleteLater();
         _setPending(-1);
 
@@ -569,9 +586,22 @@ void RoomManager::_request(const QString &serverKey, const QString &method, cons
         } else {
             json = QJsonDocument::fromJson(reply->readAll()).object();
         }
-        qCDebug(RoomManagerLog) << method << path << status << json.value(QLatin1String("error")).toString();
+        qCDebug(RoomManagerLog) << reply->operation() << reply->url().path() << status << json.value(QLatin1String("error")).toString();
         done(status, json);
     });
+}
+
+void RoomManager::_request(const QString &serverKey, const QString &method, const QString &path, const QJsonObject &body,
+                           const Done &done)
+{
+    const QByteArray data = (method == QLatin1String("GET")) ? QByteArray() : QJsonDocument(body).toJson(QJsonDocument::Compact);
+    QNetworkReply *const reply = _send(serverKey, method.toLatin1(), path, QByteArrayLiteral("application/json"), data, nullptr,
+                                       kRequestTimeoutMs);
+    if (!reply) {
+        done(0, QJsonObject{{QStringLiteral("error"), QStringLiteral("no_server")}});
+        return;
+    }
+    _whenFinished(reply, done);
 }
 
 QString RoomManager::_errorText(int status, const QJsonObject &reply) const
@@ -605,6 +635,12 @@ QString RoomManager::_errorText(int status, const QJsonObject &reply) const
         {QStringLiteral("other_room"), QT_TR_NOOP("This vehicle already belongs to another room.")},
         {QStringLiteral("self"), QT_TR_NOOP("You cannot take away your own admin rights.")},
         {QStringLiteral("bad_address"), QT_TR_NOOP("The tunnel address of the vehicle is not valid.")},
+        {QStringLiteral("bad_audio"), QT_TR_NOOP("The file could not be read as audio.")},
+        {QStringLiteral("mp3_only"), QT_TR_NOOP("Only MP3 files can be added: ffmpeg is not installed on the server.")},
+        {QStringLiteral("too_large"), QT_TR_NOOP("The file is too large.")},
+        {QStringLiteral("quota"), QT_TR_NOOP("The room's playlist is full. Delete some tracks first.")},
+        {QStringLiteral("radio_off"), QT_TR_NOOP("The radio of this room is off.")},
+        {QStringLiteral("no_track"), QT_TR_NOOP("The track was not found.")},
     };
     if (const auto it = messages.constFind(code); it != messages.cend()) {
         return tr(it.value());
@@ -877,8 +913,10 @@ void RoomManager::_refreshCurrentRoom()
         _setBoards(QJsonArray());
         _setMembers(QJsonArray());
         _setRequests(QJsonArray());
+        _setRadio(0, QJsonObject());
         return;
     }
+    refreshRadio();
 
     const QString roomKey = _currentRoom;
     const QString serverKey = _serverKeyOf(roomKey);
@@ -1088,6 +1126,227 @@ void RoomManager::rotateInvite()
 {
     _roomRequest(QStringLiteral("POST"), QStringLiteral("/invite"), QJsonObject(),
                  [this]() { emit info(tr("The room has a new token. The old one no longer works.")); });
+}
+
+// ---- radio -----------------------------------------------------------------------------------------------------
+
+void RoomManager::_setRadio(int status, const QJsonObject &reply)
+{
+    QVariantMap radio;
+    if (status == 200) {
+        radio[QStringLiteral("supported")] = true;
+        radio[QStringLiteral("onAir")] = reply.value(QLatin1String("on_air")).toBool();
+        radio[QStringLiteral("convert")] = reply.value(QLatin1String("convert")).toBool();
+        const QJsonObject now = reply.value(QLatin1String("now")).toObject();
+        if (!now.isEmpty()) {
+            radio[QStringLiteral("now")] = QVariantMap{
+                {QStringLiteral("trackId"), now.value(QLatin1String("track_id")).toString()},
+                {QStringLiteral("name"), now.value(QLatin1String("name")).toString()},
+                {QStringLiteral("duration"), now.value(QLatin1String("duration")).toDouble()},
+                {QStringLiteral("elapsed"), now.value(QLatin1String("elapsed")).toDouble()},
+            };
+        }
+        if (reply.contains(QLatin1String("tracks"))) {
+            QVariantList tracks;
+            for (const QJsonValue &value : reply.value(QLatin1String("tracks")).toArray()) {
+                const QJsonObject track = value.toObject();
+                tracks.append(QVariantMap{
+                    {QStringLiteral("trackId"), track.value(QLatin1String("track_id")).toString()},
+                    {QStringLiteral("name"), track.value(QLatin1String("name")).toString()},
+                    {QStringLiteral("duration"), track.value(QLatin1String("duration")).toDouble()},
+                    {QStringLiteral("size"), track.value(QLatin1String("size")).toDouble()},
+                });
+            }
+            radio[QStringLiteral("tracks")] = tracks;
+            radio[QStringLiteral("listeners")] = reply.value(QLatin1String("listeners")).toInt();
+            radio[QStringLiteral("bytes")] = reply.value(QLatin1String("bytes")).toDouble();
+            radio[QStringLiteral("maxBytes")] = reply.value(QLatin1String("max_bytes")).toDouble();
+            radio[QStringLiteral("maxUpload")] = reply.value(QLatin1String("max_upload")).toDouble();
+        }
+    } else if (status != 0) {
+        // A hub without radio answers 404; any other answer leaves the radio unknown
+        radio[QStringLiteral("supported")] = false;
+    } else if (!_currentRoom.isEmpty() && !reply.isEmpty()) {
+        // No connection to the hub: keep what was known
+        return;
+    }
+    if (radio != _radio) {
+        _radio = radio;
+        emit radioChanged();
+    }
+}
+
+void RoomManager::refreshRadio()
+{
+    if (_currentRoom.isEmpty() || currentRole().isEmpty()) {
+        _setRadio(0, QJsonObject());
+        return;
+    }
+    const QString roomKey = _currentRoom;
+    _request(_serverKeyOf(roomKey), QStringLiteral("GET"), QStringLiteral("/v1/rooms/%1/radio").arg(_roomIdOf(roomKey)), QJsonObject(),
+             [this, roomKey](int status, const QJsonObject &reply) {
+        if (roomKey == _currentRoom) {
+            _setRadio(status, reply);
+        }
+    });
+}
+
+void RoomManager::_radioRequest(const QString &method, const QString &subPath, const QJsonObject &body)
+{
+    if (_currentRoom.isEmpty()) {
+        return;
+    }
+    const QString roomKey = _currentRoom;
+    _request(_serverKeyOf(roomKey), method, QStringLiteral("/v1/rooms/%1/radio%2").arg(_roomIdOf(roomKey), subPath), body,
+             [this, roomKey](int status, const QJsonObject &reply) {
+        if (status != 200) {
+            _setError(_errorText(status, reply));
+            return;
+        }
+        if (roomKey == _currentRoom) {
+            _setRadio(status, reply);
+        }
+    });
+}
+
+void RoomManager::setRadioOnAir(bool onAir)
+{
+    _radioRequest(QStringLiteral("PATCH"), QString(), QJsonObject{{QStringLiteral("on_air"), onAir}});
+}
+
+void RoomManager::nextRadioTrack()
+{
+    _radioRequest(QStringLiteral("POST"), QStringLiteral("/next"), QJsonObject());
+}
+
+void RoomManager::deleteRadioTrack(const QString &trackId)
+{
+    _radioRequest(QStringLiteral("DELETE"), QStringLiteral("/tracks/") + trackId, QJsonObject());
+}
+
+void RoomManager::moveRadioTrack(const QString &trackId, int position)
+{
+    _radioRequest(QStringLiteral("POST"), QStringLiteral("/tracks/%1/move").arg(trackId), QJsonObject{{QStringLiteral("position"), position}});
+}
+
+void RoomManager::_setRadioUpload(const QVariantMap &upload)
+{
+    if (upload != _radioUpload) {
+        _radioUpload = upload;
+        emit radioUploadChanged();
+    }
+}
+
+void RoomManager::uploadRadioTracks(const QVariantList &files)
+{
+    if (currentRole() != QLatin1String("admin")) {
+        return;
+    }
+    if (!_uploadQueue.isEmpty() || _uploadReply) {
+        if (_uploadRoom != _currentRoom) {
+            _setError(tr("Wait until the tracks of the other room are uploaded."));
+            return;
+        }
+    } else {
+        _uploadRoom = _currentRoom;
+        _uploadCount = 0;
+    }
+    for (const QVariant &file : files) {
+        const QUrl url(file.toString());
+        const QString path = url.isLocalFile() ? url.toLocalFile() : file.toString();
+        if (!path.isEmpty()) {
+            _uploadQueue.append(path);
+            _uploadCount++;
+        }
+    }
+    if (!_uploadReply) {
+        _startNextUpload();
+    }
+}
+
+void RoomManager::cancelRadioUpload()
+{
+    _uploadQueue.clear();
+    _uploadRoom.clear();
+    if (_uploadReply) {
+        _uploadReply->abort();
+    }
+    _setRadioUpload(QVariantMap());
+}
+
+void RoomManager::_startNextUpload()
+{
+    if (_uploadQueue.isEmpty() || _roomEntry(_uploadRoom).isEmpty()) {
+        _uploadQueue.clear();
+        _setRadioUpload(QVariantMap());
+        return;
+    }
+
+    const QString path = _uploadQueue.takeFirst();
+    const int index = _uploadCount - static_cast<int>(_uploadQueue.size());
+    const QFileInfo info(path);
+    const double maxUpload = _radio.value(QStringLiteral("maxUpload")).toDouble();
+    if ((maxUpload > 0) && (info.size() > maxUpload)) {
+        _setError(tr("%1 is larger than %2 MB and was not uploaded.").arg(info.fileName()).arg(qRound(maxUpload / (1024 * 1024))));
+        _startNextUpload();
+        return;
+    }
+    QFile *const file = new QFile(path);
+    if (!file->open(QIODevice::ReadOnly)) {
+        delete file;
+        _setError(tr("Could not open %1.").arg(info.fileName()));
+        _startNextUpload();
+        return;
+    }
+
+    const QString roomKey = _uploadRoom;
+    QNetworkReply *const reply = _send(_serverKeyOf(roomKey), "PUT", QStringLiteral("/v1/rooms/%1/radio/tracks").arg(_roomIdOf(roomKey)),
+                                       QByteArrayLiteral("application/octet-stream"), QByteArray(), file, kUploadTimeoutMs,
+                                       {{QByteArrayLiteral("X-Name"), QUrl::toPercentEncoding(info.fileName())}});
+    if (!reply) {
+        delete file;
+        _uploadQueue.clear();
+        _setRadioUpload(QVariantMap());
+        return;
+    }
+    file->setParent(reply);
+    _uploadReply = reply;
+
+    const QVariantMap progress{
+        {QStringLiteral("active"), true},
+        {QStringLiteral("index"), index},
+        {QStringLiteral("count"), _uploadCount},
+        {QStringLiteral("name"), info.completeBaseName()},
+        {QStringLiteral("progress"), 0.0},
+    };
+    _setRadioUpload(progress);
+    (void) connect(reply, &QNetworkReply::uploadProgress, this, [this, progress](qint64 sent, qint64 total) {
+        QVariantMap updated = progress;
+        // The last part of the bar stands for the conversion on the server
+        updated[QStringLiteral("progress")] = (total > 0) ? (0.9 * static_cast<double>(sent) / static_cast<double>(total)) : 0.0;
+        _setRadioUpload(updated);
+    });
+    _whenFinished(reply, [this, roomKey, name = info.fileName()](int status, const QJsonObject &reply) {
+        _uploadReply.clear();
+        if (status == 200) {
+            if (roomKey == _currentRoom) {
+                _setRadio(status, reply);
+            }
+        } else if (!_uploadRoom.isEmpty()) {
+            _setError(tr("%1: %2").arg(name, _errorText(status, reply)));
+        }
+        _startNextUpload();
+    });
+}
+
+QNetworkReply *RoomManager::openRadioStream()
+{
+    if (_currentRoom.isEmpty() || currentRole().isEmpty()) {
+        return nullptr;
+    }
+    // A live stream has no end: no inactivity timeout here, the player watches for stalls itself
+    return _send(_serverKeyOf(_currentRoom), "GET", QStringLiteral("/v1/rooms/%1/radio/stream").arg(_roomIdOf(_currentRoom)),
+                 QByteArray(), QByteArray(), nullptr, 0);
 }
 
 // ---- publishing the admin's links ----------------------------------------------------------------------------

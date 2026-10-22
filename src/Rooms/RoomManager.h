@@ -12,8 +12,10 @@
 #include <functional>
 
 class LinkConfiguration;
+class QIODevice;
 class QJSEngine;
 class QNetworkAccessManager;
+class QNetworkReply;
 class QQmlEngine;
 
 /// Client of NX Hub, the room server on the VPS.
@@ -64,6 +66,13 @@ class RoomManager : public QObject
     Q_PROPERTY(QString      deviceCode      READ deviceCode         NOTIFY deviceChanged)
     Q_PROPERTY(bool         busy            READ busy               NOTIFY busyChanged)
     Q_PROPERTY(QString      lastError       READ lastError          NOTIFY lastErrorChanged)
+    /// Radio of the current room:
+    ///     { supported, onAir, convert, now: { trackId, name, duration, elapsed } or null,
+    ///       admin only: tracks: [{ trackId, name, duration, size }], listeners, bytes, maxBytes, maxUpload }
+    /// supported is false while unknown and for a hub without radio.
+    Q_PROPERTY(QVariantMap  radio           READ radio              NOTIFY radioChanged)
+    /// Admin: tracks being uploaded: { active, index, count, name, progress (0..1) }
+    Q_PROPERTY(QVariantMap  radioUpload     READ radioUpload        NOTIFY radioUploadChanged)
 
 public:
     explicit RoomManager(QObject *parent = nullptr);
@@ -93,6 +102,11 @@ public:
     QString deviceCode() const { return _deviceCode; }
     bool busy() const { return _pending > 0; }
     QString lastError() const { return _lastError; }
+    QVariantMap radio() const { return _radio; }
+    QVariantMap radioUpload() const { return _radioUpload; }
+
+    /// Opens the live radio stream of the current room; the caller owns the reply. nullptr when not in a room.
+    QNetworkReply *openRadioStream();
 
     /// Admin: registers this computer with a hub using the server key printed at installation
     Q_INVOKABLE void addServerKey(const QString &token);
@@ -120,6 +134,16 @@ public:
     /// Removes the vehicle of a link from its room, before the link is deleted
     Q_INVOKABLE void unpublishLink(LinkConfiguration *config);
 
+    // Radio of the current room
+    Q_INVOKABLE void refreshRadio();
+    Q_INVOKABLE void setRadioOnAir(bool onAir);
+    Q_INVOKABLE void nextRadioTrack();
+    Q_INVOKABLE void deleteRadioTrack(const QString &trackId);
+    Q_INVOKABLE void moveRadioTrack(const QString &trackId, int position);
+    /// Uploads audio files (local paths or file URLs) one after the other
+    Q_INVOKABLE void uploadRadioTracks(const QVariantList &files);
+    Q_INVOKABLE void cancelRadioUpload();
+
     // Operator
     Q_INVOKABLE void connectBoard(const QString &boardId);
     Q_INVOKABLE void disconnectBoard();
@@ -135,6 +159,8 @@ signals:
     void activeBoardChanged();
     void busyChanged();
     void lastErrorChanged();
+    void radioChanged();
+    void radioUploadChanged();
     /// Connecting to a room vehicle failed or the vehicle was taken back; shown to the user as a dialog
     void connectFailed(const QString &message);
     /// Something the user asked for went through (e.g. a join request was sent)
@@ -173,6 +199,12 @@ private:
 
     void _request(const QString &serverKey, const QString &method, const QString &path, const QJsonObject &body,
                   const Done &done);
+    /// Starts a request to a hub with its certificate pinned. timeoutMs 0: no inactivity timeout.
+    QNetworkReply *_send(const QString &serverKey, const QByteArray &method, const QString &path,
+                         const QByteArray &contentType, const QByteArray &data, QIODevice *device, int timeoutMs,
+                         const QList<QPair<QByteArray, QByteArray>> &headers = {});
+    /// Calls done with the status and JSON reply when a request finishes
+    void _whenFinished(QNetworkReply *reply, const Done &done);
     /// Request on the current room as admin; replies with { members } or { requests } update the lists
     void _roomRequest(const QString &method, const QString &subPath, const QJsonObject &body,
                       const std::function<void()> &after = nullptr);
@@ -183,6 +215,10 @@ private:
     QString _devicePublicKey(QString *error);
 
     void _refreshCurrentRoom();
+    void _setRadio(int status, const QJsonObject &reply);
+    void _radioRequest(const QString &method, const QString &subPath, const QJsonObject &body);
+    void _setRadioUpload(const QVariantMap &upload);
+    void _startNextUpload();
     /// Refreshes the current room shortly, once for a burst of changes
     void _scheduleRoomRefresh();
     void _setBoards(const QJsonArray &boards);
@@ -236,9 +272,18 @@ private:
     bool _activeLinkSeen = false;
     bool _shuttingDown = false;
 
+    QVariantMap _radio;
+    QVariantMap _radioUpload;
+    QStringList _uploadQueue;
+    QString _uploadRoom;
+    int _uploadCount = 0;
+    QPointer<QNetworkReply> _uploadReply;
+
     int _pending = 0;
     QString _lastError;
 
     static constexpr int kRefreshMs = 15000;
     static constexpr int kRequestTimeoutMs = 15000;
+    /// An upload waits for the server to convert the file after the last byte
+    static constexpr int kUploadTimeoutMs = 300000;
 };

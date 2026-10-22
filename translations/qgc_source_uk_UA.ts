@@ -7658,6 +7658,21 @@ VTOL</translation>
     <name>FlyViewCustomLayer</name>
     <message>
       <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>Radio</source>
+      <translation>Радіо</translation>
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>Connecting…</source>
+      <translation>Підключення…</translation>
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>No tracks on air</source>
+      <translation>В ефірі немає треків</translation>
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
       <source>%1 A</source>
       <translation>%1 А</translation>
     </message>
@@ -24336,6 +24351,56 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <name>RoomManager</name>
     <message>
       <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Wait until the tracks of the other room are uploaded.</source>
+      <translation>Дочекайтеся завершення завантаження треків іншої кімнати.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>%1 is larger than %2 MB and was not uploaded.</source>
+      <translation>%1 більший за %2 МБ і не завантажений.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Could not open %1.</source>
+      <translation>Не вдалося відкрити %1.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>%1: %2</source>
+      <translation>%1: %2</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The file could not be read as audio.</source>
+      <translation>Файл не вдалося прочитати як аудіо.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Only MP3 files can be added: ffmpeg is not installed on the server.</source>
+      <translation>Можна додавати лише MP3: на сервері не встановлено ffmpeg.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The file is too large.</source>
+      <translation>Файл завеликий.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The room's playlist is full. Delete some tracks first.</source>
+      <translation>Плейлист кімнати заповнений. Спочатку видаліть частину треків.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The radio of this room is off.</source>
+      <translation>Радіо цієї кімнати вимкнено.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The track was not found.</source>
+      <translation>Трек не знайдено.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
       <source>Disconnect from the vehicle before switching rooms.</source>
       <translation>Відключіться від борту, перш ніж змінювати кімнату.</translation>
     </message>
@@ -24750,6 +24815,121 @@ If a vehicle still has this key configured, you will no longer be able to commun
   </context>
   <context>
     <name>AccessSettings</name>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Radio</source>
+      <translation>Радіо</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Add Tracks</source>
+      <translation>Додавання треків</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Audio (*.mp3 *.m4a *.aac *.ogg *.opus *.flac *.wav *.wma)</source>
+      <translation>Аудіо (*.mp3 *.m4a *.aac *.ogg *.opus *.flac *.wav *.wma)</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>All files (*)</source>
+      <translation>Усі файли (*)</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>MP3 (*.mp3)</source>
+      <translation>MP3 (*.mp3)</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>The room server does not have the radio yet. Install the new version of NX Hub on the VPS.</source>
+      <translation>На сервері кімнат ще немає радіо. Встановіть на VPS нову версію NX Hub.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>On air</source>
+      <translation>Ефір</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>The radio is off. Operators do not see it.</source>
+      <translation>Радіо вимкнено. Оператори його не бачать.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>On air, but the playlist is empty</source>
+      <translation>Ефір увімкнено, але плейлист порожній</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Now: %1 (%2 of %3)</source>
+      <translation>Зараз: %1 (%2 з %3)</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Listening now: %1</source>
+      <translation>Слухають зараз: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Next track</source>
+      <translation>Наступний трек</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Add tracks…</source>
+      <translation>Додати треки…</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Uploading %1 of %2: %3</source>
+      <translation>Завантаження %1 з %2: %3</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Converting %1 of %2 on the server: %3</source>
+      <translation>Сервер обробляє %1 з %2: %3</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Cancel</source>
+      <translation>Скасувати</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>%1 MB of %2 MB</source>
+      <translation>%1 МБ з %2 МБ</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>MP3, M4A, FLAC, WAV, OGG and other audio files: the server converts them to MP3 128 kbit/s. The playlist plays in a loop, in this order; every operator hears the same moment of it.</source>
+      <translation>MP3, M4A, FLAC, WAV, OGG та інші аудіофайли: сервер переводить їх у MP3 128 кбіт/с. Плейлист грає по колу в цьому порядку, і всі оператори чують одне й те саме місце.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Only MP3 files: ffmpeg is not installed on the server. The playlist plays in a loop, in this order; every operator hears the same moment of it.</source>
+      <translation>Лише MP3: на сервері не встановлено ffmpeg. Плейлист грає по колу в цьому порядку, і всі оператори чують одне й те саме місце.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Delete</source>
+      <translation>Видалити</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Delete Track</source>
+      <translation>Видалення треку</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Delete "%1" from the room's playlist?</source>
+      <translation>Видалити «%1» з плейлиста кімнати?</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>No tracks yet. Add your own music: the room plays it in a loop to its operators.</source>
+      <translation>Треків поки немає. Додайте свою музику: кімната крутитиме її операторам по колу.</translation>
+    </message>
     <message>
       <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
       <source>Collapse</source>
