@@ -24574,11 +24574,6 @@ If a vehicle still has this key configured, you will no longer be able to commun
     </message>
     <message>
       <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
-      <source>Updating…</source>
-      <translation>Обновление…</translation>
-    </message>
-    <message>
-      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
       <source>Hide</source>
       <translation>Скрыть</translation>
     </message>
@@ -24757,6 +24752,16 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <name>AccessSettings</name>
     <message>
       <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Collapse</source>
+      <translation>Свернуть</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Room token…</source>
+      <translation>Токен комнаты…</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
       <source>not given yet</source>
       <translation>ещё не выдан</translation>
     </message>
@@ -24789,11 +24794,6 @@ If a vehicle still has this key configured, you will no longer be able to commun
       <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
       <source>Access: %1</source>
       <translation>Доступ: %1</translation>
-    </message>
-    <message>
-      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
-      <source>Updating…</source>
-      <translation>Обновление…</translation>
     </message>
     <message>
       <location filename="../src/AppSettings/AccessSettings.qml" line="1" />

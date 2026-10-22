@@ -24508,11 +24508,6 @@ If a vehicle still has this key configured, you will no longer be able to commun
     </message>
     <message>
       <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
-      <source>Updating…</source>
-      <translation type="unfinished" />
-    </message>
-    <message>
-      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
       <source>Hide</source>
       <translation type="unfinished" />
     </message>
@@ -24691,6 +24686,16 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <name>AccessSettings</name>
     <message>
       <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Collapse</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Room token…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
       <source>not given yet</source>
       <translation type="unfinished" />
     </message>
@@ -24722,11 +24727,6 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <message>
       <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
       <source>Access: %1</source>
-      <translation type="unfinished" />
-    </message>
-    <message>
-      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
-      <source>Updating…</source>
       <translation type="unfinished" />
     </message>
     <message>

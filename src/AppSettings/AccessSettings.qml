@@ -22,6 +22,15 @@ Rectangle {
 
     property string _selectedId:    ""
     property bool   _showToken:     false
+    /// The token panel can be collapsed to the room name; the choice is remembered
+    property bool   _tokenOpen:     QGroundControl.loadBoolGlobalSetting(_tokenOpenKey, true)
+
+    readonly property string _tokenOpenKey: "NxAccessTokenOpen"
+
+    function _setTokenOpen(open) {
+        _tokenOpen = open
+        QGroundControl.saveBoolGlobalSetting(_tokenOpenKey, open)
+    }
     property string _info:          ""
 
     readonly property var _selected: {
@@ -121,16 +130,16 @@ Rectangle {
                         font.pointSize: ScreenTools.largeFontPointSize
                     }
                     Item { Layout.fillWidth: true }
-                    QGCLabel {
-                        text:           RoomManager.busy ? qsTr("Updating…") : ""
-                        color:          qgcPal.colorGrey
-                        font.pointSize: ScreenTools.smallFontPointSize
+                    QGCButton {
+                        text:       root._tokenOpen ? qsTr("Collapse") : qsTr("Room token…")
+                        onClicked:  root._setTokenOpen(!root._tokenOpen)
                     }
                 }
 
                 RowLayout {
                     Layout.fillWidth:   true
                     spacing:            ScreenTools.defaultFontPixelWidth
+                    visible:            root._tokenOpen
 
                     QGCLabel { text: qsTr("Room token") }
                     QGCTextField {
@@ -166,8 +175,10 @@ Rectangle {
                     }
                 }
 
+                // Errors and confirmations stay visible with the panel collapsed; the hint only with it open
                 QGCLabel {
                     Layout.fillWidth:   true
+                    visible:            root._tokenOpen || RoomManager.lastError !== "" || root._info !== ""
                     wrapMode:           Text.WordWrap
                     font.pointSize:     ScreenTools.smallFontPointSize
                     color:              RoomManager.lastError !== "" ? qgcPal.colorRed : (root._info !== "" ? qgcPal.colorGreen : qgcPal.colorGrey)

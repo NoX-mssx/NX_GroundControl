@@ -155,12 +155,7 @@ Rectangle {
                         }
                     }
 
-                    QGCLabel {
-                        Layout.fillWidth:   true
-                        text:               RoomManager.busy ? qsTr("Updating…") : ""
-                        color:              qgcPal.colorGrey
-                        font.pointSize:     ScreenTools.smallFontPointSize
-                    }
+                    Item { Layout.fillWidth: true }
 
                     QGCButton {
                         text:       root._roomsOpen ? qsTr("Hide") : qsTr("Rooms…")
