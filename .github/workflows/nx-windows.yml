@@ -20,7 +20,7 @@ permissions:
 
 env:
   AQT_SOURCE: 'git+https://github.com/miurahr/aqtinstall.git@8d961e61720b3c06583517fbc68d57ec0a4e9f95'
-  APP_NAME: NX-GroundControl
+  APP_NAME: NX-Rover
 
 jobs:
   build:

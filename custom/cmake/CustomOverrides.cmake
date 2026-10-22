@@ -1,10 +1,11 @@
-# NX GroundControl: ArduRover-only ground station for Windows.
+# NX Rover: ArduRover-only ground station for Windows.
 
 # The app name doubles as the CMake project name, the executable name, the install directory and the
 # installer's uninstall registry key; the org name is the settings directory under %APPDATA%. Both must
-# differ from stock QGroundControl so the installer never removes or reuses another QGC installation.
-set(QGC_APP_NAME "NX-GroundControl" CACHE STRING "App Name" FORCE)
-set(QGC_ORG_NAME "NX-GroundControl" CACHE STRING "Org Name" FORCE)
+# differ from stock QGroundControl and from the earlier NX-GroundControl build, so the installer never removes or
+# reuses another installation and NX Rover starts with its own, empty settings.
+set(QGC_APP_NAME "NX-Rover" CACHE STRING "App Name" FORCE)
+set(QGC_ORG_NAME "NX-Rover" CACHE STRING "Org Name" FORCE)
 set(QGC_APP_DESCRIPTION "Ground control station for ArduRover ground vehicles" CACHE STRING "Application description" FORCE)
 
 set(QGC_WINDOWS_ICON_PATH "${CMAKE_SOURCE_DIR}/${QGC_CUSTOM_DIR}/deploy/windows/NxGroundControl.ico" CACHE FILEPATH "Windows Icon Path" FORCE)

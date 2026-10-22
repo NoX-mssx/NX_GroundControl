@@ -22,7 +22,7 @@ int IcmpPing::ping(const QString &address, int timeoutMs)
         return -1;
     }
 
-    char payload[] = "NX-GroundControl";
+    char payload[] = "NX-Rover";
     // Room for one reply plus the ICMP error payload IcmpSendEcho may append.
     std::vector<char> replyBuffer(sizeof(ICMP_ECHO_REPLY) + sizeof(payload) + 8);
 

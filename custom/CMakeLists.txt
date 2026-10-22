@@ -1,4 +1,4 @@
-message(STATUS "QGC: Adding NX GroundControl custom plugin")
+message(STATUS "QGC: Adding NX Rover custom plugin")
 
 set(CUSTOM_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/NxCorePlugin.cc

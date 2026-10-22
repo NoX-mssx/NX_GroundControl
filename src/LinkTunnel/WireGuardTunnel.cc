@@ -333,7 +333,8 @@ QString WireGuardTunnel::tunnelNameForLink(const QString &linkName)
     QString name = linkName;
     name.replace(disallowed, QStringLiteral("_"));
     const QString suffix = QStringLiteral("-%1").arg(qHash(linkName) & 0xFFFF, 4, 16, QLatin1Char('0'));
-    const QString prefix = QStringLiteral("NX-");
+    // NXR- keeps NX Rover's tunnel services apart from the NX- ones of the earlier NX-GroundControl build
+    const QString prefix = QStringLiteral("NXR-");
     name.truncate(kMaxTunnelNameLength - prefix.size() - suffix.size());
     return prefix + name + suffix;
 }
@@ -355,7 +356,7 @@ QString WireGuardTunnel::install(const QString &tunnelName, const QString &confF
         "$name = %1\n"
         "$service = 'WireGuardTunnel$' + $name\n"
         "$wireguard = %2\n"
-        "$dir = Join-Path $env:ProgramData 'NX-GroundControl\\tunnels'\n"
+        "$dir = Join-Path $env:ProgramData 'NX-Rover\\tunnels'\n"
         "New-Item -ItemType Directory -Force -Path $dir | Out-Null\n"
         "& icacls.exe $dir /inheritance:r /grant:r '*S-1-5-18:(OI)(CI)F' '*S-1-5-32-544:(OI)(CI)F' | Out-Null\n"
         "if (Get-Service -Name $service -ErrorAction SilentlyContinue) {\n"
@@ -527,7 +528,7 @@ QString WireGuardTunnel::remove(const QString &tunnelName)
     const QString script = QStringLiteral(
         "$name = %1\n"
         "& %2 /uninstalltunnelservice $name\n"
-        "$conf = Join-Path $env:ProgramData ('NX-GroundControl\\tunnels\\' + $name + '.conf')\n"
+        "$conf = Join-Path $env:ProgramData ('NX-Rover\\tunnels\\' + $name + '.conf')\n"
         "Remove-Item -LiteralPath $conf -Force -ErrorAction SilentlyContinue\n"
         "exit 0\n")
         .arg(psQuote(tunnelName), psQuote(QDir::toNativeSeparators(wireGuardExePath())));
