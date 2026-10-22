@@ -4,9 +4,11 @@ import QtQuick.Layouts
 import QGroundControl
 import QGroundControl.Controls
 
-/// Exclamation mark for vehicle problems that are not GPS loss or a failsafe (high current, hot motors and
-/// the like): orange for a warning, red for a critical problem, hidden while `alerts` is empty.
-/// Each entry of `alerts` is { text, level } with level 1 (warning) or 2 (critical).
+/// Exclamation mark for vehicle problems that are not GPS loss or a failsafe: orange for a warning, red for a
+/// critical problem, hidden while there is nothing to show. It collects
+///   - the live checks (motor controller temperature and current against the model thresholds),
+///   - the messages that would otherwise pop up while driving (see MainWindow.addVehicleNotice).
+/// Each entry is { text, level } with level 1 (warning) or 2 (critical); messages also carry time and count.
 Item {
     id:             control
     objectName:     "toolbar_vehicleAlertIndicator"
@@ -16,12 +18,15 @@ Item {
 
     property var _activeVehicle: QGroundControl.multiVehicleManager.activeVehicle
 
-    /// Current problems of the active vehicle
+    /// Live problems of the active vehicle
     readonly property var alerts: _motorAlerts()
+    /// Messages received while driving, newest first
+    readonly property var notices: mainWindow.vehicleNotices
 
-    readonly property int level: alerts.reduce(function(worst, alert) { return Math.max(worst, alert.level) }, 0)
+    readonly property int level: Math.max(alerts.reduce(function(worst, alert) { return Math.max(worst, alert.level) }, 0),
+                                          notices.reduce(function(worst, notice) { return Math.max(worst, notice.level) }, 0))
 
-    property bool showIndicator: _activeVehicle && alerts.length > 0
+    property bool showIndicator: _activeVehicle && (alerts.length > 0 || notices.length > 0)
 
     function _levelColor(level) {
         return level >= 2 ? qgcPal.colorRed : qgcPal.colorOrange
@@ -89,9 +94,77 @@ Item {
                     }
 
                     QGCLabel {
-                        visible:    control.alerts.length === 0
+                        visible:    control.alerts.length === 0 && control.notices.length === 0
                         text:       qsTr("No problems")
                         opacity:    0.7
+                    }
+
+                    // ---- Messages received while driving ----
+                    QGCLabel {
+                        Layout.topMargin:   ScreenTools.defaultFontPixelHeight * 0.3
+                        visible:            control.notices.length > 0
+                        text:               qsTr("Messages")
+                        font.weight:        Font.ExtraBold
+                    }
+
+                    QGCFlickable {
+                        Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 60
+                        Layout.preferredHeight: Math.min(noticeColumn.height, ScreenTools.defaultFontPixelHeight * 20)
+                        contentHeight:          noticeColumn.height
+                        clip:                   true
+                        visible:                control.notices.length > 0
+
+                        ColumnLayout {
+                            id:         noticeColumn
+                            width:      parent.width
+                            spacing:    ScreenTools.defaultFontPixelHeight * 0.4
+
+                            Repeater {
+                                model: control.notices
+
+                                RowLayout {
+                                    Layout.fillWidth:   true
+                                    spacing:            ScreenTools.defaultFontPixelWidth
+
+                                    required property var modelData
+
+                                    QGCLabel {
+                                        Layout.alignment:   Qt.AlignTop
+                                        text:               Qt.formatTime(modelData.time, "HH:mm:ss")
+                                        color:              qgcPal.colorGrey
+                                    }
+
+                                    QGCLabel {
+                                        Layout.fillWidth:   true
+                                        text:               modelData.text + (modelData.count > 1 ? "  ×" + modelData.count : "")
+                                        color:              control._levelColor(modelData.level)
+                                        wrapMode:           Text.WordWrap
+                                    }
+
+                                    QGCButton {
+                                        Layout.alignment:   Qt.AlignTop
+                                        visible:            modelData.reboot
+                                        enabled:            control._activeVehicle && !control._activeVehicle.armed
+                                        text:               qsTr("Reboot vehicle")
+                                        onClicked: {
+                                            mainWindow.closeIndicatorDrawer()
+                                            control._activeVehicle.rebootVehicle()
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    QGCButton {
+                        visible:    control.notices.length > 0
+                        text:       qsTr("Clear messages")
+                        onClicked: {
+                            mainWindow.clearVehicleNotices()
+                            if (control.alerts.length === 0) {
+                                mainWindow.closeIndicatorDrawer()
+                            }
+                        }
                     }
                 }
             }

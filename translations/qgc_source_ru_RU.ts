@@ -9539,6 +9539,61 @@ VTOL</translation>
   <context>
     <name>InitialSetupPrompt</name>
     <message>
+      <location filename="../src/FirstRunPromptDialogs/InitialSetupPrompt.qml" line="1" />
+      <source>Autopilot Firmware</source>
+      <translation>Прошивка автопилота</translation>
+    </message>
+    <message>
+      <location filename="../src/FirstRunPromptDialogs/InitialSetupPrompt.qml" line="1" />
+      <source>Step %1 of 2</source>
+      <translation>Шаг %1 из 2</translation>
+    </message>
+    <message>
+      <location filename="../src/FirstRunPromptDialogs/InitialSetupPrompt.qml" line="1" />
+      <source>Choose the measurement units. You can change them later in the general settings.</source>
+      <translation>Выберите единицы измерения. Их можно поменять позже в общих настройках.</translation>
+    </message>
+    <message>
+      <location filename="../src/FirstRunPromptDialogs/InitialSetupPrompt.qml" line="1" />
+      <source>Choose the firmware of the autopilots on your vehicles.</source>
+      <translation>Выберите прошивку автопилотов на ваших бортах.</translation>
+    </message>
+    <message>
+      <location filename="../src/FirstRunPromptDialogs/InitialSetupPrompt.qml" line="1" />
+      <source>ArduPilot</source>
+      <translation>ArduPilot</translation>
+    </message>
+    <message>
+      <location filename="../src/FirstRunPromptDialogs/InitialSetupPrompt.qml" line="1" />
+      <source>ArduRover</source>
+      <translation>ArduRover</translation>
+    </message>
+    <message>
+      <location filename="../src/FirstRunPromptDialogs/InitialSetupPrompt.qml" line="1" />
+      <source>PX4 Pro</source>
+      <translation>PX4 Pro</translation>
+    </message>
+    <message>
+      <location filename="../src/FirstRunPromptDialogs/InitialSetupPrompt.qml" line="1" />
+      <source>PX4 rover</source>
+      <translation>PX4 (ровер)</translation>
+    </message>
+    <message>
+      <location filename="../src/FirstRunPromptDialogs/InitialSetupPrompt.qml" line="1" />
+      <source>Back</source>
+      <translation>Назад</translation>
+    </message>
+    <message>
+      <location filename="../src/FirstRunPromptDialogs/InitialSetupPrompt.qml" line="1" />
+      <source>Next</source>
+      <translation>Далее</translation>
+    </message>
+    <message>
+      <location filename="../src/FirstRunPromptDialogs/InitialSetupPrompt.qml" line="1" />
+      <source>Done</source>
+      <translation>Готово</translation>
+    </message>
+    <message>
       <location filename="../src/FirstRunPromptDialogs/InitialSetupPrompt.qml" line="9" />
       <source>Preferences</source>
       <translation>Предпочтения</translation>
@@ -23943,6 +23998,21 @@ If a vehicle still has this key configured, you will no longer be able to commun
   </context>
   <context>
     <name>VehicleAlertIndicator</name>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>Messages</source>
+      <translation>Сообщения</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>Reboot vehicle</source>
+      <translation>Перезагрузить борт</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>Clear messages</source>
+      <translation>Очистить сообщения</translation>
+    </message>
     <message>
       <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
       <source>Left motor</source>

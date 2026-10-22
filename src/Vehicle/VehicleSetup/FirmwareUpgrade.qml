@@ -266,7 +266,7 @@ SetupPage {
                             var stack = apmFlightStack.checked ? FirmwareUpgradeController.AutoPilotStackAPM : FirmwareUpgradeController.AutoPilotStackPX4
                             if (apmFlightStack.checked) {
                                 if (firmwareBuildType === FirmwareUpgradeController.CustomFirmware) {
-                                    vehicleType = apmVehicleTypeCombo.currentIndex
+                                    vehicleType = _firmwareUpgradeSettings.apmVehicleType.rawValue
                                 } else {
                                     if (controller.apmFirmwareNames.length === 0) {
                                         // Not ready yet, or no firmware available
@@ -400,7 +400,7 @@ SetupPage {
                         FactComboBox {
                             id:                 apmVehicleTypeCombo
                             Layout.fillWidth:   true
-                            visible:            apmFlightStack.checked
+                            visible:            false   // NX: always Rover
                             fact:               _firmwareUpgradeSettings.apmVehicleType
                             indexModel:         false
                         }

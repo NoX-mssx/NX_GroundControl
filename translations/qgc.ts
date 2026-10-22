@@ -9513,6 +9513,61 @@ VTOL</source>
 <context>
     <name>InitialSetupPrompt</name>
     <message>
+      <location filename="../src/FirstRunPromptDialogs/InitialSetupPrompt.qml" line="1" />
+      <source>Autopilot Firmware</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/FirstRunPromptDialogs/InitialSetupPrompt.qml" line="1" />
+      <source>Step %1 of 2</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/FirstRunPromptDialogs/InitialSetupPrompt.qml" line="1" />
+      <source>Choose the measurement units. You can change them later in the general settings.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/FirstRunPromptDialogs/InitialSetupPrompt.qml" line="1" />
+      <source>Choose the firmware of the autopilots on your vehicles.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/FirstRunPromptDialogs/InitialSetupPrompt.qml" line="1" />
+      <source>ArduPilot</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/FirstRunPromptDialogs/InitialSetupPrompt.qml" line="1" />
+      <source>ArduRover</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/FirstRunPromptDialogs/InitialSetupPrompt.qml" line="1" />
+      <source>PX4 Pro</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/FirstRunPromptDialogs/InitialSetupPrompt.qml" line="1" />
+      <source>PX4 rover</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/FirstRunPromptDialogs/InitialSetupPrompt.qml" line="1" />
+      <source>Back</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/FirstRunPromptDialogs/InitialSetupPrompt.qml" line="1" />
+      <source>Next</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/FirstRunPromptDialogs/InitialSetupPrompt.qml" line="1" />
+      <source>Done</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
         <location filename="../src/FirstRunPromptDialogs/InitialSetupPrompt.qml" line="9"/>
         <source>Preferences</source>
         <translation type="unfinished"></translation>
@@ -23877,6 +23932,21 @@ If a vehicle still has this key configured, you will no longer be able to commun
   </context>
   <context>
     <name>VehicleAlertIndicator</name>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>Messages</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>Reboot vehicle</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>Clear messages</source>
+      <translation type="unfinished" />
+    </message>
     <message>
       <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
       <source>Left motor</source>

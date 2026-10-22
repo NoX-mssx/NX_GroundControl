@@ -50,8 +50,8 @@ bool FirmwarePluginManager::singleFirmwareSupport()
 
 bool FirmwarePluginManager::singleVehicleSupport()
 {
-    const QList<QGCMAVLink::FirmwareClass_t> firmwareClasses = supportedFirmwareClasses();
-    return (firmwareClasses.count() == 1) && (supportedVehicleClasses(firmwareClasses[0]).count() == 1);
+    // NX only drives rovers, so the vehicle type is never offered for selection
+    return true;
 }
 
 QList<QGCMAVLink::VehicleClass_t> FirmwarePluginManager::supportedVehicleClasses(QGCMAVLink::FirmwareClass_t firmwareClass)

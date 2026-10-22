@@ -57,6 +57,13 @@ DECLARE_SETTINGGROUP(App, "")
         }
     }
 
+    // NX only drives rovers: whatever an older version stored, the vehicle class is Rover
+    for (Fact *const fact : { preferredVehicleClass(), offlineEditingVehicleClass() }) {
+        if (fact->rawValue() != fact->rawDefaultValue()) {
+            fact->setRawValue(fact->rawDefaultValue());
+        }
+    }
+
     QGCPalette::setGlobalTheme(indoorPalette()->rawValue().toBool() ? QGCPalette::Dark : QGCPalette::Light);
 
     // Instantiate savePath so we can check for override and setup default path if needed

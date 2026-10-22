@@ -189,13 +189,63 @@ ApplicationWindow {
         dialog.open()
     }
 
+    //-------------------------------------------------------------------------
+    //-- NX: while a vehicle is connected and the drive screen is shown, messages that would pop up and wait
+    //-- for Ok go to the "!" in the toolbar instead. Level 1 shows it orange, level 2 red. In the settings
+    //-- and setup tools the messages answer what the user just did, so they still pop up there.
+
+    /// [{ text, level, time, count, reboot }], newest first
+    property var vehicleNotices: []
+
+    function addVehicleNotice(text, level, reboot) {
+        const list = vehicleNotices.slice()
+        for (let i = 0; i < list.length; i++) {
+            if (list[i].text === text) {
+                const updated = Object.assign({}, list[i])
+                updated.count = list[i].count + 1
+                updated.time = new Date()
+                updated.level = Math.max(list[i].level, level)
+                list.splice(i, 1)
+                list.unshift(updated)
+                vehicleNotices = list
+                return
+            }
+        }
+        list.unshift({ text: text, level: level, time: new Date(), count: 1, reboot: !!reboot })
+        if (list.length > 50) {
+            list.length = 50
+        }
+        vehicleNotices = list
+    }
+
+    function clearVehicleNotices() {
+        vehicleNotices = []
+    }
+
+    function _noticesInsteadOfDialogs() {
+        return QGroundControl.multiVehicleManager.activeVehicle !== null && !toolDrawer.visible
+    }
+
+    Connections {
+        target: QGroundControl.multiVehicleManager
+        function onActiveVehicleChanged() { mainWindow.clearVehicleNotices() }
+    }
+
     // This variant is only meant to be called by QGCApplication
     function _showMessageDialog(dialogTitle, dialogText) {
+        if (_noticesInsteadOfDialogs()) {
+            addVehicleNotice(dialogText, 1, false)
+            return
+        }
         _showMessageDialogWorker(mainWindow, dialogTitle, dialogText)
     }
 
     // This variant is only meant to be called by QGCApplication. Ok reboots the active vehicle.
     function _showRebootVehicleDialog(dialogTitle, dialogText) {
+        if (_noticesInsteadOfDialogs()) {
+            addVehicleNotice(dialogText, 1, true)
+            return
+        }
         _showMessageDialogWorker(mainWindow, dialogTitle,
                                  dialogText + " " + qsTr("Click Ok to reboot the vehicle now."),
                                  Dialog.Ok | Dialog.Cancel,
@@ -478,6 +528,11 @@ ApplicationWindow {
 
     function showCriticalVehicleMessage(message) {
         if (suppressCriticalVehicleMessages) {
+            return
+        }
+        // NX: critical messages from the vehicle never pop up; they turn the "!" in the toolbar red
+        if (QGroundControl.multiVehicleManager.activeVehicle) {
+            addVehicleNotice(message, 2, false)
             return
         }
         if (criticalVehicleMessagePopup.visible || QGroundControl.videoManager.fullScreen) {

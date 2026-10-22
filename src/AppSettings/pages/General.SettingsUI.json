@@ -52,14 +52,10 @@
         },
         {
             "heading": "Vehicle Preferences",
-            "keywords": ["firmware", "ardupilot", "px4", "vehicle", "multirotor", "fixed wing", "vtol", "rover", "sub"],
+            "keywords": ["firmware", "ardupilot", "px4"],
             "controls": [
                 {
                     "setting": "appSettings.preferredFirmwareClass",
-                    "control": "combobox"
-                },
-                {
-                    "setting": "appSettings.preferredVehicleClass",
                     "control": "combobox"
                 }
             ]

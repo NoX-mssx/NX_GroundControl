@@ -18,9 +18,9 @@
             "shortDesc": "Tailors the interface to a specific vehicle type for a simpler experience.",
             "longDesc": "When set to a specific vehicle class, the interface is streamlined for that vehicle type.",
             "type": "uint32",
-            "enumStrings": "No preference,Fixed Wing,Multi-Rotor,VTOL,Rover,Sub",
-            "enumValues": "0,1,2,20,10,12",
-            "default": 0,
+            "enumStrings": "Rover",
+            "enumValues": "10",
+            "default": 10,
             "label": "Preferred Vehicle",
             "keywords": "vehicle,multirotor,fixed wing,vtol,rover,sub"
         },
@@ -37,9 +37,9 @@
             "name": "offlineEditingVehicleClass",
             "shortDesc": "Offline editing vehicle class",
             "type": "uint32",
-            "enumStrings": "Fixed Wing,Multi-Rotor,VTOL,Rover,Sub,Unknown",
-            "enumValues": "1,2,20,10,12,0",
-            "default": 2,
+            "enumStrings": "Rover",
+            "enumValues": "10",
+            "default": 10,
             "label": "Offline editing vehicle class"
         },
         {
