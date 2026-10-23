@@ -24852,6 +24852,11 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <name>AccessSettings</name>
     <message>
       <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>tunnel not found on the server</source>
+      <translation>тунель не знайдено на сервері</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
       <source>Radio</source>
       <translation>Радіо</translation>
     </message>

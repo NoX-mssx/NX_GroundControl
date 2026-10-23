@@ -882,9 +882,11 @@ Rectangle {
                                     Layout.fillWidth:   true
                                     elide:              Text.ElideRight
                                     font.pointSize:     ScreenTools.smallFontPointSize
-                                    color:              modelData.hasLink ? qgcPal.colorGrey : qgcPal.colorOrange
+                                    color:              modelData.hasLink && modelData.tunnelFound ? qgcPal.colorGrey : qgcPal.colorOrange
                                     text: {
                                         let parts = []
+                                        // First, so the line never cuts it off: operators cannot connect
+                                        if (!modelData.tunnelFound) parts.push(qsTr("tunnel not found on the server"))
                                         if (modelData.occupiedBy !== "") parts.push(qsTr("driven by %1").arg(modelData.occupiedBy))
                                         parts.push(modelData.grantedTo.length > 0 ? qsTr("given to %1").arg(modelData.grantedTo.length) : qsTr("not given yet"))
                                         if (!modelData.hasLink) parts.push(qsTr("its link was deleted"))

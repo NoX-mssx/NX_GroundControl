@@ -974,6 +974,8 @@ void RoomManager::_setBoards(const QJsonArray &boards)
             {QStringLiteral("occupiedByMe"), board.value(QLatin1String("occupied_by_me")).toBool()},
             {QStringLiteral("grantedTo"), board.value(QLatin1String("granted_to")).toArray().toVariantList()},
             {QStringLiteral("hasLink"), linkedIds.contains(id)},
+            // Only the admin is told the server tunnel; an empty one means the hub found no tunnel for the vehicle
+            {QStringLiteral("tunnelFound"), !admin || !board.value(QLatin1String("iface")).toString().isEmpty()},
         });
         if (!admin) {
             bundles.insert(id, board.value(QLatin1String("bundle")).toObject().toVariantMap());
