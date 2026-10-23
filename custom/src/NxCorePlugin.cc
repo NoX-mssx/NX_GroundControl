@@ -1,6 +1,7 @@
 #include "NxCorePlugin.h"
 #include "AppSettings.h"
 #include "BatteryIndicatorSettings.h"
+#include "FlyViewSettings.h"
 #include "LogManagerSettings.h"
 #include "VideoSettings.h"
 #include "Fact.h"
@@ -67,6 +68,22 @@ void NxCorePlugin::adjustSettingMetaData(const QString &settingsGroup, FactMetaD
         } else if (metaData.name() == VideoSettings::rtpJitterLatencyMsName) {
             // Starlink jitter regularly exceeds the stock 80 ms.
             metaData.setRawDefaultValue(300);
+        }
+    }
+
+    if (settingsGroup == FlyViewSettings::settingsGroup) {
+        // Guided Commands: take-off and flight altitudes, the fixed-wing loiter radius and the map go-to limits do not
+        // apply to a rover driven with a joystick. Hiding every setting of the group hides its tab; go-to keeps its
+        // defaults (1000 m, with confirmation).
+        static const QStringList guidedSettings = {
+            QString::fromLatin1(FlyViewSettings::guidedMinimumAltitudeName),
+            QString::fromLatin1(FlyViewSettings::guidedMaximumAltitudeName),
+            QString::fromLatin1(FlyViewSettings::maxGoToLocationDistanceName),
+            QString::fromLatin1(FlyViewSettings::forwardFlightGoToLocationLoiterRadName),
+            QString::fromLatin1(FlyViewSettings::goToLocationRequiresConfirmInGuidedName),
+        };
+        if (guidedSettings.contains(metaData.name())) {
+            userVisible = false;
         }
     }
 
