@@ -537,25 +537,130 @@ Item {
         }
     }
 
-    // Bottom right, above the readouts: the radio of the room (play/pause, what plays, volume)
+    // Bottom right, above the readouts: the radio of the room. The screen with the track is the volume control:
+    // drag (or scroll) right for louder, left for quieter; the number is the volume, 0-100. Play/pause on the right.
     Rectangle {
         id:                     radioPill
         anchors.right:          parent.right
         anchors.bottom:         (homePill.visible || motorTelemetryPill.visible) ? homePill.top : parent.bottom
         anchors.bottomMargin:   (homePill.visible || motorTelemetryPill.visible) ? ScreenTools.defaultFontPixelWidth : 0
-        width:                  radioRow.implicitWidth + ScreenTools.defaultFontPixelWidth * 1.6
+        width:                  radioRow.implicitWidth + _gap * 2
         height:                 _root._railButtonSize + ScreenTools.defaultFontPixelWidth
         radius:                 height / 2
         color:                  _root._glassColor
         border.color:           _root._glassBorder
         visible:                RoomRadio.supported && RoomRadio.available && RoomRadio.enabled
 
+        // Screen and button are as tall as a rail button and sit concentric with the rounded ends
+        readonly property real _inner:  _root._railButtonSize * 0.85
+        readonly property real _gap:    (height - _inner) / 2
+
+        TextMetrics {
+            id:     widestVolume
+            font:   radioVolumeValue.font
+            text:   "100"
+        }
+
         RowLayout {
-            id:                 radioRow
+            id:                     radioRow
             anchors.verticalCenter: parent.verticalCenter
-            anchors.left:       parent.left
-            anchors.leftMargin: ScreenTools.defaultFontPixelWidth * 0.5
-            spacing:            ScreenTools.defaultFontPixelWidth
+            anchors.left:           parent.left
+            anchors.leftMargin:     radioPill._gap
+            spacing:                radioPill._gap
+
+            Slider {
+                id:                     radioVolume
+                Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 32
+                Layout.preferredHeight: radioPill._inner
+                // The marker stays clear of the rounded ends
+                leftPadding:            height / 4
+                rightPadding:           height / 4
+                topPadding:             0
+                bottomPadding:          0
+                from:                   0
+                to:                     1
+                // Dragging is smooth; the step is for the mouse wheel and the keys
+                stepSize:               0.05
+                wheelEnabled:           true
+                value:                  RoomRadio.volume
+                onMoved:                RoomRadio.volume = value
+
+                readonly property real _inset:          height * 0.4
+                readonly property real _markerWidth:    3
+                readonly property real _markerX:        leftPadding + visualPosition * (availableWidth - _markerWidth)
+
+                background: Rectangle {
+                    implicitWidth:  radioVolume.Layout.preferredWidth
+                    implicitHeight: radioVolume.Layout.preferredHeight
+                    radius:         height / 2
+                    color:          Qt.rgba(1, 1, 1, 0.06)
+                    border.color:   Qt.rgba(1, 1, 1, 0.12)
+
+                    // The level, filled up to the marker: a clipped copy of the screen, so its left end is rounded too
+                    Item {
+                        width:      radioVolume._markerX + radioVolume._markerWidth / 2
+                        height:     parent.height
+                        clip:       true
+                        visible:    radioVolume.value > 0
+
+                        Rectangle {
+                            width:  radioVolume.width
+                            height: parent.height
+                            radius: height / 2
+                            color:  Qt.rgba(_root._accent.r, _root._accent.g, _root._accent.b, radioVolume.pressed ? 0.38 : 0.26)
+                        }
+                    }
+
+                    Column {
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.left:           parent.left
+                        anchors.leftMargin:     radioVolume._inset
+                        anchors.right:          radioVolumeValue.left
+                        anchors.rightMargin:    radioVolume._inset
+
+                        QGCLabel {
+                            width:          parent.width
+                            text:           qsTr("Radio")
+                            color:          qgcPal.colorGrey
+                            font.pointSize: ScreenTools.smallFontPointSize
+                        }
+                        QGCLabel {
+                            width:          parent.width
+                            elide:          Text.ElideRight
+                            font.weight:    Font.DemiBold
+                            text: {
+                                if (RoomRadio.playing && RoomRadio.status === "connecting") {
+                                    return qsTr("Connecting…")
+                                }
+                                return RoomRadio.nowPlaying !== "" ? RoomRadio.nowPlaying : qsTr("No tracks on air")
+                            }
+                        }
+                    }
+
+                    QGCLabel {
+                        id:                     radioVolumeValue
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.right:          parent.right
+                        // Clear of the marker at full volume
+                        anchors.rightMargin:    radioVolume.rightPadding + radioVolume._markerWidth + radioVolume._inset / 2
+                        width:                  Math.ceil(widestVolume.advanceWidth)
+                        horizontalAlignment:    Text.AlignRight
+                        text:                   Math.round(radioVolume.value * 100)
+                        font.weight:            Font.ExtraBold
+                        font.pointSize:         ScreenTools.mediumFontPointSize
+                    }
+                }
+
+                // Thin vertical marker at the volume
+                handle: Rectangle {
+                    x:      radioVolume._markerX
+                    y:      (radioVolume.availableHeight - height) / 2
+                    width:  radioVolume._markerWidth
+                    height: radioVolume.availableHeight * 0.72
+                    radius: 1
+                    color:  radioVolume.pressed ? qgcPal.text : _root._accent
+                }
+            }
 
             RailButton {
                 Layout.preferredWidth:  _root._railButtonSize * 0.85
@@ -563,74 +668,6 @@ Item {
                 checked:                RoomRadio.playing
                 iconSource:             RoomRadio.playing ? "/res/nx/Pause.svg" : "/res/nx/Play.svg"
                 onClicked:              RoomRadio.toggle()
-            }
-
-            Column {
-                Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 24
-
-                QGCLabel {
-                    width:          parent.width
-                    text:           qsTr("Radio")
-                    color:          qgcPal.colorGrey
-                    font.pointSize: ScreenTools.smallFontPointSize
-                }
-                QGCLabel {
-                    width:          parent.width
-                    elide:          Text.ElideRight
-                    font.weight:    Font.DemiBold
-                    text: {
-                        if (RoomRadio.playing && RoomRadio.status === "connecting") {
-                            return qsTr("Connecting…")
-                        }
-                        return RoomRadio.nowPlaying !== "" ? RoomRadio.nowPlaying : qsTr("No tracks on air")
-                    }
-                }
-            }
-
-            QGCColoredImage {
-                Layout.preferredWidth:  ScreenTools.defaultFontPixelHeight
-                Layout.preferredHeight: Layout.preferredWidth
-                sourceSize.height:      Layout.preferredHeight
-                source:                 RoomRadio.volume > 0 ? "/res/nx/Speaker.svg" : "/res/nx/SpeakerOff.svg"
-                color:                  qgcPal.text
-            }
-
-            // Volume: a thin bar filled in the accent colour
-            Slider {
-                id:                     radioVolume
-                Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 12
-                Layout.preferredHeight: _root._railButtonSize * 0.6
-                Layout.rightMargin:     ScreenTools.defaultFontPixelWidth
-                padding:                0
-                from:                   0
-                to:                     1
-                value:                  RoomRadio.volume
-                onMoved:                RoomRadio.volume = value
-
-                background: Rectangle {
-                    x:      radioVolume.leftPadding
-                    y:      radioVolume.topPadding + (radioVolume.availableHeight - height) / 2
-                    width:  radioVolume.availableWidth
-                    height: ScreenTools.defaultFontPixelHeight * 0.25
-                    radius: height / 2
-                    color:  Qt.rgba(1, 1, 1, 0.18)
-
-                    Rectangle {
-                        width:  radioVolume.visualPosition * parent.width
-                        height: parent.height
-                        radius: parent.radius
-                        color:  _root._accent
-                    }
-                }
-
-                handle: Rectangle {
-                    x:      radioVolume.leftPadding + radioVolume.visualPosition * (radioVolume.availableWidth - width)
-                    y:      radioVolume.topPadding + (radioVolume.availableHeight - height) / 2
-                    width:  ScreenTools.defaultFontPixelHeight * 0.85
-                    height: width
-                    radius: width / 2
-                    color:  radioVolume.pressed ? _root._accent : qgcPal.text
-                }
             }
         }
     }
