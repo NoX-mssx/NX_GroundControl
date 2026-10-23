@@ -10008,6 +10008,36 @@ VTOL</source>
     <name>JoystickComponent</name>
     <message>
       <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>pitch extension</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>roll extension</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>channel %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Aux%1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Extra axes are switched on: %1. Calibration asks you to move each of them. If the joystick does not have them, switch them off.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Switch extra axes off</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
       <source>Not assigned</source>
       <translation type="unfinished" />
     </message>

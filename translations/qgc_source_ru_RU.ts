@@ -10034,6 +10034,36 @@ VTOL</translation>
     <name>JoystickComponent</name>
     <message>
       <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>pitch extension</source>
+      <translation>расширение тангажа</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>roll extension</source>
+      <translation>расширение крена</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>channel %1</source>
+      <translation>канал %1</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Aux%1</source>
+      <translation>Aux%1</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Extra axes are switched on: %1. Calibration asks you to move each of them. If the joystick does not have them, switch them off.</source>
+      <translation>Включены дополнительные оси: %1. Калибровка попросит подвигать каждую из них. Если на джойстике их нет, выключите их.</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>Switch extra axes off</source>
+      <translation>Выключить дополнительные оси</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
       <source>Not assigned</source>
       <translation>Не назначено</translation>
     </message>

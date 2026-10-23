@@ -52,6 +52,32 @@ SetupPage {
 
             QGCPalette { id: qgcPal; colorGroupEnabled: true }
 
+            /// Extra axes switched on in More settings; calibration asks to move each of them
+            function _enabledExtraAxes() {
+                if (!joystick) {
+                    return []
+                }
+                const settings = joystick.settings
+                const rcChannels = settings.additionalAxesFunction.rawValue == 1
+                const axes = [
+                    { fact: settings.enableManualControlPitchExtension, name: qsTr("pitch extension") },
+                    { fact: settings.enableManualControlRollExtension,  name: qsTr("roll extension") },
+                ]
+                const additional = [ settings.enableAdditionalAxis1, settings.enableAdditionalAxis2, settings.enableAdditionalAxis3,
+                                     settings.enableAdditionalAxis4, settings.enableAdditionalAxis5, settings.enableAdditionalAxis6 ]
+                for (let i = 0; i < additional.length; i++) {
+                    axes.push({ fact: additional[i], name: rcChannels ? qsTr("channel %1").arg(i + 5) : qsTr("Aux%1").arg(i + 1) })
+                }
+                return axes.filter(axis => axis.fact.rawValue)
+            }
+
+            function _disableExtraAxes() {
+                const axes = _enabledExtraAxes()
+                for (let i = 0; i < axes.length; i++) {
+                    axes[i].fact.rawValue = false
+                }
+            }
+
             function _isPressed(index) {
                 void _pressedRevision
                 return _pressed[index] === true
@@ -211,6 +237,37 @@ SetupPage {
                 description:        root.activeVehicle && root.activeVehicle.armed
                                         ? qsTr("Disarm the vehicle to calibrate the joystick.")
                                         : qsTr("Press Calibrate and follow the instructions: centre the sticks, then move each one to its ends.")
+
+                // A joystick without these axes could never finish the calibration
+                Rectangle {
+                    Layout.fillWidth:       true
+                    Layout.preferredHeight: extraAxesRow.implicitHeight + root._margins
+                    radius:                 root._margins / 2
+                    color:                  "transparent"
+                    border.color:           qgcPal.colorOrange
+                    visible:                root._enabledExtraAxes().length > 0 && !(root.controller && root.controller.calibrating)
+
+                    RowLayout {
+                        id:                     extraAxesRow
+                        anchors.left:           parent.left
+                        anchors.right:          parent.right
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.leftMargin:     root._margins
+                        anchors.rightMargin:    root._margins / 2
+                        spacing:                root._margins
+
+                        QGCLabel {
+                            Layout.fillWidth:   true
+                            wrapMode:           Text.WordWrap
+                            text:               qsTr("Extra axes are switched on: %1. Calibration asks you to move each of them. If the joystick does not have them, switch them off.")
+                                                    .arg(root._enabledExtraAxes().map(axis => axis.name).join(", "))
+                        }
+                        QGCButton {
+                            text:       qsTr("Switch extra axes off")
+                            onClicked:  root._disableExtraAxes()
+                        }
+                    }
+                }
 
                 RemoteControlCalibration {
                     id:                 calibration
@@ -441,9 +498,10 @@ SetupPage {
             }
 
             // ---- Everything else the joystick can do, for fine tuning ----
+            // Also reachable before calibrating, e.g. to take back an axis switched on by mistake
             ConfigSection {
                 Layout.fillWidth:   true
-                visible:            !root._calibrationShown
+                visible:            !(root.controller && root.controller.calibrating)
                 heading:            qsTr("More settings")
 
                 QGCCheckBoxSlider {
