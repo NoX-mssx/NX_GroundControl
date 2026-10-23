@@ -66,6 +66,8 @@ ApplicationWindow {
     }
 
     readonly property real      _topBottomMargins:          ScreenTools.defaultFontPixelHeight * 0.5
+    /// Settings, analyze or vehicle setup is open over the fly and plan views
+    readonly property bool      toolDrawerVisible:          toolDrawer.visible
 
     //-------------------------------------------------------------------------
     //-- Global Scope Variables

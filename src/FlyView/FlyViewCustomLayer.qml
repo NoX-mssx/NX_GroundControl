@@ -538,7 +538,8 @@ Item {
     }
 
     // Bottom right, above the readouts: the radio of the room. The screen with the track is the volume control:
-    // drag (or scroll) right for louder, left for quieter; the number is the volume, 0-100. Play/pause on the right.
+    // drag (or scroll) right for louder, left for quieter; the number is the volume, 0-100. Play/pause on the
+    // right, or the space bar.
     Rectangle {
         id:                     radioPill
         anchors.right:          parent.right
@@ -553,6 +554,15 @@ Item {
 
         // Screen and button are as tall as a rail button and sit concentric with the rounded ends
         readonly property real _inner:  _root._railButtonSize * 0.85
+
+        // Space plays or pauses while the drive screen is in front. A text field keeps its spaces, and an open
+        // dialog blocks the shortcut; holding the key does not toggle again and again.
+        Shortcut {
+            sequence:       "Space"
+            autoRepeat:     false
+            enabled:        radioPill.visible && !mainWindow.toolDrawerVisible
+            onActivated:    RoomRadio.toggle()
+        }
         readonly property real _gap:    (height - _inner) / 2
 
         TextMetrics {
