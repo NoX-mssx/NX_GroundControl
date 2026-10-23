@@ -122,10 +122,21 @@ endif()
 # cmake_print_variables(QGC_APP_VERSION)
 
 # ----------------------------------------------------------------------------
+# Version Set by a Custom Build
+# ----------------------------------------------------------------------------
+# QGC_APP_VERSION_OVERRIDE ("1.2.3", set in the custom build's CustomOverrides.cmake) replaces the version from the
+# git tags, for a custom build numbered apart from QGroundControl. The commit stays in QGC_GIT_HASH.
+if(QGC_APP_VERSION_OVERRIDE)
+    set(QGC_APP_VERSION_STR "v${QGC_APP_VERSION_OVERRIDE}")
+    set(QGC_APP_VERSION "v${QGC_APP_VERSION_OVERRIDE}")
+    set(QGC_APP_VERSION_DEV "0")
+endif()
+
+# ----------------------------------------------------------------------------
 # Extract Commit Date for Version Timestamp
 # ----------------------------------------------------------------------------
 
-if(QGC_STABLE_BUILD)
+if(QGC_STABLE_BUILD AND NOT QGC_APP_VERSION_OVERRIDE)
     set(QGC_APP_DATE_VERSION "${QGC_APP_VERSION}")
 else()
     # Daily builds use date of last commit

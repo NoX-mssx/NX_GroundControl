@@ -12,6 +12,10 @@ set(QGC_WINDOWS_ICON_PATH "${CMAKE_SOURCE_DIR}/${QGC_CUSTOM_DIR}/deploy/windows/
 # NX Rover banner in the installer header (150 x 57, made from deploy/branding/nx-rover-wide-dark.svg)
 set(QGC_WINDOWS_INSTALL_HEADER_PATH "${CMAKE_SOURCE_DIR}/${QGC_CUSTOM_DIR}/deploy/windows/installheader.bmp" CACHE FILEPATH "Windows installer header image" FORCE)
 
+# NX Rover's own version, shown in the app, the .exe properties and the installer, instead of the QGroundControl
+# tag (v5.1.5-...) the fork is based on. Raise it for each release.
+set(QGC_APP_VERSION_OVERRIDE "1.0.15" CACHE STRING "NX Rover version" FORCE)
+
 # Without this the app runs as "<name> Daily", with a separate settings directory to match.
 set(QGC_STABLE_BUILD ON CACHE BOOL "Stable release build" FORCE)
 
