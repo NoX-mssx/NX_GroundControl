@@ -267,9 +267,14 @@ Popup {
                     id:     dialogContentParent
                     focus:  true
 
+                    // A text field passes Enter on after finishing its edit, so Enter presses the dialog's main
+                    // button (Save, Ok); a multi-line field keeps it for new lines.
                     Keys.onPressed: (event) => {
                         if (event.key === Qt.Key_Escape && _rejectAllowed) {
                             _reject()
+                            event.accepted = true
+                        } else if ((event.key === Qt.Key_Return || event.key === Qt.Key_Enter) && _acceptAllowed && acceptButton.enabled) {
+                            _accept()
                             event.accepted = true
                         }
                     }
