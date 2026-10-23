@@ -99,6 +99,8 @@ Item {
     QGCFileDialog {
         id:             fileDialog
         folder:         _appSettings.parameterSavePath
+        // NX: parameter files are usually kept in one folder per vehicle; open where the last one was
+        rememberFolderKey: "NxParameterFilesFolder"
         nameFilters:    [ qsTr("Parameter Files (*.%1)").arg(_appSettings.parameterFileExtension), qsTr("Mission Planner Files (*.param)"), qsTr("All Files (*)") ]
 
         onAcceptedForSave: (file) => {

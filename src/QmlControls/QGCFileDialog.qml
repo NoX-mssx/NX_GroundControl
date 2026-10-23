@@ -17,6 +17,9 @@ Item {
     property string title
     property bool   selectFolder:   false
     property string defaultSuffix:  ""
+    /// NX: when set, the dialog opens in the folder a file was last loaded from or saved to under this key,
+    /// instead of the fixed folder (as long as that folder still exists)
+    property string rememberFolderKey: ""
 
     signal acceptedForLoad(string file)
     signal acceptedForSave(string file)
@@ -39,7 +42,27 @@ Item {
             fullFolderDialog.open()
         } else {
             fullFileDialog.fileMode = FileDialog.OpenFile
+            fullFileDialog.currentFolder = QGCFileDialogController.localFileToUrl(_startFolder())
             fullFileDialog.open()
+        }
+    }
+
+    function _startFolder() {
+        if (rememberFolderKey !== "") {
+            const last = QGroundControl.loadGlobalSetting(rememberFolderKey, "")
+            if (last !== "" && QGCFileDialogController.fileExists(last)) {
+                return last
+            }
+        }
+        return folder
+    }
+
+    function _rememberFolderOf(file) {
+        if (rememberFolderKey !== "") {
+            const cut = Math.max(file.lastIndexOf("/"), file.lastIndexOf("\\"))
+            if (cut > 0) {
+                QGroundControl.saveGlobalSetting(rememberFolderKey, file.substring(0, cut))
+            }
         }
     }
 
@@ -57,6 +80,7 @@ Item {
             mobileFileSaveDialogFactory.open()
         } else {
             fullFileDialog.fileMode = FileDialog.SaveFile
+            fullFileDialog.currentFolder = QGCFileDialogController.localFileToUrl(_startFolder())
             fullFileDialog.open()
         }
     }
@@ -130,6 +154,7 @@ Item {
 
         onAccepted: {
             var fullPath = QGCFileDialogController.urlToLocalFile(selectedFile)
+            _root._rememberFolderOf(fullPath)
             if (fileMode == FileDialog.OpenFile) {
                 _root.acceptedForLoad(fullPath)
             } else {
