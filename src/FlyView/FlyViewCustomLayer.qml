@@ -238,27 +238,6 @@ Item {
                 onClicked:  VehicleModelManager.secondaryStream = !VehicleModelManager.secondaryStream
             }
 
-            // Records the main camera on this computer
-            RailButton {
-                iconSource: ""
-                checked:    QGroundControl.videoManager.recording
-                onClicked: {
-                    if (QGroundControl.videoManager.recording) {
-                        QGroundControl.videoManager.stopRecording()
-                    } else {
-                        QGroundControl.videoManager.startRecording()
-                    }
-                }
-
-                Rectangle {
-                    anchors.centerIn:   parent
-                    width:              parent.width * (QGroundControl.videoManager.recording ? 0.32 : 0.38)
-                    height:             width
-                    radius:             QGroundControl.videoManager.recording ? width * 0.15 : width / 2
-                    color:              QGroundControl.videoManager.recording ? _root._accentText : qgcPal.colorRed
-                }
-            }
-
             RailButton {
                 iconSource: "/res/nx/Gear.svg"
                 checked:    cameraSelectionPanel.visible
@@ -275,6 +254,41 @@ Item {
                     cameraSelectionPanel.visible = false
                     cameraCommandPanel.visible = !cameraCommandPanel.visible
                 }
+            }
+        }
+    }
+
+    // Above the camera controls: records the main camera on this computer. Switched on in the camera menu; while
+    // a recording runs the button stays, so it can always be stopped.
+    Rectangle {
+        id:                     recordButton
+        anchors.right:          parent.right
+        anchors.bottom:         cameraControls.top
+        anchors.bottomMargin:   ScreenTools.defaultFontPixelWidth
+        width:                  cameraControls.width
+        height:                 width
+        radius:                 width / 2
+        color:                  _root._glassColor
+        border.color:           QGroundControl.videoManager.recording ? qgcPal.colorRed : _root._glassBorder
+        visible:                cameraControls.visible && (_root._videoSettings.showRecControl.rawValue || QGroundControl.videoManager.recording)
+
+        RailButton {
+            anchors.centerIn:   parent
+            checked:            QGroundControl.videoManager.recording
+            onClicked: {
+                if (QGroundControl.videoManager.recording) {
+                    QGroundControl.videoManager.stopRecording()
+                } else {
+                    QGroundControl.videoManager.startRecording()
+                }
+            }
+
+            Rectangle {
+                anchors.centerIn:   parent
+                width:              parent.width * (QGroundControl.videoManager.recording ? 0.32 : 0.38)
+                height:             width
+                radius:             QGroundControl.videoManager.recording ? width * 0.15 : width / 2
+                color:              QGroundControl.videoManager.recording ? _root._accentText : qgcPal.colorRed
             }
         }
     }
@@ -779,6 +793,12 @@ Item {
                 text:       qsTr("Speed")
                 checked:    _root._videoSettings.showSpeedOverlay.rawValue
                 onClicked:  _root._videoSettings.showSpeedOverlay.rawValue = checked
+            }
+
+            QGCCheckBox {
+                text:       qsTr("Video recording")
+                checked:    _root._videoSettings.showRecControl.rawValue
+                onClicked:  _root._videoSettings.showRecControl.rawValue = checked
             }
 
             QGCCheckBox {
