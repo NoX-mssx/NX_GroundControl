@@ -733,14 +733,13 @@ Item {
                         }
                     }
                 }
-
-                QGCLabel {
-                    width:      cameraCommandRow.width
-                    wrapMode:   Text.WordWrap
-                    text:       CameraControl.busy ? qsTr("Sending...") : CameraControl.status
-                    visible:    text !== ""
-                }
             }
+        }
+
+        // The menu stays just buttons: a command that did not go through is reported under the "!" instead
+        Connections {
+            target: CameraControl
+            function onCommandFailed(message) { mainWindow.addVehicleNotice(message, 1, false) }
         }
     }
 

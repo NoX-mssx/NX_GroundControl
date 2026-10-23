@@ -368,6 +368,9 @@ void CameraControl::_finish(const QString &label, bool ok, const QString &detail
         qCWarning(NxCameraControlLog) << _status;
     }
     emit statusChanged();
+    if (!ok) {
+        emit commandFailed(_status);
+    }
 
     if (--_pending == 0) {
         emit busyChanged();

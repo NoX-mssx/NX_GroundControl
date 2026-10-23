@@ -41,6 +41,8 @@ public:
 signals:
     void statusChanged();
     void busyChanged();
+    /// A command did not go through; the drive screen shows it under the "!" in the top bar
+    void commandFailed(const QString &message);
 
 private:
     struct Camera {
