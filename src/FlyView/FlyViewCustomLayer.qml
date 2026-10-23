@@ -396,7 +396,12 @@ Item {
             return level >= 2 ? qgcPal.colorRed : (level === 1 ? qgcPal.colorOrange : qgcPal.text)
         }
 
-        // Fixed width per value, so changing digits never resize the window
+        // Whole numbers only. Fixed width per value (three digits of temperature, two of current), so changing
+        // readings never resize the window; only a current of 100 A or more widens it, rather than overlap.
+        function wholeNumber(value) {
+            return String(Math.round(value) || 0)
+        }
+
         TextMetrics {
             id:     widestTemperature
             font:   motorRow.valueFont
@@ -405,7 +410,7 @@ Item {
         TextMetrics {
             id:     widestCurrent
             font:   motorRow.valueFont
-            text:   qsTr("%1 A").arg("000")
+            text:   qsTr("%1 A").arg("00")
         }
 
         Row {
@@ -451,17 +456,17 @@ Item {
                     }
                     QGCLabel {
                         anchors.verticalCenter: parent.verticalCenter
-                        width:                  Math.ceil(widestTemperature.advanceWidth)
+                        width:                  Math.max(Math.ceil(widestTemperature.advanceWidth), implicitWidth)
                         horizontalAlignment:    Text.AlignRight
-                        text:                   modelData.hasData ? Math.round(modelData.temperature) + "°" : "--"
+                        text:                   modelData.hasData ? motorTelemetryPill.wholeNumber(modelData.temperature) + "°" : "--"
                         color:                  modelData.hasData ? motorTelemetryPill.levelColor(modelData.temperatureLevel) : qgcPal.colorGrey
                         font:                   motorRow.valueFont
                     }
                     QGCLabel {
                         anchors.verticalCenter: parent.verticalCenter
-                        width:                  Math.ceil(widestCurrent.advanceWidth)
+                        width:                  Math.max(Math.ceil(widestCurrent.advanceWidth), implicitWidth)
                         horizontalAlignment:    Text.AlignRight
-                        text:                   modelData.hasData ? qsTr("%1 A").arg(Math.round(modelData.current)) : "--"
+                        text:                   modelData.hasData ? qsTr("%1 A").arg(motorTelemetryPill.wholeNumber(modelData.current)) : "--"
                         color:                  modelData.hasData ? motorTelemetryPill.levelColor(modelData.currentLevel) : qgcPal.colorGrey
                         font:                   motorRow.valueFont
                     }
@@ -489,14 +494,24 @@ Item {
         visible:                false
 
         readonly property var _motors: MotorTelemetryMonitor.motors
+        // Room for the widest reading of every row, so the panel keeps its size as the values change
+        readonly property real _valueWidth: Math.ceil(Math.max(widestDetailTemperature.advanceWidth, widestDetailCurrent.advanceWidth,
+                                                               widestDetailVoltage.advanceWidth, widestDetailRpm.advanceWidth))
 
-        function valueText(side, key, decimals, format) {
+        function valueText(side, key, format) {
             const motor = _motors[side]
             if (!motor || !motor.hasData) {
                 return "--"
             }
-            return format.arg(Number(motor[key]).toFixed(decimals))
+            return format.arg(motorTelemetryPill.wholeNumber(Number(motor[key])))
         }
+
+        readonly property font _valueFont: Qt.font({ family: ScreenTools.normalFontFamily, pointSize: ScreenTools.defaultFontPointSize })
+
+        TextMetrics { id: widestDetailTemperature;  font: motorDetailsPanel._valueFont; text: "000 °C" }
+        TextMetrics { id: widestDetailCurrent;      font: motorDetailsPanel._valueFont; text: qsTr("%1 A").arg("00") }
+        TextMetrics { id: widestDetailVoltage;      font: motorDetailsPanel._valueFont; text: qsTr("%1 V").arg("00") }
+        TextMetrics { id: widestDetailRpm;          font: motorDetailsPanel._valueFont; text: "00000" }
 
         onVisibleChanged: if (visible && !motorTelemetryPill.visible) visible = false
 
@@ -518,20 +533,20 @@ Item {
             }
 
             QGCLabel { text: qsTr("Temperature") }
-            QGCLabel { text: motorDetailsPanel.valueText(0, "temperature", 0, "%1 °C") }
-            QGCLabel { text: motorDetailsPanel.valueText(1, "temperature", 0, "%1 °C") }
+            QGCLabel { text: motorDetailsPanel.valueText(0, "temperature", "%1 °C"); Layout.minimumWidth: motorDetailsPanel._valueWidth }
+            QGCLabel { text: motorDetailsPanel.valueText(1, "temperature", "%1 °C"); Layout.minimumWidth: motorDetailsPanel._valueWidth }
 
             QGCLabel { text: qsTr("Current") }
-            QGCLabel { text: motorDetailsPanel.valueText(0, "current", 1, qsTr("%1 A")) }
-            QGCLabel { text: motorDetailsPanel.valueText(1, "current", 1, qsTr("%1 A")) }
+            QGCLabel { text: motorDetailsPanel.valueText(0, "current", qsTr("%1 A")) }
+            QGCLabel { text: motorDetailsPanel.valueText(1, "current", qsTr("%1 A")) }
 
             QGCLabel { text: qsTr("Voltage") }
-            QGCLabel { text: motorDetailsPanel.valueText(0, "voltage", 1, qsTr("%1 V")) }
-            QGCLabel { text: motorDetailsPanel.valueText(1, "voltage", 1, qsTr("%1 V")) }
+            QGCLabel { text: motorDetailsPanel.valueText(0, "voltage", qsTr("%1 V")) }
+            QGCLabel { text: motorDetailsPanel.valueText(1, "voltage", qsTr("%1 V")) }
 
             QGCLabel { text: qsTr("RPM") }
-            QGCLabel { text: motorDetailsPanel.valueText(0, "rpm", 0, "%1") }
-            QGCLabel { text: motorDetailsPanel.valueText(1, "rpm", 0, "%1") }
+            QGCLabel { text: motorDetailsPanel.valueText(0, "rpm", "%1") }
+            QGCLabel { text: motorDetailsPanel.valueText(1, "rpm", "%1") }
         }
 
         MouseArea {
