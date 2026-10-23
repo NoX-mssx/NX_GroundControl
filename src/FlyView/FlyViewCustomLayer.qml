@@ -545,7 +545,8 @@ Item {
         anchors.right:          parent.right
         anchors.bottom:         (homePill.visible || motorTelemetryPill.visible) ? homePill.top : parent.bottom
         anchors.bottomMargin:   (homePill.visible || motorTelemetryPill.visible) ? ScreenTools.defaultFontPixelWidth : 0
-        width:                  radioRow.implicitWidth + _gap * 2
+        // As wide as the motor window below it; about as wide when that one is hidden
+        width:                  motorTelemetryPill.visible ? motorTelemetryPill.width : ScreenTools.defaultFontPixelWidth * 36
         height:                 _root._railButtonSize + ScreenTools.defaultFontPixelWidth
         radius:                 height / 2
         color:                  _root._glassColor
@@ -575,12 +576,14 @@ Item {
             id:                     radioRow
             anchors.verticalCenter: parent.verticalCenter
             anchors.left:           parent.left
+            anchors.right:          parent.right
             anchors.leftMargin:     radioPill._gap
+            anchors.rightMargin:    radioPill._gap
             spacing:                radioPill._gap
 
             Slider {
                 id:                     radioVolume
-                Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 32
+                Layout.fillWidth:       true
                 Layout.preferredHeight: radioPill._inner
                 // The whole screen is the track: the level fills it edge to edge
                 padding:                0
@@ -595,7 +598,6 @@ Item {
                 readonly property real _inset:          height * 0.4
 
                 background: Rectangle {
-                    implicitWidth:  radioVolume.Layout.preferredWidth
                     implicitHeight: radioVolume.Layout.preferredHeight
                     radius:         height / 2
                     color:          Qt.rgba(1, 1, 1, 0.06)
