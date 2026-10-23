@@ -1,6 +1,7 @@
 #include "NxCorePlugin.h"
 #include "AppSettings.h"
 #include "BatteryIndicatorSettings.h"
+#include "LogManagerSettings.h"
 #include "VideoSettings.h"
 #include "Fact.h"
 #include "FactMetaData.h"
@@ -67,6 +68,11 @@ void NxCorePlugin::adjustSettingMetaData(const QString &settingsGroup, FactMetaD
             // Starlink jitter regularly exceeds the stock 80 ms.
             metaData.setRawDefaultValue(300);
         }
+    }
+
+    if ((settingsGroup == LogManagerSettings::settingsGroup) && (metaData.name() == LogManagerSettings::diskLoggingEnabledName)) {
+        // Keeps the log of a run that crashed: AppLog.log in the Logs folder, rotated at 10 MB
+        metaData.setRawDefaultValue(true);
     }
 
     if ((settingsGroup == AppSettings::settingsGroup) && (metaData.name() == AppSettings::indoorPaletteName)) {

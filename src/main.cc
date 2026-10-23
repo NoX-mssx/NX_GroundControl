@@ -5,6 +5,7 @@
 #include "Platform.h"
 
 #ifdef QGC_CUSTOM_BUILD
+    #include "NxCrashGuard.h"
     #include "NxSplashScreen.h"
 #endif
 
@@ -63,6 +64,10 @@ int main(int argc, char *argv[])
             return EXIT_SUCCESS;
         case AppMode::Gui:
             qCInfo(MainLog) << "Starting application event loop";
+#ifdef QGC_CUSTOM_BUILD
+            // NX: crash dumps, and a word at the next start when this run does not end normally
+            NxCrashGuard::start();
+#endif
             return app.exec();
         }
         Q_UNREACHABLE();
@@ -72,6 +77,10 @@ int main(int argc, char *argv[])
 
     // --- Cleanup ---
     app.shutdown();
+
+#ifdef QGC_CUSTOM_BUILD
+    NxCrashGuard::stop();
+#endif
 
     qCInfo(MainLog) << "Exiting main";
 

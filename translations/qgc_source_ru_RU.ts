@@ -25271,4 +25271,23 @@ If a vehicle still has this key configured, you will no longer be able to commun
       <translation>%1 (управляет %2)</translation>
     </message>
   </context>
+  <context>
+    <name>NxCrashGuard</name>
+    <message>
+      <location filename="../custom/src/NxCrashGuard.cc" line="1" />
+      <source>NX Rover crashed last time. The crash report was saved to:
+%1
+
+Send this file together with the AppLog.log file from the Logs folder.</source>
+      <translation>В прошлый раз NX Rover аварийно завершился. Отчёт о сбое сохранён в файл:
+%1
+
+Пришлите этот файл вместе с файлом AppLog.log из папки Logs.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/NxCrashGuard.cc" line="1" />
+      <source>NX Rover was not closed normally last time: it crashed, its task was ended, or the computer was turned off.</source>
+      <translation>В прошлый раз NX Rover был закрыт не обычным способом: программа упала, её задачу сняли или компьютер выключили.</translation>
+    </message>
+  </context>
 </TS>
