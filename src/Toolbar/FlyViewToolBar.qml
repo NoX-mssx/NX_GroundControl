@@ -40,6 +40,25 @@ Item {
     readonly property color  _barColor:     "#0E1216"
     readonly property color  _pillColor:    Qt.rgba(1, 1, 1, 0.06)
     readonly property color  _buttonColor:  Qt.rgba(1, 1, 1, 0.10)
+    readonly property color  _accent:       "#DB6536"
+    readonly property color  _accentText:   "#0B1F1D"
+
+    /// Width of a toolbar switch that fits the longer of its two titles, so it keeps its size when it flips
+    function _switchWidth(metrics) {
+        return Math.ceil(metrics.width) + ScreenTools.defaultFontPixelWidth * 4
+    }
+
+    TextMetrics {
+        id:     armTitles
+        font:   Qt.font({ family: ScreenTools.normalFontFamily, pointSize: ScreenTools.defaultFontPointSize, weight: Font.ExtraBold })
+        text:   qsTr("Disarmed").length > qsTr("Armed").length ? qsTr("Disarmed") : qsTr("Armed")
+    }
+
+    TextMetrics {
+        id:     modeTitles
+        font:   Qt.font({ family: ScreenTools.normalFontFamily, pointSize: ScreenTools.defaultFontPointSize, weight: Font.ExtraBold })
+        text:   control._manualMode
+    }
 
     /// Links offered in the connect menu. An operator in a room gets only the vehicles the admin gave him; the admin
     /// of a room gets the room's links; otherwise this computer's own links.
@@ -140,26 +159,32 @@ Item {
             height:             parent.height - control._margins
             spacing:            control._margins / 2
 
-            // Disarming is immediate; arming needs the button held so it cannot happen by accident.
+            // Two switches. The safe state (Disarmed, Hold) is highlighted in orange; the driving state (Armed, Manual)
+            // is plain white so it does not draw the eye. Disarming is a click; arming needs the button held for a
+            // second so it cannot happen by accident.
             QGCButton {
-                Layout.fillHeight:  true
-                visible:            control._armed
-                text:               qsTr("Armed")
-                fontWeight:         Font.ExtraBold
-                backgroundColor:    qgcPal.colorRed
-                textColor:          "white"
-                onClicked:          control._activeVehicle.armed = false
+                Layout.fillHeight:      true
+                Layout.preferredWidth:  control._switchWidth(armTitles)
+                visible:                control._armed
+                text:                   qsTr("Armed")
+                fontWeight:             Font.ExtraBold
+                showBorder:             false
+                backgroundColor:        "transparent"
+                textColor:              qgcPal.text
+                onClicked:              control._activeVehicle.armed = false
             }
 
             QGCDelayButton {
-                Layout.fillHeight:  true
-                visible:            !control._armed
-                text:               qsTr("Disarmed")
-                fontWeight:         Font.ExtraBold
-                backRadius:         height / 2
-                backgroundColor:    control._buttonColor
-                defaultDelay:       1000
-                onActivated:        control._activeVehicle.armed = true
+                Layout.fillHeight:      true
+                Layout.preferredWidth:  Math.max(control._switchWidth(armTitles), implicitWidth)
+                visible:                !control._armed
+                text:                   qsTr("Disarmed")
+                fontWeight:             Font.ExtraBold
+                backRadius:             height / 2
+                backgroundColor:        control._accent
+                textColor:              control._accentText
+                defaultDelay:           1000
+                onActivated:            control._activeVehicle.armed = true
             }
 
             Rectangle {
@@ -169,30 +194,20 @@ Item {
                 color:                  Qt.rgba(1, 1, 1, 0.12)
             }
 
-            Repeater {
-                model: [ control._holdMode, control._manualMode ]
+            // Hold and Manual: a click switches between them. Any other mode the vehicle is in (e.g. after a
+            // failsafe) is shown in orange too, so it is not hidden, and a click puts the vehicle on Hold.
+            QGCButton {
+                readonly property bool _manual: control._flightMode === control._manualMode
 
-                QGCButton {
-                    required property string modelData
-
-                    Layout.fillHeight:  true
-                    text:               modelData
-                    fontWeight:         Font.ExtraBold
-                    showBorder:         false
-                    checkable:          false
-                    backgroundColor:    control._flightMode === modelData ? "#DB6536" : "transparent"
-                    textColor:          control._flightMode === modelData ? "#0B1F1D" : qgcPal.text
-                    onClicked:          control._activeVehicle.flightMode = modelData
-                }
-            }
-
-            // Any other mode the vehicle is in (e.g. after a failsafe) is shown so it is not hidden.
-            QGCLabel {
-                Layout.rightMargin: control._margins
-                text:               control._flightMode
-                color:              qgcPal.colorOrange
-                font.weight:        Font.ExtraBold
-                visible:            control._flightMode !== "" && control._flightMode !== control._holdMode && control._flightMode !== control._manualMode
+                Layout.fillHeight:      true
+                Layout.preferredWidth:  Math.max(control._switchWidth(modeTitles), implicitWidth)
+                text:                   control._flightMode !== "" ? control._flightMode : control._holdMode
+                fontWeight:             Font.ExtraBold
+                showBorder:             false
+                checkable:              false
+                backgroundColor:        _manual ? "transparent" : control._accent
+                textColor:              _manual ? qgcPal.text : control._accentText
+                onClicked:              control._activeVehicle.flightMode = (control._flightMode === control._holdMode) ? control._manualMode : control._holdMode
             }
         }
     }
