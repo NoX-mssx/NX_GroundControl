@@ -582,11 +582,8 @@ Item {
                 id:                     radioVolume
                 Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 32
                 Layout.preferredHeight: radioPill._inner
-                // The marker stays clear of the rounded ends
-                leftPadding:            height / 4
-                rightPadding:           height / 4
-                topPadding:             0
-                bottomPadding:          0
+                // The whole screen is the track: the level fills it edge to edge
+                padding:                0
                 from:                   0
                 to:                     1
                 // Dragging is smooth; the step is for the mouse wheel and the keys
@@ -596,8 +593,6 @@ Item {
                 onMoved:                RoomRadio.volume = value
 
                 readonly property real _inset:          height * 0.4
-                readonly property real _markerWidth:    1.5
-                readonly property real _markerX:        leftPadding + visualPosition * (availableWidth - _markerWidth)
 
                 background: Rectangle {
                     implicitWidth:  radioVolume.Layout.preferredWidth
@@ -606,9 +601,9 @@ Item {
                     color:          Qt.rgba(1, 1, 1, 0.06)
                     border.color:   Qt.rgba(1, 1, 1, 0.12)
 
-                    // The level, filled up to the marker: a clipped copy of the screen, so its left end is rounded too
+                    // The level: a clipped copy of the screen, so its left end is rounded too
                     Item {
-                        width:      radioVolume._markerX + radioVolume._markerWidth / 2
+                        width:      radioVolume.visualPosition * parent.width
                         height:     parent.height
                         clip:       true
                         visible:    radioVolume.value > 0
@@ -651,8 +646,7 @@ Item {
                         id:                     radioVolumeValue
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.right:          parent.right
-                        // Clear of the marker at full volume
-                        anchors.rightMargin:    radioVolume.rightPadding + radioVolume._markerWidth + radioVolume._inset / 2
+                        anchors.rightMargin:    radioVolume._inset
                         width:                  Math.ceil(widestVolume.advanceWidth)
                         horizontalAlignment:    Text.AlignRight
                         text:                   Math.round(radioVolume.value * 100)
@@ -661,14 +655,8 @@ Item {
                     }
                 }
 
-                // Thin vertical marker at the volume
-                handle: Rectangle {
-                    x:      radioVolume._markerX
-                    y:      (radioVolume.availableHeight - height) / 2
-                    width:  radioVolume._markerWidth
-                    height: radioVolume.availableHeight * 0.72
-                    color:  radioVolume.pressed ? qgcPal.text : _root._accent
-                }
+                // No marker: the fill shows the level
+                handle: Item {}
             }
 
             RailButton {
