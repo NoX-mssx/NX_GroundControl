@@ -178,3 +178,28 @@ jobs:
           path: ${{ env.INSTALLER_PATH }}
           compression-level: 0
           retention-days: 30
+
+      # Debug symbols of this exact build. With them a crash dump from the CrashLogs folder shows where the
+      # program crashed; they only match the installer of the same run.
+      - name: Collect debug symbols
+        shell: pwsh
+        run: |
+          $pdb = Get-ChildItem -Path "${{ runner.temp }}\build" -Recurse -Filter "$env:APP_NAME.pdb" | Select-Object -First 1
+          if (-not $pdb) {
+            Write-Host "::warning title=Debug symbols::$env:APP_NAME.pdb was not produced"
+            exit 0
+          }
+          $symbols = "${{ runner.temp }}\symbols"
+          New-Item -ItemType Directory -Force -Path $symbols | Out-Null
+          Copy-Item $pdb.FullName $symbols
+          $exe = Join-Path $pdb.DirectoryName "$env:APP_NAME.exe"
+          if (Test-Path $exe) { Copy-Item $exe $symbols }
+          Write-Host "::notice title=Debug symbols::$($pdb.Name), $([math]::Round($pdb.Length / 1MB)) MB"
+
+      - name: Upload debug symbols
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.APP_NAME }}-symbols-AMD64
+          path: ${{ runner.temp }}\symbols
+          if-no-files-found: warn
+          retention-days: 90

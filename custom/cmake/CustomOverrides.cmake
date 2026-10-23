@@ -18,3 +18,12 @@ set(QGC_STABLE_BUILD ON CACHE BOOL "Stable release build" FORCE)
 set(QGC_DISABLE_PX4_PLUGIN_FACTORY ON CACHE BOOL "Disable PX4 Plugin Factory" FORCE)
 # Replaced by NxFirmwarePluginFactory, which only accepts ArduRover vehicles.
 set(QGC_DISABLE_APM_PLUGIN_FACTORY ON CACHE BOOL "Disable APM Plugin Factory" FORCE)
+
+# Debug symbols of the release executable (NX-Rover.pdb, published by the CI build as its own artifact): with them
+# a crash dump from the CrashLogs folder shows where the program crashed. The code is already compiled with
+# debug info (/Z7, see cmake/Toolchain.cmake); /DEBUG makes the linker keep it in a .pdb next to the .exe, and
+# /OPT:REF /OPT:ICF keep the release optimisations that /DEBUG would otherwise switch off. Set before project(),
+# where the MSVC platform module appends its own release flags (/INCREMENTAL:NO) to these.
+if(CMAKE_HOST_WIN32)
+    set(CMAKE_EXE_LINKER_FLAGS_RELEASE_INIT "/DEBUG /OPT:REF /OPT:ICF")
+endif()
