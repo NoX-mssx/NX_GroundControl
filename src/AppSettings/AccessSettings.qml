@@ -281,16 +281,6 @@ Rectangle {
                                             }
                                         }
 
-                                        // Off: the operator keeps his place in the room but cannot connect
-                                        QGCCheckBox {
-                                            checked:            modelData.enabled
-                                            enabled:            !modelData.isMe
-                                            onClicked:          RoomManager.setMemberEnabled(modelData.deviceId, checked)
-
-                                            ToolTip.visible:    hovered
-                                            ToolTip.delay:      400
-                                            ToolTip.text:       qsTr("Access to the room")
-                                        }
                                     }
                                 }
                             }
@@ -704,12 +694,23 @@ Rectangle {
                 text:               _member ? root._memberSubtitle(_member) + (_member.lastSeen > 0 ? " · " + qsTr("last seen %1").arg(root._time(_member.lastSeen)) : "") : ""
             }
 
+            // Off: the operator keeps his place in the room but cannot connect. Turning it off asks first.
             QGCCheckBoxSlider {
+                id:                 accessSwitch
                 Layout.fillWidth:   true
                 text:               qsTr("Access to the room")
                 enabled:            _member && !_member.isMe
                 checked:            _member ? _member.enabled : false
-                onClicked:          RoomManager.setMemberEnabled(_member.deviceId, checked)
+                onClicked: {
+                    const member = _member
+                    if (checked) {
+                        RoomManager.setMemberEnabled(member.deviceId, true)
+                        return
+                    }
+                    // Stays on until confirmed; the room state turns it off
+                    accessSwitch.checked = Qt.binding(function () { return _member ? _member.enabled : false })
+                    revokeDialogFactory.open({ member: member })
+                }
             }
 
             QGCLabel {
@@ -932,6 +933,54 @@ Rectangle {
     QGCPopupDialogFactory {
         id:                 giveDialogFactory
         dialogComponent:    giveDialogComponent
+    }
+
+    QGCPopupDialogFactory {
+        id:                 revokeDialogFactory
+        dialogComponent:    revokeDialogComponent
+    }
+
+    // Own buttons instead of OK/Cancel, so the choice reads plainly; Enter does nothing here
+    Component {
+        id: revokeDialogComponent
+
+        QGCPopupDialog {
+            id:         revokeDialog
+            title:      qsTr("Room Access")
+            buttons:    Dialog.NoButton
+
+            property var member: null
+
+            ColumnLayout {
+                spacing: ScreenTools.defaultFontPixelHeight
+
+                QGCLabel {
+                    Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 50
+                    wrapMode:               Text.WordWrap
+                    text:                   qsTr("Do you really want to take away access to the room from operator %1?").arg(revokeDialog.member ? revokeDialog.member.name : "")
+                }
+
+                RowLayout {
+                    Layout.alignment:   Qt.AlignRight
+                    spacing:            ScreenTools.defaultFontPixelWidth
+
+                    QGCButton {
+                        text:       qsTr("Keep")
+                        onClicked:  revokeDialog.close()
+                    }
+                    QGCButton {
+                        text:               qsTr("Take away")
+                        backgroundColor:    "#DB6536"
+                        textColor:          "#0B1F1D"
+                        fontWeight:         Font.DemiBold
+                        onClicked: {
+                            RoomManager.setMemberEnabled(revokeDialog.member.deviceId, false)
+                            revokeDialog.close()
+                        }
+                    }
+                }
+            }
+        }
     }
 
     Component {

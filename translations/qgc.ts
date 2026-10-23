@@ -24786,6 +24786,21 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <name>AccessSettings</name>
     <message>
       <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Room Access</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Do you really want to take away access to the room from operator %1?</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Keep</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
       <source>tunnel not found on the server</source>
       <translation type="unfinished" />
     </message>
