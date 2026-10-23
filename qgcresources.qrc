@@ -37,6 +37,7 @@
         <file alias="nx/Ping.svg">resources/nx/Ping.svg</file>
         <file alias="nx/Play.svg">resources/nx/Play.svg</file>
         <file alias="nx/Speaker.svg">resources/nx/Speaker.svg</file>
+        <file alias="nx/Splash.png">resources/nx/Splash.png</file>
         <file alias="nx/SpeakerOff.svg">resources/nx/SpeakerOff.svg</file>
         <file alias="nx/Warning.svg">resources/nx/Warning.svg</file>
         <file alias="SplashScreen">resources/SplashScreen.png</file>

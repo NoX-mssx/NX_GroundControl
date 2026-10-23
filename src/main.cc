@@ -4,6 +4,10 @@
 #include "QGCLoggingCategory.h"
 #include "Platform.h"
 
+#ifdef QGC_CUSTOM_BUILD
+    #include "NxSplashScreen.h"
+#endif
+
 #ifdef QGC_UNITTEST_BUILD
     #include "UnitTestList.h"
 #endif
@@ -28,6 +32,13 @@ int main(int argc, char *argv[])
     LogManager::installHandler(args.logOutput);
 
     Platform::setupPostApp();
+
+#ifdef QGC_CUSTOM_BUILD
+    // NX: the NX Rover banner while the app loads, on screen for 5 seconds
+    if (QGCCommandLineParser::determineAppMode(args) == QGCCommandLineParser::AppMode::Gui) {
+        NxSplashScreen::showFor(5000);
+    }
+#endif
 
     app.init();
 

@@ -3,6 +3,8 @@ message(STATUS "QGC: Adding NX Rover custom plugin")
 set(CUSTOM_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/NxCorePlugin.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/NxCorePlugin.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/NxSplashScreen.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/NxSplashScreen.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FirmwarePlugin/NxFirmwarePluginFactory.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FirmwarePlugin/NxFirmwarePluginFactory.h
     CACHE INTERNAL "" FORCE

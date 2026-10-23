@@ -9,6 +9,8 @@ set(QGC_ORG_NAME "NX-Rover" CACHE STRING "Org Name" FORCE)
 set(QGC_APP_DESCRIPTION "Ground control station for ArduRover ground vehicles" CACHE STRING "Application description" FORCE)
 
 set(QGC_WINDOWS_ICON_PATH "${CMAKE_SOURCE_DIR}/${QGC_CUSTOM_DIR}/deploy/windows/NxGroundControl.ico" CACHE FILEPATH "Windows Icon Path" FORCE)
+# NX Rover banner in the installer header (150 x 57, made from deploy/branding/nx-rover-wide-dark.svg)
+set(QGC_WINDOWS_INSTALL_HEADER_PATH "${CMAKE_SOURCE_DIR}/${QGC_CUSTOM_DIR}/deploy/windows/installheader.bmp" CACHE FILEPATH "Windows installer header image" FORCE)
 
 # Without this the app runs as "<name> Daily", with a separate settings directory to match.
 set(QGC_STABLE_BUILD ON CACHE BOOL "Stable release build" FORCE)
