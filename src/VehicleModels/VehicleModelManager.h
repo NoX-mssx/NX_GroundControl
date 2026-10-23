@@ -38,7 +38,6 @@ class VehicleModelManager : public QObject
     Q_PROPERTY(QVariantList cameraStates        READ cameraStates       NOTIFY cameraStatesChanged)
     /// Camera index shown by each auxiliary video item, -1 for an unused item
     Q_PROPERTY(QList<int>   auxiliaryCameras    READ auxiliaryCameras   NOTIFY cameraStatesChanged)
-    Q_PROPERTY(QString      mainCameraName      READ mainCameraName     NOTIFY cameraStatesChanged)
     /// true: every camera plays its secondary (SD) stream instead of the main (HD) one
     /// On/off state of each button of the active model, by index
     Q_PROPERTY(QVariantList buttonStates        READ buttonStates       NOTIFY buttonStatesChanged)
@@ -63,7 +62,6 @@ public:
 
     QVariantList cameraStates() const;
     QList<int> auxiliaryCameras() const;
-    QString mainCameraName() const;
     bool secondaryStream() const { return _secondaryStream; }
     bool switchingStream() const { return _switchingStream; }
     void setSecondaryStream(bool secondaryStream);

@@ -390,11 +390,6 @@ QList<int> VehicleModelManager::auxiliaryCameras() const
     return auxiliary;
 }
 
-QString VehicleModelManager::mainCameraName() const
-{
-    return _activeCameras().value(_mainCameraIndex).toMap().value(QLatin1String(kNameKey)).toString();
-}
-
 void VehicleModelManager::setSecondaryStream(bool secondaryStream)
 {
     if (secondaryStream == _secondaryStream) {

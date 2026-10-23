@@ -191,24 +191,6 @@ Item {
         defaultY:       _root.height - _root.parentToolInsets.bottomEdgeLeftInset - (2 * (_root._auxiliaryHeight + _root._windowMargin))
     }
 
-    // Name of the camera on the main screen
-    Rectangle {
-        anchors.top:        parent.top
-        anchors.left:       parent.left
-        width:              mainCameraLabel.implicitWidth + ScreenTools.defaultFontPixelWidth * 2.4
-        height:             mainCameraLabel.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.5
-        radius:             height / 2
-        color:              _root._glassColor
-        visible:            mainCameraLabel.text !== ""
-
-        QGCLabel {
-            id:                 mainCameraLabel
-            anchors.centerIn:   parent
-            text:               VehicleModelManager.mainCameraName + (VehicleModelManager.secondaryStream ? " · SD" : " · HD")
-            font.weight:        Font.DemiBold
-        }
-    }
-
     // Camera controls on the right edge
     Rectangle {
         id:                     cameraControls
