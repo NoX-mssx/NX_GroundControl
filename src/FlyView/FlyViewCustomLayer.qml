@@ -424,11 +424,30 @@ Item {
 
                     spacing: ScreenTools.defaultFontPixelWidth * 0.6
 
-                    QGCLabel {
+                    // Motor pictogram with L or R inside; it takes the colour of the motor's worst reading
+                    Item {
+                        readonly property int  _level:  modelData.hasData ? Math.max(modelData.temperatureLevel, modelData.currentLevel) : 0
+                        readonly property color _color: _level > 0 ? motorTelemetryPill.levelColor(_level) : qgcPal.colorGrey
+
                         anchors.verticalCenter: parent.verticalCenter
-                        text:                   modelData.side === "left" ? qsTr("L") : qsTr("R")
-                        color:                  qgcPal.colorGrey
-                        font.weight:            Font.ExtraBold
+                        width:                  ScreenTools.defaultFontPixelHeight * 2
+                        height:                 width
+
+                        QGCColoredImage {
+                            anchors.fill:       parent
+                            sourceSize.height:  height
+                            source:             "/res/nx/Motor.svg"
+                            color:              parent._color
+                        }
+                        QGCLabel {
+                            // Centre of the motor body in the 24-unit drawing: x 13, y 13
+                            x:                  parent.width * 13 / 24 - width / 2
+                            y:                  parent.height * 13 / 24 - height / 2
+                            text:               modelData.side === "left" ? qsTr("L") : qsTr("R")
+                            color:              parent._color
+                            font.weight:        Font.ExtraBold
+                            font.pointSize:     ScreenTools.smallFontPointSize
+                        }
                     }
                     QGCLabel {
                         anchors.verticalCenter: parent.verticalCenter

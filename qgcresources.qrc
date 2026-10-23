@@ -33,6 +33,7 @@
         <file alias="nx/MenuSettings.svg">resources/nx/MenuSettings.svg</file>
         <file alias="nx/MenuVehicleSetup.svg">resources/nx/MenuVehicleSetup.svg</file>
         <file alias="nx/Mic.svg">resources/nx/Mic.svg</file>
+        <file alias="nx/Motor.svg">resources/nx/Motor.svg</file>
         <file alias="nx/Pause.svg">resources/nx/Pause.svg</file>
         <file alias="nx/Ping.svg">resources/nx/Ping.svg</file>
         <file alias="nx/Play.svg">resources/nx/Play.svg</file>
