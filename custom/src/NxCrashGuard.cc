@@ -13,16 +13,19 @@
 #include "SettingsManager.h"
 
 #ifdef Q_OS_WIN
+// dbghelp.h needs windows.h before it, and include sorting would swap them
+// clang-format off
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
+#include <windows.h>
+#include <dbghelp.h>
 #include <csignal>
 #include <cwchar>
-#include <dbghelp.h>
-#include <windows.h>
+// clang-format on
 #endif
 
 QGC_LOGGING_CATEGORY(NxCrashGuardLog, "NX.CrashGuard")
