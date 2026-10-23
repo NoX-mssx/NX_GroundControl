@@ -586,7 +586,7 @@ Item {
                 onMoved:                RoomRadio.volume = value
 
                 readonly property real _inset:          height * 0.4
-                readonly property real _markerWidth:    3
+                readonly property real _markerWidth:    1.5
                 readonly property real _markerX:        leftPadding + visualPosition * (availableWidth - _markerWidth)
 
                 background: Rectangle {
@@ -657,7 +657,6 @@ Item {
                     y:      (radioVolume.availableHeight - height) / 2
                     width:  radioVolume._markerWidth
                     height: radioVolume.availableHeight * 0.72
-                    radius: 1
                     color:  radioVolume.pressed ? qgcPal.text : _root._accent
                 }
             }
