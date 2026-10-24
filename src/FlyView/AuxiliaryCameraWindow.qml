@@ -5,8 +5,9 @@ import QGroundControl.Controls
 import QGroundControl.FlyView
 
 /// Small floating window showing one extra camera of the active vehicle model.
-/// Clicking the picture moves the camera to the main video. While unlocked the window can be dragged
-/// and resized; locked it can only be collapsed to its title bar.
+/// The picture fills the window; lock, show/hide and the camera name sit on it at the top left. Clicking the
+/// picture moves the camera to the main video. While unlocked the window can be dragged by that corner and
+/// resized; locked it can only be collapsed to the corner alone.
 Rectangle {
     id: root
 
@@ -23,7 +24,9 @@ Rectangle {
     property real   defaultWidth:   ScreenTools.defaultFontPixelWidth * 40
 
     readonly property real _aspectRatio:    16 / 9
+    /// Height of the collapsed window; the controls on the picture are a little lower
     readonly property real _titleHeight:    ScreenTools.defaultFontPixelHeight * 1.6
+    readonly property real _overlayMargin:  ScreenTools.defaultFontPixelHeight * 0.2
     readonly property real _minimumWidth:   ScreenTools.defaultFontPixelWidth * 20
     property real _videoWidth:              defaultWidth
     property bool _moved:                   false
@@ -31,7 +34,7 @@ Rectangle {
     x:          defaultX
     y:          defaultY
     width:      _videoWidth
-    height:     _titleHeight + (collapsed ? 0 : _videoWidth / _aspectRatio)
+    height:     collapsed ? _titleHeight : _videoWidth / _aspectRatio
     color:      "#0E1216"
     radius:     ScreenTools.defaultFontPixelHeight * 0.6
     border.color: Qt.rgba(1, 1, 1, 0.14)
@@ -50,10 +53,7 @@ Rectangle {
 
     Item {
         id:             videoArea
-        anchors.top:    titleBar.bottom
-        anchors.left:   parent.left
-        anchors.right:  parent.right
-        anchors.bottom: parent.bottom
+        anchors.fill:   parent
         visible:        !root.collapsed
 
         FlightDisplayViewVideoOutput {
@@ -95,15 +95,16 @@ Rectangle {
         }
     }
 
+    // Lock, show/hide and the camera name on the picture at the top left; dragging it moves an unlocked window
     Rectangle {
-        id:             titleBar
-        anchors.top:    parent.top
-        anchors.left:   parent.left
-        anchors.right:  parent.right
-        height:         root._titleHeight
-        color:          "transparent"
+        id:             overlay
+        x:              root._overlayMargin
+        y:              root.collapsed ? (root.height - height) / 2 : root._overlayMargin
+        width:          overlayRow.implicitWidth + (ScreenTools.defaultFontPixelWidth * 1.6)
+        height:         root._titleHeight - (root._overlayMargin * 2)
+        radius:         height / 2
+        color:          Qt.rgba(0, 0, 0, 0.45)
 
-        // Dragging by the title bar, only while unlocked
         MouseArea {
             anchors.fill:   parent
             enabled:        !root.locked
@@ -118,15 +119,17 @@ Rectangle {
         }
 
         Row {
-            anchors.fill:       parent
-            anchors.margins:    ScreenTools.defaultFontPixelHeight * 0.2
-            spacing:            ScreenTools.defaultFontPixelWidth
+            id:                     overlayRow
+            anchors.verticalCenter: parent.verticalCenter
+            x:                      ScreenTools.defaultFontPixelWidth * 0.8
+            height:                 parent.height
+            spacing:                ScreenTools.defaultFontPixelWidth * 0.8
 
             QGCColoredImage {
                 id:                 lockIcon
                 visible:            windowHover.hovered
                 anchors.verticalCenter: parent.verticalCenter
-                height:             parent.height * 0.8
+                height:             parent.height * 0.75
                 width:              height
                 sourceSize.height:  height
                 source:             root.locked ? "/InstrumentValueIcons/lock-closed.svg" : "/InstrumentValueIcons/lock-open.svg"
@@ -143,7 +146,7 @@ Rectangle {
             QGCColoredImage {
                 visible:            windowHover.hovered || root.collapsed
                 anchors.verticalCenter: parent.verticalCenter
-                height:             parent.height * 0.8
+                height:             parent.height * 0.75
                 width:              height
                 sourceSize.height:  height
                 source:             root.collapsed ? "/InstrumentValueIcons/view-show.svg" : "/InstrumentValueIcons/view-hide.svg"
@@ -160,6 +163,7 @@ Rectangle {
             QGCLabel {
                 anchors.verticalCenter: parent.verticalCenter
                 text:                   root.cameraName
+                color:                  "white"
             }
         }
     }

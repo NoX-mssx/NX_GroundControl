@@ -57,7 +57,8 @@ Item {
     readonly property color _accent:            "#DB6536"
     readonly property color _accentText:        "#0B1F1D"
     readonly property real _auxiliaryWidth:     ScreenTools.defaultFontPixelWidth * 40
-    readonly property real _auxiliaryHeight:    (ScreenTools.defaultFontPixelHeight * 1.6) + (_auxiliaryWidth * 9 / 16)
+    // The picture fills the window, controls and name sit on it
+    readonly property real _auxiliaryHeight:    _auxiliaryWidth * 9 / 16
 
     QGCPalette { id: qgcPal; colorGroupEnabled: true }
 
