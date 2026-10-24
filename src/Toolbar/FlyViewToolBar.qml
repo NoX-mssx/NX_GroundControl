@@ -73,35 +73,14 @@ Item {
         return !config.dynamic && config.showInMenu && config.room === room
     }
 
-    /// The room vehicle of a link, or null
-    function _roomBoard(config) {
-        const boardId = config.fromRoom || config.room !== "" ? config.roomBoardId : ""
-        if (boardId === "") {
-            return null
-        }
-        const boards = RoomManager.boards
-        for (let i = 0; i < boards.length; i++) {
-            if (boards[i].boardId === boardId) {
-                return boards[i]
-            }
-        }
-        return null
+    function _escapeHtml(text) {
+        return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
     }
 
+    /// A link in the connect menu: the name in bold, the board ID below it in the same size, nothing else
     function _menuText(config) {
-        // The board ID follows the name in a smaller font (the label renders the <small> markup).
-        let text = config.name + (config.boardId !== "" ? "  <small>ID " + config.boardId + "</small>" : "")
-        if (config.link) {
-            return text + " (" + qsTr("Connected") + ")"
-        }
-        if (config.fromRoom && RoomManager.connectingBoard === config.roomBoardId) {
-            return text + " (" + qsTr("Connecting…") + ")"
-        }
-        const board = _roomBoard(config)
-        if (board && board.occupiedBy !== "" && !board.occupiedByMe) {
-            return text + "  <small>" + qsTr("occupied by %1").arg(board.occupiedBy) + "</small>"
-        }
-        return text
+        const name = "<b>" + _escapeHtml(config.name) + "</b>"
+        return config.boardId !== "" ? name + "<br>" + _escapeHtml(config.boardId) : name
     }
 
     /// Opens the link popup, which also lists the vehicle messages (called for critical messages).
@@ -298,7 +277,7 @@ Item {
         }
     }
 
-    // ---- Link popup: connect a link, or the connected link with its board ID, disconnect and messages ----
+    // ---- Link popup: connect a link, or the connected link (name, board ID), disconnect and messages ----
     Component {
         id: linkPopupComponent
 
@@ -330,9 +309,8 @@ Item {
                             font.pointSize: ScreenTools.mediumFontPointSize
                         }
                         QGCLabel {
-                            text:           qsTr("Board ID %1").arg(linkPopupLayout._linkConfig ? linkPopupLayout._linkConfig.boardId : "")
-                            font.pointSize: ScreenTools.smallFontPointSize
-                            color:          qgcPal.colorGrey
+                            text:           linkPopupLayout._linkConfig ? linkPopupLayout._linkConfig.boardId : ""
+                            font.pointSize: ScreenTools.mediumFontPointSize
                             visible:        linkPopupLayout._linkConfig !== null && linkPopupLayout._linkConfig.boardId !== ""
                         }
                     }
@@ -396,8 +374,9 @@ Item {
                             model: QGroundControl.linkManager.linkConfigurations
 
                             delegate: QGCButton {
-                                Layout.fillWidth:   true
-                                text:               control._menuText(object)
+                                Layout.fillWidth:       true
+                                text:                   control._menuText(object)
+                                horizontalAlignment:    Text.AlignHCenter
                                 visible:            control._menuLink(object)
                                 enabled:            !object.link && RoomManager.connectingBoard === ""
 
