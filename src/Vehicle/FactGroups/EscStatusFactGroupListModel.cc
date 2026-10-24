@@ -123,8 +123,10 @@ void EscStatusFactGroup::_handleEscTelemetry(uint32_t firstIndex, const uint8_t 
 
     const uint32_t i = index - firstIndex;
     // Temperature arrives in degrees and is kept in centi-degrees like ESC_INFO; voltage and current arrive in
-    // hundredths.
-    _temperatureFact.setRawValue(static_cast<double>(temperature[i]) * 100.0);
+    // hundredths. ArduPilot puts its signed temperature into the unsigned byte without a bound (AP_ESC_Telem:
+    // temperature[j] = temperature_cdeg / 100), so below zero it wraps: -1 C arrives as 255. Read as signed, the
+    // byte covers -128..127 C, which spans every real controller and motor.
+    _temperatureFact.setRawValue(static_cast<double>(static_cast<int8_t>(temperature[i])) * 100.0);
     _voltageFact.setRawValue(static_cast<double>(voltage[i]) / 100.0);
     _currentFact.setRawValue(static_cast<double>(current[i]) / 100.0);
     _rpmFact.setRawValue(rpm[i]);
