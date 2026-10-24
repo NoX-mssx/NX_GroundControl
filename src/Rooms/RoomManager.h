@@ -73,6 +73,13 @@ class RoomManager : public QObject
     Q_PROPERTY(QVariantMap  radio           READ radio              NOTIFY radioChanged)
     /// Admin: tracks being uploaded: { active, index, count, name, progress (0..1) }
     Q_PROPERTY(QVariantMap  radioUpload     READ radioUpload        NOTIFY radioUploadChanged)
+    /// Admin: video settings of one operator, after loadMemberVideo:
+    ///     { deviceId, loading, error, reported: { setting: value } or null (what his NX Rover uses),
+    ///       pending: { setting: value } or null (last sent), applied (he applied what was sent last),
+    ///       reportedAt, pendingAt, appliedAt (seconds since 1970) }
+    Q_PROPERTY(QVariantMap  memberVideo     READ memberVideo        NOTIFY memberVideoChanged)
+    /// Names of the video settings an admin can send (VideoSettings facts, in the order of the Video page)
+    Q_PROPERTY(QStringList  videoSettingKeys READ videoSettingKeys  CONSTANT)
 
 public:
     explicit RoomManager(QObject *parent = nullptr);
@@ -104,6 +111,8 @@ public:
     QString lastError() const { return _lastError; }
     QVariantMap radio() const { return _radio; }
     QVariantMap radioUpload() const { return _radioUpload; }
+    QVariantMap memberVideo() const { return _memberVideo; }
+    static QStringList videoSettingKeys();
 
     /// Opens the live radio stream of the current room; the caller owns the reply. nullptr when not in a room.
     QNetworkReply *openRadioStream();
@@ -148,6 +157,15 @@ public:
     Q_INVOKABLE void connectBoard(const QString &boardId);
     Q_INVOKABLE void disconnectBoard();
 
+    /// Admin: loads what video settings an operator uses and what was sent to him (memberVideo); called again for
+    /// the same operator it refreshes without showing loading
+    Q_INVOKABLE void loadMemberVideo(const QString &deviceId);
+    /// Admin: sends video settings to one operator. His NX Rover applies them once, within a refresh (15 s);
+    /// he may change them afterwards.
+    Q_INVOKABLE void sendMemberVideo(const QString &deviceId, const QVariantMap &settings);
+    /// This computer's values of the settings an admin can send
+    Q_INVOKABLE QVariantMap localVideoSettings() const;
+
     Q_INVOKABLE void clearError();
 
 signals:
@@ -161,6 +179,7 @@ signals:
     void lastErrorChanged();
     void radioChanged();
     void radioUploadChanged();
+    void memberVideoChanged();
     /// Connecting to a room vehicle failed or the vehicle was taken back; shown to the user as a dialog
     void connectFailed(const QString &message);
     /// Something the user asked for went through (e.g. a join request was sent)
@@ -218,6 +237,10 @@ private:
     void _setRadio(int status, const QJsonObject &reply);
     void _radioRequest(const QString &method, const QString &subPath, const QJsonObject &body);
     void _setRadioUpload(const QVariantMap &upload);
+    /// Reports this computer's video settings to the current room and applies, once, what the admin sent
+    void _syncVideoSettings();
+    void _watchVideoSettings();
+    void _setMemberVideo(const QString &deviceId, const QJsonObject &reply);
     void _startNextUpload();
     /// Refreshes the current room shortly, once for a burst of changes
     void _scheduleRoomRefresh();
@@ -247,6 +270,9 @@ private:
     QTimer _refreshTimer;
     QTimer _heartbeatTimer;
     QTimer _roomRefreshTimer;
+    QTimer _videoSyncTimer;                         ///< Reports a changed video setting, once for a burst of changes
+    bool _videoWatched = false;
+    QVariantMap _memberVideo;
 
     QString _deviceName;
     QString _deviceCode;

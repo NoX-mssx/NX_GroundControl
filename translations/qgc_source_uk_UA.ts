@@ -24386,6 +24386,31 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <name>RoomManager</name>
     <message>
       <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The operator is no longer in the room.</source>
+      <translation>Оператора більше немає в кімнаті.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The server did not accept these video settings.</source>
+      <translation>Сервер не прийняв ці налаштування відео.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The room server needs an update to send video settings.</source>
+      <translation>Щоб надсилати налаштування відео, оновіть сервер кімнат.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The admin of the room sent you video settings, and they are applied now. You can still change them in Settings, Video.</source>
+      <translation>Адміністратор кімнати надіслав вам налаштування відео, їх застосовано. Змінювати їх можна в Налаштуваннях, розділ «Відео».</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Video settings sent. The operator's NX Rover applies them within 15 seconds once it is online.</source>
+      <translation>Налаштування відео надіслано. NX Rover оператора застосує їх протягом 15 секунд, коли буде в мережі.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
       <source>Wait until the tracks of the other room are uploaded.</source>
       <translation>Дочекайтеся завершення завантаження треків іншої кімнати.</translation>
     </message>
@@ -24850,6 +24875,56 @@ If a vehicle still has this key configured, you will no longer be able to commun
   </context>
   <context>
     <name>AccessSettings</name>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Video settings…</source>
+      <translation>Налаштування відео…</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Video Settings for %1</source>
+      <translation>Налаштування відео: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Loading…</source>
+      <translation>Завантаження…</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>The settings %1 uses now. Change what you need and send: his NX Rover applies them once, and he can still change them himself.</source>
+      <translation>Налаштування, які зараз у %1. Змініть потрібне й надішліть: його NX Rover застосує їх один раз, а далі він зможе змінювати їх сам.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>%1's NX Rover has not reported its settings yet; these are yours. Change what you need and send: his NX Rover applies them once, and he can still change them himself.</source>
+      <translation>NX Rover оператора %1 ще не повідомив свої налаштування, тому тут ваші. Змініть потрібне й надішліть: його NX Rover застосує їх один раз, а далі він зможе змінювати їх сам.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Last sent at %1, applied at %2.</source>
+      <translation>Надіслано о %1, застосовано о %2.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Last sent at %1, not applied yet: his NX Rover applies them within 15 seconds once it is online.</source>
+      <translation>Надіслано о %1, ще не застосовано: його NX Rover застосує їх протягом 15 секунд, коли буде в мережі.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Use mine</source>
+      <translation>Взяти мої</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Close</source>
+      <translation>Закрити</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Send</source>
+      <translation>Надіслати</translation>
+    </message>
     <message>
       <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
       <source>Room Access</source>

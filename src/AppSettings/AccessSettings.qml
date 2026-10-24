@@ -809,6 +809,11 @@ Rectangle {
                     onClicked:  root._selectedId = ""
                 }
                 QGCButton {
+                    text:       qsTr("Video settings…")
+                    visible:    _member && !_member.isMe
+                    onClicked:  videoDialogFactory.open({ member: _member })
+                }
+                QGCButton {
                     text:       qsTr("Give a vehicle")
                     primary:    true
                     fontWeight: Font.ExtraBold
@@ -938,6 +943,234 @@ Rectangle {
     QGCPopupDialogFactory {
         id:                 revokeDialogFactory
         dialogComponent:    revokeDialogComponent
+    }
+
+    QGCPopupDialogFactory {
+        id:                 videoDialogFactory
+        dialogComponent:    videoDialogComponent
+    }
+
+    // Video settings sent to one operator: his NX Rover applies them once, and he may change them afterwards.
+    // The editors start from what he uses now (or from this computer's settings when he never reported).
+    Component {
+        id: videoDialogComponent
+
+        QGCPopupDialog {
+            id:         videoDialog
+            title:      qsTr("Video Settings for %1").arg(member ? member.name : "")
+            buttons:    Dialog.NoButton
+
+            property var    member:     null
+            property var    _draft:     ({})
+            property var    _invalid:   ({})
+            property bool   _ready:     false
+            property bool   _fromOperator: false
+
+            readonly property var  _info:       RoomManager.memberVideo
+            readonly property bool _loaded:     member !== null && _info.deviceId === member.deviceId && _info.loading !== true
+            readonly property bool _waiting:    _loaded && _info.pending !== null && _info.pending !== undefined && !_info.applied
+
+            function _time(seconds) {
+                return Qt.formatTime(new Date(seconds * 1000), "HH:mm")
+            }
+
+            function _fill() {
+                if (_ready || !_loaded || (_info.error !== undefined && _info.error !== "")) {
+                    return
+                }
+                const reported = _info.reported
+                _fromOperator = reported !== null && reported !== undefined && Object.keys(reported).length > 0
+                _draft = Object.assign({}, _fromOperator ? reported : RoomManager.localVideoSettings())
+                _ready = true
+            }
+
+            function _set(key, value) {
+                const draft = Object.assign({}, _draft)
+                draft[key] = value
+                _draft = draft
+            }
+
+            function _setInvalid(key, invalid) {
+                const list = Object.assign({}, _invalid)
+                if (invalid) {
+                    list[key] = true
+                } else {
+                    delete list[key]
+                }
+                _invalid = list
+            }
+
+            Component.onCompleted: {
+                RoomManager.loadMemberVideo(member.deviceId)
+                _fill()
+            }
+
+            Connections {
+                target:                         RoomManager
+                function onMemberVideoChanged() { videoDialog._fill() }
+            }
+
+            // While sent settings wait for the operator, the status follows them
+            Timer {
+                interval:       5000
+                repeat:         true
+                running:        videoDialog._waiting
+                onTriggered:    RoomManager.loadMemberVideo(videoDialog.member.deviceId)
+            }
+
+            ColumnLayout {
+                width:      ScreenTools.defaultFontPixelWidth * 62
+                spacing:    ScreenTools.defaultFontPixelHeight / 2
+
+                QGCLabel {
+                    Layout.fillWidth:   true
+                    wrapMode:           Text.WordWrap
+                    color:              videoDialog._info.error ? qgcPal.colorRed : qgcPal.text
+                    text: {
+                        if (!videoDialog._loaded) {
+                            return qsTr("Loading…")
+                        }
+                        if (videoDialog._info.error) {
+                            return videoDialog._info.error
+                        }
+                        return videoDialog._fromOperator
+                            ? qsTr("The settings %1 uses now. Change what you need and send: his NX Rover applies them once, and he can still change them himself.").arg(videoDialog.member.name)
+                            : qsTr("%1's NX Rover has not reported its settings yet; these are yours. Change what you need and send: his NX Rover applies them once, and he can still change them himself.").arg(videoDialog.member.name)
+                    }
+                }
+
+                QGCLabel {
+                    Layout.fillWidth:   true
+                    wrapMode:           Text.WordWrap
+                    visible:            videoDialog._loaded && videoDialog._info.pending !== null && videoDialog._info.pending !== undefined
+                    color:              videoDialog._info.applied ? qgcPal.colorGreen : qgcPal.colorOrange
+                    text:               videoDialog._info.applied
+                                            ? qsTr("Last sent at %1, applied at %2.").arg(videoDialog._time(videoDialog._info.pendingAt)).arg(videoDialog._time(videoDialog._info.appliedAt))
+                                            : qsTr("Last sent at %1, not applied yet: his NX Rover applies them within 15 seconds once it is online.").arg(videoDialog._time(videoDialog._info.pendingAt))
+                }
+
+                QGCFlickable {
+                    Layout.fillWidth:       true
+                    Layout.preferredHeight: Math.min(settingsColumn.height, ScreenTools.defaultFontPixelHeight * 24)
+                    contentHeight:          settingsColumn.height
+                    clip:                   true
+                    visible:                videoDialog._ready
+
+                    ColumnLayout {
+                        id:         settingsColumn
+                        width:      parent.width
+                        spacing:    ScreenTools.defaultFontPixelHeight * 0.3
+
+                        Repeater {
+                            model: RoomManager.videoSettingKeys
+
+                            Item {
+                                id:                     settingRow
+                                Layout.fillWidth:       true
+                                Layout.preferredHeight: rowLoader.item ? rowLoader.item.implicitHeight : 0
+                                visible:                fact !== null && fact !== undefined && videoDialog._draft[modelData] !== undefined
+
+                                required property string modelData
+                                readonly property var    fact:   QGroundControl.settingsManager.videoSettings[modelData]
+                                readonly property var    value:  videoDialog._draft[modelData]
+
+                                Loader {
+                                    id:                 rowLoader
+                                    width:              parent.width
+                                    active:             settingRow.visible
+                                    sourceComponent:    settingRow.fact && settingRow.fact.typeIsBool ? boolRow
+                                                        : (settingRow.fact && settingRow.fact.enumStrings.length > 0 ? enumRow : numberRow)
+                                }
+
+                                Component {
+                                    id: boolRow
+
+                                    QGCCheckBoxSlider {
+                                        text:       settingRow.fact.label
+                                        checked:    settingRow.value === true
+                                        onClicked:  videoDialog._set(settingRow.modelData, checked)
+                                    }
+                                }
+
+                                Component {
+                                    id: enumRow
+
+                                    RowLayout {
+                                        QGCLabel {
+                                            Layout.fillWidth:   true
+                                            text:               settingRow.fact.label
+                                        }
+                                        QGCComboBox {
+                                            sizeToContents: true
+                                            model:          settingRow.fact.enumStrings
+                                            currentIndex:   settingRow.fact.enumValues.indexOf(settingRow.value)
+                                            onActivated:    (index) => videoDialog._set(settingRow.modelData, settingRow.fact.enumValues[index])
+                                        }
+                                    }
+                                }
+
+                                Component {
+                                    id: numberRow
+
+                                    RowLayout {
+                                        QGCLabel {
+                                            Layout.fillWidth:   true
+                                            text:               settingRow.fact.label
+                                        }
+                                        QGCTextField {
+                                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 14
+                                            text:                   settingRow.value !== undefined ? String(settingRow.value) : ""
+                                            showUnits:              true
+                                            unitsLabel:             settingRow.fact.units
+                                            numericValuesOnly:      true
+                                            validationError:        videoDialog._invalid[settingRow.modelData] === true
+                                            onEditingFinished: {
+                                                const number = Number(text.replace(",", "."))
+                                                const fact = settingRow.fact
+                                                const invalid = text.trim() === "" || isNaN(number)
+                                                                || (!fact.minIsDefaultForType && number < fact.min)
+                                                                || (!fact.maxIsDefaultForType && number > fact.max)
+                                                videoDialog._setInvalid(settingRow.modelData, invalid)
+                                                if (!invalid) {
+                                                    videoDialog._set(settingRow.modelData, number)
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                RowLayout {
+                    Layout.fillWidth:   true
+                    spacing:            ScreenTools.defaultFontPixelWidth
+
+                    QGCButton {
+                        text:       qsTr("Use mine")
+                        visible:    videoDialog._ready
+                        onClicked: {
+                            videoDialog._draft = Object.assign({}, RoomManager.localVideoSettings())
+                            videoDialog._invalid = ({})
+                        }
+                    }
+                    Item { Layout.fillWidth: true }
+                    QGCButton {
+                        text:       qsTr("Close")
+                        onClicked:  videoDialog.close()
+                    }
+                    QGCButton {
+                        text:               qsTr("Send")
+                        enabled:            videoDialog._ready && Object.keys(videoDialog._invalid).length === 0
+                        backgroundColor:    "#DB6536"
+                        textColor:          "#0B1F1D"
+                        fontWeight:         Font.DemiBold
+                        onClicked:          RoomManager.sendMemberVideo(videoDialog.member.deviceId, videoDialog._draft)
+                    }
+                }
+            }
+        }
     }
 
     // Own buttons instead of OK/Cancel, so the choice reads plainly; Enter does nothing here

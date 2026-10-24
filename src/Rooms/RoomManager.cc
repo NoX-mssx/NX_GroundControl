@@ -1,11 +1,14 @@
 #include "RoomManager.h"
+#include "Fact.h"
 #include "LinkConfiguration.h"
 #include "LinkInterface.h"
 #include "LinkManager.h"
+#include "QGCApplication.h"
 #include "QGCLoggingCategory.h"
 #include "SecretProtector.h"
 #include "TCPLink.h"
 #include "UDPLink.h"
+#include "RoomVideoSettings.h"
 #include "VehicleModelManager.h"
 #include "WireGuardTunnel.h"
 
@@ -123,6 +126,10 @@ RoomManager::RoomManager(QObject *parent)
     _roomRefreshTimer.setSingleShot(true);
     _roomRefreshTimer.setInterval(300);
     (void) connect(&_roomRefreshTimer, &QTimer::timeout, this, &RoomManager::_refreshCurrentRoom);
+
+    _videoSyncTimer.setSingleShot(true);
+    _videoSyncTimer.setInterval(2000);
+    (void) connect(&_videoSyncTimer, &QTimer::timeout, this, &RoomManager::_syncVideoSettings);
 
     if (QCoreApplication::instance()) {
         (void) connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, this, &RoomManager::_releaseBlocking);
@@ -641,6 +648,8 @@ QString RoomManager::_errorText(int status, const QJsonObject &reply) const
         {QStringLiteral("quota"), QT_TR_NOOP("The room's playlist is full. Delete some tracks first.")},
         {QStringLiteral("radio_off"), QT_TR_NOOP("The radio of this room is off.")},
         {QStringLiteral("no_track"), QT_TR_NOOP("The track was not found.")},
+        {QStringLiteral("no_member"), QT_TR_NOOP("The operator is no longer in the room.")},
+        {QStringLiteral("bad_settings"), QT_TR_NOOP("The server did not accept these video settings.")},
     };
     if (const auto it = messages.constFind(code); it != messages.cend()) {
         return tr(it.value());
@@ -899,6 +908,150 @@ void RoomManager::refresh()
     }
 }
 
+QStringList RoomManager::videoSettingKeys()
+{
+    return RoomVideoSettings::keys();
+}
+
+QVariantMap RoomManager::localVideoSettings() const
+{
+    return RoomVideoSettings::current().toVariantMap();
+}
+
+void RoomManager::_watchVideoSettings()
+{
+    if (_videoWatched) {
+        return;
+    }
+    _videoWatched = true;
+    for (const QString &key : RoomVideoSettings::keys()) {
+        if (Fact *const fact = RoomVideoSettings::fact(key)) {
+            (void) connect(fact, &Fact::rawValueChanged, &_videoSyncTimer, qOverload<>(&QTimer::start));
+        }
+    }
+}
+
+void RoomManager::_syncVideoSettings()
+{
+    const QString roomKey = _currentRoom;
+    if (roomKey.isEmpty() || currentRole().isEmpty() || _shuttingDown) {
+        return;
+    }
+    _watchVideoSettings();
+
+    // The push applied last, per room, so it is applied once even across restarts
+    QSettings settings;
+    settings.beginGroup(QLatin1String(kGroup));
+    const QString applied = settings.value(QStringLiteral("videoApplied")).toMap().value(roomKey).toString();
+
+    QJsonObject body{{QStringLiteral("settings"), RoomVideoSettings::current()}};
+    if (!applied.isEmpty()) {
+        body.insert(QStringLiteral("applied"), applied);
+    }
+    const QString path = QStringLiteral("/v1/rooms/%1/me/video").arg(_roomIdOf(roomKey));
+    _request(_serverKeyOf(roomKey), QStringLiteral("POST"), path, body, [this, roomKey, applied](int status, const QJsonObject &reply) {
+        // A member still waiting or switched off, or a hub without this, has nothing to apply
+        if ((status != 200) || (roomKey != _currentRoom)) {
+            return;
+        }
+        const QJsonObject pending = reply.value(QLatin1String("pending")).toObject();
+        const QString id = pending.value(QLatin1String("id")).toString();
+        if (id.isEmpty() || (id == applied)) {
+            return;
+        }
+        // Remembered before applying, so it can never be applied twice
+        QSettings settings;
+        settings.beginGroup(QLatin1String(kGroup));
+        QVariantMap appliedIds = settings.value(QStringLiteral("videoApplied")).toMap();
+        appliedIds.insert(roomKey, id);
+        settings.setValue(QStringLiteral("videoApplied"), appliedIds);
+        settings.sync();
+
+        const int changed = RoomVideoSettings::apply(pending.value(QLatin1String("settings")).toObject());
+        qCInfo(RoomManagerLog) << "Applied the video settings sent by the room admin;" << changed << "changed";
+        // Tells the hub at once that they are applied, with the values now in use
+        QTimer::singleShot(0, this, &RoomManager::_syncVideoSettings);
+        qgcApp()->showAppMessage(tr("The admin of the room sent you video settings, and they are applied now. "
+                                    "You can still change them in Settings, Video."));
+    });
+}
+
+void RoomManager::_setMemberVideo(const QString &deviceId, const QJsonObject &reply)
+{
+    const auto mapOrNull = [&reply](const char *key) {
+        const QJsonValue value = reply.value(QLatin1String(key));
+        return value.isObject() ? QVariant(value.toObject().toVariantMap()) : QVariant();
+    };
+    _memberVideo = QVariantMap{
+        {QStringLiteral("deviceId"), deviceId},
+        {QStringLiteral("loading"), false},
+        {QStringLiteral("error"), QString()},
+        {QStringLiteral("reported"), mapOrNull("reported")},
+        {QStringLiteral("pending"), mapOrNull("pending")},
+        {QStringLiteral("applied"), reply.value(QLatin1String("applied")).toBool()},
+        {QStringLiteral("reportedAt"), reply.value(QLatin1String("reported_at")).toDouble()},
+        {QStringLiteral("pendingAt"), reply.value(QLatin1String("pending_at")).toDouble()},
+        {QStringLiteral("appliedAt"), reply.value(QLatin1String("applied_at")).toDouble()},
+    };
+    emit memberVideoChanged();
+}
+
+void RoomManager::loadMemberVideo(const QString &deviceId)
+{
+    if ((currentRole() != QLatin1String("admin")) || deviceId.isEmpty()) {
+        return;
+    }
+    // Shown as loading only for another operator; the same one is refreshed quietly
+    if (_memberVideo.value(QStringLiteral("deviceId")).toString() != deviceId) {
+        _memberVideo = QVariantMap{{QStringLiteral("deviceId"), deviceId}, {QStringLiteral("loading"), true}};
+        emit memberVideoChanged();
+    }
+
+    const QString roomKey = _currentRoom;
+    const QString path = QStringLiteral("/v1/rooms/%1/members/%2/video").arg(_roomIdOf(roomKey), deviceId);
+    _request(_serverKeyOf(roomKey), QStringLiteral("GET"), path, QJsonObject(), [this, roomKey, deviceId](int status, const QJsonObject &reply) {
+        if ((roomKey != _currentRoom) || (_memberVideo.value(QStringLiteral("deviceId")).toString() != deviceId)) {
+            return;
+        }
+        if (status == 200) {
+            _setMemberVideo(deviceId, reply);
+            return;
+        }
+        _memberVideo = QVariantMap{
+            {QStringLiteral("deviceId"), deviceId},
+            {QStringLiteral("loading"), false},
+            // A hub without this answers "Unknown path"
+            {QStringLiteral("error"), (status == 404) && (reply.value(QLatin1String("error")).toString() == QLatin1String("not_found"))
+                                          ? tr("The room server needs an update to send video settings.")
+                                          : _errorText(status, reply)},
+        };
+        emit memberVideoChanged();
+    });
+}
+
+void RoomManager::sendMemberVideo(const QString &deviceId, const QVariantMap &settings)
+{
+    if ((currentRole() != QLatin1String("admin")) || deviceId.isEmpty() || settings.isEmpty()) {
+        return;
+    }
+    const QString roomKey = _currentRoom;
+    const QString path = QStringLiteral("/v1/rooms/%1/members/%2/video").arg(_roomIdOf(roomKey), deviceId);
+    const QJsonObject body{{QStringLiteral("settings"), QJsonObject::fromVariantMap(settings)}};
+    _request(_serverKeyOf(roomKey), QStringLiteral("PUT"), path, body, [this, roomKey, deviceId](int status, const QJsonObject &reply) {
+        if (roomKey != _currentRoom) {
+            return;
+        }
+        if (status != 200) {
+            _setError(_errorText(status, reply));
+            return;
+        }
+        if (_memberVideo.value(QStringLiteral("deviceId")).toString() == deviceId) {
+            _setMemberVideo(deviceId, reply);
+        }
+        emit info(tr("Video settings sent. The operator's NX Rover applies them within 15 seconds once it is online."));
+    });
+}
+
 void RoomManager::_scheduleRoomRefresh()
 {
     if (!_shuttingDown) {
@@ -917,6 +1070,7 @@ void RoomManager::_refreshCurrentRoom()
         return;
     }
     refreshRadio();
+    _syncVideoSettings();
 
     const QString roomKey = _currentRoom;
     const QString serverKey = _serverKeyOf(roomKey);
