@@ -9,6 +9,9 @@ import QGroundControl.Controls
 ///   - the live checks (motor controller temperature and current against the model thresholds),
 ///   - the messages that would otherwise pop up while driving (see MainWindow.addVehicleNotice).
 /// Each entry is { text, level } with level 1 (warning) or 2 (critical); messages also carry time and count.
+/// The vehicle does not say when a problem from a message is over, so a message lights the mark only while it is
+/// fresh (repeated within the last 30 s for a warning, 60 s for a critical one) and until a "... cleared" message
+/// resolves it. Older messages stay in the list, dimmed, until they are cleared.
 Item {
     id:             control
     objectName:     "toolbar_vehicleAlertIndicator"
@@ -22,15 +25,40 @@ Item {
     readonly property var alerts: _motorAlerts()
     /// Messages received while driving, newest first
     readonly property var notices: mainWindow.vehicleNotices
+    /// The messages that still light the mark
+    readonly property var activeNotices: notices.filter(function(notice) { return control._isActive(notice) })
 
     readonly property int level: Math.max(alerts.reduce(function(worst, alert) { return Math.max(worst, alert.level) }, 0),
-                                          notices.reduce(function(worst, notice) { return Math.max(worst, notice.level) }, 0))
+                                          activeNotices.reduce(function(worst, notice) { return Math.max(worst, notice.level) }, 0))
 
-    property bool showIndicator: _activeVehicle && (alerts.length > 0 || notices.length > 0)
+    property bool showIndicator: _activeVehicle && (alerts.length > 0 || activeNotices.length > 0)
+
+    readonly property int _warningHoldMs:   30000
+    readonly property int _criticalHoldMs:  60000
+    property real _now: Date.now()
+
+    function _isActive(notice) {
+        if (notice.level <= 0 || notice.resolved) {
+            return false
+        }
+        return (_now - notice.time.getTime()) < (notice.level >= 2 ? _criticalHoldMs : _warningHoldMs)
+    }
 
     function _levelColor(level) {
+        if (level <= 0) {
+            return qgcPal.colorGreen
+        }
         return level >= 2 ? qgcPal.colorRed : qgcPal.colorOrange
     }
+
+    // Lets messages age out of the mark
+    Timer {
+        interval:       1000
+        repeat:         true
+        running:        control.notices.length > 0
+        onTriggered:    control._now = Date.now()
+    }
+    onNoticesChanged: _now = Date.now()
 
     /// Motor controller temperature and current against the thresholds of the vehicle model
     function _motorAlerts() {
@@ -94,7 +122,7 @@ Item {
                     }
 
                     QGCLabel {
-                        visible:    control.alerts.length === 0 && control.notices.length === 0
+                        visible:    control.alerts.length === 0 && control.activeNotices.length === 0
                         text:       qsTr("No problems")
                         opacity:    0.7
                     }
@@ -125,6 +153,8 @@ Item {
                                 RowLayout {
                                     Layout.fillWidth:   true
                                     spacing:            ScreenTools.defaultFontPixelWidth
+                                    // Over, resolved or only a report that something is over: kept as history
+                                    opacity:            control._isActive(modelData) ? 1 : 0.55
 
                                     required property var modelData
 

@@ -199,21 +199,40 @@ ApplicationWindow {
     /// [{ text, level, time, count, reboot }], newest first
     property var vehicleNotices: []
 
+    /// "EKF failsafe cleared", "Radio Failsafe Cleared": the first word of what is over, lower case; otherwise ""
+    function _clearedSubject(text) {
+        const match = /^(.*?)\s+cleared\b/i.exec(text)
+        return match ? match[1].trim().split(/\s+/)[0].toLowerCase() : ""
+    }
+
+    /// level 1 warning, 2 critical. A message saying a problem is over gets level 0 (it raises nothing) and resolves
+    /// the earlier messages about the same thing, which then no longer light the "!".
     function addVehicleNotice(text, level, reboot) {
-        const list = vehicleNotices.slice()
+        let list = vehicleNotices.slice()
+        const subject = _clearedSubject(text)
+        if (subject !== "") {
+            level = 0
+            list = list.map(function(notice) {
+                const lower = notice.text.toLowerCase()
+                const sameThing = lower.startsWith(subject) || ((subject === "failsafe") && lower.includes("failsafe"))
+                return (notice.level > 0 && sameThing) ? Object.assign({}, notice, { resolved: true }) : notice
+            })
+        }
         for (let i = 0; i < list.length; i++) {
             if (list[i].text === text) {
                 const updated = Object.assign({}, list[i])
                 updated.count = list[i].count + 1
                 updated.time = new Date()
                 updated.level = Math.max(list[i].level, level)
+                // Reported again: the problem is back
+                updated.resolved = false
                 list.splice(i, 1)
                 list.unshift(updated)
                 vehicleNotices = list
                 return
             }
         }
-        list.unshift({ text: text, level: level, time: new Date(), count: 1, reboot: !!reboot })
+        list.unshift({ text: text, level: level, time: new Date(), count: 1, reboot: !!reboot, resolved: false })
         if (list.length > 50) {
             list.length = 50
         }
