@@ -70,10 +70,7 @@ Rectangle {
         roomCombo.currentIndex = _roomIndex()
     }
 
-    Component.onCompleted: {
-        _syncRoomCombo()
-        _roomsOpen = RoomManager.lastError !== ""
-    }
+    Component.onCompleted: _syncRoomCombo()
 
     Connections {
         target: RoomManager
@@ -82,11 +79,6 @@ Rectangle {
         function onInfo(message) {
             root._info = message
             infoTimer.restart()
-        }
-        function onLastErrorChanged() {
-            if (RoomManager.lastError !== "") {
-                root._roomsOpen = true
-            }
         }
     }
 
@@ -163,7 +155,8 @@ Rectangle {
                     }
                 }
 
-                // Errors and confirmations of the room server
+                // Errors and confirmations of the room server, on their own line: an error does not open the rooms
+                // panel, so saving a link, model or tunnel never pushes the page down
                 RowLayout {
                     Layout.fillWidth:   true
                     visible:            RoomManager.lastError !== "" || root._info !== ""

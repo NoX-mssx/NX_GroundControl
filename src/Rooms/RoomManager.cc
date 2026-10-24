@@ -1429,6 +1429,11 @@ void RoomManager::publishRoomLinks()
             continue;
         }
 
+        // A USB (serial) or Bluetooth link only works on this computer: it stays out of the room without a word
+        if (!qobject_cast<UDPConfiguration *>(config) && !qobject_cast<TCPConfiguration *>(config)) {
+            continue;
+        }
+
         QString error;
         const QJsonObject bundle = _packBundle(config, &error);
         if (!error.isEmpty()) {
