@@ -7,7 +7,77 @@
 #include "Vehicle.h"
 #include "QGCLoggingCategory.h"
 
+#include <algorithm>
+
 QGC_LOGGING_CATEGORY(ParameterEditorControllerLog, "QMLControls.ParameterEditorController")
+
+namespace {
+
+/// Order of one character outside a number: '_' first (it ends a word: BATT_ before BATT2), then the rest by code,
+/// letters without case
+int parameterCharRank(QChar c)
+{
+    if (c == QLatin1Char('_')) {
+        return -1;
+    }
+    return c.toUpper().unicode();
+}
+
+/// Alphabetical order as a person reads it: numbers inside a name compare by value, so SERVO1_MIN comes before
+/// SERVO10_MIN and RC2 before RC10; letters compare without case.
+bool parameterNameLess(const QString& a, const QString& b)
+{
+    qsizetype i = 0;
+    qsizetype j = 0;
+    while ((i < a.size()) && (j < b.size())) {
+        if (a.at(i).isDigit() && b.at(j).isDigit()) {
+            const qsizetype startA = i;
+            const qsizetype startB = j;
+            while ((i < a.size()) && a.at(i).isDigit()) {
+                i++;
+            }
+            while ((j < b.size()) && b.at(j).isDigit()) {
+                j++;
+            }
+            // Compare the values without converting: drop leading zeros, then the longer number is larger
+            QStringView numberA = QStringView(a).mid(startA, i - startA);
+            QStringView numberB = QStringView(b).mid(startB, j - startB);
+            while ((numberA.size() > 1) && (numberA.front() == QLatin1Char('0'))) {
+                numberA = numberA.mid(1);
+            }
+            while ((numberB.size() > 1) && (numberB.front() == QLatin1Char('0'))) {
+                numberB = numberB.mid(1);
+            }
+            if (numberA.size() != numberB.size()) {
+                return numberA.size() < numberB.size();
+            }
+            if (const int order = numberA.compare(numberB); order != 0) {
+                return order < 0;
+            }
+            continue;
+        }
+        const int rankA = parameterCharRank(a.at(i));
+        const int rankB = parameterCharRank(b.at(j));
+        if (rankA != rankB) {
+            return rankA < rankB;
+        }
+        i++;
+        j++;
+    }
+    if ((a.size() - i) != (b.size() - j)) {
+        return (a.size() - i) < (b.size() - j);
+    }
+    // Equal apart from case: keep the order stable
+    return a < b;
+}
+
+QStringList sortedParameterNames(QStringList names)
+{
+    std::sort(names.begin(), names.end(), parameterNameLess);
+    return names;
+}
+
+}  // namespace
 
 ParameterTableModel::ParameterTableModel(QObject* parent)
     : QAbstractTableModel(parent)
@@ -183,7 +253,7 @@ ParameterEditorController::~ParameterEditorController()
 
 void ParameterEditorController::_buildListsForComponent(int compId)
 {
-    for (const QString& factName: _parameterMgr->parameterNames(compId)) {
+    for (const QString& factName: sortedParameterNames(_parameterMgr->parameterNames(compId))) {
         Fact* fact = _parameterMgr->getParameter(compId, factName);
 
         if (_hideReadOnly && fact->readOnly()) {
@@ -256,18 +326,24 @@ void ParameterEditorController::_buildLists(void)
         }
     }
 
-    // Default group should always be last
+    // Groups of each category by name, the default group last
     for (int i=0; i<_categories.count(); i++) {
         ParameterEditorCategory* category = _categories.value<ParameterEditorCategory*>(i);
+        QList<ParameterEditorGroup*> groups;
         for (int j=0; j<category->groups.count(); j++) {
-            ParameterEditorGroup* group = category->groups.value<ParameterEditorGroup*>(j);
-            if (group->name == FactMetaData::kDefaultGroup) {
-                if (j != _categories.count() - 1) {
-                    category->groups.removeAt(j);
-                    category->groups.append(group);
-                }
-                break;
+            groups.append(category->groups.value<ParameterEditorGroup*>(j));
+        }
+        std::stable_sort(groups.begin(), groups.end(), [](const ParameterEditorGroup* a, const ParameterEditorGroup* b) {
+            const bool aDefault = (a->name == FactMetaData::kDefaultGroup);
+            const bool bDefault = (b->name == FactMetaData::kDefaultGroup);
+            if (aDefault != bDefault) {
+                return bDefault;
             }
+            return parameterNameLess(a->name, b->name);
+        });
+        category->groups.clear();
+        for (ParameterEditorGroup* group : groups) {
+            category->groups.append(group);
         }
     }
 }
@@ -291,7 +367,7 @@ void ParameterEditorController::_factAdded(int compId, Fact* fact)
         // Insert in sorted order
         inserted = false;
         for (int i=0; i<_categories.count(); i++) {
-            if (_categories.value<ParameterEditorCategory*>(i)->name > category->name) {
+            if (parameterNameLess(category->name, _categories.value<ParameterEditorCategory*>(i)->name)) {
                 _categories.insert(i, category);
                 inserted = true;
                 break;
@@ -315,7 +391,7 @@ void ParameterEditorController::_factAdded(int compId, Fact* fact)
         QmlObjectListModel& groups = category->groups;
         inserted = false;
         for (int i=0; i<groups.count(); i++) {
-            if (groups.value<ParameterEditorGroup*>(i)->name > group->name) {
+            if (parameterNameLess(group->name, groups.value<ParameterEditorGroup*>(i)->name)) {
                 groups.insert(i, group);
                 inserted = true;
                 break;
@@ -329,7 +405,7 @@ void ParameterEditorController::_factAdded(int compId, Fact* fact)
     // Insert in sorted order
     auto& facts = group->facts;
     for (int i=0; i<facts.rowCount(); i++) {
-        if (facts.factAt(i)->name() > fact->name()) {
+        if (parameterNameLess(fact->name(), facts.factAt(i)->name())) {
             facts.insert(i, fact);
             return;
         }
@@ -706,7 +782,7 @@ void ParameterEditorController::_performSearch(void)
         _searchParameters.clear();
 
         for (int compId : _parameterMgr->componentIds()) {
-            for (const QString &paraName: _parameterMgr->parameterNames(compId)) {
+            for (const QString &paraName: sortedParameterNames(_parameterMgr->parameterNames(compId))) {
                 Fact* fact = _parameterMgr->getParameter(compId, paraName);
                 bool matched = _shouldShow(fact);
                 // All of the search items must match in order for the parameter to be added to the list
