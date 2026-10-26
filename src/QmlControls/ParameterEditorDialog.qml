@@ -27,6 +27,37 @@ QGCPopupDialog {
     property bool   _allowForceEdit:            fact.readOnly && _allowForceSave
     property real   _rowSpacing:                ScreenTools.defaultFontPixelHeight / 2
     property real   _columnSpacing:             ScreenTools.defaultFontPixelWidth
+    /// The choices and bits in alphabetical order (numbers by value), as indexes into the fact's own lists
+    readonly property var _enumOrder:           _alphabeticalOrder(fact.enumStrings)
+    readonly property var _bitmaskOrder:        _alphabeticalOrder(fact.bitmaskStrings)
+
+    function _alphabeticalOrder(labels) {
+        const order = []
+        for (let i = 0; i < labels.length; i++) {
+            order.push(i)
+        }
+        order.sort(function(a, b) { return _naturalCompare(labels[a], labels[b]) || (a - b) })
+        return order
+    }
+
+    function _naturalCompare(a, b) {
+        const parts = /(\d+)|(\D+)/g
+        const partsA = String(a).toLowerCase().match(parts) || []
+        const partsB = String(b).toLowerCase().match(parts) || []
+        for (let i = 0; i < Math.min(partsA.length, partsB.length); i++) {
+            const numberA = /^\d/.test(partsA[i])
+            const numberB = /^\d/.test(partsB[i])
+            if (numberA && numberB) {
+                const difference = parseInt(partsA[i], 10) - parseInt(partsB[i], 10)
+                if (difference !== 0) {
+                    return difference
+                }
+            } else if (partsA[i] !== partsB[i]) {
+                return partsA[i] < partsB[i] ? -1 : 1
+            }
+        }
+        return partsA.length - partsB.length
+    }
 
     ParameterEditorController { id: controller; }
 
@@ -38,7 +69,7 @@ QGCPopupDialog {
             fact.value = bitmaskValue();
             fact.valueChanged(fact.value)
         } else if (factCombo.visible && !manualEntry.checked) {
-            fact.enumIndex = factCombo.currentIndex
+            fact.enumIndex = _enumOrder[factCombo.currentIndex]
         } else {
             var errorString = fact.validate(valueField.text, forceSave.checked)
             if (errorString === "") {
@@ -59,7 +90,7 @@ QGCPopupDialog {
         for (var i = 0; i < fact.bitmaskValues.length; ++i) {
             var checkbox = bitmaskRepeater.itemAt(i)
             if (checkbox.checked) {
-                value |= fact.bitmaskValues[i];
+                value |= fact.bitmaskValues[_bitmaskOrder[i]];
             }
         }
         return value
@@ -111,7 +142,7 @@ QGCPopupDialog {
             QGCComboBox {
                 id:             factCombo
                 width:          _editFieldWidth
-                model:          fact.enumStrings
+                model:          _enumOrder.map(function(index) { return fact.enumStrings[index] })
                 sizeToContents: true
                 visible:        _showCombo
                 focus:          setFocus && visible
@@ -120,13 +151,13 @@ QGCPopupDialog {
                     // We can't bind directly to fact.enumIndex since that would add an unknown value
                     // if there are no enum strings.
                     if (_showCombo) {
-                        currentIndex = fact.enumIndex
+                        currentIndex = _enumOrder.indexOf(fact.enumIndex)
                     }
                 }
 
                 onCurrentIndexChanged: {
                     if (currentIndex >=0 && currentIndex < model.length) {
-                        valueField.text = fact.enumValues[currentIndex]
+                        valueField.text = fact.enumValues[_enumOrder[currentIndex]]
                     }
                 }
             }
@@ -155,11 +186,11 @@ QGCPopupDialog {
 
             Repeater {
                 id:     bitmaskRepeater
-                model:  fact.bitmaskStrings
+                model:  _bitmaskOrder
 
                 delegate : QGCCheckBox {
-                    text : modelData
-                    checked : fact.value & fact.bitmaskValues[index]
+                    text : fact.bitmaskStrings[modelData]
+                    checked : fact.value & fact.bitmaskValues[modelData]
 
                     onClicked: {
                         valueField.text = bitmaskValue()
