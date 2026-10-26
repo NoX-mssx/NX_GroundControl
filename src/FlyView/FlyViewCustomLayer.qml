@@ -696,11 +696,24 @@ Item {
                 source:                 "/res/nx/Home.svg"
                 color:                  qgcPal.text
             }
+            // Kilometres to a tenth (0.6 km, 12.3 km) in a field as wide as 999.9 km, so the window keeps its size
             QGCLabel {
-                text:           _root._activeVehicle ? (_root._activeVehicle.distanceToHome.valueString + " " + _root._activeVehicle.distanceToHome.units) : ""
+                id:                     homeDistanceLabel
+                Layout.preferredWidth:  Math.max(Math.ceil(widestHomeDistance.advanceWidth), implicitWidth)
+                horizontalAlignment:    Text.AlignRight
+                text: {
+                    const metres = _root._activeVehicle ? _root._activeVehicle.distanceToHome.rawValue : NaN
+                    return qsTr("%1 km").arg(isNaN(metres) ? "--" : (metres / 1000).toFixed(1))
+                }
                 font.weight:    Font.ExtraBold
                 font.pointSize: ScreenTools.mediumFontPointSize
             }
+        }
+
+        TextMetrics {
+            id:     widestHomeDistance
+            font:   homeDistanceLabel.font
+            text:   qsTr("%1 km").arg("999.9")
         }
     }
 

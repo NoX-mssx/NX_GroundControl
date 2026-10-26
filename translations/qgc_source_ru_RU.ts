@@ -7658,6 +7658,11 @@ VTOL</translation>
     <name>FlyViewCustomLayer</name>
     <message>
       <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>%1 km</source>
+      <translation>%1 км</translation>
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
       <source>Video recording</source>
       <translation>Запись видео</translation>
     </message>
