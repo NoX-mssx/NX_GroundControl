@@ -10,6 +10,8 @@
 #include "InstrumentValueData.h"
 #include "QGCLoggingCategory.h"
 #include "QmlObjectListModel.h"
+#include "SettingsFact.h"
+#include "SettingsManager.h"
 
 #include <QtCore/QApplicationStatic>
 #include <QtCore/QUrl>
@@ -35,6 +37,18 @@ NxCorePlugin::NxCorePlugin(QObject *parent)
 QGCCorePlugin *NxCorePlugin::instance()
 {
     return _nxCorePluginInstance();
+}
+
+void NxCorePlugin::init()
+{
+    QGCCorePlugin::init();
+
+    // The CPU video path is forced through adjustSettingMetaData, but VideoSettings makes the setting visible again
+    // after that hook; hide it before the settings pages load.
+    Fact *const forceCpuVideoPath = SettingsManager::instance()->videoSettings()->forceCpuVideoPath();
+    if (auto *const setting = qobject_cast<SettingsFact *>(forceCpuVideoPath)) {
+        setting->setUserVisible(false);
+    }
 }
 
 bool NxCorePlugin::overrideSettingsGroupVisibility(const QString &name)
@@ -63,8 +77,13 @@ void NxCorePlugin::adjustSettingMetaData(const QString &settingsGroup, FactMetaD
     if (settingsGroup == VideoSettings::settingsGroup) {
         if (metaData.name() == VideoSettings::forceCpuVideoPathName) {
             // The GPU zero-copy path shares one decoder device across pipelines and resets it whenever a
-            // stream (re)starts, which blanks the other camera windows. Copy frames through the CPU instead.
+            // stream (re)starts, which blanks the other camera windows. It also hands the decoder Qt's own
+            // Direct3D device: with it on, an AMD driver ended the application from inside a draw call
+            // (0xC0000409, control flow guard) seconds after a graphics reset. Copy frames through the CPU,
+            // always: a hidden setting takes its default, so a value saved earlier is ignored (and the
+            // room video settings no longer carry it). init() keeps it hidden.
             metaData.setRawDefaultValue(true);
+            userVisible = false;
         } else if (metaData.name() == VideoSettings::rtpJitterLatencyMsName) {
             // Starlink jitter regularly exceeds the stock 80 ms.
             metaData.setRawDefaultValue(300);

@@ -31,6 +31,7 @@ public:
 
     static QGCCorePlugin *instance();
 
+    void init() final;
     QGCOptions *options() final { return _options; }
     const QVariantList &toolBarIndicators() final;
     bool overrideSettingsGroupVisibility(const QString &name) final;

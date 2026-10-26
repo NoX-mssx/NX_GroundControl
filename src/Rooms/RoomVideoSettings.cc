@@ -18,9 +18,9 @@ const QStringList &keys()
         QStringLiteral("rtpJitterLatencyMs"),    QStringLiteral("srtLatencyMs"),
         QStringLiteral("showFramesImmediately"), QStringLiteral("rtspUseUdp"),
         QStringLiteral("showDamagedFrames"),     QStringLiteral("rtspTimeout"),
-        QStringLiteral("rtspAutoReconnect"),     QStringLiteral("forceCpuVideoPath"),
-        QStringLiteral("forceVideoDecoder"),     QStringLiteral("recordingFormat"),
-        QStringLiteral("enableStorageLimit"),    QStringLiteral("maxVideoSize"),
+        QStringLiteral("rtspAutoReconnect"),     QStringLiteral("forceVideoDecoder"),
+        QStringLiteral("recordingFormat"),       QStringLiteral("enableStorageLimit"),
+        QStringLiteral("maxVideoSize"),
     };
     return list;
 }
