@@ -126,6 +126,54 @@ void installHandlers()
     (void) std::signal(SIGABRT, abortSignal);
 }
 
+/// Folders where Windows Error Reporting keeps its own reports of this program: the one the installer sets
+/// (LocalDumps\<exe>\DumpFolder) and the Windows default
+QStringList windowsReportDirectories()
+{
+    const QString exe = QFileInfo(QCoreApplication::applicationFilePath()).fileName();
+    const QSettings registry(
+        QStringLiteral("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\Windows Error Reporting\\LocalDumps\\") + exe,
+        QSettings::NativeFormat);
+    QStringList folders;
+    for (const QString& folder :
+         {registry.value(QStringLiteral("DumpFolder")).toString(), QStringLiteral("%LOCALAPPDATA%\\CrashDumps")}) {
+        if (folder.isEmpty()) {
+            continue;
+        }
+        wchar_t expanded[MAX_PATH] = {};
+        const DWORD length =
+            ExpandEnvironmentStringsW(reinterpret_cast<const wchar_t*>(folder.utf16()), expanded, MAX_PATH);
+        if ((length > 0) && (length <= MAX_PATH)) {
+            folders.append(QDir::fromNativeSeparators(QString::fromWCharArray(expanded)));
+        }
+    }
+    folders.removeDuplicates();
+    return folders;
+}
+
+/// Some crashes end the process without reaching the handlers above: a fail-fast (control flow guard, heap
+/// corruption, a stack cookie) or a fault in another library's own handler. Windows still saves those, so a
+/// report written since `since` is moved next to ours, under our name, where the message and the cleanup find it.
+void collectWindowsReports(const QDateTime& since)
+{
+    const QString exe = QFileInfo(QCoreApplication::applicationFilePath()).fileName();
+    const QDir target(dumpDirectory());
+    for (const QString& folder : windowsReportDirectories()) {
+        const QFileInfoList reports =
+            QDir(folder).entryInfoList(QStringList{exe + QStringLiteral(".*.dmp")}, QDir::Files, QDir::Time);
+        for (const QFileInfo& report : reports) {
+            if (since.isValid() && (report.lastModified() < since)) {
+                break;  // newest first
+            }
+            const QString name = QStringLiteral("NX-Rover-crash-%1-windows.dmp")
+                                     .arg(report.lastModified().toString(QStringLiteral("yyyyMMdd-HHmmss")));
+            if (!QFile::rename(report.absoluteFilePath(), target.filePath(name))) {
+                qCWarning(NxCrashGuardLog) << "Could not move the Windows crash report" << report.absoluteFilePath();
+            }
+        }
+    }
+}
+
 #endif  // Q_OS_WIN
 
 /// Dump written since the run that started at `since`, or empty
@@ -179,6 +227,9 @@ void NxCrashGuard::start()
     // Warnings, because only warnings reach the log file unless more is switched on
     qCWarning(NxCrashGuardLog) << "NX Rover" << QCoreApplication::applicationVersion() << "started";
     if (lastRunOpen) {
+#ifdef Q_OS_WIN
+        collectWindowsReports(lastStart);
+#endif
         const QString dump = dumpSince(lastStart);
         if (!dump.isEmpty()) {
             qCWarning(NxCrashGuardLog) << "The previous run crashed. Crash dump:" << dump;
