@@ -439,6 +439,7 @@ Item {
                     }
                     QGCLabel {
                         anchors.verticalCenter: parent.verticalCenter
+                        visible:                MotorTelemetryMonitor.showTemperature
                         width:                  Math.max(Math.ceil(widestTemperature.advanceWidth), implicitWidth)
                         horizontalAlignment:    Text.AlignRight
                         text:                   modelData.hasData ? motorTelemetryPill.wholeNumber(modelData.temperature) + "°" : "--"
@@ -515,9 +516,9 @@ Item {
                 font.weight:    Font.DemiBold
             }
 
-            QGCLabel { text: qsTr("Temperature") }
-            QGCLabel { text: motorDetailsPanel.valueText(0, "temperature", "%1 °C"); Layout.minimumWidth: motorDetailsPanel._valueWidth }
-            QGCLabel { text: motorDetailsPanel.valueText(1, "temperature", "%1 °C"); Layout.minimumWidth: motorDetailsPanel._valueWidth }
+            QGCLabel { text: qsTr("Temperature"); visible: MotorTelemetryMonitor.showTemperature }
+            QGCLabel { text: motorDetailsPanel.valueText(0, "temperature", "%1 °C"); Layout.minimumWidth: motorDetailsPanel._valueWidth; visible: MotorTelemetryMonitor.showTemperature }
+            QGCLabel { text: motorDetailsPanel.valueText(1, "temperature", "%1 °C"); Layout.minimumWidth: motorDetailsPanel._valueWidth; visible: MotorTelemetryMonitor.showTemperature }
 
             QGCLabel { text: qsTr("Current") }
             QGCLabel { text: motorDetailsPanel.valueText(0, "current", qsTr("%1 A")) }
@@ -546,8 +547,10 @@ Item {
         anchors.right:          parent.right
         anchors.bottom:         (homePill.visible || motorTelemetryPill.visible) ? homePill.top : parent.bottom
         anchors.bottomMargin:   (homePill.visible || motorTelemetryPill.visible) ? ScreenTools.defaultFontPixelWidth : 0
-        // As wide as the motor window below it; about as wide when that one is hidden
-        width:                  motorTelemetryPill.visible ? motorTelemetryPill.width : ScreenTools.defaultFontPixelWidth * 36
+        // As wide as the motor window below it, but never so narrow that the track title disappears (the motor
+        // window without temperature is narrower)
+        width:                  Math.max(motorTelemetryPill.visible ? motorTelemetryPill.width : ScreenTools.defaultFontPixelWidth * 36,
+                                         ScreenTools.defaultFontPixelWidth * 30)
         height:                 _root._railButtonSize + ScreenTools.defaultFontPixelWidth
         radius:                 height / 2
         color:                  _root._glassColor

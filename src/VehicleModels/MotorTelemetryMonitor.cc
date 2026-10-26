@@ -124,7 +124,9 @@ void MotorTelemetryMonitor::_evaluate()
                 const double current = group->current()->rawValue().toDouble();
                 Side &side = _sides[s];
                 const double currentHysteresis = std::max(0.5, std::max(currentWarn, currentCrit) * kCurrentHysteresis);
-                side.temperatureLevel = _levelWithHysteresis(temperature, tempWarn, tempCrit, kTemperatureHysteresis, side.temperatureLevel);
+                side.temperatureLevel = showTemperature()
+                    ? _levelWithHysteresis(temperature, tempWarn, tempCrit, kTemperatureHysteresis, side.temperatureLevel)
+                    : 0;
                 side.currentLevel = _levelWithHysteresis(current, currentWarn, currentCrit, currentHysteresis, side.currentLevel);
 
                 motor.insert(QStringLiteral("temperature"), temperature);

@@ -31,6 +31,8 @@ class MotorTelemetryMonitor : public QObject
     Q_PROPERTY(QVariantList alerts      READ alerts     NOTIFY stateChanged)
     /// Worst level among the alerts: 0 none, 1 warning, 2 critical
     Q_PROPERTY(int          level       READ level      NOTIFY stateChanged)
+    /// The model shows the controller temperature (off for controllers that report none): no readout and no alarms
+    Q_PROPERTY(bool         showTemperature READ showTemperature NOTIFY configChanged)
 
 public:
     explicit MotorTelemetryMonitor(QObject *parent = nullptr);
@@ -42,6 +44,7 @@ public:
     QVariantList motors() const { return _motors; }
     QVariantList alerts() const { return _alerts; }
     int level() const { return _level; }
+    bool showTemperature() const { return _config.value(QStringLiteral("showTemperature"), true).toBool(); }
 
 signals:
     void configChanged();

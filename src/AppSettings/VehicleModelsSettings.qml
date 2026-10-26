@@ -27,7 +27,7 @@ Rectangle {
 
     // ESC numbers start at 1; a threshold of 0 means it is not set
     function _blankMotorTelemetry() {
-        return { enabled: false, leftEsc: 1, rightEsc: 2, tempWarn: 0, tempCrit: 0, currentWarn: 0, currentCrit: 0 }
+        return { enabled: false, leftEsc: 1, rightEsc: 2, showTemperature: true, tempWarn: 0, tempCrit: 0, currentWarn: 0, currentCrit: 0 }
     }
 
     function _blankCamera() {
@@ -689,9 +689,19 @@ Rectangle {
                         QGCLabel { text: qsTr("Warning");  font.weight: Font.DemiBold; color: qgcPal.colorOrange }
                         QGCLabel { text: qsTr("Critical"); font.weight: Font.DemiBold; color: qgcPal.colorRed }
 
-                        QGCLabel { text: qsTr("Temperature, °C") }
+                        // Off for controllers that report no real temperature: no readout on the main screen, no alarms
+                        QGCCheckBox {
+                            text:       qsTr("Temperature, °C")
+                            checked:    motorGroup.telemetry.showTemperature !== false
+                            onClicked: {
+                                root._edit.motorTelemetry = motorGroup.telemetry
+                                root._edit.motorTelemetry.showTemperature = checked
+                                root._refresh()
+                            }
+                        }
                         QGCTextField {
                             Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 10
+                            enabled:                motorGroup.telemetry.showTemperature !== false
                             text:                   motorGroup.numberText(motorGroup.telemetry.tempWarn)
                             placeholderText:        qsTr("off")
                             validator:              IntValidator { bottom: 0; top: 250 }
@@ -699,6 +709,7 @@ Rectangle {
                         }
                         QGCTextField {
                             Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 10
+                            enabled:                motorGroup.telemetry.showTemperature !== false
                             text:                   motorGroup.numberText(motorGroup.telemetry.tempCrit)
                             placeholderText:        qsTr("off")
                             validator:              IntValidator { bottom: 0; top: 250 }
