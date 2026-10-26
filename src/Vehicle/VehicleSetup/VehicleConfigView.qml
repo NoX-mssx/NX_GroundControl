@@ -534,12 +534,31 @@ Rectangle {
                 return 0
             }
 
+            /// Outputs given to a Lua script (SERVOn_FUNCTION Script1..Script16 = 94..109), as "1, 2 (Script1)"
+            function _scriptOutputs() {
+                const outputs = []
+                for (let i = 1; i <= 32; i++) {
+                    const fact = _fact("SERVO" + i + "_FUNCTION")
+                    if (!fact) {
+                        if (i > 16) {
+                            break
+                        }
+                        continue
+                    }
+                    if (fact.rawValue >= 94 && fact.rawValue <= 109) {
+                        outputs.push(i + " (" + fact.enumStringValue + ")")
+                    }
+                }
+                return outputs.join(", ")
+            }
+
             readonly property var _battMonitor:     _fact("BATT_MONITOR")
             readonly property var _battLowAction:   _fact("BATT_FS_LOW_ACT")
             readonly property var _gcsEnable:       _fact("FS_GCS_ENABLE")
             readonly property var _fsAction:        _fact("FS_ACTION")
             readonly property var _thrEnable:       _fact("FS_THR_ENABLE")
             readonly property var _modeChannel:     _fact("MODE_CH")
+            readonly property var _scrEnable:       _fact("SCR_ENABLE")
 
             /// [{ key, menu, cls, title, ok, detail }]: what is checked before the vehicle goes out
             readonly property var rows: {
@@ -574,12 +593,19 @@ Rectangle {
                 const right = _outputFor(74)
                 const throttle = _outputFor(70)
                 const steering = _outputFor(26)
+                const scriptOutputs = _scriptOutputs()
                 if (left > 0 && right > 0) {
                     add("outputs", "outputs", "APMServoComponent", qsTr("Motors and outputs"), true,
                         qsTr("Left motor: output %1, right motor: output %2").arg(left).arg(right))
                 } else if (throttle > 0 && steering > 0) {
                     add("outputs", "outputs", "APMServoComponent", qsTr("Motors and outputs"), true,
                         qsTr("Throttle: output %1, steering: output %2").arg(throttle).arg(steering))
+                } else if (scriptOutputs !== "") {
+                    // Motors driven by a Lua script only move while scripting is on
+                    const scriptingOn = !_scrEnable || _scrEnable.rawValue !== 0
+                    add("outputs", "outputs", "APMServoComponent", qsTr("Motors and outputs"), scriptingOn,
+                        scriptingOn ? qsTr("Script outputs: %1").arg(scriptOutputs)
+                                    : qsTr("Outputs %1 are given to a script, but scripting is off (SCR_ENABLE)").arg(scriptOutputs))
                 } else {
                     add("outputs", "outputs", "APMServoComponent", qsTr("Motors and outputs"), false,
                         qsTr("Motor outputs are not assigned"))

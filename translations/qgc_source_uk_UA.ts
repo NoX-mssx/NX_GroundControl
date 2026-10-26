@@ -22584,6 +22584,16 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <name>VehicleConfigView</name>
     <message>
       <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Script outputs: %1</source>
+      <translation>Виходи скрипта: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
+      <source>Outputs %1 are given to a script, but scripting is off (SCR_ENABLE)</source>
+      <translation>Виходи %1 віддані скрипту, але скрипти вимкнені (SCR_ENABLE)</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/VehicleConfigView.qml" line="1" />
       <source>SETUP</source>
       <translation>ПІДГОТОВКА</translation>
     </message>
