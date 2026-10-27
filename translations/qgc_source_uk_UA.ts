@@ -25380,4 +25380,301 @@ Send this file together with the AppLog.log file from the Logs folder.</source>
       <translation>Минулого разу NX Rover було закрито не звичайним способом: програма впала, її завдання зняли або комп'ютер вимкнули.</translation>
     </message>
   </context>
+  <context>
+    <name>AppUpdater</name>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>Another update was published meanwhile.</source>
+      <translation>Поки йшло завантаження, на сервері опублікували інше оновлення.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>Only a server admin can publish updates.</source>
+      <translation>Публікувати оновлення може лише адмін сервера.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>The download has to start again. Press Update.</source>
+      <translation>Завантаження треба почати заново. Натисніть «Оновити».</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>The download stopped (%1). Press Update to continue it.</source>
+      <translation>Завантаження перервалося (%1). Натисніть «Оновити», щоб продовжити його.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>The download stopped: %1 Press Update to continue it.</source>
+      <translation>Завантаження перервалося: %1 Натисніть «Оновити», щоб продовжити його.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>The downloaded file is damaged. Press Update to download it again.</source>
+      <translation>Завантажений файл пошкоджено. Натисніть «Оновити», щоб завантажити його заново.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>The file cannot be read: %1</source>
+      <translation>Не вдається прочитати файл: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>The installer could not be started.</source>
+      <translation>Не вдалося запустити встановлення.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>The installer is larger than the server accepts (%1 MB).</source>
+      <translation>Інсталятор більший, ніж приймає сервер (%1 МБ).</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>The room server is not known any more.</source>
+      <translation>Сервер кімнат більше не знайдено в налаштуваннях.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>The room server is not reachable.</source>
+      <translation>Сервер кімнат недоступний.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>The server did not accept the file: it carries no version.</source>
+      <translation>Сервер не прийняв файл: у ньому немає номера версії.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>The server did not accept the file: it is not a Windows program.</source>
+      <translation>Сервер не прийняв файл: це не програма Windows.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>The update cannot be saved.</source>
+      <translation>Не вдається зберегти оновлення.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>The update cannot be saved: %1</source>
+      <translation>Не вдається зберегти оновлення: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>This file carries no version: it is not an NX Rover installer, or it was built before updates were supported.</source>
+      <translation>У цьому файлі немає номера версії: це не інсталятор NX Rover або його зібрано до появи оновлень.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>Updates install on Windows only.</source>
+      <translation>Оновлення встановлюються лише у Windows.</translation>
+    </message>
+  </context>
+  <context>
+    <name>UpdateSettings</name>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>%1 MB</source>
+      <translation>%1 МБ</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>All files (*)</source>
+      <translation>Усі файли (*)</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Asking the room server…</source>
+      <translation>Запитую сервер кімнат…</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Cancel</source>
+      <translation>Скасувати</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Check for updates</source>
+      <translation>Перевірити оновлення</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Checking…</source>
+      <translation>Перевірка…</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Choose NX Rover Installer</source>
+      <translation>Виберіть інсталятор NX Rover</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Choose installer…</source>
+      <translation>Вибрати інсталятор…</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Installed version: %1</source>
+      <translation>Встановлена версія: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Installer (*.exe)</source>
+      <translation>Інсталятор (*.exe)</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>NX Rover Updates</source>
+      <translation>Оновлення NX Rover</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>NX Rover closes to install the update: the vehicle will be disconnected.</source>
+      <translation>Для встановлення NX Rover закриється: борт буде відключено.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>On the server: version %1, published %2 by %3.</source>
+      <translation>На сервері: версія %1, опублікована %2, опублікував %3.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Press Check for updates to see what the server has.</source>
+      <translation>Натисніть «Перевірити оновлення», щоб дізнатися, що є на сервері.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Publish an Update</source>
+      <translation>Публікація оновлення</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Publish</source>
+      <translation>Опублікувати</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Published: version %1. Computers get the offer at their next start or check.</source>
+      <translation>Опубліковано: версія %1. Комп'ютери отримають пропозицію під час наступного запуску або перевірки.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Remove Update</source>
+      <translation>Прибрати оновлення</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Remove from server</source>
+      <translation>Прибрати з сервера</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Sending to the server: %1%</source>
+      <translation>Надсилання на сервер: %1%</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>The server has no update. Every computer of the server (admins and operators) gets what you publish here.</source>
+      <translation>На сервері немає оновлення. Те, що ви опублікуєте тут, отримають усі комп'ютери сервера (адміни та оператори).</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>This file carries no version: it is not an NX Rover installer, or it was built before updates were supported.</source>
+      <translation>У цьому файлі немає номера версії: це не інсталятор NX Rover або його зібрано до появи оновлень.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>This version is not newer than the one on the server: computers that already have a newer version will not take it.</source>
+      <translation>Ця версія не новіша за ту, що на сервері: комп'ютери з новішою версією її не візьмуть.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Update</source>
+      <translation>Оновити</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Updates are checked at every start.</source>
+      <translation>Оновлення перевіряються під час кожного запуску.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Updates come from the room server. This computer is not registered with one yet: join a room in Rover → Rooms.</source>
+      <translation>Оновлення надходять із сервера кімнат. Цей комп'ютер ще не підключений до сервера: увійдіть до кімнати в Rover → Кімнати.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Version %1 is available (%2 MB, published %3).</source>
+      <translation>Доступна версія %1 (%2 МБ, опублікована %3).</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Version %1 will no longer be offered. Computers that installed it keep it.</source>
+      <translation>Версія %1 більше не пропонуватиметься. На комп'ютерах, де її вже встановлено, вона залишиться.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>What is new (operators see it with the offer)</source>
+      <translation>Що нового (оператори побачать це разом із пропозицією)</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>You have the latest version.</source>
+      <translation>Встановлена остання версія.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>version %1</source>
+      <translation>версія %1</translation>
+    </message>
+  </context>
+  <context>
+    <name>UpdateProgress</name>
+    <message>
+      <location filename="../src/QmlControls/UpdateProgress.qml" line="1" />
+      <source>Downloading: %1 of %2 MB</source>
+      <translation>Завантаження: %1 з %2 МБ</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/UpdateProgress.qml" line="1" />
+      <source>NX Rover closes now and installs the update. Windows asks for permission to make changes: answer Yes. NX Rover starts again by itself when the installation is done.</source>
+      <translation>NX Rover зараз закриється та встановить оновлення. Windows запитає дозвіл на зміни — натисніть «Так». Після встановлення NX Rover запуститься сам.</translation>
+    </message>
+  </context>
+  <context>
+    <name>UpdateOfferDialog</name>
+    <message>
+      <location filename="../src/QmlControls/UpdateOfferDialog.qml" line="1" />
+      <source>Cancel</source>
+      <translation>Скасувати</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/UpdateOfferDialog.qml" line="1" />
+      <source>Decline</source>
+      <translation>Відхилити</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/UpdateOfferDialog.qml" line="1" />
+      <source>NX Rover %1 is available (you have %2). Download size: %3 MB.</source>
+      <translation>Доступна нова версія NX Rover %1 (у вас %2). Розмір завантаження: %3 МБ.</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/UpdateOfferDialog.qml" line="1" />
+      <source>NX Rover closes to install the update: the vehicle will be disconnected.</source>
+      <translation>Для встановлення NX Rover закриється: борт буде відключено.</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/UpdateOfferDialog.qml" line="1" />
+      <source>Update Available</source>
+      <translation>Доступне оновлення</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/UpdateOfferDialog.qml" line="1" />
+      <source>Update</source>
+      <translation>Оновити</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/UpdateOfferDialog.qml" line="1" />
+      <source>You can also update later in Settings → Updates.</source>
+      <translation>Оновитися можна й пізніше: Налаштування → Оновлення.</translation>
+    </message>
+  </context>
 </TS>

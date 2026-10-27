@@ -25311,4 +25311,301 @@ Send this file together with the AppLog.log file from the Logs folder.</source>
       <translation type="unfinished" />
     </message>
   </context>
+  <context>
+    <name>AppUpdater</name>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>Another update was published meanwhile.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>Only a server admin can publish updates.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>The download has to start again. Press Update.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>The download stopped (%1). Press Update to continue it.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>The download stopped: %1 Press Update to continue it.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>The downloaded file is damaged. Press Update to download it again.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>The file cannot be read: %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>The installer could not be started.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>The installer is larger than the server accepts (%1 MB).</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>The room server is not known any more.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>The room server is not reachable.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>The server did not accept the file: it carries no version.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>The server did not accept the file: it is not a Windows program.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>The update cannot be saved.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>The update cannot be saved: %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>This file carries no version: it is not an NX Rover installer, or it was built before updates were supported.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/AppUpdater.cc" line="1" />
+      <source>Updates install on Windows only.</source>
+      <translation type="unfinished" />
+    </message>
+  </context>
+  <context>
+    <name>UpdateSettings</name>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>%1 MB</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>All files (*)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Asking the room server…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Cancel</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Check for updates</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Checking…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Choose NX Rover Installer</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Choose installer…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Installed version: %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Installer (*.exe)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>NX Rover Updates</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>NX Rover closes to install the update: the vehicle will be disconnected.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>On the server: version %1, published %2 by %3.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Press Check for updates to see what the server has.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Publish an Update</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Publish</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Published: version %1. Computers get the offer at their next start or check.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Remove Update</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Remove from server</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Sending to the server: %1%</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>The server has no update. Every computer of the server (admins and operators) gets what you publish here.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>This file carries no version: it is not an NX Rover installer, or it was built before updates were supported.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>This version is not newer than the one on the server: computers that already have a newer version will not take it.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Update</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Updates are checked at every start.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Updates come from the room server. This computer is not registered with one yet: join a room in Rover → Rooms.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Version %1 is available (%2 MB, published %3).</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>Version %1 will no longer be offered. Computers that installed it keep it.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>What is new (operators see it with the offer)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>You have the latest version.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/UpdateSettings.qml" line="1" />
+      <source>version %1</source>
+      <translation type="unfinished" />
+    </message>
+  </context>
+  <context>
+    <name>UpdateProgress</name>
+    <message>
+      <location filename="../src/QmlControls/UpdateProgress.qml" line="1" />
+      <source>Downloading: %1 of %2 MB</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/QmlControls/UpdateProgress.qml" line="1" />
+      <source>NX Rover closes now and installs the update. Windows asks for permission to make changes: answer Yes. NX Rover starts again by itself when the installation is done.</source>
+      <translation type="unfinished" />
+    </message>
+  </context>
+  <context>
+    <name>UpdateOfferDialog</name>
+    <message>
+      <location filename="../src/QmlControls/UpdateOfferDialog.qml" line="1" />
+      <source>Cancel</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/QmlControls/UpdateOfferDialog.qml" line="1" />
+      <source>Decline</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/QmlControls/UpdateOfferDialog.qml" line="1" />
+      <source>NX Rover %1 is available (you have %2). Download size: %3 MB.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/QmlControls/UpdateOfferDialog.qml" line="1" />
+      <source>NX Rover closes to install the update: the vehicle will be disconnected.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/QmlControls/UpdateOfferDialog.qml" line="1" />
+      <source>Update Available</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/QmlControls/UpdateOfferDialog.qml" line="1" />
+      <source>Update</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/QmlControls/UpdateOfferDialog.qml" line="1" />
+      <source>You can also update later in Settings → Updates.</source>
+      <translation type="unfinished" />
+    </message>
+  </context>
 </TS>

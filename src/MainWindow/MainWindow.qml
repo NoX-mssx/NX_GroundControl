@@ -305,6 +305,47 @@ ApplicationWindow {
         }
     }
 
+    //-------------------------------------------------------------------------
+    //-- NX: updates through the room server. The check at start offers a newer version (not while a vehicle is
+    //-- connected: then once it disconnects); once the installer is on its way NX Rover closes the usual way.
+
+    property bool _updateOfferWaiting: false
+
+    function _offerUpdate() {
+        if (QGroundControl.multiVehicleManager.activeVehicle) {
+            _updateOfferWaiting = true
+            return
+        }
+        _updateOfferWaiting = false
+        updateOfferFactory.open()
+    }
+
+    Connections {
+        target: AppUpdater
+        function onOfferUpdate() { mainWindow._offerUpdate() }
+        function onReadyToQuit() { mainWindow.finishCloseProcess() }
+    }
+
+    Connections {
+        target: QGroundControl.multiVehicleManager
+        function onActiveVehicleChanged() {
+            if (mainWindow._updateOfferWaiting && !QGroundControl.multiVehicleManager.activeVehicle && AppUpdater.state === "available") {
+                mainWindow._offerUpdate()
+            }
+        }
+    }
+
+    QGCPopupDialogFactory {
+        id:                 updateOfferFactory
+        dialogComponent:    updateOfferComponent
+    }
+
+    Component {
+        id: updateOfferComponent
+
+        UpdateOfferDialog { }
+    }
+
     property bool _forceClose: false
     property bool suppressCriticalVehicleMessages: false
 

@@ -186,6 +186,9 @@ signals:
     void info(const QString &message);
 
 private:
+    /// Updates of the program go through the same pinned connections to the hubs
+    friend class AppUpdater;
+
     struct Server {
         QString host;
         int port = 0;
