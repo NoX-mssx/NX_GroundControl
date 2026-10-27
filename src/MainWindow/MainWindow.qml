@@ -559,8 +559,16 @@ ApplicationWindow {
     //-------------------------------------------------------------------------
     //-- Critical Vehicle Message Popup
 
+    /// Critical vehicle messages that only advise while driving by hand: they stay in the vehicle message list
+    /// (toolbar, connection menu) but neither light the "!" nor pop up. "EKF variance": the navigation estimate is
+    /// poor (often no GPS fix yet); in Manual nothing happens, and a mode needing position sends "EKF failsafe".
+    readonly property var _quietCriticalMessages: [ /(^|:\s*)EKF variance\s*$/i ]
+
     function showCriticalVehicleMessage(message) {
         if (suppressCriticalVehicleMessages) {
+            return
+        }
+        if (_quietCriticalMessages.some(function(pattern) { return pattern.test(message) })) {
             return
         }
         // NX: critical messages from the vehicle never pop up; they turn the "!" in the toolbar red
