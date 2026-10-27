@@ -18,6 +18,8 @@ public:
     bool showSettingsPageSections() const final { return false; }
     bool showPX4LogTransferOptions() const final { return false; }
     bool showSensorCalibrationAirspeed() const final { return false; }
+    /// The boards run the firmware chosen for them; "not the latest stable firmware" only lit the "!" orange.
+    bool checkFirmwareVersion() const final { return false; }
 };
 
 /*===========================================================================*/
