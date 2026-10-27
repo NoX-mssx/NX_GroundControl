@@ -49,7 +49,13 @@ SetCompressor /SOLID /FINAL lzma
 !define MUI_ICON "${INSTALLER_ICON}"
 !define MUI_UNICON "${INSTALLER_ICON}"
 
+; /UPDATE (the program updating itself): no questions, the folder of the installed version, the window
+; closes when done
+Var IsUpdate
+
+!define MUI_PAGE_CUSTOMFUNCTION_PRE SkipPageOnUpdate
 !insertmacro MUI_PAGE_STARTMENU Application $StartMenuFolder
+!define MUI_PAGE_CUSTOMFUNCTION_PRE SkipPageOnUpdate
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
 
@@ -58,8 +64,42 @@ SetCompressor /SOLID /FINAL lzma
 
 !insertmacro MUI_LANGUAGE "English"
 
+; The version in the file's properties; the update server reads it from there
+!ifdef APPVERSION
+    VIProductVersion "${APPVERSION}.0"
+    VIFileVersion "${APPVERSION}.0"
+    VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName" "${APPNAME}"
+    VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductVersion" "${APPVERSION}"
+    VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" "${APPVERSION}"
+    VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "${APPNAME} installer"
+!endif
+
+Function .onInit
+    ${GetParameters} $R0
+    ClearErrors
+    ${GetOptions} $R0 "/UPDATE" $R1
+    ${IfNot} ${Errors}
+        StrCpy $IsUpdate 1
+        SetRegView 64
+        ReadRegStr $R2 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "InstallLocation"
+        SetRegView lastused
+        ${If} $R2 != ""
+            StrCpy $INSTDIR $R2
+        ${EndIf}
+    ${EndIf}
+FunctionEnd
+
+Function SkipPageOnUpdate
+    ${If} $IsUpdate == 1
+        Abort
+    ${EndIf}
+FunctionEnd
+
 Section "Install" SecMain
     SectionIn RO
+    ${If} $IsUpdate == 1
+        SetAutoClose true
+    ${EndIf}
     DetailPrint "Checking for 64 bit uninstaller"
     SetRegView 64
     ReadRegStr $R0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "UninstallString"
