@@ -21,13 +21,16 @@ Q_DECLARE_LOGGING_CATEGORY(VehicleModelManagerLog)
 /// Stores per-vehicle profiles ("models"): the cameras on board and the on-screen buttons that drive servo
 /// or relay outputs. Models are plain maps so the settings page can edit a copy and save it back whole:
 ///
-///     { name, cameras: [{ type, name, ip, user, password, mainUrl, secondaryUrl, audio }],
+///     { name, room, cameras: [{ type, name, ip, user, password, mainUrl, secondaryUrl, audio }],
 ///             buttons: [{ name, functions: [{ channel, kind: "pwm"|"gpio", value }] }],
 ///             motorTelemetry: { enabled, leftEsc, rightEsc, showTemperature, tempWarn, tempCrit, currentWarn, currentCrit },
 ///             battery: { enabled, emptyVoltage, fullVoltage } }
 ///
 /// battery, when enabled, sets the charge shown on the main screen from the voltage (empty = 0 %, full = 100 %) in
 /// place of the values entered in the battery menu.
+///
+/// room is the room scope the model belongs to (see RoomScope): the lists and the editor show the models of the
+/// current scope only, and names are unique within a scope.
 ///
 /// Camera passwords and stream URLs (which embed the credentials) are encrypted on disk, see SecretProtector.
 class VehicleModelManager : public QObject
@@ -89,8 +92,14 @@ public:
     Q_INVOKABLE void pressButton(int buttonIndex);
     Q_INVOKABLE void releaseButton(int buttonIndex);
 
-    /// @return the named model, or an empty map
+    /// @return the named model of the current room scope (see RoomScope), or a room vehicle's model ("room:<id>"),
+    /// or an empty map
     Q_INVOKABLE QVariantMap model(const QString &name) const;
+    /// The model a link refers to: the one of that name in the link's room, else any of that name
+    QVariantMap modelForLink(const QString &name, const QString &room) const;
+    /// Copies a model into another room scope unless one of that name is there already (a link moved to that room
+    /// keeps its model). @return an empty string on success, otherwise a message for the user
+    Q_INVOKABLE QString copyModelToRoom(const QString &name, const QString &fromRoom, const QString &toRoom);
 
     ~VehicleModelManager() override { if (_instance == this) { _instance = nullptr; } }
 
@@ -146,8 +155,8 @@ private slots:
     void _servoOutputsChanged(const QVector<int> &values);
 
 private:
-    int _indexOf(const QString &name) const;
-    QString _uniqueName(const QString &name) const;
+    int _indexOf(const QString &name, const QString &room) const;
+    QString _uniqueName(const QString &name, const QString &room) const;
     QVariantList _activeCameras() const;
     QString _cameraUri(int cameraIndex) const;
     void _applyCameraStreams();
@@ -160,6 +169,7 @@ private:
     QString _filePath() const;
 
     QVariantList _models;
+    QString _scope;                     ///< Room scope the lists were last given for
     QVariantMap _roomModels;
     static VehicleModelManager *_instance;
     QVariantMap _activeModel;

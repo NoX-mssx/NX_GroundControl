@@ -38,12 +38,18 @@ public:
 
     // Tunnel profiles: a named set of tunnel settings, each registered with Windows as its own tunnel.
     // A link refers to a profile by name. Profiles are stored in WireGuardTunnels.json in the app data
-    // directory, with the keys encrypted (see SecretProtector).
+    // directory, with the keys encrypted (see SecretProtector). Each belongs to a room scope ("room", see
+    // RoomScope): the list, the editor and the names are per scope; profileNames, profile, saveProfile,
+    // deleteProfile and moveProfile work on the current one.
 
     QStringList profileNames() const;
 
     /// @return the settings of a profile plus its "name", or an empty map
     Q_INVOKABLE QVariantMap profile(const QString &name) const;
+
+    /// Copies a profile into another room scope unless one of that name is there already (a link moved to that
+    /// room keeps its tunnel; both use the same Windows tunnel). @return an empty string or a message for the user
+    Q_INVOKABLE QString copyProfileToRoom(const QString &name, const QString &fromRoom, const QString &toRoom);
 
     /// Adds a profile, or replaces the one called originalName, and registers its tunnel with Windows
     /// (prompts for elevation).
@@ -57,10 +63,10 @@ public:
     /// Moves a profile in the list; the order is stored with the profiles.
     Q_INVOKABLE void moveProfile(int from, int to);
 
-    /// @return the Windows tunnel name of a profile, empty if there is no such profile
-    static QString tunnelForProfile(const QString &profileName);
-    /// A stored profile with its keys, for packing it into a room vehicle; empty when unknown
-    static QVariantMap profileSettings(const QString &name);
+    /// @return the Windows tunnel name of the profile a link in room uses, empty if there is no such profile
+    static QString tunnelForProfile(const QString &profileName, const QString &room);
+    /// The stored profile a link in room uses, with its keys, for packing it into a room vehicle; empty when unknown
+    static QVariantMap profileSettings(const QString &name, const QString &room);
 
     /// Tunnel name derived from a link name: WireGuard only allows a limited character set and length.
     Q_INVOKABLE static QString tunnelNameForLink(const QString &linkName);
@@ -102,6 +108,12 @@ signals:
 
 private:
     static QVariantList &_profiles();
-    static int _profileIndex(const QString &name);
+    static int _profileIndex(const QString &name, const QString &room);
+    /// The profile of that name in the link's room, else any of that name
+    static int _profileIndexForLink(const QString &name, const QString &room);
+    /// Another profile than the one at exceptIndex is registered as this Windows tunnel
+    static bool _tunnelUsedElsewhere(const QString &tunnel, int exceptIndex);
     static bool _saveProfiles();
+
+    QString _scope;     ///< Room scope the list was last given for
 };

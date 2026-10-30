@@ -6,6 +6,8 @@ target_sources(${CMAKE_PROJECT_NAME}
         RoomManager.h
         RoomRadio.cc
         RoomRadio.h
+        RoomScope.cc
+        RoomScope.h
         RoomVideoSettings.cc
         RoomVideoSettings.h
 )

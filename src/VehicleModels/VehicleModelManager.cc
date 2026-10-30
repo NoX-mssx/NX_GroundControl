@@ -5,6 +5,7 @@
 #include "LinkInterface.h"
 #include "MultiVehicleManager.h"
 #include "QGCLoggingCategory.h"
+#include "RoomScope.h"
 #include "SecretProtector.h"
 #include "SettingsManager.h"
 #include "Vehicle.h"
@@ -312,6 +313,15 @@ VehicleModelManager::VehicleModelManager(QObject *parent)
                    this, &VehicleModelManager::_activeJoystickChanged);
     _activeJoystickChanged(JoystickManager::instance()->activeJoystick());
     (void) connect(this, &VehicleModelManager::modelsChanged, this, &VehicleModelManager::_updateActiveModel);
+    // Each room has its own models: the lists change with the room the settings show
+    _scope = RoomScope::current();
+    RoomScope::notifyChanges(this, [this]() {
+        const QString scope = RoomScope::current();
+        if (scope != _scope) {
+            _scope = scope;
+            emit modelsChanged();
+        }
+    });
     // A high-definition stream can take a long time to start; after that the old picture is let go anyway.
     _switchTimer.setSingleShot(true);
     _switchTimer.setInterval(25000);
@@ -343,7 +353,7 @@ void VehicleModelManager::_updateActiveModel()
     if (_activeVehicle) {
         const SharedLinkInterfacePtr link = _activeVehicle->vehicleLinkManager()->primaryLink().lock();
         if (link && link->linkConfiguration()) {
-            activeModel = model(link->linkConfiguration()->vehicleModel());
+            activeModel = modelForLink(link->linkConfiguration()->vehicleModel(), link->linkConfiguration()->room());
         }
     }
 
@@ -716,8 +726,12 @@ void VehicleModelManager::releaseButton(int buttonIndex)
 QStringList VehicleModelManager::modelNames() const
 {
     QStringList names;
+    const QString scope = RoomScope::current();
     for (const QVariant &modelVar : _models) {
-        names.append(modelVar.toMap().value(kNameKey).toString());
+        const QVariantMap model = modelVar.toMap();
+        if (model.value(QLatin1String(RoomScope::kRoomKey)).toString() == scope) {
+            names.append(model.value(kNameKey).toString());
+        }
     }
     return names;
 }
@@ -733,11 +747,46 @@ QStringList VehicleModelManager::cameraTypes() const
 
 QVariantMap VehicleModelManager::model(const QString &name) const
 {
-    const int index = _indexOf(name);
+    const int index = _indexOf(name, RoomScope::current());
     if (index < 0) {
         return _roomModels.value(name).toMap();
     }
     return _models.at(index).toMap();
+}
+
+QVariantMap VehicleModelManager::modelForLink(const QString &name, const QString &room) const
+{
+    if (name.startsWith(QLatin1String("room:"))) {
+        return _roomModels.value(name).toMap();
+    }
+    int index = _indexOf(name, room);
+    // A link whose room has no model of that name (e.g. moved by an older version) still finds one
+    for (int i = 0; (index < 0) && (i < _models.count()); i++) {
+        if (!name.isEmpty() && (_models.at(i).toMap().value(kNameKey).toString() == name)) {
+            index = i;
+        }
+    }
+    return (index < 0) ? QVariantMap() : _models.at(index).toMap();
+}
+
+QString VehicleModelManager::copyModelToRoom(const QString &name, const QString &fromRoom, const QString &toRoom)
+{
+    if ((fromRoom == toRoom) || (_indexOf(name, toRoom) >= 0)) {
+        return QString();
+    }
+    const int index = _indexOf(name, fromRoom);
+    if (index < 0) {
+        return QString();
+    }
+    QVariantMap copy = _models.at(index).toMap();
+    copy[QLatin1String(RoomScope::kRoomKey)] = toRoom;
+    _models.append(copy);
+    if (!_save()) {
+        _models.removeLast();
+        return tr("Could not write the vehicle models file.");
+    }
+    emit modelsChanged();
+    return QString();
 }
 
 void VehicleModelManager::setRoomModels(const QVariantMap &models)
@@ -756,14 +805,16 @@ QString VehicleModelManager::saveModel(const QString &originalName, const QVaria
         return tr("Enter a model name.");
     }
 
-    const int originalIndex = _indexOf(originalName);
-    const int nameIndex = _indexOf(name);
+    const QString scope = RoomScope::current();
+    const int originalIndex = _indexOf(originalName, scope);
+    const int nameIndex = _indexOf(name, scope);
     if ((nameIndex >= 0) && (nameIndex != originalIndex)) {
         return tr("A model named \"%1\" already exists.").arg(name);
     }
 
     QVariantMap stored = model;
     stored[kNameKey] = name;
+    stored[QLatin1String(RoomScope::kRoomKey)] = scope;
 
     const QVariantList previous = _models;
     if (originalIndex >= 0) {
@@ -783,7 +834,7 @@ QString VehicleModelManager::saveModel(const QString &originalName, const QVaria
 
 void VehicleModelManager::deleteModel(const QString &name)
 {
-    const int index = _indexOf(name);
+    const int index = _indexOf(name, RoomScope::current());
     if (index < 0) {
         return;
     }
@@ -800,12 +851,20 @@ void VehicleModelManager::deleteModel(const QString &name)
 
 void VehicleModelManager::moveModel(int from, int to)
 {
-    if ((from == to) || (from < 0) || (to < 0) || (from >= _models.count()) || (to >= _models.count())) {
+    // from and to count the models of the current scope, as listed
+    QList<int> listed;
+    const QString scope = RoomScope::current();
+    for (int i = 0; i < _models.count(); i++) {
+        if (_models.at(i).toMap().value(QLatin1String(RoomScope::kRoomKey)).toString() == scope) {
+            listed.append(i);
+        }
+    }
+    if ((from == to) || (from < 0) || (to < 0) || (from >= listed.count()) || (to >= listed.count())) {
         return;
     }
 
     const QVariantList previous = _models;
-    _models.move(from, to);
+    _models.move(listed.at(from), listed.at(to));
     if (!_save()) {
         _models = previous;
         return;
@@ -882,6 +941,7 @@ QString VehicleModelManager::importModels(const QString &filePath)
     const QJsonArray exchangeModels = document.isArray() ? document.array() : QJsonArray{document.object()};
 
     const QVariantList previous = _models;
+    const QString scope = RoomScope::current();
     QStringList importedNames;
     for (const QJsonValue &exchangeValue : exchangeModels) {
         QVariantMap model = modelFromExchange(exchangeValue.toObject());
@@ -889,7 +949,8 @@ QString VehicleModelManager::importModels(const QString &filePath)
         if (name.isEmpty()) {
             continue;
         }
-        model[QString::fromLatin1(kNameKey)] = _uniqueName(name);
+        model[QString::fromLatin1(kNameKey)] = _uniqueName(name, scope);
+        model[QLatin1String(RoomScope::kRoomKey)] = scope;
         _models.append(model);
         importedNames.append(model.value(QLatin1String(kNameKey)).toString());
     }
@@ -908,7 +969,7 @@ QString VehicleModelManager::importModels(const QString &filePath)
 
 QString VehicleModelManager::exportModel(const QString &name, const QString &filePath) const
 {
-    const int index = _indexOf(name);
+    const int index = _indexOf(name, RoomScope::current());
     if (index < 0) {
         return tr("Save the model before exporting it.");
     }
@@ -924,23 +985,24 @@ QString VehicleModelManager::exportModel(const QString &name, const QString &fil
     return QString();
 }
 
-QString VehicleModelManager::_uniqueName(const QString &name) const
+QString VehicleModelManager::_uniqueName(const QString &name, const QString &room) const
 {
     QString candidate = name;
-    for (int suffix = 2; _indexOf(candidate) >= 0; suffix++) {
+    for (int suffix = 2; _indexOf(candidate, room) >= 0; suffix++) {
         candidate = QStringLiteral("%1 (%2)").arg(name).arg(suffix);
     }
     return candidate;
 }
 
-int VehicleModelManager::_indexOf(const QString &name) const
+int VehicleModelManager::_indexOf(const QString &name, const QString &room) const
 {
     if (name.isEmpty()) {
         return -1;
     }
 
     for (int i = 0; i < _models.count(); i++) {
-        if (_models.at(i).toMap().value(kNameKey).toString() == name) {
+        const QVariantMap model = _models.at(i).toMap();
+        if ((model.value(kNameKey).toString() == name) && (model.value(QLatin1String(RoomScope::kRoomKey)).toString() == room)) {
             return i;
         }
     }
@@ -976,6 +1038,10 @@ void VehicleModelManager::_load()
         QVariantMap model = modelVar.toMap();
         model[kCamerasKey] = convertCameraSecrets(model.value(kCamerasKey).toList(), false);
         _models.append(model);
+    }
+    // Models saved before rooms had their own go to the rooms of the links using them
+    if (RoomScope::tagUntagged(_models, QStringLiteral("vehicle_model"))) {
+        (void) _save();
     }
 }
 

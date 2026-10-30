@@ -184,7 +184,7 @@ bool LinkManager::createConnectedLink(SharedLinkConfigurationPtr &config)
     MAVLinkProtocol::instance()->resetMetadataForLink(link.get());
 
     if (!config->wireGuardProfile().isEmpty()) {
-        const QString tunnel = WireGuardTunnel::tunnelForProfile(config->wireGuardProfile());
+        const QString tunnel = WireGuardTunnel::tunnelForProfile(config->wireGuardProfile(), config->room());
         const QString tunnelError = tunnel.isEmpty()
             ? tr("The WireGuard tunnel \"%1\" selected for this link no longer exists.").arg(config->wireGuardProfile())
             : WireGuardTunnel::start(tunnel);
@@ -312,7 +312,7 @@ void LinkManager::_linkDisconnected()
     }
 
     if (config && !config->wireGuardProfile().isEmpty()) {
-        const QString tunnel = WireGuardTunnel::tunnelForProfile(config->wireGuardProfile());
+        const QString tunnel = WireGuardTunnel::tunnelForProfile(config->wireGuardProfile(), config->room());
         // Another link still using the same tunnel keeps it up.
         bool tunnelInUse = false;
         {

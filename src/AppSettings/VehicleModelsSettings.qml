@@ -120,6 +120,12 @@ Rectangle {
 
     QGCPalette { id: qgcPal; colorGroupEnabled: true }
 
+    // Each room has its own models: in another room the editor starts empty
+    Connections {
+        target: RoomManager
+        function onCurrentRoomChanged() { root._selectModel("") }
+    }
+
     QGCFileDialog {
         id:             fileDialog
         title:          qsTr("Vehicle Model")

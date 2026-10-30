@@ -1,6 +1,7 @@
 #include "WireGuardTunnel.h"
 #include "QGCLoggingCategory.h"
 #include "RoomManager.h"
+#include "RoomScope.h"
 #include "SecretProtector.h"
 
 #include <QtCore/QDir>
@@ -137,7 +138,16 @@ constexpr int kMaxTunnelNameLength = 32;
 
 WireGuardTunnel::WireGuardTunnel(QObject *parent)
     : QObject(parent)
+    , _scope(RoomScope::current())
 {
+    // Each room has its own tunnels: the list changes with the room the settings show
+    RoomScope::notifyChanges(this, [this]() {
+        const QString scope = RoomScope::current();
+        if (scope != _scope) {
+            _scope = scope;
+            emit profilesChanged();
+        }
+    });
 }
 
 namespace {
@@ -180,14 +190,41 @@ QVariantList &WireGuardTunnel::_profiles()
         }
         return loaded;
     }();
+    // Tunnels saved before rooms had their own go to the rooms of the links using them (a copy shares the
+    // registered Windows tunnel). Saving calls back here, so the flag is set first.
+    static bool tagged = false;
+    if (!tagged) {
+        tagged = true;
+        if (RoomScope::tagUntagged(profiles, QStringLiteral("wireguard_profile"))) {
+            (void) _saveProfiles();
+        }
+    }
     return profiles;
 }
 
-int WireGuardTunnel::_profileIndex(const QString &name)
+int WireGuardTunnel::_profileIndex(const QString &name, const QString &room)
 {
     if (name.isEmpty()) {
         return -1;
     }
+    const QVariantList &profiles = _profiles();
+    for (int i = 0; i < profiles.count(); i++) {
+        const QVariantMap profile = profiles.at(i).toMap();
+        if ((profile.value(QLatin1String(kProfileNameKey)).toString() == name) &&
+            (profile.value(QLatin1String(RoomScope::kRoomKey)).toString() == room)) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int WireGuardTunnel::_profileIndexForLink(const QString &name, const QString &room)
+{
+    const int index = _profileIndex(name, room);
+    if ((index >= 0) || name.isEmpty()) {
+        return index;
+    }
+    // A link whose room has no tunnel of that name (e.g. moved by an older version) still finds one
     const QVariantList &profiles = _profiles();
     for (int i = 0; i < profiles.count(); i++) {
         if (profiles.at(i).toMap().value(QLatin1String(kProfileNameKey)).toString() == name) {
@@ -195,6 +232,17 @@ int WireGuardTunnel::_profileIndex(const QString &name)
         }
     }
     return -1;
+}
+
+bool WireGuardTunnel::_tunnelUsedElsewhere(const QString &tunnel, int exceptIndex)
+{
+    const QVariantList &profiles = _profiles();
+    for (int i = 0; i < profiles.count(); i++) {
+        if ((i != exceptIndex) && (profiles.at(i).toMap().value(QLatin1String(kProfileTunnelKey)).toString() == tunnel)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool WireGuardTunnel::_saveProfiles()
@@ -226,33 +274,58 @@ bool WireGuardTunnel::_saveProfiles()
 QStringList WireGuardTunnel::profileNames() const
 {
     QStringList names;
+    const QString scope = RoomScope::current();
     for (const QVariant &profileVar : std::as_const(_profiles())) {
-        names.append(profileVar.toMap().value(QLatin1String(kProfileNameKey)).toString());
+        const QVariantMap profile = profileVar.toMap();
+        if (profile.value(QLatin1String(RoomScope::kRoomKey)).toString() == scope) {
+            names.append(profile.value(QLatin1String(kProfileNameKey)).toString());
+        }
     }
     return names;
 }
 
 QVariantMap WireGuardTunnel::profile(const QString &name) const
 {
-    const int index = _profileIndex(name);
+    const int index = _profileIndex(name, RoomScope::current());
     return (index < 0) ? QVariantMap() : _profiles().at(index).toMap();
 }
 
-QVariantMap WireGuardTunnel::profileSettings(const QString &name)
+QVariantMap WireGuardTunnel::profileSettings(const QString &name, const QString &room)
 {
-    const int index = _profileIndex(name);
+    const int index = _profileIndexForLink(name, room);
     return (index < 0) ? QVariantMap() : _profiles().at(index).toMap();
 }
 
-QString WireGuardTunnel::tunnelForProfile(const QString &profileName)
+QString WireGuardTunnel::tunnelForProfile(const QString &profileName, const QString &room)
 {
     // Vehicles received from a room bring their own tunnel, installed by the room manager
     if (profileName.startsWith(QLatin1String("room:"))) {
         return RoomManager::tunnelForBoard(profileName.mid(5));
     }
 
-    const int index = _profileIndex(profileName);
+    const int index = _profileIndexForLink(profileName, room);
     return (index < 0) ? QString() : _profiles().at(index).toMap().value(QLatin1String(kProfileTunnelKey)).toString();
+}
+
+QString WireGuardTunnel::copyProfileToRoom(const QString &name, const QString &fromRoom, const QString &toRoom)
+{
+    if ((fromRoom == toRoom) || (_profileIndex(name, toRoom) >= 0)) {
+        return QString();
+    }
+    const int index = _profileIndex(name, fromRoom);
+    if (index < 0) {
+        return QString();
+    }
+    // The copy uses the same registered Windows tunnel
+    QVariantMap copy = _profiles().at(index).toMap();
+    copy[QLatin1String(RoomScope::kRoomKey)] = toRoom;
+    _profiles().append(copy);
+    if (!_saveProfiles()) {
+        _profiles().removeLast();
+        return tr("Could not write the tunnel settings file.");
+    }
+    emit profilesChanged();
+    return QString();
 }
 
 QString WireGuardTunnel::saveProfile(const QString &originalName, const QVariantMap &profile)
@@ -262,18 +335,28 @@ QString WireGuardTunnel::saveProfile(const QString &originalName, const QVariant
         return tr("Enter a tunnel name.");
     }
 
-    const int originalIndex = _profileIndex(originalName);
-    const int nameIndex = _profileIndex(name);
+    const QString scope = RoomScope::current();
+    const int originalIndex = _profileIndex(originalName, scope);
+    const int nameIndex = _profileIndex(name, scope);
     if ((nameIndex >= 0) && (nameIndex != originalIndex)) {
         return tr("A tunnel named \"%1\" already exists.").arg(name);
     }
 
     QVariantMap stored = profile;
     stored[QLatin1String(kProfileNameKey)] = name;
+    stored[QLatin1String(RoomScope::kRoomKey)] = scope;
     // A profile keeps its Windows tunnel name through renames, so the registered tunnel is replaced, not duplicated.
     QString tunnel = (originalIndex >= 0) ? _profiles().at(originalIndex).toMap().value(QLatin1String(kProfileTunnelKey)).toString() : QString();
+    // A copy in another room keeps the registered tunnel as it is: this one gets its own
+    if (!tunnel.isEmpty() && _tunnelUsedElsewhere(tunnel, originalIndex)) {
+        tunnel.clear();
+    }
     if (tunnel.isEmpty()) {
+        // Another room may have a tunnel of the same name: its Windows tunnel must stay apart
         tunnel = tunnelNameForLink(name);
+        for (int suffix = 2; _tunnelUsedElsewhere(tunnel, -1); suffix++) {
+            tunnel = tunnelNameForLink(QStringLiteral("%1 %2").arg(name).arg(suffix));
+        }
     }
     stored[QLatin1String(kProfileTunnelKey)] = tunnel;
 
@@ -299,14 +382,18 @@ QString WireGuardTunnel::saveProfile(const QString &originalName, const QVariant
 
 QString WireGuardTunnel::deleteProfile(const QString &name)
 {
-    const int index = _profileIndex(name);
+    const int index = _profileIndex(name, RoomScope::current());
     if (index < 0) {
         return QString();
     }
 
-    const QString removeError = remove(_profiles().at(index).toMap().value(QLatin1String(kProfileTunnelKey)).toString());
-    if (!removeError.isEmpty()) {
-        return removeError;
+    // The Windows tunnel stays registered while a copy in another room still uses it
+    const QString tunnel = _profiles().at(index).toMap().value(QLatin1String(kProfileTunnelKey)).toString();
+    if (!_tunnelUsedElsewhere(tunnel, index)) {
+        const QString removeError = remove(tunnel);
+        if (!removeError.isEmpty()) {
+            return removeError;
+        }
     }
 
     _profiles().removeAt(index);
@@ -317,12 +404,20 @@ QString WireGuardTunnel::deleteProfile(const QString &name)
 
 void WireGuardTunnel::moveProfile(int from, int to)
 {
+    // from and to count the tunnels of the current scope, as listed
     QVariantList &profiles = _profiles();
-    if ((from == to) || (from < 0) || (to < 0) || (from >= profiles.count()) || (to >= profiles.count())) {
+    QList<int> listed;
+    const QString scope = RoomScope::current();
+    for (int i = 0; i < profiles.count(); i++) {
+        if (profiles.at(i).toMap().value(QLatin1String(RoomScope::kRoomKey)).toString() == scope) {
+            listed.append(i);
+        }
+    }
+    if ((from == to) || (from < 0) || (to < 0) || (from >= listed.count()) || (to >= listed.count())) {
         return;
     }
 
-    profiles.move(from, to);
+    profiles.move(listed.at(from), listed.at(to));
     (void) _saveProfiles();
     emit profilesChanged();
 }

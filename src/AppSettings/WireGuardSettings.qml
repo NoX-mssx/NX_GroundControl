@@ -70,6 +70,12 @@ Rectangle {
 
     QGCPalette { id: qgcPal; colorGroupEnabled: true }
 
+    // Each room has its own tunnels: another room opens its first one
+    Connections {
+        target: RoomManager
+        function onCurrentRoomChanged() { root._selectProfile(WireGuardTunnel.profileNames.length > 0 ? WireGuardTunnel.profileNames[0] : "") }
+    }
+
     QGCFileDialog {
         id:             confFileDialog
         title:          qsTr("WireGuard Configuration")

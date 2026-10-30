@@ -1534,8 +1534,10 @@ QJsonObject RoomManager::_packBundle(LinkConfiguration *config, QString *error) 
     QJsonObject bundle{{QStringLiteral("link"), link}};
 
     if (!config->vehicleModel().isEmpty() && VehicleModelManager::instance()) {
-        const QVariantMap model = VehicleModelManager::instance()->model(config->vehicleModel());
+        QVariantMap model = VehicleModelManager::instance()->modelForLink(config->vehicleModel(), config->room());
         if (!model.isEmpty()) {
+            // Which room the admin keeps it in is no business of the operators
+            (void) model.remove(QStringLiteral("room"));
             bundle[QStringLiteral("model")] = QJsonObject::fromVariantMap(model);
         }
     }
@@ -1544,7 +1546,7 @@ QJsonObject RoomManager::_packBundle(LinkConfiguration *config, QString *error) 
         *error = tr("Link \"%1\" has no WireGuard tunnel, so operators cannot reach the vehicle. Choose a tunnel for it.").arg(config->name());
         return QJsonObject();
     }
-    const QVariantMap profile = WireGuardTunnel::profileSettings(config->wireGuardProfile());
+    const QVariantMap profile = WireGuardTunnel::profileSettings(config->wireGuardProfile(), config->room());
     if (profile.isEmpty()) {
         *error = tr("The WireGuard tunnel \"%1\" of link \"%2\" was not found.").arg(config->wireGuardProfile(), config->name());
         return QJsonObject();

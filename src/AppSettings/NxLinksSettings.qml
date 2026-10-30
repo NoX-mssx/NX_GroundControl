@@ -85,6 +85,15 @@ Rectangle {
             editingConfig.roomBoardId = ""
         }
         editingConfig.room = _editRoom
+        // Each room has its own models and tunnels: a link going to another room takes copies of its own along
+        if (_editRoom !== _room) {
+            if (editingConfig.vehicleModel !== "") {
+                VehicleModelManager.copyModelToRoom(editingConfig.vehicleModel, _room, _editRoom)
+            }
+            if (editingConfig.wireGuardProfile !== "") {
+                WireGuardTunnel.copyProfileToRoom(editingConfig.wireGuardProfile, _room, _editRoom)
+            }
+        }
         if (originalConfig) {
             _linkManager.endConfigurationEditing(originalConfig, editingConfig)
         } else {
@@ -138,6 +147,12 @@ Rectangle {
     }
 
     QGCPalette { id: qgcPal; colorGroupEnabled: true }
+
+    // Each room has its own links: a link of the previous room is not left open
+    Connections {
+        target: RoomManager
+        function onCurrentRoomChanged() { root._closeEditor() }
+    }
 
     // ---- Left: the configured links ----
     ColumnLayout {
