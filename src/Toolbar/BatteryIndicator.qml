@@ -31,9 +31,14 @@ Item {
     property int threshold1: _batterySettings.threshold1.rawValue
     property int threshold2: _batterySettings.threshold2.rawValue
 
-    property bool   _percentFromVoltage: _batterySettings.percentFromVoltage.rawValue
-    property real   _percentVoltageMin:  _batterySettings.percentVoltageMin.rawValue
-    property real   _percentVoltageMax:  _batterySettings.percentVoltageMax.rawValue
+    /// NX: the vehicle model may set the voltage range; then it is used in place of the values of this menu
+    readonly property var   _modelBattery:      VehicleModelManager.activeModel.battery || null
+    readonly property bool  _modelSetsBattery:  _modelBattery !== null && _modelBattery.enabled === true
+    readonly property string _modelName:        VehicleModelManager.activeModel.name || ""
+
+    property bool   _percentFromVoltage: _modelSetsBattery || _batterySettings.percentFromVoltage.rawValue
+    property real   _percentVoltageMin:  _modelSetsBattery ? _modelBattery.emptyVoltage : _batterySettings.percentVoltageMin.rawValue
+    property real   _percentVoltageMax:  _modelSetsBattery ? _modelBattery.fullVoltage : _batterySettings.percentVoltageMax.rawValue
 
     /// Charge percentage for display: derived from the configured voltage range when enabled, otherwise
     /// the value reported by the vehicle. NaN when not available.
@@ -412,14 +417,26 @@ Item {
                     fact:               _batterySettings.valueDisplay
                 }
 
+                QGCLabel {
+                    Layout.fillWidth:   true
+                    wrapMode:           Text.WordWrap
+                    visible:            control._modelSetsBattery
+                    text:               qsTr("Percentage from voltage, set in the vehicle model %1: empty (0%) %2 V, full (100%) %3 V. Change it in Settings → Rover → Vehicle Models.")
+                                            .arg(control._modelName)
+                                            .arg(Number(control._percentVoltageMin).toFixed(1))
+                                            .arg(Number(control._percentVoltageMax).toFixed(1))
+                }
+
                 FactCheckBoxSlider {
                     Layout.fillWidth:   true
+                    visible:            !control._modelSetsBattery
                     fact:               _batterySettings.percentFromVoltage
                     text:               qsTr("Percentage from voltage")
                 }
 
                 LabelledFactTextField {
                     Layout.fillWidth:   true
+                    visible:            !control._modelSetsBattery
                     label:              qsTr("Empty (0%)")
                     fact:               _batterySettings.percentVoltageMin
                     enabled:            control._percentFromVoltage
@@ -427,6 +444,7 @@ Item {
 
                 LabelledFactTextField {
                     Layout.fillWidth:   true
+                    visible:            !control._modelSetsBattery
                     label:              qsTr("Full (100%)")
                     fact:               _batterySettings.percentVoltageMax
                     enabled:            control._percentFromVoltage
@@ -437,7 +455,7 @@ Item {
                     wrapMode:           Text.WordWrap
                     color:              qgcPal.colorOrange
                     text:               qsTr("Full voltage must be higher than empty voltage")
-                    visible:            control._percentFromVoltage && control._percentVoltageMax <= control._percentVoltageMin
+                    visible:            !control._modelSetsBattery && control._percentFromVoltage && control._percentVoltageMax <= control._percentVoltageMin
                 }
             }
 

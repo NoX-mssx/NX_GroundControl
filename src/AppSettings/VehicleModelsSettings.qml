@@ -22,7 +22,17 @@ Rectangle {
     property string _errorText:     ""
 
     function _blankModel() {
-        return { name: "", cameras: [], buttons: [], motorTelemetry: _blankMotorTelemetry() }
+        return { name: "", cameras: [], buttons: [], motorTelemetry: _blankMotorTelemetry(), battery: _blankBattery() }
+    }
+
+    // Starts from the range entered in the battery menu of the main screen
+    function _blankBattery() {
+        const settings = QGroundControl.settingsManager.batteryIndicatorSettings
+        return { enabled: false, emptyVoltage: settings.percentVoltageMin.rawValue, fullVoltage: settings.percentVoltageMax.rawValue }
+    }
+
+    function _batteryRangeValid(battery) {
+        return battery.emptyVoltage > 0 && battery.fullVoltage > battery.emptyVoltage
     }
 
     // ESC numbers start at 1; a threshold of 0 means it is not set
@@ -54,6 +64,7 @@ Rectangle {
             copy.cameras = copy.cameras || []
             copy.buttons = copy.buttons || []
             copy.motorTelemetry = Object.assign(_blankMotorTelemetry(), copy.motorTelemetry || {})
+            copy.battery = Object.assign(_blankBattery(), copy.battery || {})
             _edit = copy
         } else {
             _originalName = ""
@@ -62,6 +73,10 @@ Rectangle {
     }
 
     function _save() {
+        if (_edit.battery && _edit.battery.enabled && !_batteryRangeValid(_edit.battery)) {
+            _errorText = qsTr("Battery: the full voltage must be higher than the empty voltage.")
+            return
+        }
         _errorText = VehicleModelManager.saveModel(_originalName, _edit)
         if (_errorText === "") {
             _originalName = _edit.name.trim()
@@ -731,6 +746,76 @@ Rectangle {
                             validator:              IntValidator { bottom: 0; top: 650 }
                             onTextEdited:           motorGroup.telemetry.currentCrit = parseInt(text) || 0
                         }
+                    }
+                }
+
+                // Battery: charge from the voltage, for this vehicle in place of the battery menu of the main screen
+                SettingsGroupLayout {
+                    id:                 batteryGroup
+                    Layout.fillWidth:   true
+                    Layout.topMargin:   _margins * 0.5
+                    heading:            qsTr("Battery")
+                    headingDescription: qsTr("Charge on the main screen from the battery voltage: the voltage of an empty (0%) and of a full (100%) battery. Set here, it is used for this vehicle on every computer, in place of the values in the battery menu of the main screen.")
+
+                    property var battery: root._edit.battery || root._blankBattery()
+                    // Field edits change the object in place, which bindings do not see; counting them re-checks
+                    property int  edits:        0
+                    readonly property bool rangeValid: { edits; return root._batteryRangeValid(battery) }
+
+                    function voltageText(value) {
+                        return value > 0 ? String(value) : ""
+                    }
+
+                    function parseVoltage(text) {
+                        const value = parseFloat(text.replace(",", "."))
+                        return isNaN(value) ? 0 : value
+                    }
+
+                    QGCCheckBox {
+                        text:       qsTr("Percentage from voltage")
+                        checked:    batteryGroup.battery.enabled === true
+                        onClicked: {
+                            root._edit.battery = batteryGroup.battery
+                            root._edit.battery.enabled = checked
+                            root._refresh()
+                        }
+                    }
+
+                    GridLayout {
+                        columns:        2
+                        columnSpacing:  ScreenTools.defaultFontPixelWidth * 2
+                        rowSpacing:     ScreenTools.defaultFontPixelHeight * 0.3
+                        enabled:        batteryGroup.battery.enabled === true
+
+                        QGCLabel { text: qsTr("Empty (0%), V") }
+                        QGCTextField {
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 10
+                            text:                   batteryGroup.voltageText(batteryGroup.battery.emptyVoltage)
+                            validator:              RegularExpressionValidator { regularExpression: /^\d{0,3}([.,]\d{0,2})?$/ }
+                            onTextEdited: {
+                                batteryGroup.battery.emptyVoltage = batteryGroup.parseVoltage(text)
+                                batteryGroup.edits++
+                            }
+                        }
+
+                        QGCLabel { text: qsTr("Full (100%), V") }
+                        QGCTextField {
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 10
+                            text:                   batteryGroup.voltageText(batteryGroup.battery.fullVoltage)
+                            validator:              RegularExpressionValidator { regularExpression: /^\d{0,3}([.,]\d{0,2})?$/ }
+                            onTextEdited: {
+                                batteryGroup.battery.fullVoltage = batteryGroup.parseVoltage(text)
+                                batteryGroup.edits++
+                            }
+                        }
+                    }
+
+                    QGCLabel {
+                        Layout.fillWidth:   true
+                        wrapMode:           Text.WordWrap
+                        color:              qgcPal.colorOrange
+                        text:               qsTr("Full voltage must be higher than empty voltage")
+                        visible:            batteryGroup.battery.enabled === true && !batteryGroup.rangeValid
                     }
                 }
             }

@@ -22,7 +22,11 @@ Q_DECLARE_LOGGING_CATEGORY(VehicleModelManagerLog)
 ///
 ///     { name, cameras: [{ type, name, ip, user, password, mainUrl, secondaryUrl, audio }],
 ///             buttons: [{ name, functions: [{ channel, kind: "pwm"|"gpio", value }] }],
-///             motorTelemetry: { enabled, leftEsc, rightEsc, tempWarn, tempCrit, currentWarn, currentCrit } }
+///             motorTelemetry: { enabled, leftEsc, rightEsc, showTemperature, tempWarn, tempCrit, currentWarn, currentCrit },
+///             battery: { enabled, emptyVoltage, fullVoltage } }
+///
+/// battery, when enabled, sets the charge shown on the main screen from the voltage (empty = 0 %, full = 100 %) in
+/// place of the values entered in the battery menu.
 ///
 /// Camera passwords and stream URLs (which embed the credentials) are encrypted on disk, see SecretProtector.
 class VehicleModelManager : public QObject

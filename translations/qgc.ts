@@ -4510,6 +4510,11 @@ Click Ok to start the auto-tuning process.
 <context>
     <name>BatteryIndicator</name>
     <message>
+      <location filename="../src/Toolbar/BatteryIndicator.qml" line="1" />
+      <source>Percentage from voltage, set in the vehicle model %1: empty (0%) %2 V, full (100%) %3 V. Change it in Settings → Rover → Vehicle Models.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
         <location filename="../src/Toolbar/BatteryIndicator.qml" line="303"/>
         <location filename="../src/Toolbar/BatteryIndicator.qml" line="553"/>
         <source>100%</source>
@@ -23000,6 +23005,41 @@ If a vehicle still has this key configured, you will no longer be able to commun
 </context>
 <context>
     <name>VehicleModelsSettings</name>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Battery: the full voltage must be higher than the empty voltage.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Battery</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Charge on the main screen from the battery voltage: the voltage of an empty (0%) and of a full (100%) battery. Set here, it is used for this vehicle on every computer, in place of the values in the battery menu of the main screen.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Percentage from voltage</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Empty (0%), V</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Full (100%), V</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Full voltage must be higher than empty voltage</source>
+      <translation type="unfinished" />
+    </message>
     <message>
       <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
       <source>Motor telemetry</source>

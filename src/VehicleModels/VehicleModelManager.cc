@@ -196,9 +196,11 @@ QVariantMap modelFromExchange(const QJsonObject &exchange)
         {QString::fromLatin1(kCamerasKey), cameras},
         {QStringLiteral("buttons"), buttons},
     };
-    // NX only: files from Nova have no motor telemetry block
-    if (exchange.contains(QLatin1String("motorTelemetry"))) {
-        model.insert(QStringLiteral("motorTelemetry"), exchange.value(QLatin1String("motorTelemetry")).toObject().toVariantMap());
+    // NX only: files from Nova have no motor telemetry or battery block
+    for (const QString &key : {QStringLiteral("motorTelemetry"), QStringLiteral("battery")}) {
+        if (exchange.contains(key)) {
+            model.insert(key, exchange.value(key).toObject().toVariantMap());
+        }
     }
     return model;
 }
@@ -255,8 +257,10 @@ QJsonObject modelToExchange(const QVariantMap &model)
         {QStringLiteral("camerasArray"), cameras},
         {QStringLiteral("buttonsArray"), buttons},
     };
-    if (model.contains(QStringLiteral("motorTelemetry"))) {
-        exchange.insert(QStringLiteral("motorTelemetry"), QJsonObject::fromVariantMap(model.value(QStringLiteral("motorTelemetry")).toMap()));
+    for (const QString &key : {QStringLiteral("motorTelemetry"), QStringLiteral("battery")}) {
+        if (model.contains(key)) {
+            exchange.insert(key, QJsonObject::fromVariantMap(model.value(key).toMap()));
+        }
     }
     return exchange;
 }
