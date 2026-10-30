@@ -437,6 +437,8 @@ void RoomManager::_setServerRooms(const QString &serverKey, const QJsonArray &ro
     }
     emit currentRoomChanged();
     if (currentRole() != previousRole) {
+        qCInfo(RoomManagerLog) << "Role in the current room" << currentRoomInfo().value(QStringLiteral("name")).toString() << "changed from"
+                               << previousRole << "to" << currentRole();
         _scheduleRoomRefresh();
     }
 }
@@ -1695,6 +1697,8 @@ LinkConfiguration *RoomManager::_createRoomLink(const QString &boardId, const QS
                               link.value(QStringLiteral("pingThreshold2Ms"), 600).toInt(),
                               link.value(QStringLiteral("throttlePercent2"), 25).toInt());
     config->setFromRoom(boardId);
+    // The room it came from: the connect menu shows the vehicles of the current room only
+    config->setRoom(_currentRoom);
     return config;
 }
 
@@ -1702,6 +1706,8 @@ void RoomManager::_rebuildRoomLinks()
 {
     LinkManager *const linkManager = LinkManager::instance();
     QSet<QString> present;
+    QStringList removed;
+    QStringList added;
 
     for (const SharedLinkConfigurationPtr &shared : linkManager->linkConfigurationList()) {
         LinkConfiguration *const config = shared.get();
@@ -1709,7 +1715,8 @@ void RoomManager::_rebuildRoomLinks()
             continue;
         }
         const QString id = config->roomBoardId();
-        const bool available = _boardBundles.contains(id);
+        // A vehicle of another room never stays, whatever brought it here
+        const bool available = (config->room() == _currentRoom) && _boardBundles.contains(id);
         if (available && (_linkVersions.value(id) == _boardVersions.value(id))) {
             present.insert(id);
             continue;
@@ -1725,6 +1732,7 @@ void RoomManager::_rebuildRoomLinks()
             emit connectFailed(tr("The admin took vehicle %1 away from you.").arg(config->name()));
         }
         (void) _linkVersions.remove(id);
+        removed.append(config->name() + ((config->room() == _currentRoom) ? QString() : QStringLiteral(" (other room)")));
         linkManager->removeConfiguration(config);
     }
 
@@ -1740,6 +1748,11 @@ void RoomManager::_rebuildRoomLinks()
         LinkConfiguration *const config = _createRoomLink(it.key(), _boardNames.value(it.key()), it.value());
         (void) linkManager->addConfiguration(config);
         _linkVersions.insert(it.key(), _boardVersions.value(it.key()));
+        added.append(config->name());
+    }
+    if (!removed.isEmpty() || !added.isEmpty()) {
+        qCInfo(RoomManagerLog) << "Room vehicles of" << _roomEntry(_currentRoom).value(QStringLiteral("name")).toString()
+                               << "added:" << added << "removed:" << removed;
     }
 
     _roomModels = models;

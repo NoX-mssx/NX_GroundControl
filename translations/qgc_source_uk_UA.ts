@@ -7976,6 +7976,11 @@ VTOL</translation>
     <name>FlyViewToolBar</name>
     <message>
       <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
+      <source>No access to this room</source>
+      <translation>Немає доступу до цієї кімнати</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
       <source>Connecting…</source>
       <translation>Підключення…</translation>
     </message>

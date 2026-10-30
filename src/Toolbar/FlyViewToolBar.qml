@@ -60,17 +60,20 @@ Item {
         text:   control._manualMode
     }
 
-    /// Links offered in the connect menu. An operator in a room gets only the vehicles the admin gave him; the admin
-    /// of a room gets the room's links; otherwise this computer's own links.
+    /// Links offered in the connect menu. An operator in a room gets only the vehicles the admin gave him in that room;
+    /// the admin of a room gets the room's links; outside rooms, this computer's own links. In a room without access
+    /// (waiting for the admin, switched off) nothing: no room shows links of another.
     function _menuLink(config) {
         if (!config) {
             return false
         }
         if (RoomManager.operatorMode) {
-            return config.fromRoom
+            return config.fromRoom && config.room === RoomManager.currentRoom
         }
-        const room = RoomManager.currentRole === "admin" ? RoomManager.currentRoom : ""
-        return !config.dynamic && config.showInMenu && config.room === room
+        if (RoomManager.currentRoom !== "" && RoomManager.currentRole !== "admin") {
+            return false
+        }
+        return !config.dynamic && config.showInMenu && config.room === RoomManager.currentRoom
     }
 
     function _escapeHtml(text) {
@@ -358,7 +361,8 @@ Item {
 
                         QGCLabel {
                             text: RoomManager.operatorMode ? qsTr("The admin has not given you any vehicles yet")
-                                                           : qsTr("No Links Configured")
+                                : (RoomManager.currentRoom !== "" && RoomManager.currentRole !== "admin") ? qsTr("No access to this room")
+                                : qsTr("No Links Configured")
                             visible: {
                                 const configs = QGroundControl.linkManager.linkConfigurations
                                 for (let i = 0; i < configs.count; i++) {
