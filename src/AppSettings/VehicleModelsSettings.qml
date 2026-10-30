@@ -521,7 +521,7 @@ Rectangle {
                             QGCComboBox {
                                 id:                     modeCombo
                                 Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 28
-                                model:                  [ qsTr("Switch (on / off)"), qsTr("Hold (on while pressed)"), qsTr("Steps (one value per tap)") ]
+                                model:                  [ qsTr("Switch (on / off)"), qsTr("Hold (on while pressed)"), qsTr("Several values (a segment for each)") ]
                                 currentIndex:           buttonGroup.modelData.mode === "momentary" ? 1 : (buttonGroup.modelData.mode === "steps" ? 2 : 0)
                                 onActivated: (modeIndex) => {
                                     buttonGroup.button.mode = modeIndex === 1 ? "momentary" : (modeIndex === 2 ? "steps" : "toggle")

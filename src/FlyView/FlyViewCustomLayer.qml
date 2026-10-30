@@ -103,7 +103,8 @@ Item {
         }
     }
 
-    // Buttons of the active vehicle model: switches, highlighted while on
+    // Buttons of the active vehicle model: switches, highlighted while on. A button with several values is one pill
+    // with a segment per value (thin lines between them); the chosen value is highlighted.
     Rectangle {
         id:                 modelButtonRow
         anchors.margins:    ScreenTools.defaultFontPixelWidth
@@ -128,9 +129,13 @@ Item {
                 Rectangle {
                     id:                     modelButton
                     Layout.preferredHeight: _root._railButtonSize
-                    Layout.preferredWidth:  Math.max(_root._railButtonSize * 1.6, modelButtonLabel.implicitWidth + ScreenTools.defaultFontPixelWidth * 3)
+                    Layout.preferredWidth:  _steps ? stepRow.width
+                                                   : Math.max(_root._railButtonSize * 1.6, modelButtonLabel.implicitWidth + ScreenTools.defaultFontPixelWidth * 3)
                     radius:                 height / 2
-                    color:                  _on ? _root._accent : (modelButtonMouseArea.containsMouse ? Qt.rgba(1, 1, 1, 0.16) : _root._glassButton)
+                    color:                  _steps ? _root._glassButton
+                                                   : (_on ? _root._accent : (modelButtonMouseArea.containsMouse ? Qt.rgba(1, 1, 1, 0.16) : _root._glassButton))
+                    border.color:           Qt.rgba(1, 1, 1, 0.14)
+                    border.width:           _steps ? 1 : 0
 
                     required property var modelData
                     required property int index
@@ -150,9 +155,8 @@ Item {
                     QGCLabel {
                         id:                 modelButtonLabel
                         anchors.centerIn:   parent
-                        text:               modelButton._steps && modelButton._stepCount > 0
-                                                ? modelButton.modelData.name + " " + ((VehicleModelManager.buttonSteps[index] || 0) + 1) + "/" + modelButton._stepCount
-                                                : modelButton.modelData.name
+                        visible:            !modelButton._steps
+                        text:               modelButton.modelData.name
                         color:              modelButton._on ? _root._accentText : qgcPal.text
                         font.weight:        Font.ExtraBold
                     }
@@ -160,11 +164,94 @@ Item {
                     MouseArea {
                         id:             modelButtonMouseArea
                         anchors.fill:   parent
+                        visible:        !modelButton._steps
                         hoverEnabled:   true
                         onClicked:      VehicleModelManager.toggleButton(modelButton.index)
                         onPressed:      if (modelButton._momentary) VehicleModelManager.pressButton(modelButton.index)
                         onReleased:     if (modelButton._momentary) VehicleModelManager.releaseButton(modelButton.index)
                         onCanceled:     if (modelButton._momentary) VehicleModelManager.releaseButton(modelButton.index)
+                    }
+
+                    // Several values: the name, then one segment per value; a tap sends that value
+                    Row {
+                        id:         stepRow
+                        visible:    modelButton._steps
+                        height:     parent.height
+
+                        readonly property int chosen: VehicleModelManager.buttonSteps[modelButton.index] ?? -1
+
+                        Item {
+                            width:  stepName.implicitWidth + ScreenTools.defaultFontPixelWidth * 3.5
+                            height: parent.height
+
+                            QGCLabel {
+                                id:                     stepName
+                                anchors.verticalCenter: parent.verticalCenter
+                                x:                      ScreenTools.defaultFontPixelWidth * 2.2
+                                text:                   modelButton.modelData.name
+                                color:                  Qt.rgba(qgcPal.text.r, qgcPal.text.g, qgcPal.text.b, 0.75)
+                                font.weight:            Font.ExtraBold
+                            }
+                        }
+
+                        Repeater {
+                            model: modelButton._steps ? modelButton._stepCount : 0
+
+                            Item {
+                                id:     stepSegment
+                                width:  Math.max(_root._railButtonSize, stepLabel.implicitWidth + ScreenTools.defaultFontPixelWidth * 2)
+                                height: parent.height
+
+                                required property int index
+
+                                readonly property bool  _chosen:    stepRow.chosen === index
+                                readonly property bool  _last:      index === modelButton._stepCount - 1
+                                readonly property bool  _filled:    _chosen || stepMouseArea.containsMouse
+                                readonly property color _fill:      _chosen ? _root._accent : Qt.rgba(1, 1, 1, 0.07)
+
+                                // Inside the 1 px border; the last segment is rounded on the outer end
+                                Rectangle {
+                                    anchors.fill:           parent
+                                    anchors.topMargin:      1
+                                    anchors.bottomMargin:   1
+                                    anchors.rightMargin:    stepSegment._last ? 1 : 0
+                                    radius:                 stepSegment._last ? height / 2 : 0
+                                    color:                  stepSegment._fill
+                                    visible:                stepSegment._filled
+                                }
+                                Rectangle {
+                                    anchors.left:           parent.left
+                                    anchors.top:            parent.top
+                                    anchors.bottom:         parent.bottom
+                                    anchors.topMargin:      1
+                                    anchors.bottomMargin:   1
+                                    width:                  parent.width / 2
+                                    color:                  stepSegment._fill
+                                    visible:                stepSegment._filled && stepSegment._last
+                                }
+                                Rectangle {
+                                    width:  1
+                                    height: parent.height
+                                    color:  Qt.rgba(1, 1, 1, 0.16)
+                                }
+
+                                QGCLabel {
+                                    id:                 stepLabel
+                                    anchors.centerIn:   parent
+                                    text:               stepSegment.index + 1
+                                    color:              stepSegment._chosen ? _root._accentText : qgcPal.text
+                                    font.weight:        Font.ExtraBold
+                                    font.pointSize:     ScreenTools.defaultFontPointSize * 1.1
+                                }
+
+                                MouseArea {
+                                    id:             stepMouseArea
+                                    anchors.fill:   parent
+                                    hoverEnabled:   true
+                                    onClicked:      VehicleModelManager.selectStep(modelButton.index, stepSegment.index)
+                                }
+                            }
+                        }
                     }
                 }
             }

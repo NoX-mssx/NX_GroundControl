@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QtCore/QHash>
 #include <QtCore/QJsonArray>
 #include <QtCore/QLoggingCategory>
 #include <QtCore/QObject>
@@ -45,7 +46,8 @@ class VehicleModelManager : public QObject
     /// true: every camera plays its secondary (SD) stream instead of the main (HD) one
     /// On/off state of each button of the active model, by index
     Q_PROPERTY(QVariantList buttonStates        READ buttonStates       NOTIFY buttonStatesChanged)
-    /// Position of each button of the active model that walks through several values ("steps" mode), by index
+    /// Value chosen on each button of the active model that has several values ("steps" mode), by index: the
+    /// position of the value the vehicle reports on its output, else the one last chosen here; -1 while unknown
     Q_PROPERTY(QVariantList buttonSteps         READ buttonSteps        NOTIFY buttonStatesChanged)
     Q_PROPERTY(bool         secondaryStream     READ secondaryStream    WRITE setSecondaryStream NOTIFY secondaryStreamChanged)
     /// true from a change of the main picture (HD/SD, another camera) until the new stream shows its
@@ -81,6 +83,8 @@ public:
     /// Sends every output of a model button to the active vehicle: a servo PWM value or a relay state.
     /// Switches the active model's button on or off, sending its on or off values.
     Q_INVOKABLE void toggleButton(int buttonIndex);
+    /// "steps" buttons: sends the value at the given position (0-based) of every function of the button
+    Q_INVOKABLE void selectStep(int buttonIndex, int step);
     /// "momentary" buttons: the on value goes out while the button is held, the off value when it is released
     Q_INVOKABLE void pressButton(int buttonIndex);
     Q_INVOKABLE void releaseButton(int buttonIndex);
@@ -139,6 +143,7 @@ private slots:
     void _decodingChanged();
     void _activeJoystickChanged(Joystick *joystick);
     void _joystickModelButton(int buttonIndex, bool down);
+    void _servoOutputsChanged(const QVector<int> &values);
 
 private:
     int _indexOf(const QString &name) const;
@@ -166,6 +171,12 @@ private:
     bool _switchingStream = false;
     bool _switchSawStop = false;        ///< The old picture has stopped; the next start ends the switch
     QTimer _switchTimer;                ///< Gives up waiting for the new stream
-    QVariantList _buttonSteps;          ///< Per button of the active model: position in "steps" mode
+    QVariantList _buttonSteps;          ///< Per button of the active model: position in "steps" mode, -1 unknown
     QVariantList _buttonStates;         ///< Per button of the active model: switched on
+    QHash<int, qint64> _stepChosenAt;   ///< Per "steps" button: when a value was chosen here (ms since epoch)
+
+    /// A reported output this close to a step value counts as that step (microseconds)
+    static constexpr int kStepTolerance = 40;
+    /// After a value is chosen here the vehicle needs a moment to report it; older reports are ignored meanwhile
+    static constexpr int kStepReportDelayMs = 1500;
 };

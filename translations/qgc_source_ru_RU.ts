@@ -23073,6 +23073,11 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <name>VehicleModelsSettings</name>
     <message>
       <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Several values (a segment for each)</source>
+      <translation>Несколько значений (сегмент на каждое)</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
       <source>Battery: the full voltage must be higher than the empty voltage.</source>
       <translation>Батарея: напряжение полной батареи должно быть выше, чем пустой.</translation>
     </message>

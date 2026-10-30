@@ -12,6 +12,7 @@
 #include "VideoManager.h"
 #include "VideoSettings.h"
 
+#include <QtCore/QDateTime>
 #include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
@@ -109,7 +110,8 @@ bool functionSendsOff(const QVariantMap &function)
     return function.value(QStringLiteral("sendOff"), true).toBool();
 }
 
-/// Values a "steps" button walks through, one per tap (for example 1000, 1500, 2000 for three speeds).
+/// Values of a "steps" button (for example 1000, 1500, 2000 for three speeds): one segment each on screen; a
+/// joystick button walks through them.
 QList<int> functionSteps(const QVariantMap &function)
 {
     QList<int> steps;
@@ -321,12 +323,15 @@ void VehicleModelManager::_activeVehicleChanged(Vehicle *vehicle)
 {
     if (_activeVehicle) {
         (void) disconnect(_activeVehicle->vehicleLinkManager(), nullptr, this, nullptr);
+        (void) disconnect(_activeVehicle, &Vehicle::servoOutputsChanged, this, &VehicleModelManager::_servoOutputsChanged);
     }
 
     _activeVehicle = vehicle;
     if (_activeVehicle) {
         (void) connect(_activeVehicle->vehicleLinkManager(), &VehicleLinkManager::primaryLinkChanged,
                        this, &VehicleModelManager::_updateActiveModel);
+        // A button with several values shows the one the vehicle has on its output (e.g. 1500 after start)
+        (void) connect(_activeVehicle, &Vehicle::servoOutputsChanged, this, &VehicleModelManager::_servoOutputsChanged);
     }
 
     _updateActiveModel();
@@ -346,9 +351,10 @@ void VehicleModelManager::_updateActiveModel()
         return;
     }
     _activeModel = activeModel;
-    // A different vehicle starts with all its buttons shown as off.
+    // A different vehicle starts with all its buttons shown as off, and no value of a several-value button chosen
     _buttonStates.clear();
     _buttonSteps.clear();
+    _stepChosenAt.clear();
     emit activeModelChanged();
     emit buttonStatesChanged();
 
@@ -524,7 +530,7 @@ void VehicleModelManager::_setButtonState(int buttonIndex, bool on, int step)
         _buttonStates.append(false);
     }
     while (_buttonSteps.count() < (buttonIndex + 1)) {
-        _buttonSteps.append(0);
+        _buttonSteps.append(-1);
     }
     _buttonStates[buttonIndex] = on;
     _buttonSteps[buttonIndex] = step;
@@ -572,20 +578,13 @@ void VehicleModelManager::toggleButton(int buttonIndex)
     const QVariantList functions = button.value(QStringLiteral("functions")).toList();
 
     if (mode == QLatin1String("steps")) {
+        // A joystick button walks to the next value; on screen each value has its own segment (selectStep)
         const int stepCount = buttonStepCount(button);
         if (stepCount < 1) {
             return;
         }
-        const int current = (buttonIndex < _buttonSteps.count()) ? _buttonSteps.at(buttonIndex).toInt() : 0;
-        const int next = (current + 1) % stepCount;
-        for (const QVariant &functionVar : functions) {
-            const QVariantMap function = functionVar.toMap();
-            const QList<int> steps = functionSteps(function);
-            if (!steps.isEmpty()) {
-                _sendFunction(function, steps.at(qMin(next, static_cast<int>(steps.count()) - 1)));
-            }
-        }
-        _setButtonState(buttonIndex, next != 0, next);
+        const int current = (buttonIndex < _buttonSteps.count()) ? _buttonSteps.at(buttonIndex).toInt() : -1;
+        selectStep(buttonIndex, (current + 1) % stepCount);
         return;
     }
 
@@ -599,6 +598,80 @@ void VehicleModelManager::toggleButton(int buttonIndex)
         }
     }
     _setButtonState(buttonIndex, on, 0);
+}
+
+void VehicleModelManager::selectStep(int buttonIndex, int step)
+{
+    const QVariantList buttons = _activeModel.value(QStringLiteral("buttons")).toList();
+    if (!_activeVehicle || (buttonIndex < 0) || (buttonIndex >= buttons.count())) {
+        return;
+    }
+    const QVariantMap button = buttons.at(buttonIndex).toMap();
+    if ((buttonMode(button) != QLatin1String("steps")) || (step < 0) || (step >= buttonStepCount(button))) {
+        return;
+    }
+    const QVariantList functions = button.value(QStringLiteral("functions")).toList();
+    for (const QVariant &functionVar : functions) {
+        const QVariantMap function = functionVar.toMap();
+        const QList<int> steps = functionSteps(function);
+        if (!steps.isEmpty()) {
+            _sendFunction(function, steps.at(qMin(step, static_cast<int>(steps.count()) - 1)));
+        }
+    }
+    _stepChosenAt[buttonIndex] = QDateTime::currentMSecsSinceEpoch();
+    _setButtonState(buttonIndex, step != 0, step);
+}
+
+void VehicleModelManager::_servoOutputsChanged(const QVector<int> &values)
+{
+    // Each several-value button follows the first of its PWM outputs that the vehicle reports: the value
+    // within kStepTolerance of a step lights that step, a value between steps lights none
+    const QVariantList buttons = _activeModel.value(QStringLiteral("buttons")).toList();
+    const qint64 now = QDateTime::currentMSecsSinceEpoch();
+    bool changed = false;
+    for (int buttonIndex = 0; buttonIndex < buttons.count(); buttonIndex++) {
+        const QVariantMap button = buttons.at(buttonIndex).toMap();
+        if (buttonMode(button) != QLatin1String("steps")) {
+            continue;
+        }
+        if ((now - _stepChosenAt.value(buttonIndex, 0)) < kStepReportDelayMs) {
+            continue;
+        }
+        const QVariantList functions = button.value(QStringLiteral("functions")).toList();
+        for (const QVariant &functionVar : functions) {
+            const QVariantMap function = functionVar.toMap();
+            const int channel = function.value(QStringLiteral("channel")).toInt();
+            const QList<int> steps = functionSteps(function);
+            if ((function.value(QStringLiteral("kind")).toString() == QLatin1String("gpio")) || steps.isEmpty() ||
+                (channel < 1) || (channel > values.count()) || (values.at(channel - 1) < 0)) {
+                continue;
+            }
+            const int output = values.at(channel - 1);
+            int step = -1;
+            int distance = kStepTolerance + 1;
+            for (int i = 0; i < steps.count(); i++) {
+                if (qAbs(steps.at(i) - output) < distance) {
+                    distance = qAbs(steps.at(i) - output);
+                    step = i;
+                }
+            }
+            while (_buttonSteps.count() < (buttonIndex + 1)) {
+                _buttonSteps.append(-1);
+            }
+            while (_buttonStates.count() < (buttonIndex + 1)) {
+                _buttonStates.append(false);
+            }
+            if (_buttonSteps.at(buttonIndex).toInt() != step) {
+                _buttonSteps[buttonIndex] = step;
+                _buttonStates[buttonIndex] = step > 0;
+                changed = true;
+            }
+            break;
+        }
+    }
+    if (changed) {
+        emit buttonStatesChanged();
+    }
 }
 
 void VehicleModelManager::pressButton(int buttonIndex)
