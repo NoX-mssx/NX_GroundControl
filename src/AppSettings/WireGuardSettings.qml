@@ -14,6 +14,8 @@ Rectangle {
 
     readonly property real _margins:    ScreenTools.defaultFontPixelHeight
     readonly property real _fieldWidth: ScreenTools.defaultFontPixelWidth * 60
+    /// Room whose tunnels are listed, as in WireGuardTunnel (see RoomScope)
+    readonly property string _scope:    RoomManager.currentRole === "admin" ? RoomManager.currentRoom : ""
     readonly property string _newProfileText: qsTr("New tunnel...")
 
     // Name of the stored profile being edited, empty while creating a new one
@@ -71,10 +73,7 @@ Rectangle {
     QGCPalette { id: qgcPal; colorGroupEnabled: true }
 
     // Each room has its own tunnels: another room opens its first one
-    Connections {
-        target: RoomManager
-        function onCurrentRoomChanged() { root._selectProfile(WireGuardTunnel.profileNames.length > 0 ? WireGuardTunnel.profileNames[0] : "") }
-    }
+    on_ScopeChanged: _selectProfile(WireGuardTunnel.profileNames.length > 0 ? WireGuardTunnel.profileNames[0] : "")
 
     // Deleting asks first
     QGCPopupDialogFactory {

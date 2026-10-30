@@ -15,6 +15,8 @@ Rectangle {
     readonly property real _margins:    ScreenTools.defaultFontPixelHeight
     readonly property real _fieldWidth: ScreenTools.defaultFontPixelWidth * 45
     readonly property string _newModelText: qsTr("New model...")
+    /// Room whose models are listed, as in VehicleModelManager (see RoomScope)
+    readonly property string _scope:    RoomManager.currentRole === "admin" ? RoomManager.currentRoom : ""
 
     // Name of the stored model being edited, empty while creating a new one
     property string _originalName:  ""
@@ -121,10 +123,7 @@ Rectangle {
     QGCPalette { id: qgcPal; colorGroupEnabled: true }
 
     // Each room has its own models: in another room the editor starts empty
-    Connections {
-        target: RoomManager
-        function onCurrentRoomChanged() { root._selectModel("") }
-    }
+    on_ScopeChanged: _selectModel("")
 
     // Deleting asks first
     QGCPopupDialogFactory {

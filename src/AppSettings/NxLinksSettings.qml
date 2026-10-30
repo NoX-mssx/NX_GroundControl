@@ -149,10 +149,7 @@ Rectangle {
     QGCPalette { id: qgcPal; colorGroupEnabled: true }
 
     // Each room has its own links: a link of the previous room is not left open
-    Connections {
-        target: RoomManager
-        function onCurrentRoomChanged() { root._closeEditor() }
-    }
+    on_RoomChanged: _closeEditor()
 
     // Deleting asks first
     QGCPopupDialogFactory {
