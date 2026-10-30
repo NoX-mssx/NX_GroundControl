@@ -14475,6 +14475,16 @@ Do you wish to proceed?</source>
     <name>NxLinksSettings</name>
     <message>
       <location filename="../src/AppSettings/NxLinksSettings.qml" line="1" />
+      <source>Delete the link "%1"? The operators of the room lose this vehicle.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="1" />
+      <source>Delete the link "%1"?</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="1" />
       <source>Room</source>
       <translation type="unfinished" />
     </message>
@@ -23007,6 +23017,16 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <name>VehicleModelsSettings</name>
     <message>
       <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Delete Model</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Delete the vehicle model "%1"? Links that use it are left without a model.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
       <source>Several values (a segment for each)</source>
       <translation type="unfinished" />
     </message>
@@ -23571,6 +23591,16 @@ If a vehicle still has this key configured, you will no longer be able to commun
 </context>
 <context>
     <name>WireGuardSettings</name>
+    <message>
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="1" />
+      <source>Delete Tunnel</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="1" />
+      <source>Delete the WireGuard tunnel "%1"? Windows asks for administrator rights to remove it, and links that use it can no longer connect through it.</source>
+      <translation type="unfinished" />
+    </message>
     <message>
       <location filename="../src/AppSettings/WireGuardSettings.qml" line="1" />
       <source>Cancel</source>
@@ -25650,6 +25680,19 @@ Send this file together with the AppLog.log file from the Logs folder.</source>
     <message>
       <location filename="../src/QmlControls/UpdateOfferDialog.qml" line="1" />
       <source>You can also update later in Settings → Updates.</source>
+      <translation type="unfinished" />
+    </message>
+  </context>
+  <context>
+    <name>NxConfirmDialog</name>
+    <message>
+      <location filename="../src/QmlControls/NxConfirmDialog.qml" line="1" />
+      <source>Delete</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/QmlControls/NxConfirmDialog.qml" line="1" />
+      <source>Cancel</source>
       <translation type="unfinished" />
     </message>
   </context>

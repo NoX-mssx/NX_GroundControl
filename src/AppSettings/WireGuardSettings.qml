@@ -76,11 +76,24 @@ Rectangle {
         function onCurrentRoomChanged() { root._selectProfile(WireGuardTunnel.profileNames.length > 0 ? WireGuardTunnel.profileNames[0] : "") }
     }
 
+    // Deleting asks first
+    QGCPopupDialogFactory {
+        id:                 confirmFactory
+        dialogComponent:    confirmComponent
+    }
+
+    Component {
+        id: confirmComponent
+
+        NxConfirmDialog { }
+    }
+
     QGCFileDialog {
-        id:             confFileDialog
-        title:          qsTr("WireGuard Configuration")
-        folder:         QGroundControl.settingsManager.appSettings.settingsSavePath
-        nameFilters:    [ qsTr("WireGuard Configuration (*.conf)"), qsTr("All Files (*)") ]
+        id:                 confFileDialog
+        title:              qsTr("WireGuard Configuration")
+        folder:             QGroundControl.settingsManager.appSettings.settingsSavePath
+        rememberFolderKey:  "NxWireGuardFilesFolder"
+        nameFilters:        [ qsTr("WireGuard Configuration (*.conf)"), qsTr("All Files (*)") ]
 
         // Fills the fields from an existing tunnel file, keeping its key pair and the name typed so far.
         onAcceptedForLoad: (file) => {
@@ -385,7 +398,11 @@ Rectangle {
                     text:               qsTr("Delete tunnel")
                     enabled:            root._originalName !== ""
                     textColor:          qgcPal.warningText
-                    onClicked:          root._delete()
+                    onClicked: confirmFactory.open({
+                        title:      qsTr("Delete Tunnel"),
+                        message:    qsTr("Delete the WireGuard tunnel \"%1\"? Windows asks for administrator rights to remove it, and links that use it can no longer connect through it.").arg(root._originalName),
+                        action:     function () { root._delete() }
+                    })
                 }
                 Item { Layout.fillWidth: true }
                 QGCButton {

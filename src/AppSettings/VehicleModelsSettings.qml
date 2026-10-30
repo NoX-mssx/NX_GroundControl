@@ -126,12 +126,25 @@ Rectangle {
         function onCurrentRoomChanged() { root._selectModel("") }
     }
 
+    // Deleting asks first
+    QGCPopupDialogFactory {
+        id:                 confirmFactory
+        dialogComponent:    confirmComponent
+    }
+
+    Component {
+        id: confirmComponent
+
+        NxConfirmDialog { }
+    }
+
     QGCFileDialog {
-        id:             fileDialog
-        title:          qsTr("Vehicle Model")
-        folder:         QGroundControl.settingsManager.appSettings.settingsSavePath
-        nameFilters:    [ qsTr("Vehicle Models (*.json)"), qsTr("All Files (*)") ]
-        defaultSuffix:  "json"
+        id:                 fileDialog
+        title:              qsTr("Vehicle Model")
+        folder:             QGroundControl.settingsManager.appSettings.settingsSavePath
+        rememberFolderKey:  "NxVehicleModelFilesFolder"
+        nameFilters:        [ qsTr("Vehicle Models (*.json)"), qsTr("All Files (*)") ]
+        defaultSuffix:      "json"
 
         onAcceptedForLoad: (file) => {
             close()
@@ -851,7 +864,11 @@ Rectangle {
                     text:               qsTr("Delete model")
                     enabled:            root._originalName !== ""
                     textColor:          qgcPal.warningText
-                    onClicked:          root._delete()
+                    onClicked: confirmFactory.open({
+                        title:      qsTr("Delete Model"),
+                        message:    qsTr("Delete the vehicle model \"%1\"? Links that use it are left without a model.").arg(root._originalName),
+                        action:     function () { root._delete() }
+                    })
                 }
                 Item { Layout.fillWidth: true }
                 QGCButton {

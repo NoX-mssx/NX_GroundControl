@@ -14514,6 +14514,16 @@ Do you wish to proceed?</source>
     <name>NxLinksSettings</name>
     <message>
       <location filename="../src/AppSettings/NxLinksSettings.qml" line="1" />
+      <source>Delete the link "%1"? The operators of the room lose this vehicle.</source>
+      <translation>Видалити лінк "%1"? Оператори кімнати втратять цей борт.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="1" />
+      <source>Delete the link "%1"?</source>
+      <translation>Видалити лінк "%1"?</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="1" />
       <source>Room</source>
       <translation>Кімната</translation>
     </message>
@@ -23073,6 +23083,16 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <name>VehicleModelsSettings</name>
     <message>
       <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Delete Model</source>
+      <translation>Видалення моделі</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Delete the vehicle model "%1"? Links that use it are left without a model.</source>
+      <translation>Видалити модель борту "%1"? Лінки, які її використовують, залишаться без моделі.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
       <source>Several values (a segment for each)</source>
       <translation>Кілька значень (сегмент на кожне)</translation>
     </message>
@@ -23637,6 +23657,16 @@ If a vehicle still has this key configured, you will no longer be able to commun
   </context>
   <context>
     <name>WireGuardSettings</name>
+    <message>
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="1" />
+      <source>Delete Tunnel</source>
+      <translation>Видалення тунелю</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="1" />
+      <source>Delete the WireGuard tunnel "%1"? Windows asks for administrator rights to remove it, and links that use it can no longer connect through it.</source>
+      <translation>Видалити тунель WireGuard "%1"? Windows запитає права адміністратора для його видалення, а лінки, які його використовують, більше не зможуть через нього підключатися.</translation>
+    </message>
     <message>
       <location filename="../src/AppSettings/WireGuardSettings.qml" line="1" />
       <source>Cancel</source>
@@ -25720,6 +25750,19 @@ Send this file together with the AppLog.log file from the Logs folder.</source>
       <location filename="../src/QmlControls/UpdateOfferDialog.qml" line="1" />
       <source>You can also update later in Settings → Updates.</source>
       <translation>Оновитися можна й пізніше: Налаштування → Оновлення.</translation>
+    </message>
+  </context>
+  <context>
+    <name>NxConfirmDialog</name>
+    <message>
+      <location filename="../src/QmlControls/NxConfirmDialog.qml" line="1" />
+      <source>Delete</source>
+      <translation>Видалити</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/NxConfirmDialog.qml" line="1" />
+      <source>Cancel</source>
+      <translation>Скасувати</translation>
     </message>
   </context>
 </TS>

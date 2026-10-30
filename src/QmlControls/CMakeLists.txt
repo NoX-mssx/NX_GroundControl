@@ -121,6 +121,7 @@ qt_add_qml_module(QGroundControlControlsModule
         LogReplayStatusBar.qml
         MissionCommandDialog.qml
         MvPanelPage.qml
+        NxConfirmDialog.qml
         OfflineMapButton.qml
         ParameterDiffDialog.qml
         ParameterEditor.qml

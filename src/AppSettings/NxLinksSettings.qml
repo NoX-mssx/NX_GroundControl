@@ -154,6 +154,18 @@ Rectangle {
         function onCurrentRoomChanged() { root._closeEditor() }
     }
 
+    // Deleting asks first
+    QGCPopupDialogFactory {
+        id:                 confirmFactory
+        dialogComponent:    confirmComponent
+    }
+
+    Component {
+        id: confirmComponent
+
+        NxConfirmDialog { }
+    }
+
     // ---- Left: the configured links ----
     ColumnLayout {
         id:                 listColumn
@@ -586,17 +598,17 @@ Rectangle {
                     textColor:  qgcPal.warningText
                     onClicked: {
                         let config = root.originalConfig
-                        QGroundControl.showMessageDialog(
-                            root,
-                            qsTr("Delete Link"),
-                            qsTr("Are you sure you want to delete '%1'?").arg(config.name),
-                            Dialog.Ok | Dialog.Cancel,
-                            function () {
+                        confirmFactory.open({
+                            title:      qsTr("Delete Link"),
+                            message:    config.room !== "" ? qsTr("Delete the link \"%1\"? The operators of the room lose this vehicle.").arg(config.name)
+                                                           : qsTr("Delete the link \"%1\"?").arg(config.name),
+                            action:     function () {
                                 root._closeEditor()
                                 // Operators lose the vehicle with the link
                                 RoomManager.unpublishLink(config)
                                 root._linkManager.removeConfiguration(config)
-                            })
+                            }
+                        })
                     }
                 }
                 Item { Layout.fillWidth: true }
