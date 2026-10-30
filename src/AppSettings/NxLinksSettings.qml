@@ -148,9 +148,6 @@ Rectangle {
 
     QGCPalette { id: qgcPal; colorGroupEnabled: true }
 
-    // Each room has its own links: a link of the previous room is not left open
-    on_RoomChanged: _closeEditor()
-
     // Deleting asks first
     QGCPopupDialogFactory {
         id:                 confirmFactory
