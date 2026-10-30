@@ -14,7 +14,7 @@ set(QGC_WINDOWS_INSTALL_HEADER_PATH "${CMAKE_SOURCE_DIR}/${QGC_CUSTOM_DIR}/deplo
 
 # NX Rover's own version, shown in the app, the .exe properties and the installer, instead of the QGroundControl
 # tag (v5.1.5-...) the fork is based on. Raise it for each release.
-set(QGC_APP_VERSION_OVERRIDE "1.0.17" CACHE STRING "NX Rover version" FORCE)
+set(QGC_APP_VERSION_OVERRIDE "1.0.18" CACHE STRING "NX Rover version" FORCE)
 
 # Without this the app runs as "<name> Daily", with a separate settings directory to match.
 set(QGC_STABLE_BUILD ON CACHE BOOL "Stable release build" FORCE)
