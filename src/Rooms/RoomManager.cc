@@ -14,6 +14,7 @@
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QCryptographicHash>
+#include <QtCore/QDirIterator>
 #include <QtCore/QEventLoop>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
@@ -646,6 +647,8 @@ QString RoomManager::_errorText(int status, const QJsonObject &reply) const
         {QStringLiteral("bad_address"), QT_TR_NOOP("The tunnel address of the vehicle is not valid.")},
         {QStringLiteral("bad_audio"), QT_TR_NOOP("The file could not be read as audio.")},
         {QStringLiteral("mp3_only"), QT_TR_NOOP("Only MP3 files can be added: ffmpeg is not installed on the server.")},
+        {QStringLiteral("no_ffmpeg"), QT_TR_NOOP("ffmpeg is not installed on the server, so it cannot level the loudness.")},
+        {QStringLiteral("bad_name"), QT_TR_NOOP("Enter a name for the track.")},
         {QStringLiteral("too_large"), QT_TR_NOOP("The file is too large.")},
         {QStringLiteral("quota"), QT_TR_NOOP("The room's playlist is full. Delete some tracks first.")},
         {QStringLiteral("radio_off"), QT_TR_NOOP("The radio of this room is off.")},
@@ -1294,7 +1297,18 @@ void RoomManager::_setRadio(int status, const QJsonObject &reply)
     if (status == 200) {
         radio[QStringLiteral("supported")] = true;
         radio[QStringLiteral("onAir")] = reply.value(QLatin1String("on_air")).toBool();
+        radio[QStringLiteral("shuffle")] = reply.value(QLatin1String("shuffle")).toBool();
+        // Shuffle, the queue, renaming and leveling came with a newer hub; an older one would take a shuffle
+        // request for "off air"
+        radio[QStringLiteral("playlistTools")] = reply.contains(QLatin1String("shuffle"));
         radio[QStringLiteral("convert")] = reply.value(QLatin1String("convert")).toBool();
+        const QJsonObject next = reply.value(QLatin1String("next")).toObject();
+        if (!next.isEmpty()) {
+            radio[QStringLiteral("next")] = QVariantMap{
+                {QStringLiteral("trackId"), next.value(QLatin1String("track_id")).toString()},
+                {QStringLiteral("name"), next.value(QLatin1String("name")).toString()},
+            };
+        }
         const QJsonObject now = reply.value(QLatin1String("now")).toObject();
         if (!now.isEmpty()) {
             radio[QStringLiteral("now")] = QVariantMap{
@@ -1313,9 +1327,19 @@ void RoomManager::_setRadio(int status, const QJsonObject &reply)
                     {QStringLiteral("name"), track.value(QLatin1String("name")).toString()},
                     {QStringLiteral("duration"), track.value(QLatin1String("duration")).toDouble()},
                     {QStringLiteral("size"), track.value(QLatin1String("size")).toDouble()},
+                    // A hub from before leveling does not say: nothing to offer then
+                    {QStringLiteral("leveled"), track.value(QLatin1String("leveled")).toBool(true)},
                 });
             }
             radio[QStringLiteral("tracks")] = tracks;
+            radio[QStringLiteral("queue")] = reply.value(QLatin1String("queue")).toArray().toVariantList();
+            const QJsonObject leveling = reply.value(QLatin1String("leveling")).toObject();
+            if (!leveling.isEmpty()) {
+                radio[QStringLiteral("leveling")] = QVariantMap{
+                    {QStringLiteral("done"), leveling.value(QLatin1String("done")).toInt()},
+                    {QStringLiteral("total"), leveling.value(QLatin1String("total")).toInt()},
+                };
+            }
             radio[QStringLiteral("listeners")] = reply.value(QLatin1String("listeners")).toInt();
             radio[QStringLiteral("bytes")] = reply.value(QLatin1String("bytes")).toDouble();
             radio[QStringLiteral("maxBytes")] = reply.value(QLatin1String("max_bytes")).toDouble();
@@ -1387,6 +1411,60 @@ void RoomManager::moveRadioTrack(const QString &trackId, int position)
     _radioRequest(QStringLiteral("POST"), QStringLiteral("/tracks/%1/move").arg(trackId), QJsonObject{{QStringLiteral("position"), position}});
 }
 
+bool RoomManager::_radioHasPlaylistTools()
+{
+    if (_radio.value(QStringLiteral("playlistTools")).toBool()) {
+        return true;
+    }
+    _setError(tr("Install the new version of NX Hub on the VPS to use this."));
+    return false;
+}
+
+void RoomManager::setRadioShuffle(bool shuffle)
+{
+    if (!_radioHasPlaylistTools()) {
+        return;
+    }
+    _radioRequest(QStringLiteral("PATCH"), QString(), QJsonObject{{QStringLiteral("shuffle"), shuffle}});
+}
+
+void RoomManager::queueRadioTrack(const QString &trackId, bool now)
+{
+    if (!_radioHasPlaylistTools()) {
+        return;
+    }
+    _radioRequest(QStringLiteral("POST"), QStringLiteral("/tracks/%1/queue").arg(trackId), QJsonObject{{QStringLiteral("now"), now}});
+}
+
+void RoomManager::unqueueRadioTrack(const QString &trackId)
+{
+    if (!_radioHasPlaylistTools()) {
+        return;
+    }
+    _radioRequest(QStringLiteral("POST"), QStringLiteral("/tracks/%1/queue").arg(trackId), QJsonObject{{QStringLiteral("remove"), true}});
+}
+
+void RoomManager::renameRadioTrack(const QString &trackId, const QString &name)
+{
+    const QString trimmed = name.simplified();
+    if (trimmed.isEmpty()) {
+        _setError(tr("Enter a name for the track."));
+        return;
+    }
+    if (!_radioHasPlaylistTools()) {
+        return;
+    }
+    _radioRequest(QStringLiteral("PATCH"), QStringLiteral("/tracks/") + trackId, QJsonObject{{QStringLiteral("name"), trimmed}});
+}
+
+void RoomManager::levelRadioTracks()
+{
+    if (!_radioHasPlaylistTools()) {
+        return;
+    }
+    _radioRequest(QStringLiteral("POST"), QStringLiteral("/level"), QJsonObject());
+}
+
 void RoomManager::_setRadioUpload(const QVariantMap &upload)
 {
     if (upload != _radioUpload) {
@@ -1409,13 +1487,34 @@ void RoomManager::uploadRadioTracks(const QVariantList &files)
         _uploadRoom = _currentRoom;
         _uploadCount = 0;
     }
+    // Audio the server can take; a folder gives these files, in name order
+    static const QStringList audioPatterns{
+        QStringLiteral("*.mp3"), QStringLiteral("*.m4a"), QStringLiteral("*.aac"), QStringLiteral("*.ogg"), QStringLiteral("*.opus"),
+        QStringLiteral("*.flac"), QStringLiteral("*.wav"), QStringLiteral("*.wma"),
+    };
+    const bool convert = _radio.value(QStringLiteral("convert")).toBool();
+    const QStringList patterns = convert ? audioPatterns : QStringList{QStringLiteral("*.mp3")};
     for (const QVariant &file : files) {
         const QUrl url(file.toString());
         const QString path = url.isLocalFile() ? url.toLocalFile() : file.toString();
-        if (!path.isEmpty()) {
-            _uploadQueue.append(path);
-            _uploadCount++;
+        if (path.isEmpty()) {
+            continue;
         }
+        QStringList paths;
+        if (QFileInfo(path).isDir()) {
+            QDirIterator it(path, patterns, QDir::Files, QDirIterator::Subdirectories);
+            while (it.hasNext()) {
+                paths.append(it.next());
+            }
+            paths.sort(Qt::CaseInsensitive);
+            if (paths.isEmpty()) {
+                _setError(tr("No audio files in %1.").arg(QFileInfo(path).fileName()));
+            }
+        } else {
+            paths.append(path);
+        }
+        _uploadQueue.append(paths);
+        _uploadCount += static_cast<int>(paths.size());
     }
     if (!_uploadReply) {
         _startNextUpload();

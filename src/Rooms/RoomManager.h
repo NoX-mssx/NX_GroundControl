@@ -67,8 +67,11 @@ class RoomManager : public QObject
     Q_PROPERTY(bool         busy            READ busy               NOTIFY busyChanged)
     Q_PROPERTY(QString      lastError       READ lastError          NOTIFY lastErrorChanged)
     /// Radio of the current room:
-    ///     { supported, onAir, convert, now: { trackId, name, duration, elapsed } or null,
-    ///       admin only: tracks: [{ trackId, name, duration, size }], listeners, bytes, maxBytes, maxUpload }
+    ///     { supported, playlistTools (shuffle, queue, renaming, leveling), onAir, shuffle, convert,
+    ///       now: { trackId, name, duration, elapsed } or null,
+    ///       next: { trackId, name } or null,
+    ///       admin only: tracks: [{ trackId, name, duration, size, leveled }], queue: [trackId] (asked to play next,
+    ///       in order), leveling: { done, total } or null, listeners, bytes, maxBytes, maxUpload }
     /// supported is false while unknown and for a hub without radio.
     Q_PROPERTY(QVariantMap  radio           READ radio              NOTIFY radioChanged)
     /// Admin: tracks being uploaded: { active, index, count, name, progress (0..1) }
@@ -149,7 +152,16 @@ public:
     Q_INVOKABLE void nextRadioTrack();
     Q_INVOKABLE void deleteRadioTrack(const QString &trackId);
     Q_INVOKABLE void moveRadioTrack(const QString &trackId, int position);
-    /// Uploads audio files (local paths or file URLs) one after the other
+    /// In order, or in shuffled rounds where every track plays once
+    Q_INVOKABLE void setRadioShuffle(bool shuffle);
+    /// Plays a track after the current one (in the order asked), or at once
+    Q_INVOKABLE void queueRadioTrack(const QString &trackId, bool now);
+    Q_INVOKABLE void unqueueRadioTrack(const QString &trackId);
+    Q_INVOKABLE void renameRadioTrack(const QString &trackId, const QString &name);
+    /// Brings the tracks added before loudness leveling to the loudness of the others (on the server, in the background)
+    Q_INVOKABLE void levelRadioTracks();
+    /// Uploads audio files one after the other: files or folders (their audio files, folders inside included), as
+    /// file URLs or local paths
     Q_INVOKABLE void uploadRadioTracks(const QVariantList &files);
     Q_INVOKABLE void cancelRadioUpload();
 
@@ -240,6 +252,8 @@ private:
     void _setRadio(int status, const QJsonObject &reply);
     void _radioRequest(const QString &method, const QString &subPath, const QJsonObject &body);
     void _setRadioUpload(const QVariantMap &upload);
+    /// The hub has shuffle, the queue, renaming and leveling; tells the user otherwise
+    bool _radioHasPlaylistTools();
     /// Reports this computer's video settings to the current room and applies, once, what the admin sent
     void _syncVideoSettings();
     void _watchVideoSettings();
@@ -314,5 +328,6 @@ private:
     static constexpr int kRefreshMs = 15000;
     static constexpr int kRequestTimeoutMs = 15000;
     /// An upload waits for the server to convert the file after the last byte
-    static constexpr int kUploadTimeoutMs = 300000;
+    /// The server measures the loudness of a track and converts it after the upload, with nothing sent meanwhile
+    static constexpr int kUploadTimeoutMs = 1800000;
 };

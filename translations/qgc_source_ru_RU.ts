@@ -24481,6 +24481,26 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <name>RoomManager</name>
     <message>
       <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Enter a name for the track.</source>
+      <translation>Введите название трека.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>No audio files in %1.</source>
+      <translation>В папке %1 нет аудиофайлов.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>ffmpeg is not installed on the server, so it cannot level the loudness.</source>
+      <translation>На сервере не установлен ffmpeg, поэтому он не может выровнять громкость.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Install the new version of NX Hub on the VPS to use this.</source>
+      <translation>Для этого установите новую версию NX Hub на VPS.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
       <source>The operator is no longer in the room.</source>
       <translation>Оператора больше нет в комнате.</translation>
     </message>
@@ -24970,6 +24990,91 @@ If a vehicle still has this key configured, you will no longer be able to commun
   </context>
   <context>
     <name>AccessSettings</name>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Shuffle</source>
+      <translation>Вперемешку</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Next: %1</source>
+      <translation>Далее: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Audio files of any common format, or whole folders: drop them here or use Add tracks. The server converts them to MP3 128 kbit/s at the same loudness. Click a track for its actions, drag ⠿ to move it. Every operator hears the same moment of the radio.</source>
+      <translation>Аудиофайлы обычных форматов или целые папки: перетащите их сюда или нажмите «Добавить треки». Сервер переводит их в MP3 128 кбит/с с одинаковой громкостью. Щёлкните трек, чтобы открыть его действия, тяните за ⠿, чтобы переставить. Все операторы слышат один и тот же момент радио.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Only MP3 files, or folders with them: ffmpeg is not installed on the server. Drop them here or use Add tracks. Click a track for its actions, drag ⠿ to move it. Every operator hears the same moment of the radio.</source>
+      <translation>Только файлы MP3 или папки с ними: на сервере не установлен ffmpeg. Перетащите их сюда или нажмите «Добавить треки». Щёлкните трек, чтобы открыть его действия, тяните за ⠿, чтобы переставить. Все операторы слышат один и тот же момент радио.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Shuffle, playing a track next, renaming and the same loudness for every track need the new version of NX Hub on the VPS.</source>
+      <translation>Для «Вперемешку», очереди, переименования и одинаковой громкости нужна новая версия NX Hub на VPS.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Leveling the loudness of the older tracks: %1 of %2</source>
+      <translation>Выравнивание громкости старых треков: %1 из %2</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Tracks added before loudness leveling: %1. They may play louder or quieter than the others.</source>
+      <translation>Треков без выравнивания громкости: %1. Они могут звучать громче или тише остальных.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Level loudness</source>
+      <translation>Выровнять громкость</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Next</source>
+      <translation>Следующий</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>In queue: %1</source>
+      <translation>В очереди: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Remove from queue</source>
+      <translation>Убрать из очереди</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Play next</source>
+      <translation>Играть следующим</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Play now</source>
+      <translation>Играть сейчас</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Save</source>
+      <translation>Сохранить</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Rename</source>
+      <translation>Переименовать</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>No tracks yet. Add your own music, or drop audio files and folders here: the room plays it to its operators.</source>
+      <translation>Треков пока нет. Добавьте свою музыку или перетащите сюда аудиофайлы и папки: комната играет её своим операторам.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Drop to add the tracks</source>
+      <translation>Отпустите, чтобы добавить треки</translation>
+    </message>
     <message>
       <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
       <source>Video settings…</source>

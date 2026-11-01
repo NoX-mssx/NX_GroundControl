@@ -24415,6 +24415,26 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <name>RoomManager</name>
     <message>
       <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Enter a name for the track.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>No audio files in %1.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>ffmpeg is not installed on the server, so it cannot level the loudness.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>Install the new version of NX Hub on the VPS to use this.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
       <source>The operator is no longer in the room.</source>
       <translation type="unfinished" />
     </message>
@@ -24904,6 +24924,91 @@ If a vehicle still has this key configured, you will no longer be able to commun
   </context>
   <context>
     <name>AccessSettings</name>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Shuffle</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Next: %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Audio files of any common format, or whole folders: drop them here or use Add tracks. The server converts them to MP3 128 kbit/s at the same loudness. Click a track for its actions, drag ⠿ to move it. Every operator hears the same moment of the radio.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Only MP3 files, or folders with them: ffmpeg is not installed on the server. Drop them here or use Add tracks. Click a track for its actions, drag ⠿ to move it. Every operator hears the same moment of the radio.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Shuffle, playing a track next, renaming and the same loudness for every track need the new version of NX Hub on the VPS.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Leveling the loudness of the older tracks: %1 of %2</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Tracks added before loudness leveling: %1. They may play louder or quieter than the others.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Level loudness</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Next</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>In queue: %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Remove from queue</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Play next</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Play now</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Save</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Rename</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>No tracks yet. Add your own music, or drop audio files and folders here: the room plays it to its operators.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Drop to add the tracks</source>
+      <translation type="unfinished" />
+    </message>
     <message>
       <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
       <source>Video settings…</source>

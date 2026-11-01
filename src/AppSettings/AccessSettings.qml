@@ -411,9 +411,20 @@ Rectangle {
 
                 readonly property var  _radio:      RoomManager.radio
                 readonly property var  _tracks:     _radio.tracks || []
+                readonly property var  _queue:      _radio.queue || []
                 readonly property var  _now:        _radio.now || null
+                readonly property var  _next:       _radio.next || null
+                readonly property var  _leveling:   _radio.leveling || null
                 readonly property var  _upload:     RoomManager.radioUpload
                 readonly property bool _supported:  _radio.supported === true
+                /// Shuffle, the queue, renaming and leveling: a hub from before them has none of these
+                readonly property bool _tools:      _radio.playlistTools === true
+                readonly property int  _unleveled:  _tracks.filter(track => track.leveled === false).length
+                /// Height of a track card that is not opened, for dragging cards over each other
+                readonly property real _rowHeight:  ScreenTools.defaultFontPixelHeight * 2.6
+
+                property string _selectedTrack: ""
+                property string _renamingTrack: ""
 
                 function _duration(seconds) {
                     const total = Math.round(seconds || 0)
@@ -426,9 +437,16 @@ Rectangle {
                     return Math.round((bytes || 0) / (1024 * 1024))
                 }
 
-                // What plays and how far, refreshed while the tab is open
+                function _rename(trackId, name) {
+                    if (name.trim() !== "") {
+                        RoomManager.renameRadioTrack(trackId, name)
+                    }
+                    _renamingTrack = ""
+                }
+
+                // What plays and how far, refreshed while the tab is open; more often while tracks are being leveled
                 Timer {
-                    interval:           5000
+                    interval:           radioTab._leveling ? 2000 : 5000
                     repeat:             true
                     running:            radioTab.visible
                     triggeredOnStart:   true
@@ -442,6 +460,17 @@ Rectangle {
                     nameFilters:    radioTab._radio.convert ? [ qsTr("Audio (*.mp3 *.m4a *.aac *.ogg *.opus *.flac *.wav *.wma)"), qsTr("All files (*)") ]
                                                             : [ qsTr("MP3 (*.mp3)") ]
                     onAccepted:     RoomManager.uploadRadioTracks(selectedFiles)
+                }
+
+                QGCPopupDialogFactory {
+                    id:                 trackConfirmFactory
+                    dialogComponent:    trackConfirmComponent
+                }
+
+                Component {
+                    id: trackConfirmComponent
+
+                    NxConfirmDialog { }
                 }
 
                 QGCLabel {
@@ -459,7 +488,7 @@ Rectangle {
                     spacing:        _margins * 0.6
                     visible:        radioTab._supported
 
-                    // On air, what plays, how many listen
+                    // On air, in order or shuffled, what plays, what comes next, how many listen
                     Rectangle {
                         Layout.fillWidth:       true
                         Layout.preferredHeight: airRow.implicitHeight + _margins
@@ -480,6 +509,14 @@ Rectangle {
                                 text:       qsTr("On air")
                                 checked:    radioTab._radio.onAir === true
                                 onClicked:  RoomManager.setRadioOnAir(checked)
+                            }
+
+                            // Shuffled: rounds in which every track plays once, each round in a new order
+                            QGCCheckBoxSlider {
+                                text:       qsTr("Shuffle")
+                                visible:    radioTab._tools
+                                checked:    radioTab._radio.shuffle === true
+                                onClicked:  RoomManager.setRadioShuffle(checked)
                             }
 
                             Column {
@@ -503,10 +540,18 @@ Rectangle {
                                 }
                                 QGCLabel {
                                     width:          parent.width
+                                    elide:          Text.ElideRight
                                     color:          qgcPal.colorGrey
                                     font.pointSize: ScreenTools.smallFontPointSize
                                     visible:        radioTab._radio.onAir === true
-                                    text:           qsTr("Listening now: %1").arg(radioTab._radio.listeners || 0)
+                                    text: {
+                                        const parts = []
+                                        if (radioTab._next && radioTab._tracks.length > 1) {
+                                            parts.push(qsTr("Next: %1").arg(radioTab._next.name))
+                                        }
+                                        parts.push(qsTr("Listening now: %1").arg(radioTab._radio.listeners || 0))
+                                        return parts.join("   ·   ")
+                                    }
                                 }
                             }
 
@@ -580,8 +625,37 @@ Rectangle {
                         color:              qgcPal.colorGrey
                         font.pointSize:     ScreenTools.smallFontPointSize
                         text:               radioTab._radio.convert
-                                                ? qsTr("MP3, M4A, FLAC, WAV, OGG and other audio files: the server converts them to MP3 128 kbit/s. The playlist plays in a loop, in this order; every operator hears the same moment of it.")
-                                                : qsTr("Only MP3 files: ffmpeg is not installed on the server. The playlist plays in a loop, in this order; every operator hears the same moment of it.")
+                                                ? qsTr("Audio files of any common format, or whole folders: drop them here or use Add tracks. The server converts them to MP3 128 kbit/s at the same loudness. Click a track for its actions, drag ⠿ to move it. Every operator hears the same moment of the radio.")
+                                                : qsTr("Only MP3 files, or folders with them: ffmpeg is not installed on the server. Drop them here or use Add tracks. Click a track for its actions, drag ⠿ to move it. Every operator hears the same moment of the radio.")
+                    }
+
+                    QGCLabel {
+                        Layout.fillWidth:   true
+                        wrapMode:           Text.WordWrap
+                        color:              qgcPal.colorOrange
+                        font.pointSize:     ScreenTools.smallFontPointSize
+                        visible:            !radioTab._tools
+                        text:               qsTr("Shuffle, playing a track next, renaming and the same loudness for every track need the new version of NX Hub on the VPS.")
+                    }
+
+                    // Tracks from before loudness leveling: leveled on the server on request
+                    RowLayout {
+                        Layout.fillWidth:   true
+                        spacing:            ScreenTools.defaultFontPixelWidth
+                        visible:            radioTab._tools && radioTab._radio.convert === true && (radioTab._leveling !== null || radioTab._unleveled > 0)
+
+                        QGCLabel {
+                            Layout.fillWidth:   true
+                            wrapMode:           Text.WordWrap
+                            text: radioTab._leveling
+                                      ? qsTr("Leveling the loudness of the older tracks: %1 of %2").arg(radioTab._leveling.done).arg(radioTab._leveling.total)
+                                      : qsTr("Tracks added before loudness leveling: %1. They may play louder or quieter than the others.").arg(radioTab._unleveled)
+                        }
+                        QGCButton {
+                            text:       qsTr("Level loudness")
+                            visible:    radioTab._leveling === null
+                            onClicked:  RoomManager.levelRadioTracks()
+                        }
                     }
 
                     // The playlist
@@ -600,59 +674,185 @@ Rectangle {
                                 model: radioTab._tracks
 
                                 Rectangle {
+                                    id:             trackCard
                                     width:          trackColumn.width
-                                    height:         Math.max(trackRow.implicitHeight, ScreenTools.defaultFontPixelHeight * 2) + ScreenTools.defaultFontPixelHeight * 0.6
+                                    height:         trackCardColumn.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.6
                                     radius:         ScreenTools.defaultFontPixelHeight * 0.6
-                                    color:          _playing ? root._selectedColor : root._cardColor
-                                    border.color:   _playing ? qgcPal.buttonHighlight : root._cardBorder
+                                    color:          _playing ? root._selectedColor : ((_selected || cardMouse.containsMouse) ? Qt.rgba(1, 1, 1, 0.07) : root._cardColor)
+                                    border.color:   (_playing || _selected) ? qgcPal.buttonHighlight : root._cardBorder
+                                    z:              trackDrag.active ? 10 : 0
+                                    opacity:        trackDrag.active ? 0.85 : 1
+                                    transform:      Translate { y: trackDrag.active ? trackDrag.activeTranslation.y : 0 }
 
-                                    readonly property bool _playing: radioTab._now !== null && radioTab._now.trackId === modelData.trackId
+                                    readonly property bool _playing:    radioTab._now !== null && radioTab._now.trackId === modelData.trackId
+                                    readonly property bool _selected:   radioTab._selectedTrack === modelData.trackId
+                                    readonly property bool _renaming:   radioTab._renamingTrack === modelData.trackId
+                                    /// Place in the queue of tracks asked to play next, -1 when not asked for
+                                    readonly property int  _queued:     radioTab._queue.indexOf(modelData.trackId)
 
-                                    RowLayout {
-                                        id:                     trackRow
+                                    // A click opens the track's actions below it, another one closes them
+                                    MouseArea {
+                                        id:             cardMouse
+                                        anchors.fill:   parent
+                                        hoverEnabled:   true
+                                        onClicked: {
+                                            radioTab._renamingTrack = ""
+                                            radioTab._selectedTrack = trackCard._selected ? "" : modelData.trackId
+                                        }
+                                    }
+
+                                    Column {
+                                        id:                     trackCardColumn
                                         anchors.left:           parent.left
                                         anchors.right:          parent.right
-                                        anchors.leftMargin:     ScreenTools.defaultFontPixelWidth * 1.4
-                                        anchors.rightMargin:    ScreenTools.defaultFontPixelWidth * 0.6
+                                        anchors.leftMargin:     ScreenTools.defaultFontPixelWidth * 0.8
+                                        anchors.rightMargin:    ScreenTools.defaultFontPixelWidth * 1.2
                                         anchors.verticalCenter: parent.verticalCenter
-                                        spacing:                ScreenTools.defaultFontPixelWidth
+                                        spacing:                ScreenTools.defaultFontPixelHeight * 0.4
 
-                                        QGCLabel {
-                                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 3
-                                            text:                   index + 1
-                                            color:                  qgcPal.colorGrey
+                                        RowLayout {
+                                            width:      parent.width
+                                            height:     Math.max(implicitHeight, ScreenTools.defaultFontPixelHeight * 2)
+                                            spacing:    ScreenTools.defaultFontPixelWidth
+
+                                            // Hold and drag up or down to move the track; the list order decides where it lands
+                                            QGCLabel {
+                                                Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 2.4
+                                                horizontalAlignment:    Text.AlignHCenter
+                                                text:                   "⠿"
+                                                color:                  trackDrag.active ? qgcPal.buttonHighlight : qgcPal.colorGrey
+                                                font.pointSize:         ScreenTools.mediumFontPointSize
+
+                                                HoverHandler { cursorShape: Qt.SizeVerCursor }
+
+                                                DragHandler {
+                                                    id:                 trackDrag
+                                                    target:             null
+                                                    xAxis.enabled:      false
+                                                    grabPermissions:    PointerHandler.CanTakeOverFromAnything
+
+                                                    property real lastY: 0
+
+                                                    onActiveTranslationChanged: if (active) lastY = activeTranslation.y
+                                                    onActiveChanged: {
+                                                        if (active) {
+                                                            radioTab._selectedTrack = ""
+                                                            radioTab._renamingTrack = ""
+                                                            return
+                                                        }
+                                                        const steps = Math.round(lastY / (radioTab._rowHeight + trackColumn.spacing))
+                                                        const target = Math.max(0, Math.min(radioTab._tracks.length - 1, index + steps))
+                                                        lastY = 0
+                                                        if (target !== index) {
+                                                            RoomManager.moveRadioTrack(modelData.trackId, target)
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            QGCLabel {
+                                                Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 3
+                                                text:                   index + 1
+                                                color:                  qgcPal.colorGrey
+                                            }
+                                            QGCLabel {
+                                                Layout.fillWidth:   true
+                                                visible:            !trackCard._renaming
+                                                elide:              Text.ElideRight
+                                                text:               modelData.name
+                                                font.weight:        trackCard._playing ? Font.ExtraBold : Font.Normal
+                                            }
+                                            QGCTextField {
+                                                id:                 renameField
+                                                Layout.fillWidth:   true
+                                                visible:            trackCard._renaming
+
+                                                function _begin() {
+                                                    text = modelData.name
+                                                    forceActiveFocus()
+                                                    selectAll()
+                                                }
+                                                onVisibleChanged:       if (visible) _begin()
+                                                Component.onCompleted:  if (visible) _begin()
+                                                onAccepted:             radioTab._rename(modelData.trackId, text)
+                                                Keys.onEscapePressed:   radioTab._renamingTrack = ""
+                                            }
+                                            // Asked to play next: the first of the queue, or its place in it
+                                            Rectangle {
+                                                visible:                trackCard._queued >= 0
+                                                Layout.preferredWidth:  queueLabel.implicitWidth + ScreenTools.defaultFontPixelWidth * 1.6
+                                                Layout.preferredHeight: queueLabel.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.25
+                                                radius:                 height / 2
+                                                color:                  Qt.rgba(219 / 255, 101 / 255, 54 / 255, 0.18)
+                                                border.color:           "#DB6536"
+
+                                                QGCLabel {
+                                                    id:                 queueLabel
+                                                    anchors.centerIn:   parent
+                                                    font.pointSize:     ScreenTools.smallFontPointSize
+                                                    text:               trackCard._queued === 0 ? qsTr("Next") : qsTr("In queue: %1").arg(trackCard._queued + 1)
+                                                }
+                                            }
+                                            QGCLabel {
+                                                text:   radioTab._duration(modelData.duration)
+                                                color:  qgcPal.colorGrey
+                                            }
                                         }
-                                        QGCLabel {
-                                            Layout.fillWidth:   true
-                                            elide:              Text.ElideRight
-                                            text:               modelData.name
-                                            font.weight:        _playing ? Font.ExtraBold : Font.Normal
-                                        }
-                                        QGCLabel {
-                                            text:   radioTab._duration(modelData.duration)
-                                            color:  qgcPal.colorGrey
-                                        }
-                                        QGCButton {
-                                            text:       "↑"
-                                            enabled:    index > 0
-                                            onClicked:  RoomManager.moveRadioTrack(modelData.trackId, index - 1)
-                                        }
-                                        QGCButton {
-                                            text:       "↓"
-                                            enabled:    index < radioTab._tracks.length - 1
-                                            onClicked:  RoomManager.moveRadioTrack(modelData.trackId, index + 1)
-                                        }
-                                        QGCButton {
-                                            text:       qsTr("Delete")
-                                            textColor:  qgcPal.warningText
-                                            onClicked: {
-                                                const track = modelData
-                                                QGroundControl.showMessageDialog(
-                                                    root,
-                                                    qsTr("Delete Track"),
-                                                    qsTr("Delete \"%1\" from the room's playlist?").arg(track.name),
-                                                    Dialog.Ok | Dialog.Cancel,
-                                                    function () { RoomManager.deleteRadioTrack(track.trackId) })
+
+                                        // Actions of the opened track
+                                        RowLayout {
+                                            width:      parent.width
+                                            visible:    trackCard._selected
+                                            spacing:    ScreenTools.defaultFontPixelWidth
+
+                                            Item { Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 4.4 }
+
+                                            QGCButton {
+                                                text:       trackCard._queued >= 0 ? qsTr("Remove from queue") : qsTr("Play next")
+                                                visible:    radioTab._tools && !trackCard._renaming
+                                                onClicked: {
+                                                    if (trackCard._queued >= 0) {
+                                                        RoomManager.unqueueRadioTrack(modelData.trackId)
+                                                    } else {
+                                                        RoomManager.queueRadioTrack(modelData.trackId, false)
+                                                    }
+                                                }
+                                            }
+                                            QGCButton {
+                                                text:       qsTr("Play now")
+                                                visible:    radioTab._tools && !trackCard._renaming
+                                                enabled:    radioTab._radio.onAir === true
+                                                onClicked:  RoomManager.queueRadioTrack(modelData.trackId, true)
+                                            }
+                                            QGCButton {
+                                                text:       trackCard._renaming ? qsTr("Save") : qsTr("Rename")
+                                                primary:    trackCard._renaming
+                                                visible:    radioTab._tools
+                                                onClicked: {
+                                                    if (trackCard._renaming) {
+                                                        radioTab._rename(modelData.trackId, renameField.text)
+                                                    } else {
+                                                        radioTab._renamingTrack = modelData.trackId
+                                                    }
+                                                }
+                                            }
+                                            QGCButton {
+                                                text:       qsTr("Cancel")
+                                                visible:    trackCard._renaming
+                                                onClicked:  radioTab._renamingTrack = ""
+                                            }
+                                            Item { Layout.fillWidth: true }
+                                            QGCButton {
+                                                text:       qsTr("Delete")
+                                                textColor:  qgcPal.warningText
+                                                visible:    !trackCard._renaming
+                                                onClicked: {
+                                                    const track = modelData
+                                                    trackConfirmFactory.open({
+                                                        title:      qsTr("Delete Track"),
+                                                        message:    qsTr("Delete \"%1\" from the room's playlist?").arg(track.name),
+                                                        action:     function () { RoomManager.deleteRadioTrack(track.trackId) }
+                                                    })
+                                                }
                                             }
                                         }
                                     }
@@ -664,9 +864,40 @@ Rectangle {
                                 wrapMode:   Text.WordWrap
                                 color:      qgcPal.colorGrey
                                 visible:    radioTab._tracks.length === 0
-                                text:       qsTr("No tracks yet. Add your own music: the room plays it in a loop to its operators.")
+                                text:       qsTr("No tracks yet. Add your own music, or drop audio files and folders here: the room plays it to its operators.")
                             }
                         }
+                    }
+                }
+
+                // Audio files and folders dropped from Explorer are added to the playlist
+                DropArea {
+                    id:             trackDropArea
+                    anchors.fill:   parent
+                    enabled:        radioTab._supported
+
+                    onEntered: (drag) => { drag.accepted = drag.hasUrls }
+                    onDropped: (drop) => {
+                        if (drop.hasUrls) {
+                            RoomManager.uploadRadioTracks(drop.urls)
+                            drop.acceptProposedAction()
+                        }
+                    }
+                }
+
+                Rectangle {
+                    anchors.fill:   parent
+                    visible:        trackDropArea.containsDrag
+                    radius:         _margins
+                    color:          Qt.rgba(219 / 255, 101 / 255, 54 / 255, 0.10)
+                    border.color:   "#DB6536"
+                    border.width:   2
+
+                    QGCLabel {
+                        anchors.centerIn:   parent
+                        text:               qsTr("Drop to add the tracks")
+                        font.weight:        Font.ExtraBold
+                        font.pointSize:     ScreenTools.largeFontPointSize
                     }
                 }
             }
