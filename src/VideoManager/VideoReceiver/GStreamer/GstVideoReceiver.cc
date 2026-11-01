@@ -157,6 +157,9 @@ void GstVideoReceiver::start(uint32_t timeout)
 
         _lastSourceFrameTime = 0;
         _lastKeyframeMs = 0;
+        _behindMs.store(0, std::memory_order_relaxed);
+        _behindTicks = 0;
+        _behindReported = false;
 
         _teeProbeId = gst_pad_add_probe(pad, GST_PAD_PROBE_TYPE_BUFFER, _teeProbe, this, nullptr);
         gst_clear_object(&pad);
@@ -234,6 +237,9 @@ void GstVideoReceiver::start(uint32_t timeout)
         if (!_source) {
             qCCritical(GstVideoReceiverLog) << "SourceFactory::create() failed";
             break;
+        }
+        if (_activeTuning.catchUpMs > 0) {
+            _watchRtspLag(_source);
         }
 
         gst_bin_add_many(GST_BIN(_pipeline), _source, _tee, decoderQueue, _decoderValve, recorderQueue, _recorderValve, nullptr);
@@ -778,9 +784,108 @@ void GstVideoReceiver::_watchdog()
                 GST_DEBUG_BIN_TO_DOT_FILE(GST_BIN(_pipeline), GST_DEBUG_GRAPH_SHOW_ALL, "pipeline-watchdog-timeout");
                 emit timeout();
                 _scheduleReconnect("decoder watchdog");
+                return;
             }
         }
+
+        _checkCatchUp();
     });
+}
+
+void GstVideoReceiver::_checkCatchUp()
+{
+    // A short stall drains by itself within a few seconds; a link that cannot keep up stays behind
+    static constexpr int kCatchUpTicks = 3;
+
+    const int catchUpMs = _activeTuning.catchUpMs;
+    const qint64 behindMs = _behindMs.load(std::memory_order_relaxed);
+    if (!_pipeline || (catchUpMs <= 0) || (behindMs <= catchUpMs)) {
+        _behindTicks = 0;
+        _behindReported = false;
+        return;
+    }
+    if (++_behindTicks < kCatchUpTicks) {
+        return;
+    }
+    _behindTicks = 0;
+
+    if (_fileSink) {
+        // Reconnecting would end the recording, which does not start again by itself
+        if (!_behindReported) {
+            _behindReported = true;
+            qCInfo(GstVideoReceiverLog) << "Video is" << behindMs << "ms behind live; not catching up while recording" << _uri;
+        }
+        return;
+    }
+
+    qCInfo(GstVideoReceiverLog) << "Video fell" << behindMs << "ms behind live; reconnecting to catch up" << _uri;
+    // The video manager starts a stopped receiver again
+    stop();
+}
+
+void GstVideoReceiver::_watchRtspLag(GstElement *source)
+{
+    GstElement *rtsp = GST_IS_BIN(source) ? gst_bin_get_by_name(GST_BIN(source), "source")
+                                          : GST_ELEMENT(gst_object_ref(source));
+    if (!rtsp) {
+        return;
+    }
+    GstElementFactory *factory = gst_element_get_factory(rtsp);
+    if (factory && (g_strcmp0(gst_plugin_feature_get_name(GST_PLUGIN_FEATURE(factory)), "rtspsrc") == 0)) {
+        _lagMeter.reset();
+        (void) g_signal_connect(rtsp, "pad-added", G_CALLBACK(_onRtspPad), this);
+    }
+    gst_object_unref(rtsp);
+}
+
+void GstVideoReceiver::_onRtspPad(GstElement *element, GstPad *pad, gpointer data)
+{
+    Q_UNUSED(element);
+
+    auto *self = static_cast<GstVideoReceiver *>(data);
+    GstCaps *caps = gst_pad_get_current_caps(pad);
+    if (!caps) {
+        caps = gst_pad_query_caps(pad, nullptr);
+    }
+    const GstStructure *structure = (caps && !gst_caps_is_empty(caps)) ? gst_caps_get_structure(caps, 0) : nullptr;
+    if (self && structure && (g_strcmp0(gst_structure_get_string(structure, "media"), "video") == 0)) {
+        int clockRate = 90000;
+        (void) gst_structure_get_int(structure, "clock-rate", &clockRate);
+        self->_rtpClockRate.store(clockRate, std::memory_order_relaxed);
+        self->_lagMeter.reset();
+        self->_behindMs.store(0, std::memory_order_relaxed);
+        (void) gst_pad_add_probe(pad, static_cast<GstPadProbeType>(GST_PAD_PROBE_TYPE_BUFFER | GST_PAD_PROBE_TYPE_BUFFER_LIST),
+                                 _rtpLagProbe, self, nullptr);
+    }
+    if (caps) {
+        gst_caps_unref(caps);
+    }
+}
+
+GstPadProbeReturn GstVideoReceiver::_rtpLagProbe(GstPad *pad, GstPadProbeInfo *info, gpointer user_data)
+{
+    Q_UNUSED(pad);
+
+    auto *self = static_cast<GstVideoReceiver *>(user_data);
+    GstBuffer *buf = nullptr;
+    if (GST_PAD_PROBE_INFO_TYPE(info) & GST_PAD_PROBE_TYPE_BUFFER_LIST) {
+        GstBufferList *list = GST_PAD_PROBE_INFO_BUFFER_LIST(info);
+        const guint count = list ? gst_buffer_list_length(list) : 0;
+        buf = (count > 0) ? gst_buffer_list_get(list, count - 1) : nullptr;
+    } else {
+        buf = gst_pad_probe_info_get_buffer(info);
+    }
+
+    // RTP fixed header: version in the top two bits of the first byte, time stamp in bytes 4..7
+    guint8 header[8];
+    if (self && buf && (gst_buffer_extract(buf, 0, header, sizeof(header)) == sizeof(header)) && ((header[0] >> 6) == 2)) {
+        const uint32_t timestamp = (static_cast<uint32_t>(header[4]) << 24) | (static_cast<uint32_t>(header[5]) << 16) |
+                                   (static_cast<uint32_t>(header[6]) << 8) | static_cast<uint32_t>(header[7]);
+        const qint64 nowMs = g_get_monotonic_time() / 1000;
+        self->_behindMs.store(self->_lagMeter.add(timestamp, self->_rtpClockRate.load(std::memory_order_relaxed), nowMs),
+                              std::memory_order_relaxed);
+    }
+    return GST_PAD_PROBE_OK;
 }
 
 void GstVideoReceiver::_scheduleReconnect(const char *reason)

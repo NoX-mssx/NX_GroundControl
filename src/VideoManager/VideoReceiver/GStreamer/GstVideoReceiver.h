@@ -12,6 +12,7 @@
 #include <gst/gstelement.h>
 #include <gst/gstpad.h>
 
+#include "StreamLagMeter.h"
 #include "VideoReceiver.h"
 
 typedef std::function<void()> Task;
@@ -129,6 +130,12 @@ private:
     static GstPadProbeReturn _decoderKeyframeGate(GstPad *pad, GstPadProbeInfo *info, gpointer user_data);
     /// Opens the decoder valve; the decoder then starts from the next key frame.
     void _openDecoderValve();
+    /// Measures how far an RTSP source falls behind live (see StreamLagMeter), for catching up with it
+    void _watchRtspLag(GstElement *source);
+    static void _onRtspPad(GstElement *element, GstPad *pad, gpointer data);
+    static GstPadProbeReturn _rtpLagProbe(GstPad *pad, GstPadProbeInfo *info, gpointer user_data);
+    /// Reconnects a stream that stays behind live, which drops what waits upstream (worker thread)
+    void _checkCatchUp();
 
     GstElement *_decoder = nullptr;
     Tuning _activeTuning;  ///< tuning() as it was when this pipeline started; only the worker thread touches it
@@ -157,6 +164,11 @@ private:
     std::atomic<int> _flowDiscont{0};
     std::atomic<int> _flowCorrupted{0};
     std::atomic<qint64> _lastKeyframeMs{0};
+    StreamLagMeter _lagMeter;                           ///< Streaming thread of the RTSP video pad
+    std::atomic<int> _rtpClockRate{90000};
+    std::atomic<qint64> _behindMs{0};                   ///< How far the RTSP video is behind live, from _lagMeter
+    int _behindTicks = 0;                               ///< Watchdog ticks in a row behind by more than catchUpMs
+    bool _behindReported = false;                       ///< "Not catching up while recording" was logged for this lag
     bool _recordingStopRequested = false;
 
     mutable QMutex _decoderNameMutex;  // QString refcount isn't thread-safe across reader/writer threads

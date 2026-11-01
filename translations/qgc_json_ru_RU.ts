@@ -6217,6 +6217,30 @@
       <translation>rtsp,udp,tcp,транспорт,дополнительно</translation>
     </message>
     <message>
+      <extracomment>.QGC.MetaData.Facts[rtspCatchUpMs].shortDesc</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>Reconnect to the live picture when an RTSP stream falls behind by more than this (ms). 0: never.</source>
+      <translation>Переподключаться к живой картинке, когда видео RTSP отстало больше чем на столько (мс). 0 — никогда.</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[rtspCatchUpMs].longDesc</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>Over TCP nothing is lost, so when the link cannot keep up the picture falls behind live and stays behind. When the delay has grown by more than this for a few seconds, the stream reconnects and jumps to the live picture; the picture holds for about a second meanwhile. 0 turns this off.</source>
+      <translation>По TCP ничего не теряется, поэтому, когда канал не успевает, картинка отстаёт от реального времени и так и остаётся. Если отставание выросло больше этого значения и держится несколько секунд, поток переподключается и сразу показывает живую картинку; на это время картинка замирает примерно на секунду-две. 0 выключает.</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[rtspCatchUpMs].label</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>Catch up when behind by</source>
+      <translation>Догонять при отставании на</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[rtspCatchUpMs].keywords</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>rtsp,tcp,latency,delay,catch up,live,advanced</source>
+      <translation>rtsp,tcp,задержка,отставание,догонять,живое,дополнительно</translation>
+    </message>
+    <message>
       <extracomment>.QGC.MetaData.Facts[showDamagedFrames].shortDesc</extracomment>
       <location filename="../src/Settings/Video.SettingsGroup.json" />
       <source>Keep showing the picture while packets are lost.</source>

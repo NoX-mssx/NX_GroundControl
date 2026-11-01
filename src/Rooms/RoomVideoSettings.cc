@@ -17,6 +17,7 @@ const QStringList &keys()
         QStringLiteral("disableWhenDisarmed"),   QStringLiteral("lowLatencyMode"),
         QStringLiteral("rtpJitterLatencyMs"),    QStringLiteral("srtLatencyMs"),
         QStringLiteral("showFramesImmediately"), QStringLiteral("rtspUseUdp"),
+        QStringLiteral("rtspCatchUpMs"),
         QStringLiteral("showDamagedFrames"),     QStringLiteral("rtspTimeout"),
         QStringLiteral("rtspAutoReconnect"),     QStringLiteral("forceVideoDecoder"),
         QStringLiteral("recordingFormat"),       QStringLiteral("enableStorageLimit"),

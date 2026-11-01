@@ -186,6 +186,15 @@ DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, rtspUseUdp)
     return _rtspUseUdpFact;
 }
 
+DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, rtspCatchUpMs)
+{
+    if (!_rtspCatchUpMsFact) {
+        _rtspCatchUpMsFact = _createSettingsFact(rtspCatchUpMsName);
+        _rtspCatchUpMsFact->setUserVisible(kGstEnabled);
+    }
+    return _rtspCatchUpMsFact;
+}
+
 DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, showDamagedFrames)
 {
     if (!_showDamagedFramesFact) {

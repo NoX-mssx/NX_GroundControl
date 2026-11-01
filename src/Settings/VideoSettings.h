@@ -37,6 +37,7 @@ public:
     DEFINE_SETTINGFACT(srtLatencyMs)
     DEFINE_SETTINGFACT(showFramesImmediately)
     DEFINE_SETTINGFACT(rtspUseUdp)
+    DEFINE_SETTINGFACT(rtspCatchUpMs)
     DEFINE_SETTINGFACT(showDamagedFrames)
     DEFINE_SETTINGFACT(forceVideoDecoder)
     DEFINE_SETTINGFACT(forceCpuVideoPath)
