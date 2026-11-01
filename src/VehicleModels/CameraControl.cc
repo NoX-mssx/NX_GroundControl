@@ -139,26 +139,26 @@ void CameraControl::run(const QVariantMap &camera, const QString &command)
         camera.value(QStringLiteral("user")).toString(),
         camera.value(QStringLiteral("password")).toString(),
     };
-    const QString label = QStringLiteral("%1: %2").arg(target.name, commandLabel(command));
+    const Job job{QStringLiteral("%1: %2").arg(target.name, commandLabel(command)), target.host, command};
 
     _begin();
     if (target.host.isEmpty()) {
-        _finish(label, false, tr("the camera has no IP address in the vehicle model"));
+        _finish(job, false, tr("the camera has no IP address in the vehicle model"));
         return;
     }
 
     const QString type = camera.value(QStringLiteral("type")).toString();
     const bool illuminator = (command == QLatin1String("irOn")) || (command == QLatin1String("irOff"));
     if (type.startsWith(QLatin1String("Dahua"))) {
-        _runDahua(target, command, label);
+        _runDahua(target, command, job);
     } else if (illuminator && type.startsWith(QLatin1String("Hikvision"))) {
-        _runHikvisionIlluminator(target, command == QLatin1String("irOn"), label);
+        _runHikvisionIlluminator(target, command == QLatin1String("irOn"), job);
     } else {
-        _runOnvif(target, command, label);
+        _runOnvif(target, command, job);
     }
 }
 
-void CameraControl::_runDahua(const Camera &camera, const QString &command, const QString &label)
+void CameraControl::_runDahua(const Camera &camera, const QString &command, const Job &job)
 {
     QStringList queries;
     if ((command == QLatin1String("day")) || (command == QLatin1String("night"))) {
@@ -181,27 +181,27 @@ void CameraControl::_runDahua(const Camera &camera, const QString &command, cons
     auto accepted = std::make_shared<bool>(false);
     for (const QString &query : std::as_const(queries)) {
         const QUrl url(QStringLiteral("http://%1%2").arg(camera.host, query));
-        _get(camera, url, [this, label, remaining, accepted](bool ok, const QByteArray &body) {
+        _get(camera, url, [this, job, remaining, accepted](bool ok, const QByteArray &body) {
             if (ok && body.trimmed().startsWith("OK")) {
                 *accepted = true;
             }
             if (--(*remaining) == 0) {
-                _finish(label, *accepted, *accepted ? QString() : tr("the camera did not accept the request"));
+                _finish(job, *accepted, *accepted ? QString() : tr("the camera did not accept the request"));
             }
         });
     }
 }
 
-void CameraControl::_runHikvisionIlluminator(const Camera &camera, bool on, const QString &label)
+void CameraControl::_runHikvisionIlluminator(const Camera &camera, bool on, const Job &job)
 {
     // ISAPI keeps the illuminator under SupplementLight. The current settings are read and written back
     // with only the mode changed, because the accepted fields differ between models.
     const QUrl url(QStringLiteral("http://%1/ISAPI/Image/channels/1/SupplementLight").arg(camera.host));
-    _get(camera, url, [this, camera, on, label, url](bool ok, const QByteArray &body) {
+    _get(camera, url, [this, camera, on, job, url](bool ok, const QByteArray &body) {
         static const QRegularExpression modeElement(QStringLiteral("<supplementLightMode>[^<]*</supplementLightMode>"));
         QString settings = QString::fromUtf8(body);
         if (!ok || !settings.contains(modeElement)) {
-            _finish(label, false, tr("the camera has no switchable illuminator; it follows day/night mode"));
+            _finish(job, false, tr("the camera has no switchable illuminator; it follows day/night mode"));
             return;
         }
 
@@ -213,64 +213,64 @@ void CameraControl::_runHikvisionIlluminator(const Camera &camera, bool on, cons
             settings.replace(zeroBrightness, QStringLiteral("<irLightBrightness>100</irLightBrightness>"));
         }
 
-        _put(camera, url, settings.toUtf8(), [this, label](bool putOk, const QByteArray &putBody) {
+        _put(camera, url, settings.toUtf8(), [this, job](bool putOk, const QByteArray &putBody) {
             const QString detail = xmlText(putBody, QLatin1String("subStatusCode"));
-            _finish(label, putOk, putOk ? QString() : (detail.isEmpty() ? tr("the camera did not accept the request") : detail));
+            _finish(job, putOk, putOk ? QString() : (detail.isEmpty() ? tr("the camera did not accept the request") : detail));
         });
     });
 }
 
-void CameraControl::_runOnvif(const Camera &camera, const QString &command, const QString &label)
+void CameraControl::_runOnvif(const Camera &camera, const QString &command, const Job &job)
 {
     if ((command == QLatin1String("irOn")) || (command == QLatin1String("irOff"))) {
-        _finish(label, false, tr("not available for this camera type; the illuminator follows day/night mode"));
+        _finish(job, false, tr("not available for this camera type; the illuminator follows day/night mode"));
         return;
     }
 
     const QUrl deviceUrl(QStringLiteral("http://%1/onvif/device_service").arg(camera.host));
     const QString timeRequest = QStringLiteral("<GetSystemDateAndTime xmlns=\"http://www.onvif.org/ver10/device/wsdl\"/>");
 
-    _soap(camera, deviceUrl, timeRequest, false, 0, [this, camera, command, label, deviceUrl](bool ok, const QByteArray &body) {
+    _soap(camera, deviceUrl, timeRequest, false, 0, [this, camera, command, job, deviceUrl](bool ok, const QByteArray &body) {
         if (!ok) {
-            _finish(label, false, tr("the camera does not answer ONVIF requests"));
+            _finish(job, false, tr("the camera does not answer ONVIF requests"));
             return;
         }
         const qint64 offset = parseClockOffsetSecs(body);
 
         if (command == QLatin1String("reboot")) {
             const QString request = QStringLiteral("<SystemReboot xmlns=\"http://www.onvif.org/ver10/device/wsdl\"/>");
-            _soap(camera, deviceUrl, request, true, offset, [this, label](bool rebootOk, const QByteArray &rebootBody) {
-                _finish(label, rebootOk, rebootOk ? QString() : xmlText(rebootBody, QLatin1String("Text")));
+            _soap(camera, deviceUrl, request, true, offset, [this, job](bool rebootOk, const QByteArray &rebootBody) {
+                _finish(job, rebootOk, rebootOk ? QString() : xmlText(rebootBody, QLatin1String("Text")));
             });
             return;
         }
 
-        _onvifSetIrCutFilter(camera, offset, command == QLatin1String("day"), label);
+        _onvifSetIrCutFilter(camera, offset, command == QLatin1String("day"), job);
     });
 }
 
-void CameraControl::_onvifSetIrCutFilter(const Camera &camera, qint64 clockOffsetSecs, bool day, const QString &label)
+void CameraControl::_onvifSetIrCutFilter(const Camera &camera, qint64 clockOffsetSecs, bool day, const Job &job)
 {
     const QUrl deviceUrl(QStringLiteral("http://%1/onvif/device_service").arg(camera.host));
     const QString capabilitiesRequest = QStringLiteral(
         "<GetCapabilities xmlns=\"http://www.onvif.org/ver10/device/wsdl\"><Category>All</Category></GetCapabilities>");
 
     _soap(camera, deviceUrl, capabilitiesRequest, true, clockOffsetSecs,
-          [this, camera, clockOffsetSecs, day, label](bool ok, const QByteArray &body) {
+          [this, camera, clockOffsetSecs, day, job](bool ok, const QByteArray &body) {
         const QUrl mediaUrl(xmlText(body, QLatin1String("XAddr"), QLatin1String("Media")));
         const QUrl imagingUrl(xmlText(body, QLatin1String("XAddr"), QLatin1String("Imaging")));
         if (!ok || !mediaUrl.isValid() || mediaUrl.isEmpty() || !imagingUrl.isValid() || imagingUrl.isEmpty()) {
             const QString fault = xmlText(body, QLatin1String("Text"));
-            _finish(label, false, fault.isEmpty() ? tr("the camera did not report its imaging service") : fault);
+            _finish(job, false, fault.isEmpty() ? tr("the camera did not report its imaging service") : fault);
             return;
         }
 
         const QString sourcesRequest = QStringLiteral("<GetVideoSources xmlns=\"http://www.onvif.org/ver10/media/wsdl\"/>");
         _soap(camera, mediaUrl, sourcesRequest, true, clockOffsetSecs,
-              [this, camera, clockOffsetSecs, day, label, imagingUrl](bool sourcesOk, const QByteArray &sourcesBody) {
+              [this, camera, clockOffsetSecs, day, job, imagingUrl](bool sourcesOk, const QByteArray &sourcesBody) {
             const QString token = xmlAttribute(sourcesBody, QLatin1String("VideoSources"), QLatin1String("token"));
             if (!sourcesOk || token.isEmpty()) {
-                _finish(label, false, tr("the camera did not report a video source"));
+                _finish(job, false, tr("the camera did not report a video source"));
                 return;
             }
 
@@ -281,8 +281,8 @@ void CameraControl::_onvifSetIrCutFilter(const Camera &camera, qint64 clockOffse
                 "<ImagingSettings><IrCutFilter xmlns=\"http://www.onvif.org/ver10/schema\">%2</IrCutFilter></ImagingSettings>"
                 "<ForcePersistence>true</ForcePersistence>"
                 "</SetImagingSettings>").arg(token.toHtmlEscaped(), day ? QStringLiteral("ON") : QStringLiteral("OFF"));
-            _soap(camera, imagingUrl, settingsRequest, true, clockOffsetSecs, [this, label](bool setOk, const QByteArray &setBody) {
-                _finish(label, setOk, setOk ? QString() : xmlText(setBody, QLatin1String("Text")));
+            _soap(camera, imagingUrl, settingsRequest, true, clockOffsetSecs, [this, job](bool setOk, const QByteArray &setBody) {
+                _finish(job, setOk, setOk ? QString() : xmlText(setBody, QLatin1String("Text")));
             });
         });
     });
@@ -360,10 +360,10 @@ void CameraControl::_begin()
     }
 }
 
-void CameraControl::_finish(const QString &label, bool ok, const QString &detail)
+void CameraControl::_finish(const Job &job, bool ok, const QString &detail)
 {
-    _status = ok ? tr("%1 - done").arg(label)
-                 : (detail.isEmpty() ? tr("%1 - failed").arg(label) : tr("%1 - failed: %2").arg(label, detail));
+    _status = ok ? tr("%1 - done").arg(job.label)
+                 : (detail.isEmpty() ? tr("%1 - failed").arg(job.label) : tr("%1 - failed: %2").arg(job.label, detail));
     if (!ok) {
         qCWarning(NxCameraControlLog) << _status;
     }
@@ -371,6 +371,7 @@ void CameraControl::_finish(const QString &label, bool ok, const QString &detail
     if (!ok) {
         emit commandFailed(_status);
     }
+    emit commandFinished(job.host, job.command, ok);
 
     if (--_pending == 0) {
         emit busyChanged();

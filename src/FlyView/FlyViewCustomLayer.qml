@@ -826,6 +826,39 @@ Item {
         // Camera index whose Reboot was pressed once and is waiting for the confirming second press
         property int _rebootArmedIndex: -1
 
+        // The day/night and illuminator buttons pressed last, per vehicle link and camera address:
+        // { "<link>|<ip>": { mode: "day" or "night", ir: "irOn" or "irOff" } }. The cameras are not asked for
+        // their state, so only what was sent from here is shown; a command the camera refused clears its mark.
+        property var _chosen: ({})
+        readonly property var    _vehicle:  QGroundControl.multiVehicleManager.activeVehicle
+        readonly property string _linkName: _vehicle ? _vehicle.vehicleLinkManager.primaryLinkName : ""
+
+        function _key(host) {
+            return _linkName + "|" + String(host || "").trim()
+        }
+
+        function _group(command) {
+            return (command === "day" || command === "night") ? "mode" : "ir"
+        }
+
+        function _isChosen(camera, command) {
+            const entry = _chosen[_key(camera.ip)]
+            return entry !== undefined && entry[_group(command)] === command
+        }
+
+        /// An empty command clears the mark of its group
+        function _choose(host, group, command) {
+            const chosen = Object.assign({}, _chosen)
+            const entry = Object.assign({}, chosen[_key(host)] || {})
+            if (command === "") {
+                delete entry[group]
+            } else {
+                entry[group] = command
+            }
+            chosen[_key(host)] = entry
+            _chosen = chosen
+        }
+
         Timer {
             id:             rebootDisarmTimer
             interval:       4000
@@ -876,11 +909,27 @@ Item {
                                 ]
 
                                 QGCButton {
+                                    id: commandButton
+
                                     required property var modelData
+                                    readonly property bool chosen: cameraCommandPanel._isChosen(cameraCommands.modelData, modelData.command)
 
                                     width:      cameraCommandPanel._buttonWidth
                                     text:       modelData.label
-                                    onClicked:  CameraControl.run(cameraCommands.modelData, modelData.command)
+                                    onClicked: {
+                                        cameraCommandPanel._choose(cameraCommands.modelData.ip, cameraCommandPanel._group(modelData.command), modelData.command)
+                                        CameraControl.run(cameraCommands.modelData, modelData.command)
+                                    }
+
+                                    // The one of its pair (day/night, illuminator on/off) pressed last
+                                    Rectangle {
+                                        anchors.fill:   parent
+                                        radius:         height / 2
+                                        color:          "transparent"
+                                        border.color:   _root._accent
+                                        border.width:   1.5
+                                        visible:        commandButton.chosen
+                                    }
                                 }
                             }
 
@@ -910,6 +959,16 @@ Item {
         Connections {
             target: CameraControl
             function onCommandFailed(message) { mainWindow.addVehicleNotice(message, 1, false) }
+            function onCommandFinished(host, command, ok) {
+                if (ok || command === "reboot") {
+                    return
+                }
+                const group = cameraCommandPanel._group(command)
+                const entry = cameraCommandPanel._chosen[cameraCommandPanel._key(host)]
+                if (entry !== undefined && entry[group] === command) {
+                    cameraCommandPanel._choose(host, group, "")
+                }
+            }
         }
     }
 

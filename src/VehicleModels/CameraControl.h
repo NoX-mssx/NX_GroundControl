@@ -43,6 +43,8 @@ signals:
     void busyChanged();
     /// A command did not go through; the drive screen shows it under the "!" in the top bar
     void commandFailed(const QString &message);
+    /// A command ended; @p host is the camera's address as given in the vehicle model
+    void commandFinished(const QString &host, const QString &command, bool ok);
 
 private:
     struct Camera {
@@ -51,12 +53,18 @@ private:
         QString user;
         QString password;
     };
+    /// One command on its way: what the user sees of it, and what it was
+    struct Job {
+        QString label;
+        QString host;
+        QString command;
+    };
     using Reply = std::function<void(bool ok, const QByteArray &body)>;
 
-    void _runDahua(const Camera &camera, const QString &command, const QString &label);
-    void _runHikvisionIlluminator(const Camera &camera, bool on, const QString &label);
-    void _runOnvif(const Camera &camera, const QString &command, const QString &label);
-    void _onvifSetIrCutFilter(const Camera &camera, qint64 clockOffsetSecs, bool day, const QString &label);
+    void _runDahua(const Camera &camera, const QString &command, const Job &job);
+    void _runHikvisionIlluminator(const Camera &camera, bool on, const Job &job);
+    void _runOnvif(const Camera &camera, const QString &command, const Job &job);
+    void _onvifSetIrCutFilter(const Camera &camera, qint64 clockOffsetSecs, bool day, const Job &job);
 
     /// HTTP GET with digest authentication
     void _get(const Camera &camera, const QUrl &url, const Reply &reply);
@@ -67,7 +75,7 @@ private:
                const Reply &reply);
 
     void _begin();
-    void _finish(const QString &label, bool ok, const QString &detail = QString());
+    void _finish(const Job &job, bool ok, const QString &detail = QString());
 
     QNetworkAccessManager *_network = nullptr;
     QString _status;
