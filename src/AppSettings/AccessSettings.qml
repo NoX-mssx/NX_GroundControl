@@ -53,9 +53,14 @@ Rectangle {
         return null
     }
 
+    /// A vehicle's name with the board ID set in its link
+    function _boardTitle(board) {
+        return board.vehicleId ? qsTr("%1 · ID %2").arg(board.name).arg(board.vehicleId) : board.name
+    }
+
     function _boardName(boardId) {
         const board = _board(boardId)
-        return board ? board.name : boardId
+        return board ? _boardTitle(board) : boardId
     }
 
     function _memberName(deviceId) {
@@ -1112,7 +1117,7 @@ Rectangle {
                                     color:                  modelData.occupiedBy !== "" ? qgcPal.colorGreen : Qt.rgba(1, 1, 1, 0.3)
                                 }
                                 QGCLabel {
-                                    text:           modelData.name
+                                    text:           root._boardTitle(modelData)
                                     font.weight:    Font.ExtraBold
                                 }
                                 QGCLabel {
@@ -1487,7 +1492,8 @@ Rectangle {
                     model: giveDialog._available
 
                     QGCCheckBox {
-                        text:       modelData.occupiedBy !== "" ? qsTr("%1 (driven by %2)").arg(modelData.name).arg(modelData.occupiedBy) : modelData.name
+                        text:       modelData.occupiedBy !== "" ? qsTr("%1 (driven by %2)").arg(root._boardTitle(modelData)).arg(modelData.occupiedBy)
+                                                                : root._boardTitle(modelData)
                         onClicked: {
                             const chosen = giveDialog._chosen.filter(id => id !== modelData.boardId)
                             if (checked) {

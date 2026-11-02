@@ -1110,10 +1110,13 @@ void RoomManager::_setBoards(const QJsonArray &boards)
     const bool admin = (currentRole() == QLatin1String("admin"));
 
     QSet<QString> linkedIds;
+    // The board ID typed in the admin's link, as it is now even before the link is published again
+    QHash<QString, QString> linkVehicleIds;
     if (admin) {
         for (const SharedLinkConfigurationPtr &config : LinkManager::instance()->linkConfigurationList()) {
             if (config && !config->isDynamic() && (config->room() == _currentRoom) && !config->roomBoardId().isEmpty()) {
                 linkedIds.insert(config->roomBoardId());
+                linkVehicleIds.insert(config->roomBoardId(), config->boardId());
             }
         }
     }
@@ -1126,9 +1129,12 @@ void RoomManager::_setBoards(const QJsonArray &boards)
         const QJsonObject board = value.toObject();
         const QString id = board.value(QLatin1String("board_id")).toString();
         const QString name = board.value(QLatin1String("name")).toString();
+        const QString publishedVehicleId = board.value(QLatin1String("bundle")).toObject().value(QLatin1String("link")).toObject()
+                                               .value(QLatin1String("boardId")).toString();
         list.append(QVariantMap{
             {QStringLiteral("boardId"), id},
             {QStringLiteral("name"), name},
+            {QStringLiteral("vehicleId"), linkVehicleIds.value(id, publishedVehicleId)},
             {QStringLiteral("occupiedBy"), board.value(QLatin1String("occupied_by")).toString()},
             {QStringLiteral("occupiedByMe"), board.value(QLatin1String("occupied_by_me")).toBool()},
             {QStringLiteral("grantedTo"), board.value(QLatin1String("granted_to")).toArray().toVariantList()},

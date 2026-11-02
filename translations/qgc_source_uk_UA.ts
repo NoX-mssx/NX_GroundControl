@@ -24992,6 +24992,11 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <name>AccessSettings</name>
     <message>
       <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>%1 · ID %2</source>
+      <translation>%1 · ID %2</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
       <source>Shuffle</source>
       <translation>Вперемішку</translation>
     </message>

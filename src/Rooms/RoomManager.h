@@ -51,7 +51,8 @@ class RoomManager : public QObject
     Q_PROPERTY(QString      currentRole     READ currentRole        NOTIFY currentRoomChanged)
     Q_PROPERTY(bool         operatorMode    READ operatorMode       NOTIFY currentRoomChanged)
     /// Vehicles of the current room:
-    ///     [{ boardId, name, occupiedBy, occupiedByMe, grantedTo, hasLink }]
+    ///     [{ boardId, name, vehicleId, occupiedBy, occupiedByMe, grantedTo, hasLink }]
+    /// boardId is the hub's id of the vehicle; vehicleId the board ID set in its link (may be empty)
     /// hasLink (admin): one of this computer's links is published as this vehicle
     Q_PROPERTY(QVariantList boards          READ boards             NOTIFY boardsChanged)
     /// Admin: operators of the current room
