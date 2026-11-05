@@ -235,10 +235,12 @@ void linkAudioPad(GstPad* pad, const DynamicLinkContext& ctx)
         return;
     }
 
-    const QByteArray description = QByteArrayLiteral("decodebin ! audioconvert ! audioresample ! volume name=") +
-                                   kAudioVolumeElementName + QByteArrayLiteral(" ! autoaudiosink sync=false");
+    static constexpr const char* kAudioDecoderName = "qgc-audio-decoder";
+    const QByteArray description = QByteArrayLiteral("decodebin name=") + kAudioDecoderName +
+                                   QByteArrayLiteral(" ! audioconvert ! audioresample ! volume name=") + kAudioVolumeElementName +
+                                   QByteArrayLiteral(" ! autoaudiosink sync=false");
     GError* error = nullptr;
-    GstElement* audioBin = gst_parse_bin_from_description(description.constData(), TRUE, &error);
+    GstElement* audioBin = gst_parse_bin_from_description(description.constData(), FALSE, &error);
     if (!audioBin) {
         qCWarning(GstSourceFactoryLog) << "audio branch creation failed:" << (error ? error->message : "unknown error");
         g_clear_error(&error);
@@ -246,6 +248,28 @@ void linkAudioPad(GstPad* pad, const DynamicLinkContext& ctx)
         return;
     }
     g_clear_error(&error);
+
+    // The branch's input is decodebin. Letting the parser ghost the unlinked pads would pick audioconvert's
+    // sink instead (decodebin's output only links once its pad appears), and the branch would then refuse
+    // every encoded stream (AAC from SRT, G.711 RTP from RTSP) with "no common format".
+    bool hasInput = false;
+    if (GstElement* decoder = gst_bin_get_by_name(GST_BIN(audioBin), kAudioDecoderName)) {
+        if (GstPad* decoderSink = gst_element_get_static_pad(decoder, "sink")) {
+            GstPad* ghost = gst_ghost_pad_new("sink", decoderSink);
+            hasInput = ghost && gst_element_add_pad(audioBin, ghost);
+            if (ghost && !hasInput) {
+                gst_object_unref(ghost);
+            }
+            gst_object_unref(decoderSink);
+        }
+        gst_object_unref(decoder);
+    }
+    if (!hasInput) {
+        qCWarning(GstSourceFactoryLog) << "audio branch has no input; continuing without audio";
+        gst_object_unref(audioBin);
+        gst_object_unref(bin);
+        return;
+    }
 
     g_object_set(audioBin, "async-handling", TRUE, nullptr);
     (void) gst_object_set_name(GST_OBJECT(audioBin), kAudioBranchName);
@@ -270,13 +294,14 @@ void linkAudioPad(GstPad* pad, const DynamicLinkContext& ctx)
                              gst_object_ref(audioBin), [](gpointer branch) { gst_object_unref(branch); });
 
     GstPad* sinkPad = gst_element_get_static_pad(audioBin, "sink");
-    const bool linked = sinkPad && (gst_pad_link(pad, sinkPad) == GST_PAD_LINK_OK) &&
-                        gst_element_sync_state_with_parent(audioBin);
+    const GstPadLinkReturn linkResult = sinkPad ? gst_pad_link(pad, sinkPad) : GST_PAD_LINK_REFUSED;
+    const bool linked = (linkResult == GST_PAD_LINK_OK) && gst_element_sync_state_with_parent(audioBin);
     if (sinkPad) {
         gst_object_unref(sinkPad);
     }
     if (!linked) {
-        qCWarning(GstSourceFactoryLog) << "audio branch link failed; continuing without audio";
+        qCWarning(GstSourceFactoryLog) << "audio branch link failed (" << gst_pad_link_get_name(linkResult)
+                                       << "); continuing without audio";
         (void) gst_element_set_state(audioBin, GST_STATE_NULL);
         gst_bin_remove(GST_BIN(bin), audioBin);
     }
