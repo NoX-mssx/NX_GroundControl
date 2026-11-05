@@ -84,7 +84,7 @@
                     "setting": "videoSettings.rtspUseUdp"
                 },
                 {
-                    "setting": "videoSettings.rtspCatchUpMs"
+                    "setting": "videoSettings.catchUpMs"
                 },
                 {
                     "setting": "videoSettings.showDamagedFrames"

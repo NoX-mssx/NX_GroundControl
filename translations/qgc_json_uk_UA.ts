@@ -6217,28 +6217,28 @@
       <translation>rtsp,udp,tcp,транспорт,додатково</translation>
     </message>
     <message>
-      <extracomment>.QGC.MetaData.Facts[rtspCatchUpMs].shortDesc</extracomment>
+      <extracomment>.QGC.MetaData.Facts[catchUpMs].shortDesc</extracomment>
       <location filename="../src/Settings/Video.SettingsGroup.json" />
-      <source>Reconnect to the live picture when an RTSP stream falls behind by more than this (ms). 0: never.</source>
-      <translation>Перепідключатися до живої картинки, коли відео RTSP відстало більше ніж на стільки (мс). 0 — ніколи.</translation>
+      <source>Reconnect to the live picture when the video falls behind by more than this (ms). 0: never.</source>
+      <translation>Перепідключатися до живої картинки, коли відео відстало більше ніж на стільки (мс). 0 — ніколи.</translation>
     </message>
     <message>
-      <extracomment>.QGC.MetaData.Facts[rtspCatchUpMs].longDesc</extracomment>
+      <extracomment>.QGC.MetaData.Facts[catchUpMs].longDesc</extracomment>
       <location filename="../src/Settings/Video.SettingsGroup.json" />
-      <source>Over TCP nothing is lost, so when the link cannot keep up the picture falls behind live and stays behind. When the delay has grown by more than this for a few seconds, the stream reconnects and jumps to the live picture; the picture holds for about a second meanwhile. 0 turns this off.</source>
-      <translation>По TCP нічого не губиться, тому, коли канал не встигає, картинка відстає від реального часу і так і залишається. Якщо відставання зросло більше за це значення й тримається кілька секунд, потік перепідключається й одразу показує живу картинку; на цей час картинка завмирає приблизно на секунду-дві. 0 вимикає.</translation>
+      <source>Over RTSP on TCP nothing is lost, so when the link cannot keep up the picture falls behind live and stays behind; an SRT stream falls behind the same way when the vehicle sends a picture that is already old. When the delay has grown by more than this for a few seconds, the stream reconnects and jumps to the live picture; the picture holds for a second or two meanwhile. Not while recording. 0 turns this off.</source>
+      <translation>По RTSP через TCP нічого не губиться, тому, коли канал не встигає, картинка відстає від реального часу і так і залишається; потік SRT відстає так само, коли борт віддає вже стару картинку. Якщо відставання зросло більше за це значення й тримається кілька секунд, потік перепідключається й одразу показує живу картинку; на цей час картинка завмирає на секунду-дві. Під час запису не спрацьовує. 0 вимикає.</translation>
     </message>
     <message>
-      <extracomment>.QGC.MetaData.Facts[rtspCatchUpMs].label</extracomment>
+      <extracomment>.QGC.MetaData.Facts[catchUpMs].label</extracomment>
       <location filename="../src/Settings/Video.SettingsGroup.json" />
       <source>Catch up when behind by</source>
       <translation>Наздоганяти при відставанні на</translation>
     </message>
     <message>
-      <extracomment>.QGC.MetaData.Facts[rtspCatchUpMs].keywords</extracomment>
+      <extracomment>.QGC.MetaData.Facts[catchUpMs].keywords</extracomment>
       <location filename="../src/Settings/Video.SettingsGroup.json" />
-      <source>rtsp,tcp,latency,delay,catch up,live,advanced</source>
-      <translation>rtsp,tcp,затримка,відставання,наздоганяти,живе,додатково</translation>
+      <source>rtsp,srt,tcp,latency,delay,catch up,live,advanced</source>
+      <translation>rtsp,srt,tcp,затримка,відставання,наздоганяти,живе,додатково</translation>
     </message>
     <message>
       <extracomment>.QGC.MetaData.Facts[showDamagedFrames].shortDesc</extracomment>

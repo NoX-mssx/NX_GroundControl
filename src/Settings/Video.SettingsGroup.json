@@ -227,16 +227,16 @@
             "keywords": "rtsp,udp,tcp,transport,advanced"
         },
         {
-            "name": "rtspCatchUpMs",
-            "shortDesc": "Reconnect to the live picture when an RTSP stream falls behind by more than this (ms). 0: never.",
-            "longDesc": "Over TCP nothing is lost, so when the link cannot keep up the picture falls behind live and stays behind. When the delay has grown by more than this for a few seconds, the stream reconnects and jumps to the live picture; the picture holds for about a second meanwhile. 0 turns this off.",
+            "name": "catchUpMs",
+            "shortDesc": "Reconnect to the live picture when the video falls behind by more than this (ms). 0: never.",
+            "longDesc": "Over RTSP on TCP nothing is lost, so when the link cannot keep up the picture falls behind live and stays behind; an SRT stream falls behind the same way when the vehicle sends a picture that is already old. When the delay has grown by more than this for a few seconds, the stream reconnects and jumps to the live picture; the picture holds for a second or two meanwhile. Not while recording. 0 turns this off.",
             "type": "uint32",
             "min": 0,
             "max": 10000,
             "units": "ms",
             "default": 1000,
             "label": "Catch up when behind by",
-            "keywords": "rtsp,tcp,latency,delay,catch up,live,advanced"
+            "keywords": "rtsp,srt,tcp,latency,delay,catch up,live,advanced"
         },
         {
             "name": "showDamagedFrames",

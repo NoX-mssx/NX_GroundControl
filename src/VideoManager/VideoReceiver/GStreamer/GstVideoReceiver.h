@@ -130,10 +130,13 @@ private:
     static GstPadProbeReturn _decoderKeyframeGate(GstPad *pad, GstPadProbeInfo *info, gpointer user_data);
     /// Opens the decoder valve; the decoder then starts from the next key frame.
     void _openDecoderValve();
-    /// Measures how far an RTSP source falls behind live (see StreamLagMeter), for catching up with it
-    void _watchRtspLag(GstElement *source);
+    /// Measures how far an RTSP or SRT source falls behind live (see StreamLagMeter), for catching up with it
+    void _watchStreamLag(GstElement *source);
     static void _onRtspPad(GstElement *element, GstPad *pad, gpointer data);
     static GstPadProbeReturn _rtpLagProbe(GstPad *pad, GstPadProbeInfo *info, gpointer user_data);
+    static GstPadProbeReturn _tsLagProbe(GstPad *pad, GstPadProbeInfo *info, gpointer user_data);
+    /// Feeds the PCRs of an MPEG-TS buffer to _lagMeter (streaming thread)
+    void _readTsLag(GstBuffer *buf);
     /// Reconnects a stream that stays behind live, which drops what waits upstream (worker thread)
     void _checkCatchUp();
 
@@ -164,9 +167,10 @@ private:
     std::atomic<int> _flowDiscont{0};
     std::atomic<int> _flowCorrupted{0};
     std::atomic<qint64> _lastKeyframeMs{0};
-    StreamLagMeter _lagMeter;                           ///< Streaming thread of the RTSP video pad
+    StreamLagMeter _lagMeter;                           ///< Streaming thread of the RTSP video pad or the SRT source pad
     std::atomic<int> _rtpClockRate{90000};
-    std::atomic<qint64> _behindMs{0};                   ///< How far the RTSP video is behind live, from _lagMeter
+    int _pcrPid = -1;                                   ///< MPEG-TS PID whose PCR _lagMeter follows (SRT streaming thread)
+    std::atomic<qint64> _behindMs{0};                   ///< How far the video is behind live, from _lagMeter
     int _behindTicks = 0;                               ///< Watchdog ticks in a row behind by more than catchUpMs
     bool _behindReported = false;                       ///< "Not catching up while recording" was logged for this lag
     bool _recordingStopRequested = false;

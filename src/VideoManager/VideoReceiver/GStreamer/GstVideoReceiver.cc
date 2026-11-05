@@ -239,7 +239,7 @@ void GstVideoReceiver::start(uint32_t timeout)
             break;
         }
         if (_activeTuning.catchUpMs > 0) {
-            _watchRtspLag(_source);
+            _watchStreamLag(_source);
         }
 
         gst_bin_add_many(GST_BIN(_pipeline), _source, _tee, decoderQueue, _decoderValve, recorderQueue, _recorderValve, nullptr);
@@ -823,19 +823,30 @@ void GstVideoReceiver::_checkCatchUp()
     stop();
 }
 
-void GstVideoReceiver::_watchRtspLag(GstElement *source)
+void GstVideoReceiver::_watchStreamLag(GstElement *source)
 {
-    GstElement *rtsp = GST_IS_BIN(source) ? gst_bin_get_by_name(GST_BIN(source), "source")
-                                          : GST_ELEMENT(gst_object_ref(source));
-    if (!rtsp) {
+    GstElement *element = GST_IS_BIN(source) ? gst_bin_get_by_name(GST_BIN(source), "source")
+                                             : GST_ELEMENT(gst_object_ref(source));
+    if (!element) {
         return;
     }
-    GstElementFactory *factory = gst_element_get_factory(rtsp);
-    if (factory && (g_strcmp0(gst_plugin_feature_get_name(GST_PLUGIN_FEATURE(factory)), "rtspsrc") == 0)) {
+    GstElementFactory *factory = gst_element_get_factory(element);
+    const gchar *name = factory ? gst_plugin_feature_get_name(GST_PLUGIN_FEATURE(factory)) : nullptr;
+    if (g_strcmp0(name, "rtspsrc") == 0) {
         _lagMeter.reset();
-        (void) g_signal_connect(rtsp, "pad-added", G_CALLBACK(_onRtspPad), this);
+        (void) g_signal_connect(element, "pad-added", G_CALLBACK(_onRtspPad), this);
+    } else if (g_strcmp0(name, "srtsrc") == 0) {
+        // SRT carries MPEG-TS, whose PCR is the media clock
+        GstPad *pad = gst_element_get_static_pad(element, "src");
+        if (pad) {
+            _lagMeter.reset();
+            _pcrPid = -1;
+            (void) gst_pad_add_probe(pad, static_cast<GstPadProbeType>(GST_PAD_PROBE_TYPE_BUFFER | GST_PAD_PROBE_TYPE_BUFFER_LIST),
+                                     _tsLagProbe, this, nullptr);
+            gst_object_unref(pad);
+        }
     }
-    gst_object_unref(rtsp);
+    gst_object_unref(element);
 }
 
 void GstVideoReceiver::_onRtspPad(GstElement *element, GstPad *pad, gpointer data)
@@ -886,6 +897,63 @@ GstPadProbeReturn GstVideoReceiver::_rtpLagProbe(GstPad *pad, GstPadProbeInfo *i
                               std::memory_order_relaxed);
     }
     return GST_PAD_PROBE_OK;
+}
+
+GstPadProbeReturn GstVideoReceiver::_tsLagProbe(GstPad *pad, GstPadProbeInfo *info, gpointer user_data)
+{
+    Q_UNUSED(pad);
+
+    auto *self = static_cast<GstVideoReceiver *>(user_data);
+    if (!self) {
+        return GST_PAD_PROBE_OK;
+    }
+    if (GST_PAD_PROBE_INFO_TYPE(info) & GST_PAD_PROBE_TYPE_BUFFER_LIST) {
+        GstBufferList *list = GST_PAD_PROBE_INFO_BUFFER_LIST(info);
+        const guint count = list ? gst_buffer_list_length(list) : 0;
+        for (guint i = 0; i < count; i++) {
+            self->_readTsLag(gst_buffer_list_get(list, i));
+        }
+    } else {
+        self->_readTsLag(gst_pad_probe_info_get_buffer(info));
+    }
+    return GST_PAD_PROBE_OK;
+}
+
+void GstVideoReceiver::_readTsLag(GstBuffer *buf)
+{
+    static constexpr gsize kPacket = StreamLagMeter::kTsPacketSize;
+
+    GstMapInfo map;
+    if (!buf || !gst_buffer_map(buf, &map, GST_MAP_READ)) {
+        return;
+    }
+    // An SRT message normally holds whole packets; find the first one if it does not
+    gsize offset = 0;
+    while ((offset < kPacket) && (offset < map.size) &&
+           !((map.data[offset] == 0x47) && (((offset + kPacket) >= map.size) || (map.data[offset + kPacket] == 0x47)))) {
+        offset++;
+    }
+
+    const qint64 nowMs = g_get_monotonic_time() / 1000;
+    for (; (offset + kPacket) <= map.size; offset += kPacket) {
+        uint16_t pid = 0;
+        uint64_t base = 0;
+        bool discontinuity = false;
+        if (!StreamLagMeter::readTsPcr(map.data + offset, pid, base, discontinuity)) {
+            continue;
+        }
+        // Follow one PCR stream; a stream with several programs has one per program
+        if (_pcrPid < 0) {
+            _pcrPid = pid;
+        } else if (pid != _pcrPid) {
+            continue;
+        }
+        if (discontinuity) {
+            _lagMeter.reset();
+        }
+        _behindMs.store(_lagMeter.add(static_cast<uint32_t>(base & 0xFFFFFFFFu), 90000, nowMs), std::memory_order_relaxed);
+    }
+    gst_buffer_unmap(buf, &map);
 }
 
 void GstVideoReceiver::_scheduleReconnect(const char *reason)

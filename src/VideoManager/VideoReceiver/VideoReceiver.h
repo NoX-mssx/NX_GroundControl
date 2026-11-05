@@ -44,7 +44,7 @@ public:
         bool showImmediately = false;   ///< Do not line frames up by time stamp
         bool rtspUdp = false;           ///< RTSP over UDP with TCP as fallback instead of TCP only
         bool showDamagedFrames = false; ///< Keep showing frames the decoder reports as damaged
-        int catchUpMs = 0;              ///< Reconnect an RTSP stream that fell this far behind live; 0: never
+        int catchUpMs = 0;              ///< Reconnect an RTSP or SRT stream that fell this far behind live; 0: never
         bool operator==(const Tuning &) const = default;
     };
     const Tuning &tuning() const { return _tuning; }

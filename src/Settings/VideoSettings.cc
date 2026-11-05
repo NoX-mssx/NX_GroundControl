@@ -186,13 +186,13 @@ DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, rtspUseUdp)
     return _rtspUseUdpFact;
 }
 
-DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, rtspCatchUpMs)
+DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, catchUpMs)
 {
-    if (!_rtspCatchUpMsFact) {
-        _rtspCatchUpMsFact = _createSettingsFact(rtspCatchUpMsName);
-        _rtspCatchUpMsFact->setUserVisible(kGstEnabled);
+    if (!_catchUpMsFact) {
+        _catchUpMsFact = _createSettingsFact(catchUpMsName);
+        _catchUpMsFact->setUserVisible(kGstEnabled);
     }
-    return _rtspCatchUpMsFact;
+    return _catchUpMsFact;
 }
 
 DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, showDamagedFrames)
