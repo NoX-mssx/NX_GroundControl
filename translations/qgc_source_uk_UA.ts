@@ -5550,6 +5550,16 @@ Full (100%): %2 V</source>
   <context>
     <name>CameraControl</name>
     <message>
+      <location filename="../src/VehicleModels/CameraControl.cc" line="1" />
+      <source>the camera does not answer Uniview (LAPI) requests</source>
+      <translation>камера не відповідає на запити Uniview (LAPI)</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/CameraControl.cc" line="1" />
+      <source>the camera does not have this setting</source>
+      <translation>камера не має цього налаштування</translation>
+    </message>
+    <message>
       <location filename="../src/VehicleModels/CameraControl.cc" line="29" />
       <source>Day Mode</source>
       <translation>Денний режим</translation>
