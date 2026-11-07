@@ -1,5 +1,6 @@
 #include "NxCorePlugin.h"
 #include "AppSettings.h"
+#include "AutoConnectSettings.h"
 #include "BatteryIndicatorSettings.h"
 #include "FlyViewSettings.h"
 #include "LogManagerSettings.h"
@@ -109,6 +110,15 @@ void NxCorePlugin::adjustSettingMetaData(const QString &settingsGroup, FactMetaD
     if ((settingsGroup == LogManagerSettings::settingsGroup) && (metaData.name() == LogManagerSettings::diskLoggingEnabledName)) {
         // Keeps the log of a run that crashed: AppLog.log in the Logs folder, rotated at 10 MB
         metaData.setRawDefaultValue(true);
+    }
+
+    if ((settingsGroup == AutoConnectSettings::settingsGroup) && (metaData.name() == AutoConnectSettings::autoConnectUDPName)) {
+        // A vehicle is reached through its link (and, for an operator, its room). The stock UDP auto-connect link
+        // listens on 14550 alongside them: a board sending there, or a link on that port, came up as
+        // "UDP Link (AutoConnect)", without the board's name, model, cameras or room checks. The setting is not
+        // on NX's link page, so it is forced off.
+        metaData.setRawDefaultValue(false);
+        userVisible = false;
     }
 
     if ((settingsGroup == AppSettings::settingsGroup) && (metaData.name() == AppSettings::indoorPaletteName)) {
