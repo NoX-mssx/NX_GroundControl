@@ -239,6 +239,15 @@
             "keywords": "rtsp,srt,tcp,latency,delay,catch up,live,advanced"
         },
         {
+            "name": "dropLateVideo",
+            "shortDesc": "Keep the picture live by dropping video that arrives late.",
+            "longDesc": "Packets later than the RTP jitter buffer allows are dropped, and at most two frames wait for the decoder, as the Termit video app does. After a stall the picture jumps back to live instead of playing the backlog, with a short smear until the next key frame. Works best with the software decoder; a hardware decoder may show grey there.",
+            "type": "bool",
+            "default": false,
+            "label": "Drop late video",
+            "keywords": "rtsp,latency,delay,drop,leaky,live,termit,advanced"
+        },
+        {
             "name": "showDamagedFrames",
             "shortDesc": "Keep showing the picture while packets are lost.",
             "longDesc": "When off, a damaged frame is not shown and the picture stays still until the next intact key frame. When on, the picture keeps moving with visible blocks.",

@@ -186,7 +186,7 @@ void VideoManager::init(QQuickWindow *mainWindow)
     // The stream tuning is read when a receiver starts, so a change restarts the streams once.
     for (Fact *tuningFact : {_videoSettings->srtLatencyMs(), _videoSettings->showFramesImmediately(),
                              _videoSettings->rtspUseUdp(), _videoSettings->showDamagedFrames(),
-                             _videoSettings->catchUpMs()}) {
+                             _videoSettings->catchUpMs(), _videoSettings->dropLateVideo()}) {
         (void) connect(tuningFact, &Fact::rawValueChanged, this, [this](const QVariant &value) { Q_UNUSED(value); _videoSourceChanged(); });
     }
     // autoReconnect is a live setting — push without restart so an in-flight reconnect
@@ -695,6 +695,7 @@ bool VideoManager::_updateSettings(VideoReceiver *receiver)
     tuning.rtspUdp = _videoSettings->rtspUseUdp()->rawValue().toBool();
     tuning.showDamagedFrames = _videoSettings->showDamagedFrames()->rawValue().toBool();
     tuning.catchUpMs = static_cast<int>(std::min(_videoSettings->catchUpMs()->rawValue().toUInt(), static_cast<uint>(INT_MAX)));
+    tuning.dropLate = _videoSettings->dropLateVideo()->rawValue().toBool();
     if (receiver->setTuning(tuning)) {
         settingsChanged = true;
     }

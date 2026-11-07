@@ -195,6 +195,15 @@ DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, catchUpMs)
     return _catchUpMsFact;
 }
 
+DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, dropLateVideo)
+{
+    if (!_dropLateVideoFact) {
+        _dropLateVideoFact = _createSettingsFact(dropLateVideoName);
+        _dropLateVideoFact->setUserVisible(kGstEnabled);
+    }
+    return _dropLateVideoFact;
+}
+
 DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, showDamagedFrames)
 {
     if (!_showDamagedFramesFact) {

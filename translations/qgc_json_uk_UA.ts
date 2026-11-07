@@ -6241,6 +6241,30 @@
       <translation>rtsp,srt,tcp,затримка,відставання,наздоганяти,живе,додатково</translation>
     </message>
     <message>
+      <extracomment>.QGC.MetaData.Facts[dropLateVideo].shortDesc</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>Keep the picture live by dropping video that arrives late.</source>
+      <translation>Тримати картинку живою: відео, що запізнилося, відкидається.</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[dropLateVideo].longDesc</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>Packets later than the RTP jitter buffer allows are dropped, and at most two frames wait for the decoder, as the Termit video app does. After a stall the picture jumps back to live instead of playing the backlog, with a short smear until the next key frame. Works best with the software decoder; a hardware decoder may show grey there.</source>
+      <translation>Пакети, що запізнилися більше, ніж дозволяє буфер RTP, відкидаються, а перед декодером чекають не більше двох кадрів — як у програмі Termit. Після зависання картинка одразу повертається до живої, а не програє накопичене; до наступного ключового кадру можливий короткий змаз. Найкраще працює з програмним декодером; апаратний у цей момент може показувати сіре.</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[dropLateVideo].label</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>Drop late video</source>
+      <translation>Відкидати відео, що запізнилося</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[dropLateVideo].keywords</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>rtsp,latency,delay,drop,leaky,live,termit,advanced</source>
+      <translation>rtsp,затримка,відставання,відкидати,живе,termit,додатково</translation>
+    </message>
+    <message>
       <extracomment>.QGC.MetaData.Facts[showDamagedFrames].shortDesc</extracomment>
       <location filename="../src/Settings/Video.SettingsGroup.json" />
       <source>Keep showing the picture while packets are lost.</source>

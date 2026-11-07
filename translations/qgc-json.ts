@@ -6107,6 +6107,31 @@
             <translation type="unfinished" />
         </message>
         <message>
+            <extracomment>.QGC.MetaData.Facts[dropLateVideo].shortDesc</extracomment>
+            <location filename="../src/Settings/Video.SettingsGroup.json" />
+            <source>Keep the picture live by dropping video that arrives late.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <extracomment>.QGC.MetaData.Facts[dropLateVideo].longDesc</extracomment>
+            <location filename="../src/Settings/Video.SettingsGroup.json" />
+            <source>Packets later than the RTP jitter buffer allows are dropped, and at most two frames wait for the decoder, as the Termit video app does. After a stall the picture jumps back to live instead of playing the backlog, with a short smear until the next key frame. Works best with the software decoder; a hardware decoder may show grey there.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <extracomment>.QGC.MetaData.Facts[dropLateVideo].label</extracomment>
+            <location filename="../src/Settings/Video.SettingsGroup.json" />
+            <source>Drop late video</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <extracomment>.QGC.MetaData.Facts[dropLateVideo].keywords</extracomment>
+            <translatorcomment>Only use english comma ',' to separate strings</translatorcomment>
+            <location filename="../src/Settings/Video.SettingsGroup.json" />
+            <source>rtsp,latency,delay,drop,leaky,live,termit,advanced</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
             <extracomment>.QGC.MetaData.Facts[showDamagedFrames].shortDesc</extracomment>
             <location filename="../src/Settings/Video.SettingsGroup.json" />
             <source>Keep showing the picture while packets are lost.</source>

@@ -179,6 +179,12 @@ void GstVideoReceiver::start(uint32_t timeout)
         // decoder without a reference picture, and everything up to the next key frame decodes grey.
         // Over Starlink, frames arrive in bursts after each short stall, which overflowed the old
         // two-buffer leaky queue. Late frames are still dropped after decoding, by the video sink.
+        // "Drop late video" asks for the leaky queue anyway (as the Termit app has it): the burst is
+        // dropped and the picture stays live, smeared until the next key frame by a software decoder.
+        if (_activeTuning.dropLate) {
+            g_object_set(decoderQueue, "leaky", 2 /* downstream: the oldest go */, "max-size-buffers", 2u,
+                         "max-size-time", static_cast<guint64>(0), "max-size-bytes", 0u, nullptr);
+        }
 
         _decoderValve = gst_element_factory_make("valve", nullptr);
         if (!_decoderValve)  {
@@ -225,6 +231,9 @@ void GstVideoReceiver::start(uint32_t timeout)
             : (_buffer == 0
                 ? GStreamer::SourceFactory::JitterBuffer::DropOnLatency
                 : GStreamer::SourceFactory::JitterBuffer::Buffered);
+        if (_activeTuning.dropLate) {
+            sourceConfig.jitterBuffer = GStreamer::SourceFactory::JitterBuffer::DropOnLatency;
+        }
         sourceConfig.latencyMs = _rtpJitterLatencyMs;
         // do-retransmission needs ≥40 ms latency headroom over the default 20 ms rtx-delay;
         // forcibly disable for sub-frame latency configurations to avoid retransmit storms.
