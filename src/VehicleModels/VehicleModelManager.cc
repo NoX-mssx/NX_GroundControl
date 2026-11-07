@@ -157,6 +157,9 @@ QVariantMap modelFromExchange(const QJsonObject &exchange)
             {QStringLiteral("mainUrl"), camera.value(QLatin1String("url")).toString()},
             {QStringLiteral("secondaryUrl"), camera.value(QLatin1String("secondaryUrl")).toString()},
             {QStringLiteral("audio"), camera.value(QLatin1String("audioEnabled")).toBool()},
+            // NX only: files from Nova have no microphone
+            {QStringLiteral("microphone"), camera.value(QLatin1String("microphoneEnabled")).toBool()},
+            {QStringLiteral("talkUrl"), camera.value(QLatin1String("talkUrl")).toString()},
         });
     }
 
@@ -223,6 +226,8 @@ QJsonObject modelToExchange(const QVariantMap &model)
             {QStringLiteral("password"), camera.value(QLatin1String(kPasswordKey)).toString()},
             {QStringLiteral("ip"), camera.value(QStringLiteral("ip")).toString()},
             {QStringLiteral("audioEnabled"), camera.value(QStringLiteral("audio")).toBool()},
+            {QStringLiteral("microphoneEnabled"), camera.value(QStringLiteral("microphone")).toBool()},
+            {QStringLiteral("talkUrl"), camera.value(QStringLiteral("talkUrl")).toString()},
         });
     }
 
@@ -268,14 +273,15 @@ QJsonObject modelToExchange(const QVariantMap &model)
     return exchange;
 }
 
-/// Swaps the secret camera fields between their in-memory and on-disk form. The stream URLs count as
-/// secret because they embed the camera credentials.
+/// Swaps the secret camera fields between their in-memory and on-disk form. The stream and talk URLs count
+/// as secret because they embed the camera credentials.
 QVariantList convertCameraSecrets(const QVariantList &cameras, bool forDisk)
 {
     static const QStringList secretKeys = {
         QString::fromLatin1(kPasswordKey),
         QStringLiteral("mainUrl"),
         QStringLiteral("secondaryUrl"),
+        QStringLiteral("talkUrl"),
     };
 
     QVariantList converted;
@@ -440,6 +446,23 @@ void VehicleModelManager::setMainCamera(int cameraIndex)
     _cameraEnabled[cameraIndex] = true;
     emit cameraStatesChanged();
     _applyCameraStreams();
+}
+
+QVariantMap VehicleModelManager::microphoneCamera() const
+{
+    const QVariantList cameras = _activeCameras();
+    const auto hasMicrophone = [&cameras](int cameraIndex) {
+        return cameras.value(cameraIndex).toMap().value(QStringLiteral("microphone")).toBool();
+    };
+    if (hasMicrophone(_mainCameraIndex)) {
+        return cameras.value(_mainCameraIndex).toMap();
+    }
+    for (qsizetype i = 0; i < cameras.count(); i++) {
+        if (hasMicrophone(static_cast<int>(i))) {
+            return cameras.at(i).toMap();
+        }
+    }
+    return QVariantMap();
 }
 
 QString VehicleModelManager::_cameraUri(int cameraIndex) const

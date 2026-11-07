@@ -7673,6 +7673,11 @@ VTOL</translation>
     <name>FlyViewCustomLayer</name>
     <message>
       <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>Microphone: %1</source>
+      <translation>Мікрофон: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
       <source>%1 km</source>
       <translation>%1 км</translation>
     </message>
@@ -23098,6 +23103,16 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <name>VehicleModelsSettings</name>
     <message>
       <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Microphone Enabled</source>
+      <translation>Мікрофон увімкнено</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Camera RTSP URL for the microphone (empty: the RTSP URL above)</source>
+      <translation>RTSP-адреса камери для мікрофона (порожньо: RTSP-адреса вище)</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
       <source>Delete Model</source>
       <translation>Видалення моделі</translation>
     </message>
@@ -25888,6 +25903,97 @@ Send this file together with the AppLog.log file from the Logs folder.</source>
       <location filename="../src/QmlControls/NxConfirmDialog.qml" line="1" />
       <source>Cancel</source>
       <translation>Скасувати</translation>
+    </message>
+  </context>
+  <context>
+    <name>CameraTalk</name>
+    <message>
+      <location filename="../src/VehicleModels/CameraTalk.cc" line="1" />
+      <source>the camera has no RTSP address to talk through</source>
+      <translation>у камери немає RTSP-адреси для передачі звуку</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/CameraTalk.cc" line="1" />
+      <source>no microphone found on this computer</source>
+      <translation>на цьому комп'ютері не знайдено мікрофон</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/CameraTalk.cc" line="1" />
+      <source>the microphone uses an audio format that is not supported</source>
+      <translation>мікрофон використовує непідтримуваний формат звуку</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/CameraTalk.cc" line="1" />
+      <source>the microphone stopped working</source>
+      <translation>мікрофон перестав працювати</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/CameraTalk.cc" line="1" />
+      <source>the microphone could not be opened</source>
+      <translation>не вдалося відкрити мікрофон</translation>
+    </message>
+  </context>
+  <context>
+    <name>RtspTalkClient</name>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>the camera did not answer</source>
+      <translation>камера не відповідає</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>the talk address is not an RTSP address</source>
+      <translation>адреса для передачі звуку не RTSP</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>no connection to the camera: %1</source>
+      <translation>немає зв'язку з камерою: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>the camera closed the connection</source>
+      <translation>камера закрила з'єднання</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>the camera did not accept the user name or password</source>
+      <translation>камера не прийняла логін або пароль</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>the camera refused the stream (RTSP %1)</source>
+      <translation>камера відмовила в потоці (RTSP %1)</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>the camera has no speaker input (no audio backchannel offered)</source>
+      <translation>у камери немає входу для звуку (динаміка): канал зворотного зв'язку не запропоновано</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>the camera's speaker wants %1; only G.711 is supported (set the camera's audio output to G.711)</source>
+      <translation>динамік камери вимагає %1, підтримується лише G.711 (оберіть G.711 в налаштуваннях аудіовиходу камери)</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>an unknown audio format</source>
+      <translation>невідомий формат звуку</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>the camera refused the audio channel (RTSP %1)</source>
+      <translation>камера відмовила у звуковому каналі (RTSP %1)</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>the camera does not take audio over the RTSP connection</source>
+      <translation>камера не приймає звук по RTSP-з'єднанню</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>the camera would not start the audio channel (RTSP %1)</source>
+      <translation>камера не запустила звуковий канал (RTSP %1)</translation>
     </message>
   </context>
 </TS>

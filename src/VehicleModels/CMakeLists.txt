@@ -2,10 +2,15 @@ target_sources(${CMAKE_PROJECT_NAME}
     PRIVATE
         CameraControl.cc
         CameraControl.h
+        CameraTalk.cc
+        CameraTalk.h
         MotorTelemetryMonitor.cc
         MotorTelemetryMonitor.h
+        RtspTalkClient.cc
+        RtspTalkClient.h
         SecretProtector.cc
         SecretProtector.h
+        TalkAudio.h
         VehicleModelManager.cc
         VehicleModelManager.h
 )

@@ -7647,6 +7647,11 @@ VTOL</source>
     <name>FlyViewCustomLayer</name>
     <message>
       <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>Microphone: %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
       <source>%1 km</source>
       <translation type="unfinished" />
     </message>
@@ -23032,6 +23037,16 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <name>VehicleModelsSettings</name>
     <message>
       <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Microphone Enabled</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Camera RTSP URL for the microphone (empty: the RTSP URL above)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
       <source>Delete Model</source>
       <translation type="unfinished" />
     </message>
@@ -25818,6 +25833,97 @@ Send this file together with the AppLog.log file from the Logs folder.</source>
     <message>
       <location filename="../src/QmlControls/NxConfirmDialog.qml" line="1" />
       <source>Cancel</source>
+      <translation type="unfinished" />
+    </message>
+  </context>
+  <context>
+    <name>CameraTalk</name>
+    <message>
+      <location filename="../src/VehicleModels/CameraTalk.cc" line="1" />
+      <source>the camera has no RTSP address to talk through</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/CameraTalk.cc" line="1" />
+      <source>no microphone found on this computer</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/CameraTalk.cc" line="1" />
+      <source>the microphone uses an audio format that is not supported</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/CameraTalk.cc" line="1" />
+      <source>the microphone stopped working</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/CameraTalk.cc" line="1" />
+      <source>the microphone could not be opened</source>
+      <translation type="unfinished" />
+    </message>
+  </context>
+  <context>
+    <name>RtspTalkClient</name>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>the camera did not answer</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>the talk address is not an RTSP address</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>no connection to the camera: %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>the camera closed the connection</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>the camera did not accept the user name or password</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>the camera refused the stream (RTSP %1)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>the camera has no speaker input (no audio backchannel offered)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>the camera's speaker wants %1; only G.711 is supported (set the camera's audio output to G.711)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>an unknown audio format</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>the camera refused the audio channel (RTSP %1)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>the camera does not take audio over the RTSP connection</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>the camera would not start the audio channel (RTSP %1)</source>
       <translation type="unfinished" />
     </message>
   </context>

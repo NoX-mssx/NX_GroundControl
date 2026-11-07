@@ -79,6 +79,9 @@ public:
     Q_INVOKABLE void setCameraEnabled(int cameraIndex, bool enabled);
     /// Moves a camera to the main video; the previous main camera takes an auxiliary item.
     Q_INVOKABLE void setMainCamera(int cameraIndex);
+    /// The camera the operator's microphone goes to: the main camera if it has a speaker enabled, else the first
+    /// camera that has one; an empty map if none does
+    Q_INVOKABLE QVariantMap microphoneCamera() const;
 
     /// Number of auxiliary video items in the fly view
     static constexpr int kAuxiliaryCameraCount = 2;

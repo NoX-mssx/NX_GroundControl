@@ -44,9 +44,12 @@ Item {
 
     readonly property var  _cameraStates:       VehicleModelManager.cameraStates
     readonly property var  _auxiliaryCameras:   VehicleModelManager.auxiliaryCameras
+    readonly property bool _anyCameraHasMicrophone: (VehicleModelManager.activeModel.cameras || []).some(function(camera) { return camera.microphone === true })
     readonly property bool _anyCameraHasAudio:  (VehicleModelManager.activeModel.cameras || []).some(function(camera) { return camera.audio === true })
     readonly property real _windowMargin:       ScreenTools.defaultFontPixelWidth
     readonly property var  _activeVehicle:      QGroundControl.multiVehicleManager.activeVehicle
+
+    on_ActiveVehicleChanged: CameraTalk.stop()
     readonly property bool _throttleLimited:    LinkQualityMonitor.throttleLimitEnabled && LinkQualityMonitor.throttlePercent < 100
     readonly property var  _videoSettings:      QGroundControl.settingsManager.videoSettings
     readonly property real _railButtonSize:     ScreenTools.defaultFontPixelHeight * 2.8
@@ -76,6 +79,9 @@ Item {
         property color  iconColor:  checked ? _root._accentText : qgcPal.text
 
         signal clicked()
+        /// The mouse button went down / up on the button (up also when it is let go elsewhere or the grab is lost)
+        signal pressedDown()
+        signal letGo()
 
         QGCColoredImage {
             anchors.centerIn:   parent
@@ -100,6 +106,9 @@ Item {
             anchors.fill:   parent
             hoverEnabled:   true
             onClicked:      railButton.clicked()
+            onPressed:      railButton.pressedDown()
+            onReleased:     railButton.letGo()
+            onCanceled:     railButton.letGo()
         }
     }
 
@@ -295,6 +304,29 @@ Item {
             id:                 railColumn
             anchors.centerIn:   parent
             spacing:            ScreenTools.defaultFontPixelWidth / 2
+
+            RailButton {
+                iconSource: CameraTalk.active ? "/res/nx/Mic.svg" : "/res/nx/MicOff.svg"
+                checked:    CameraTalk.active
+                visible:    _root._anyCameraHasMicrophone
+                // Push to talk: the camera's own sound is silenced while the button is held, so it does not
+                // come back through the microphone
+                property bool _mutedForTalk: false
+                onPressedDown: {
+                    _mutedForTalk = !QGroundControl.videoManager.audioMuted
+                    if (_mutedForTalk) {
+                        QGroundControl.videoManager.audioMuted = true
+                    }
+                    CameraTalk.press(VehicleModelManager.microphoneCamera())
+                }
+                onLetGo: {
+                    CameraTalk.release()
+                    if (_mutedForTalk) {
+                        QGroundControl.videoManager.audioMuted = false
+                        _mutedForTalk = false
+                    }
+                }
+            }
 
             RailButton {
                 iconSource: QGroundControl.videoManager.audioMuted ? "/res/nx/SpeakerOff.svg" : "/res/nx/Speaker.svg"
@@ -956,6 +988,17 @@ Item {
         }
 
         // The menu stays just buttons: a command that did not go through is reported under the "!" instead
+        Connections {
+            target: CameraTalk
+            function onFailed(message) { mainWindow.addVehicleNotice(qsTr("Microphone: %1").arg(message), 1, false) }
+        }
+
+        // The microphone belongs to one vehicle's camera: it goes off with the vehicle or its model
+        Connections {
+            target: VehicleModelManager
+            function onActiveModelChanged() { CameraTalk.stop() }
+        }
+
         Connections {
             target: CameraControl
             function onCommandFailed(message) { mainWindow.addVehicleNotice(message, 1, false) }

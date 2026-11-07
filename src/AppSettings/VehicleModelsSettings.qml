@@ -44,7 +44,7 @@ Rectangle {
 
     function _blankCamera() {
         return { type: VehicleModelManager.cameraTypes[0], name: "", ip: "", user: "", password: "",
-                 mainUrl: "", secondaryUrl: "", audio: false }
+                 mainUrl: "", secondaryUrl: "", audio: false, microphone: false, talkUrl: "" }
     }
 
     function _blankFunction() {
@@ -461,6 +461,21 @@ Rectangle {
                                     text:       qsTr("Audio Enabled")
                                     checked:    cameraGroup.modelData.audio === true
                                     onClicked:  cameraGroup.camera.audio = checked
+                                }
+
+                                QGCCheckBox {
+                                    id:         microphoneCheck
+                                    text:       qsTr("Microphone Enabled")
+                                    checked:    cameraGroup.modelData.microphone === true
+                                    onClicked:  cameraGroup.camera.microphone = checked
+                                }
+
+                                QGCTextField {
+                                    Layout.fillWidth:   true
+                                    visible:            microphoneCheck.checked
+                                    text:               cameraGroup.modelData.talkUrl || ""
+                                    placeholderText:    qsTr("Camera RTSP URL for the microphone (empty: the RTSP URL above)")
+                                    onTextEdited:       cameraGroup.camera.talkUrl = text
                                 }
 
                                 RowLayout {
