@@ -73,7 +73,7 @@ void RtspTalkClient::start(const QUrl &url, const QString &user, const QString &
         _url.setPort(554);
     }
     if ((_url.scheme() != QLatin1String("rtsp")) || _url.host().isEmpty()) {
-        qCInfo(NxRtspTalkLog) << "Talk address is not RTSP";
+        qCWarning(NxRtspTalkLog) << "Talk address is not RTSP";
         emit failed(tr("the talk address is not an RTSP address"));
         return;
     }
@@ -139,7 +139,7 @@ void RtspTalkClient::_fail(const QString &message)
     if ((_state == State::Idle) && !_socket) {
         return;
     }
-    qCInfo(NxRtspTalkLog) << "Talk failed:" << message;
+    qCWarning(NxRtspTalkLog) << "Talk failed:" << message;
     _close();
     emit failed(message);
 }

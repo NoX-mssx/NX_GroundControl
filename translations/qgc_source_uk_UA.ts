@@ -5551,6 +5551,26 @@ Full (100%): %2 V</source>
     <name>CameraControl</name>
     <message>
       <location filename="../src/VehicleModels/CameraControl.cc" line="1" />
+      <source>connection refused</source>
+      <translation>з'єднання відхилено</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/CameraControl.cc" line="1" />
+      <source>address not found</source>
+      <translation>адресу не знайдено</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/CameraControl.cc" line="1" />
+      <source>no answer</source>
+      <translation>немає відповіді</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/CameraControl.cc" line="1" />
+      <source>wrong user name or password</source>
+      <translation>невірний логін або пароль</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/CameraControl.cc" line="1" />
       <source>the camera does not answer Uniview (LAPI) requests</source>
       <translation>камера не відповідає на запити Uniview (LAPI)</translation>
     </message>

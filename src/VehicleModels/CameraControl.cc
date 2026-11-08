@@ -73,16 +73,24 @@ QJsonObject lapiData(const QByteArray &body, QString *error)
     return root.value(QStringLiteral("Response")).toObject().value(QStringLiteral("Data")).toObject();
 }
 
-/// Logs why a camera request failed: the commands only report that it did
-void logFailedRequest(const QNetworkReply *reply)
+/// Why a camera request failed, in a few words for the operator
+QString failureReason(const QNetworkReply *reply)
 {
-    const char *method = (reply->operation() == QNetworkAccessManager::GetOperation)   ? "GET"
-                         : (reply->operation() == QNetworkAccessManager::PutOperation) ? "PUT"
-                                                                                       : "POST";
-    qCInfo(NxCameraControlLog) << "Camera request failed:" << method
-                               << reply->url().toDisplayString(QUrl::RemoveUserInfo)
-                               << "HTTP" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt()
-                               << reply->errorString();
+    switch (reply->error()) {
+    case QNetworkReply::ConnectionRefusedError:
+        return CameraControl::tr("connection refused");
+    case QNetworkReply::HostNotFoundError:
+        return CameraControl::tr("address not found");
+    case QNetworkReply::TimeoutError:
+    case QNetworkReply::OperationCanceledError:     // the transfer timeout aborts the request
+        return CameraControl::tr("no answer");
+    case QNetworkReply::AuthenticationRequiredError:
+        return CameraControl::tr("wrong user name or password");
+    default:
+        break;
+    }
+    const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    return (status > 0) ? QStringLiteral("HTTP %1").arg(status) : reply->errorString();
 }
 
 QString commandLabel(const QString &command)
@@ -214,8 +222,8 @@ void CameraControl::run(const QVariantMap &camera, const QString &command)
     const bool uniview = type.startsWith(QLatin1String("UNV"));
     if (type.startsWith(QLatin1String("Dahua"))) {
         _runDahua(target, command, job);
-    } else if (illuminator && type.startsWith(QLatin1String("Hikvision"))) {
-        _runHikvisionIlluminator(target, command == QLatin1String("irOn"), job);
+    } else if (type.startsWith(QLatin1String("Hikvision")) && (command != QLatin1String("reboot"))) {
+        _runHikvision(target, command, job);
     } else if ((uniview && (command != QLatin1String("reboot"))) || illuminator) {
         _runUniview(target, command, job, uniview);
     } else {
@@ -257,16 +265,76 @@ void CameraControl::_runDahua(const Camera &camera, const QString &command, cons
     }
 }
 
-void CameraControl::_runHikvisionIlluminator(const Camera &camera, bool on, const Job &job)
+void CameraControl::_runHikvision(const Camera &camera, const QString &command, const Job &job)
+{
+    if ((command == QLatin1String("day")) || (command == QLatin1String("night"))) {
+        _hikvisionSetIrcut(camera, command, [this, camera, command, job](bool ok, const QString &error) {
+            if (ok) {
+                _finish(job, true);
+                return;
+            }
+            qCWarning(NxCameraControlLog) << job.label << "through ISAPI failed:" << error << "- trying ONVIF";
+            _runOnvif(camera, command, job);
+        });
+        return;
+    }
+
+    // As with Uniview, the infrared lights in black and white (night) mode, so the mode follows the light:
+    // night before it goes on, day after it goes off. The supplement light, on models that have one, is
+    // switched too. The command succeeds if either changed.
+    const bool on = (command == QLatin1String("irOn"));
+    const auto setMode = [this, camera, job, on](bool lightOk, const QString &lightError) {
+        const QString mode = on ? QStringLiteral("night") : QStringLiteral("day");
+        _hikvisionSetIrcut(camera, mode, [this, job, mode, lightOk, lightError](bool modeOk, const QString &modeError) {
+            if (modeOk) {
+                emit dayNightFollowed(job.host, mode);
+            }
+            _finish(job, modeOk || lightOk, modeOk ? QString() : (lightOk ? QString() : modeError));
+            if (!modeOk && !lightOk) {
+                qCWarning(NxCameraControlLog) << job.label << "- supplement light:" << lightError;
+            }
+        });
+    };
+    _hikvisionSetLight(camera, on, setMode);
+}
+
+void CameraControl::_hikvisionSetIrcut(const Camera &camera, const QString &filterType, const Done &done)
+{
+    // Read and written back with only the type changed, as the fields differ between models. Should the
+    // read fail, the settings the old ground station sends are written instead.
+    const QUrl url(QStringLiteral("http://%1/ISAPI/Image/channels/1/IrcutFilter").arg(camera.host));
+    _get(camera, url, [this, camera, filterType, done, url](bool ok, const QByteArray &body) {
+        static const QRegularExpression typeElement(QStringLiteral("<IrcutFilterType>[^<]*</IrcutFilterType>"));
+        QString settings = QString::fromUtf8(body);
+        if (ok && settings.contains(typeElement)) {
+            settings.replace(typeElement, QStringLiteral("<IrcutFilterType>%1</IrcutFilterType>").arg(filterType));
+        } else {
+            settings = QStringLiteral(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                "<IrcutFilter version=\"2.0\" xmlns=\"http://www.isapi.org/ver20/XMLSchema\">"
+                "<IrcutFilterType>%1</IrcutFilterType>"
+                "<nightToDayFilterLevel>4</nightToDayFilterLevel>"
+                "<Schedule><scheduleType>day</scheduleType>"
+                "<TimeRange><beginTime>06:00:00</beginTime><endTime>18:00:00</endTime></TimeRange></Schedule>"
+                "</IrcutFilter>").arg(filterType);
+        }
+        _put(camera, url, settings.toUtf8(), QStringLiteral("application/xml"), [done](bool putOk, const QByteArray &putBody) {
+            const QString detail = xmlText(putBody, QLatin1String("subStatusCode"));
+            done(putOk, putOk ? QString() : (detail.isEmpty() ? tr("the camera did not accept the request") : detail));
+        });
+    });
+}
+
+void CameraControl::_hikvisionSetLight(const Camera &camera, bool on, const Done &done)
 {
     // ISAPI keeps the illuminator under SupplementLight. The current settings are read and written back
     // with only the mode changed, because the accepted fields differ between models.
     const QUrl url(QStringLiteral("http://%1/ISAPI/Image/channels/1/SupplementLight").arg(camera.host));
-    _get(camera, url, [this, camera, on, job, url](bool ok, const QByteArray &body) {
+    _get(camera, url, [this, camera, on, done, url](bool ok, const QByteArray &body) {
         static const QRegularExpression modeElement(QStringLiteral("<supplementLightMode>[^<]*</supplementLightMode>"));
         QString settings = QString::fromUtf8(body);
         if (!ok || !settings.contains(modeElement)) {
-            _finish(job, false, tr("the camera has no switchable illuminator; it follows day/night mode"));
+            done(false, tr("the camera has no switchable illuminator; it follows day/night mode"));
             return;
         }
 
@@ -278,9 +346,9 @@ void CameraControl::_runHikvisionIlluminator(const Camera &camera, bool on, cons
             settings.replace(zeroBrightness, QStringLiteral("<irLightBrightness>100</irLightBrightness>"));
         }
 
-        _put(camera, url, settings.toUtf8(), QStringLiteral("application/xml"), [this, job](bool putOk, const QByteArray &putBody) {
+        _put(camera, url, settings.toUtf8(), QStringLiteral("application/xml"), [done](bool putOk, const QByteArray &putBody) {
             const QString detail = xmlText(putBody, QLatin1String("subStatusCode"));
-            _finish(job, putOk, putOk ? QString() : (detail.isEmpty() ? tr("the camera did not accept the request") : detail));
+            done(putOk, putOk ? QString() : (detail.isEmpty() ? tr("the camera did not accept the request") : detail));
         });
     });
 }
@@ -293,7 +361,7 @@ void CameraControl::_runUniview(const Camera &camera, const QString &command, co
                 _finish(job, true);
                 return;
             }
-            qCInfo(NxCameraControlLog) << job.label << "through LAPI failed:" << error << "- trying ONVIF";
+            qCWarning(NxCameraControlLog) << job.label << "through LAPI failed:" << error << "- trying ONVIF";
             _runOnvif(camera, command, job);
         });
         return;
@@ -316,7 +384,7 @@ void CameraControl::_runUniview(const Camera &camera, const QString &command, co
                 if (dayOk) {
                     emit dayNightFollowed(job.host, QStringLiteral("day"));
                 } else {
-                    qCInfo(NxCameraControlLog) << job.label << "- the camera stayed in its day/night mode:" << dayError;
+                    qCWarning(NxCameraControlLog) << job.label << "- the camera stayed in its day/night mode:" << dayError;
                 }
                 _finish(job, true);
             });
@@ -330,7 +398,7 @@ void CameraControl::_runUniview(const Camera &camera, const QString &command, co
         if (nightOk) {
             emit dayNightFollowed(job.host, QStringLiteral("night"));
         } else {
-            qCInfo(NxCameraControlLog) << job.label << "- the camera stayed in its day/night mode:" << nightError;
+            qCWarning(NxCameraControlLog) << job.label << "- the camera stayed in its day/night mode:" << nightError;
         }
         setLamp();
     });
@@ -480,11 +548,9 @@ void CameraControl::_get(const Camera &camera, const QUrl &url, const Reply &rep
     QNetworkReply *const networkReply = _network->get(request);
     networkReply->setProperty("nxUser", camera.user);
     networkReply->setProperty("nxPassword", camera.password);
-    (void) connect(networkReply, &QNetworkReply::finished, this, [networkReply, reply]() {
+    (void) connect(networkReply, &QNetworkReply::finished, this, [this, host = camera.host, networkReply, reply]() {
         const QByteArray body = networkReply->readAll();
-        if (networkReply->error() != QNetworkReply::NoError) {
-            logFailedRequest(networkReply);
-        }
+        _noteRequest(host, networkReply);
         reply(networkReply->error() == QNetworkReply::NoError, body);
         networkReply->deleteLater();
     });
@@ -499,11 +565,9 @@ void CameraControl::_put(const Camera &camera, const QUrl &url, const QByteArray
     QNetworkReply *const networkReply = _network->put(request, body);
     networkReply->setProperty("nxUser", camera.user);
     networkReply->setProperty("nxPassword", camera.password);
-    (void) connect(networkReply, &QNetworkReply::finished, this, [networkReply, reply]() {
+    (void) connect(networkReply, &QNetworkReply::finished, this, [this, host = camera.host, networkReply, reply]() {
         const QByteArray responseBody = networkReply->readAll();
-        if (networkReply->error() != QNetworkReply::NoError) {
-            logFailedRequest(networkReply);
-        }
+        _noteRequest(host, networkReply);
         reply(networkReply->error() == QNetworkReply::NoError, responseBody);
         networkReply->deleteLater();
     });
@@ -536,14 +600,31 @@ void CameraControl::_soap(const Camera &camera, const QUrl &url, const QString &
     request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/soap+xml; charset=utf-8"));
 
     QNetworkReply *const networkReply = _network->post(request, soapEnvelope(header, body).toUtf8());
-    (void) connect(networkReply, &QNetworkReply::finished, this, [networkReply, reply]() {
+    (void) connect(networkReply, &QNetworkReply::finished, this, [this, host = camera.host, networkReply, reply]() {
         const QByteArray responseBody = networkReply->readAll();
-        if (networkReply->error() != QNetworkReply::NoError) {
-            logFailedRequest(networkReply);
-        }
+        _noteRequest(host, networkReply);
         reply(networkReply->error() == QNetworkReply::NoError, responseBody);
         networkReply->deleteLater();
     });
+}
+
+void CameraControl::_noteRequest(const QString &host, const QNetworkReply *reply)
+{
+    if (reply->error() == QNetworkReply::NoError) {
+        _lastFailure.remove(host);
+        return;
+    }
+    const char *method = (reply->operation() == QNetworkAccessManager::GetOperation)   ? "GET"
+                         : (reply->operation() == QNetworkAccessManager::PutOperation) ? "PUT"
+                                                                                       : "POST";
+    qCWarning(NxCameraControlLog) << "Camera request failed:" << method << reply->url().toDisplayString(QUrl::RemoveUserInfo)
+                                  << "HTTP" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt()
+                                  << reply->errorString();
+    // A refused login says the most; a later fallback request (ONVIF after ISAPI) does not replace it
+    const QString loginRefused = tr("wrong user name or password");
+    if (_lastFailure.value(host) != loginRefused) {
+        _lastFailure.insert(host, (reply->error() == QNetworkReply::AuthenticationRequiredError) ? loginRefused : failureReason(reply));
+    }
 }
 
 void CameraControl::_begin()
@@ -555,8 +636,11 @@ void CameraControl::_begin()
 
 void CameraControl::_finish(const Job &job, bool ok, const QString &detail)
 {
+    // Why the camera's last request failed tells the operator more than which step gave up
+    const QString why = _lastFailure.take(job.host);
+    const QString reason = (ok || why.isEmpty()) ? detail : (detail.isEmpty() ? why : QStringLiteral("%1 (%2)").arg(detail, why));
     _status = ok ? tr("%1 - done").arg(job.label)
-                 : (detail.isEmpty() ? tr("%1 - failed").arg(job.label) : tr("%1 - failed: %2").arg(job.label, detail));
+                 : (reason.isEmpty() ? tr("%1 - failed").arg(job.label) : tr("%1 - failed: %2").arg(job.label, reason));
     if (!ok) {
         qCWarning(NxCameraControlLog) << _status;
     }

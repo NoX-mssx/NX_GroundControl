@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QtCore/QByteArray>
+#include <QtCore/QHash>
 #include <QtCore/QJsonObject>
 #include <QtCore/QObject>
 #include <QtCore/QString>
@@ -12,11 +13,13 @@
 #include <functional>
 
 class QNetworkAccessManager;
+class QNetworkReply;
 
 /// Sends control commands to the IP cameras of a vehicle model (see VehicleModelManager for the camera map).
 ///
 /// Dahua cameras are driven through their HTTP CGI interface, which covers day/night profiles and the
-/// illuminator. Uniview (UNV) cameras are driven through their LAPI interface for day/night and the
+/// illuminator. Hikvision cameras are driven through ISAPI: the IR cut filter for day/night and the supplement
+/// light, falling back to ONVIF for day/night (ONVIF is off by default on Hikvision). Uniview (UNV) cameras are driven through their LAPI interface for day/night and the
 /// illuminator, falling back to ONVIF for day/night. Every other camera type goes through ONVIF, which
 /// only standardises the IR cut filter (day/night) and reboot; the illuminator of Hikvision cameras is
 /// switched through ISAPI, and that of generic cameras is tried through LAPI, as many are Uniview inside.
@@ -70,7 +73,10 @@ private:
     using LapiChange = std::function<bool(QJsonObject &data)>;
 
     void _runDahua(const Camera &camera, const QString &command, const Job &job);
-    void _runHikvisionIlluminator(const Camera &camera, bool on, const Job &job);
+    void _runHikvision(const Camera &camera, const QString &command, const Job &job);
+    /// @param filterType "day" or "night"
+    void _hikvisionSetIrcut(const Camera &camera, const QString &filterType, const Done &done);
+    void _hikvisionSetLight(const Camera &camera, bool on, const Done &done);
     void _runOnvif(const Camera &camera, const QString &command, const Job &job);
     void _onvifSetIrCutFilter(const Camera &camera, qint64 clockOffsetSecs, bool day, const Job &job);
     /// @param uniview the camera type says Uniview; otherwise a failure reads as "not available"
@@ -82,6 +88,9 @@ private:
 
     /// HTTP GET with digest authentication
     void _get(const Camera &camera, const QUrl &url, const Reply &reply);
+    /// Remembers why the last request to @p host failed (empty: it did not), for the message of a failed command
+    void _noteRequest(const QString &host, const QNetworkReply *reply);
+
     /// HTTP PUT with digest authentication
     void _put(const Camera &camera, const QUrl &url, const QByteArray &body, const QString &contentType, const Reply &reply);
     /// SOAP request; with @p authenticate a WS-Security header for the camera's clock is added
@@ -94,4 +103,5 @@ private:
     QNetworkAccessManager *_network = nullptr;
     QString _status;
     int _pending = 0;
+    QHash<QString, QString> _lastFailure;     ///< Why the last request to a camera host failed
 };
