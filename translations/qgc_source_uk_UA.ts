@@ -24250,6 +24250,11 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <name>VehicleAlertIndicator</name>
     <message>
       <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>No GPS lock</source>
+      <translation>Немає фіксації GPS</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
       <source>Messages</source>
       <translation>Повідомлення</translation>
     </message>

@@ -9,7 +9,9 @@ Rectangle {
     width:              warningsCol.width
     color:              Qt.rgba(1, 1, 1, 0.5)
     radius:             ScreenTools.defaultFontPixelWidth / 2
-    visible:            _noGPSLockVisible || _prearmErrorVisible
+    // NX: nothing is written over the video; a missing GPS position (VehicleAlertIndicator) and pre-arm failures
+    // (critical vehicle messages, MainWindow.showCriticalVehicleMessage) are under the top bar's "!"
+    visible:            false
 
     property var  _activeVehicle:       QGroundControl.multiVehicleManager.activeVehicle
     property bool _noGPSLockVisible:    _activeVehicle && _activeVehicle.requiresGpsFix && !_activeVehicle.coordinate.isValid

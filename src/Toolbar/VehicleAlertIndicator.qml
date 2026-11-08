@@ -4,9 +4,10 @@ import QtQuick.Layouts
 import QGroundControl
 import QGroundControl.Controls
 
-/// Exclamation mark for vehicle problems that are not GPS loss or a failsafe: orange for a warning, red for a
-/// critical problem, hidden while there is nothing to show. It collects
-///   - the live checks (motor controller temperature and current against the model thresholds),
+/// Exclamation mark for vehicle problems that are not a failsafe: orange for a warning, red for a critical
+/// problem, hidden while there is nothing to show. It collects
+///   - the live checks (motor controller temperature and current against the model thresholds, and a GPS
+///     without a position, which stock QGC writes over the video),
 ///   - the messages that would otherwise pop up while driving (see MainWindow.addVehicleNotice).
 /// Each entry is { text, level } with level 1 (warning) or 2 (critical); messages also carry time and count.
 /// The vehicle does not say when a problem from a message is over, so a message lights the mark only while it is
@@ -22,7 +23,7 @@ Item {
     property var _activeVehicle: QGroundControl.multiVehicleManager.activeVehicle
 
     /// Live problems of the active vehicle
-    readonly property var alerts: _motorAlerts()
+    readonly property var alerts: _motorAlerts().concat(_gpsAlerts())
     /// Messages received while driving, newest first
     readonly property var notices: mainWindow.vehicleNotices
     /// The messages that still light the mark
@@ -59,6 +60,14 @@ Item {
         onTriggered:    control._now = Date.now()
     }
     onNoticesChanged: _now = Date.now()
+
+    /// A vehicle that needs a GPS position and has none yet
+    function _gpsAlerts() {
+        if (_activeVehicle && _activeVehicle.requiresGpsFix && !_activeVehicle.coordinate.isValid) {
+            return [{ text: qsTr("No GPS lock"), level: 1 }]
+        }
+        return []
+    }
 
     /// Motor controller temperature and current against the thresholds of the vehicle model
     function _motorAlerts() {
