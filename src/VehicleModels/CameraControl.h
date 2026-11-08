@@ -17,12 +17,14 @@ class QNetworkReply;
 
 /// Sends control commands to the IP cameras of a vehicle model (see VehicleModelManager for the camera map).
 ///
+/// Day/night and the illuminator are separate commands: switching the light never changes the mode.
+///
 /// Dahua cameras are driven through their HTTP CGI interface, which covers day/night profiles and the
 /// illuminator. Hikvision cameras are driven through ISAPI: the IR cut filter for day/night and the supplement
-/// light, falling back to ONVIF for day/night (ONVIF is off by default on Hikvision). Uniview (UNV) cameras are driven through their LAPI interface for day/night and the
-/// illuminator, falling back to ONVIF for day/night. Every other camera type goes through ONVIF, which
-/// only standardises the IR cut filter (day/night) and reboot; the illuminator of Hikvision cameras is
-/// switched through ISAPI, and that of generic cameras is tried through LAPI, as many are Uniview inside.
+/// light, falling back to ONVIF for day/night (ONVIF is off by default on Hikvision). Uniview (UNV) cameras
+/// are driven through their LAPI interface for day/night and the infrared lamp, falling back to ONVIF for
+/// day/night. Every other camera type goes through ONVIF, which only standardises the IR cut filter
+/// (day/night) and reboot; the illuminator of generic cameras is tried through LAPI, as many are Uniview inside.
 class CameraControl : public QObject
 {
     Q_OBJECT
@@ -51,8 +53,6 @@ signals:
     void commandFailed(const QString &message);
     /// A command ended; @p host is the camera's address as given in the vehicle model
     void commandFinished(const QString &host, const QString &command, bool ok);
-    /// The camera switched its day/night mode along with its illuminator; @p command is "day" or "night"
-    void dayNightFollowed(const QString &host, const QString &command);
 
 private:
     struct Camera {

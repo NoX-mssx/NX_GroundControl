@@ -279,23 +279,10 @@ void CameraControl::_runHikvision(const Camera &camera, const QString &command, 
         return;
     }
 
-    // As with Uniview, the infrared lights in black and white (night) mode, so the mode follows the light:
-    // night before it goes on, day after it goes off. The supplement light, on models that have one, is
-    // switched too. The command succeeds if either changed.
-    const bool on = (command == QLatin1String("irOn"));
-    const auto setMode = [this, camera, job, on](bool lightOk, const QString &lightError) {
-        const QString mode = on ? QStringLiteral("night") : QStringLiteral("day");
-        _hikvisionSetIrcut(camera, mode, [this, job, mode, lightOk, lightError](bool modeOk, const QString &modeError) {
-            if (modeOk) {
-                emit dayNightFollowed(job.host, mode);
-            }
-            _finish(job, modeOk || lightOk, modeOk ? QString() : (lightOk ? QString() : modeError));
-            if (!modeOk && !lightOk) {
-                qCWarning(NxCameraControlLog) << job.label << "- supplement light:" << lightError;
-            }
-        });
-    };
-    _hikvisionSetLight(camera, on, setMode);
+    // The light only: day/night is a command of its own, so the operator chooses, say, night without the light
+    _hikvisionSetLight(camera, command == QLatin1String("irOn"), [this, job](bool ok, const QString &error) {
+        _finish(job, ok, error);
+    });
 }
 
 void CameraControl::_hikvisionSetIrcut(const Camera &camera, const QString &filterType, const Done &done)
@@ -367,40 +354,9 @@ void CameraControl::_runUniview(const Camera &camera, const QString &command, co
         return;
     }
 
-    // The infrared lamp lights only in black and white (night) mode, so the mode follows it: night before
-    // the lamp goes on, day after it goes off. A mode that does not switch does not fail the command.
-    const bool on = (command == QLatin1String("irOn"));
-    const auto setLamp = [this, camera, job, on, uniview]() {
-        _univiewSetLamp(camera, on, [this, camera, job, on, uniview](bool ok, const QString &error) {
-            if (!ok) {
-                _finish(job, false, uniview ? error : tr("not available for this camera type; the illuminator follows day/night mode"));
-                return;
-            }
-            if (on) {
-                _finish(job, true);
-                return;
-            }
-            _univiewSetDayNight(camera, true, [this, job](bool dayOk, const QString &dayError) {
-                if (dayOk) {
-                    emit dayNightFollowed(job.host, QStringLiteral("day"));
-                } else {
-                    qCWarning(NxCameraControlLog) << job.label << "- the camera stayed in its day/night mode:" << dayError;
-                }
-                _finish(job, true);
-            });
-        });
-    };
-    if (!on) {
-        setLamp();
-        return;
-    }
-    _univiewSetDayNight(camera, false, [this, job, setLamp](bool nightOk, const QString &nightError) {
-        if (nightOk) {
-            emit dayNightFollowed(job.host, QStringLiteral("night"));
-        } else {
-            qCWarning(NxCameraControlLog) << job.label << "- the camera stayed in its day/night mode:" << nightError;
-        }
-        setLamp();
+    // The lamp only: day/night is a command of its own. The lamp lights in black and white (night) mode.
+    _univiewSetLamp(camera, command == QLatin1String("irOn"), [this, job, uniview](bool ok, const QString &error) {
+        _finish(job, ok, ok ? QString() : (uniview ? error : tr("not available for this camera type; the illuminator follows day/night mode")));
     });
 }
 

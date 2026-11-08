@@ -1002,7 +1002,6 @@ Item {
         Connections {
             target: CameraControl
             function onCommandFailed(message) { mainWindow.addVehicleNotice(message, 1, false) }
-            function onDayNightFollowed(host, command) { cameraCommandPanel._choose(host, "mode", command) }
             function onCommandFinished(host, command, ok) {
                 if (ok || command === "reboot") {
                     return
