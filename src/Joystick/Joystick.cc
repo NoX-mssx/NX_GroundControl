@@ -15,6 +15,7 @@
 #include "JoystickManager.h"
 #include "MultiVehicleManager.h"
 
+#include <QtCore/QRegularExpression>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QSet>
 #include <algorithm>
@@ -783,6 +784,23 @@ void Joystick::_handleButtons()
         }
         if (!_joystickSettings.calibrated()->rawValue().toBool()) {
             return;
+        }
+
+        // NX: a radio switch held in one position before the vehicle came keeps its button down, so its value
+        // was never applied: apply the values of the held buttons once
+        if (_resyncModelSteps.exchange(false, std::memory_order_relaxed)) {
+            static const QRegularExpression stepAction(QStringLiteral("^Model button \\d+ value \\d+$"));
+            for (int buttonIndex = 0; buttonIndex < _totalButtonCount; buttonIndex++) {
+                const auto &assignedAction = _assignedButtonActions[buttonIndex];
+                const auto eventState = _buttonEventStates[buttonIndex];
+                if (assignedAction && stepAction.match(assignedAction->actionName).hasMatch() &&
+                    ((eventState == ButtonEventRepeat) || (eventState == ButtonEventDownTransition))) {
+                    const QString buttonAction = assignedAction->actionName;
+                    QMetaObject::invokeMethod(this, [this, buttonAction]() {
+                        _executeButtonAction(buttonAction, ButtonEventDownTransition);
+                    }, Qt::QueuedConnection);
+                }
+            }
         }
 
         //-- Process button press/release
@@ -1814,6 +1832,13 @@ void Joystick::_buildAvailableButtonsActionList(Vehicle *vehicle)
         _availableButtonActions->append(new AvailableButtonAction(QString::fromLatin1(_buttonActionModelButton).arg(i + 1),
             [this, i]() { emit modelButton(i, true); },
             [this, i]() { emit modelButton(i, false); }));
+    }
+    for (int i = 0; i < kModelButtonActionCount; i++) {
+        for (int step = 0; step < kModelStepActionCount; step++) {
+            _availableButtonActions->append(new AvailableButtonAction(
+                QString::fromLatin1(_buttonActionModelStep).arg(i + 1).arg(step + 1),
+                [this, i, step]() { emit modelButtonStep(i, step); }));
+        }
     }
     _availableButtonActions->append(new AvailableButtonAction(_buttonActionVideoQuality,
         [this]() { emit toggleVideoQuality(); }));

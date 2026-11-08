@@ -9865,6 +9865,11 @@ VTOL</source>
     <name>Joystick</name>
     <message>
       <location filename="../src/Joystick/Joystick.h" line="1" />
+      <source>Model button %1 value %2</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Joystick/Joystick.h" line="1" />
       <source>Model button %1</source>
       <translation type="unfinished" />
     </message>
@@ -10061,6 +10066,16 @@ VTOL</source>
 </context>
 <context>
     <name>JoystickComponent</name>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>%1: value %2 (%3)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>%1: value %2</source>
+      <translation type="unfinished" />
+    </message>
     <message>
       <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
       <source>pitch extension</source>

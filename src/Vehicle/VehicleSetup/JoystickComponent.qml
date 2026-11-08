@@ -89,9 +89,42 @@ SetupPage {
                 return m ? parseInt(m[1]) : 0
             }
 
+            /// Value actions of several-value model buttons are stored as "Model button N value K";
+            /// returns { button: N, step: K }, or null for any other action
+            function _modelStep(action) {
+                const m = /^Model button (\d+) value (\d+)$/.exec(action)
+                return m ? { button: parseInt(m[1]), step: parseInt(m[2]) } : null
+            }
+
+            /// The values of a several-value model button (N from 1), as its first function has them; [] otherwise
+            function _stepValues(number) {
+                const buttons = VehicleModelManager.activeModel.buttons || []
+                const button = (number >= 1 && number <= buttons.length) ? buttons[number - 1] : null
+                if (!button || button.mode !== "steps") {
+                    return []
+                }
+                const functions = button.functions || []
+                let values = []
+                for (let i = 0; i < functions.length; i++) {
+                    const steps = functions[i].steps || []
+                    if (steps.length > values.length) {
+                        values = steps
+                    }
+                }
+                return values
+            }
+
             function _actionTitle(action) {
                 if (joystick && action === joystick.buttonActionNone) {
                     return qsTr("Not assigned")
+                }
+                const step = _modelStep(action)
+                if (step) {
+                    const stepButtons = VehicleModelManager.activeModel.buttons || []
+                    const stepName = (step.button <= stepButtons.length && stepButtons[step.button - 1].name) ? stepButtons[step.button - 1].name : qsTr("Model button %1").arg(step.button)
+                    const values = _stepValues(step.button)
+                    return step.step <= values.length ? qsTr("%1: value %2 (%3)").arg(stepName).arg(step.step).arg(values[step.step - 1])
+                                                      : qsTr("%1: value %2").arg(stepName).arg(step.step)
                 }
                 const number = _modelButtonNumber(action)
                 if (number > 0) {
@@ -118,6 +151,11 @@ SetupPage {
                         }
                         const number = _modelButtonNumber(action)
                         if (number > modelButtonCount) {
+                            continue
+                        }
+                        // A value of a several-value button is offered only for the buttons and values there are
+                        const step = _modelStep(action)
+                        if (step && step.step > _stepValues(step.button).length) {
                             continue
                         }
                     }

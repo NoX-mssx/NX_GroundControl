@@ -9891,6 +9891,11 @@ VTOL</translation>
     <name>Joystick</name>
     <message>
       <location filename="../src/Joystick/Joystick.h" line="1" />
+      <source>Model button %1 value %2</source>
+      <translation>Кнопка моделі %1, значення %2</translation>
+    </message>
+    <message>
+      <location filename="../src/Joystick/Joystick.h" line="1" />
       <source>Model button %1</source>
       <translation>Кнопка моделі %1</translation>
     </message>
@@ -10087,6 +10092,16 @@ VTOL</translation>
   </context>
   <context>
     <name>JoystickComponent</name>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>%1: value %2 (%3)</source>
+      <translation>%1: значення %2 (%3)</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
+      <source>%1: value %2</source>
+      <translation>%1: значення %2</translation>
+    </message>
     <message>
       <location filename="../src/Vehicle/VehicleSetup/JoystickComponent.qml" line="1" />
       <source>pitch extension</source>

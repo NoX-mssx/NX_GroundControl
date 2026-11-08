@@ -334,6 +334,10 @@ public:
 
     void stop();
 
+    /// NX: re-applies the model button values picked by joystick buttons that are held, such as a radio switch
+    /// resting in a position, once a vehicle and its model are there to take them. Called from the GUI thread.
+    void resyncModelSteps() { _resyncModelSteps.store(true, std::memory_order_relaxed); }
+
 signals:
     void buttonActionsChanged();
     void assignableActionsChanged();
@@ -370,6 +374,8 @@ signals:
     void motorInterlock(bool enable);
     /// NX: a joystick button assigned to a vehicle model button went down or up (index starts at 0)
     void modelButton(int index, bool down);
+    /// NX: a joystick button assigned to one value of a several-value model button went down; both start at 0
+    void modelButtonStep(int index, int step);
     /// NX: a joystick button assigned to the HD / SD switch was pressed
     void toggleVideoQuality();
     void unknownAction(const QString &action);
@@ -483,6 +489,7 @@ private:
     QElapsedTimer _axisElapsedTimer;
     QStringList _availableActionTitles;
     std::atomic<bool> _exitPollingThread = false;    ///< true: signal thread to exit
+    std::atomic<bool> _resyncModelSteps = false;     ///< NX: see resyncModelSteps()
 
     // HOTAS/Multi-device linking
     QString _linkedGroupId;
@@ -529,7 +536,12 @@ private:
     static constexpr const char *_buttonActionModelButton =        QT_TR_NOOP("Model button %1");
     /// NX: switch every camera between its HD and SD stream
     static constexpr const char *_buttonActionVideoQuality =       QT_TR_NOOP("Video HD / SD");
+    /// NX: one value of a several-value model button, so that each position of a radio switch picks its value;
+    /// %1 is the button's number and %2 the value's, both starting at 1
+    static constexpr const char *_buttonActionModelStep =          QT_TR_NOOP("Model button %1 value %2");
     /// Model buttons offered for assignment
     static constexpr int kModelButtonActionCount = 10;
+    /// Values offered per several-value model button
+    static constexpr int kModelStepActionCount = 5;
 
 };

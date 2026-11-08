@@ -373,6 +373,10 @@ void VehicleModelManager::_updateActiveModel()
     _stepChosenAt.clear();
     emit activeModelChanged();
     emit buttonStatesChanged();
+    // A radio switch picking a several-value button's value applies its position to the new vehicle
+    if (_joystick && _activeVehicle && !_activeModel.isEmpty()) {
+        _joystick->resyncModelSteps();
+    }
 
     _mainCameraIndex = 0;
     _cameraEnabled.clear();
@@ -580,6 +584,7 @@ void VehicleModelManager::_activeJoystickChanged(Joystick *joystick)
         return;
     }
     (void) connect(_joystick, &Joystick::modelButton, this, &VehicleModelManager::_joystickModelButton);
+    (void) connect(_joystick, &Joystick::modelButtonStep, this, &VehicleModelManager::selectStep);
     (void) connect(_joystick, &Joystick::toggleVideoQuality, this, [this]() { setSecondaryStream(!_secondaryStream); });
 }
 
