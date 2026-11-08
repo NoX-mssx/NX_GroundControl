@@ -128,6 +128,9 @@ void LinkManager::disconnectLinkConfiguration(LinkConfiguration *config)
 
     if (LinkInterface *const link = config->link()) {
         link->disconnect();
+    } else {
+        // Switched off while waiting for the vehicle: no link is there to stop the tunnel when it goes
+        _stopTunnelIfUnused(config);
     }
 }
 
@@ -189,7 +192,11 @@ bool LinkManager::createConnectedLink(SharedLinkConfigurationPtr &config)
             ? tr("The WireGuard tunnel \"%1\" selected for this link no longer exists.").arg(config->wireGuardProfile())
             : WireGuardTunnel::start(tunnel);
         if (!tunnelError.isEmpty()) {
-            qgcApp()->showAppMessage(tunnelError, config->name());
+            if (_reconnecting) {
+                qCWarning(LinkManagerLog) << config->name() << tunnelError << "- will try again";
+            } else {
+                qgcApp()->showAppMessage(tunnelError, config->name());
+            }
             (void) disconnect(link.get(), nullptr, this, nullptr);
             (void) disconnect(link.get(), nullptr, MAVLinkProtocol::instance(), nullptr);
             link->_freeMavlinkChannel();
@@ -231,8 +238,9 @@ void LinkManager::_communicationError(const QString &title, const QString &error
     const LinkInterface *const link = qobject_cast<LinkInterface*>(sender());
     const SharedLinkConfigurationPtr config = link ? link->linkConfiguration() : nullptr;
 
-    // Auto-connect links retry on a timer; a popup per failed attempt is just noise. Log only.
-    if (config && config->isAutoConnect() && !config->suppressAutoReconnect()) {
+    // Links the user switched on retry on a timer (NX: not only auto-connect ones); a popup per failed attempt
+    // is just noise, and a vehicle switched off or still booting is no error. Log only.
+    if (config && config->autoConnectStarted() && !config->suppressAutoReconnect()) {
         qCDebug(LinkManagerLog) << "Auto-connect link error (will retry):" << title << error;
         return;
     }
@@ -311,23 +319,9 @@ void LinkManager::_linkDisconnected()
         return;
     }
 
-    if (config && !config->wireGuardProfile().isEmpty()) {
-        const QString tunnel = WireGuardTunnel::tunnelForProfile(config->wireGuardProfile(), config->room());
-        // Another link still using the same tunnel keeps it up.
-        bool tunnelInUse = false;
-        {
-            QMutexLocker locker(&_linksMutex);
-            for (const SharedLinkInterfacePtr &other : std::as_const(_rgLinks)) {
-                const SharedLinkConfigurationPtr otherConfig = other->linkConfiguration();
-                if (otherConfig && (otherConfig->wireGuardProfile() == config->wireGuardProfile())) {
-                    tunnelInUse = true;
-                    break;
-                }
-            }
-        }
-        if (!tunnel.isEmpty() && !tunnelInUse) {
-            WireGuardTunnel::stop(tunnel);
-        }
+    // A link that will be tried again keeps its tunnel up: restarting it for every attempt is slow
+    if (config && !_awaitingReconnect(config.get())) {
+        _stopTunnelIfUnused(config.get());
     }
 
     if (config) {
@@ -523,10 +517,42 @@ void LinkManager::_addMAVLinkForwardingLink()
     _createDynamicForwardLink(_mavlinkForwardingLinkName, hostName);
 }
 
+bool LinkManager::_awaitingReconnect(const LinkConfiguration *config) const
+{
+    return config && !_connectionsSuspended && config->autoConnectStarted() && !config->suppressAutoReconnect() &&
+           (!config->isDynamic() || config->fromRoom());
+}
+
+void LinkManager::_stopTunnelIfUnused(const LinkConfiguration *config)
+{
+    if (!config || config->wireGuardProfile().isEmpty()) {
+        return;
+    }
+    const QString tunnel = WireGuardTunnel::tunnelForProfile(config->wireGuardProfile(), config->room());
+    // Another link still using the same tunnel keeps it up.
+    bool tunnelInUse = false;
+    {
+        QMutexLocker locker(&_linksMutex);
+        for (const SharedLinkInterfacePtr &other : std::as_const(_rgLinks)) {
+            const SharedLinkConfigurationPtr otherConfig = other->linkConfiguration();
+            if (otherConfig && (otherConfig.get() != config) && (otherConfig->wireGuardProfile() == config->wireGuardProfile())) {
+                tunnelInUse = true;
+                break;
+            }
+        }
+    }
+    if (!tunnel.isEmpty() && !tunnelInUse) {
+        WireGuardTunnel::stop(tunnel);
+    }
+}
+
 void LinkManager::_reconnectAutoConnectLinks()
 {
+    // NX: every link the user switched on (or that started with the app) is tried again until switched off,
+    // so a vehicle that is switched off, rebooting or still booting is waited for instead of dropped.
+    // Links from a room are its operator's; other dynamic links (UDP auto-connect, forwarding) are not.
     for (SharedLinkConfigurationPtr &config : _rgLinkConfigs) {
-        if (!config || config->isDynamic() || !config->isAutoConnect()) {
+        if (!config || (config->isDynamic() && !config->fromRoom())) {
             continue;
         }
 
@@ -543,7 +569,9 @@ void LinkManager::_reconnectAutoConnectLinks()
 
         qCDebug(LinkManagerLog) << "Reconnecting auto-connect link" << config->name();
         config->noteReconnectAttempt();
+        _reconnecting = true;
         createConnectedLink(config);
+        _reconnecting = false;
     }
 }
 
@@ -592,6 +620,12 @@ void LinkManager::shutdown()
 {
     setConnectionsSuspended(tr("Shutdown"));
     disconnectAll();
+    // Links waiting for their vehicle have no link to stop their tunnel
+    for (const SharedLinkConfigurationPtr &config : std::as_const(_rgLinkConfigs)) {
+        if (config && !config->link() && config->autoConnectStarted() && !config->suppressAutoReconnect()) {
+            _stopTunnelIfUnused(config.get());
+        }
+    }
 
     // Wait for all the vehicles to go away to ensure an orderly shutdown and deletion of all objects
     while (MultiVehicleManager::instance()->vehicles()->count()) {

@@ -137,6 +137,10 @@ private:
     void _addUDPAutoConnectLink();
     void _addMAVLinkForwardingLink();
     void _reconnectAutoConnectLinks();
+    /// NX: true while a link the user switched on is down and will be tried again
+    bool _awaitingReconnect(const LinkConfiguration *config) const;
+    /// Stops the WireGuard tunnel of @p config unless another connected link uses it
+    void _stopTunnelIfUnused(const LinkConfiguration *config);
     void _createDynamicForwardLink(const char *linkName, const QString &hostName);
 
     QTimer *_portListTimer = nullptr;
@@ -146,6 +150,7 @@ private:
     bool _configUpdateSuspended = false;            ///< true: stop updating configuration list
     bool _configurationsLoaded = false;             ///< true: Link configurations have been loaded
     bool _connectionsSuspended = false;             ///< true: all new connections should not be allowed
+    bool _reconnecting = false;                     ///< true: links are being tried again, failures are only logged
     bool _mavlinkSupportForwardingEnabled = false;
     uint32_t _mavlinkChannelsUsedBitMask = 1;
     QString _connectionsSuspendedReason;            ///< User visible reason for suspension

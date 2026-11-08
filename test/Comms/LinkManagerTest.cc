@@ -72,15 +72,41 @@ void LinkManagerTest::_testDynamicLinkNotReconnected()
     linkManager()->removeConfiguration(config.get());
 }
 
-void LinkManagerTest::_testNonAutoConnectLinkNotReconnected()
+void LinkManagerTest::_testSwitchedOnLinkReconnected()
 {
+    // NX: a link the user switched on waits for its vehicle, auto-connect or not
     SharedLinkConfigurationPtr config = _addMockConfig(QStringLiteral("ManualMock"), false /*dynamic*/, false /*autoConnect*/);
     QVERIFY(config);
     QVERIFY(config->link());
 
     config->link()->disconnect();
     QTRY_VERIFY_WITH_TIMEOUT(config->link() == nullptr, TestTimeout::mediumMs());
+    QVERIFY(config->linkActive());
 
+    _reconnect();
+    QVERIFY(config->link());
+
+    linkManager()->removeConfiguration(config.get());
+}
+
+void LinkManagerTest::_testRoomLinkReconnected()
+{
+    // NX: a room link is dynamic, but it is the operator's link to the vehicle and waits for it too
+    MockConfiguration *const mockConfig = new MockConfiguration(QStringLiteral("RoomMock"));
+    mockConfig->setFromRoom(QStringLiteral("board-1"));
+    SharedLinkConfigurationPtr config = linkManager()->addConfiguration(mockConfig);
+    config->setAutoConnectStarted(true);
+    QVERIFY(linkManager()->createConnectedLink(config));
+    QVERIFY(config->link());
+
+    config->link()->disconnect();
+    QTRY_VERIFY_WITH_TIMEOUT(config->link() == nullptr, TestTimeout::mediumMs());
+
+    _reconnect();
+    QVERIFY(config->link());
+
+    linkManager()->disconnectLinkConfiguration(config.get());
+    QTRY_VERIFY_WITH_TIMEOUT(config->link() == nullptr, TestTimeout::mediumMs());
     _reconnect();
     QVERIFY(config->link() == nullptr);
 

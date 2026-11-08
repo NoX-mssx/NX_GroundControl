@@ -343,6 +343,16 @@ bool VehicleLinkManager::_updatePrimaryLink()
     return true;
 }
 
+void VehicleLinkManager::suppressReconnect()
+{
+    for (const LinkInfo_t &linkInfo : std::as_const(_rgLinkInfo)) {
+        const SharedLinkConfigurationPtr config = linkInfo.link ? linkInfo.link->linkConfiguration() : nullptr;
+        if (config) {
+            config->setSuppressAutoReconnect(true);
+        }
+    }
+}
+
 void VehicleLinkManager::closeVehicle()
 {
     // Vehicle is no longer communicating with us. Remove all link references

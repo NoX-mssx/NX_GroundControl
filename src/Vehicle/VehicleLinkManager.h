@@ -44,6 +44,8 @@ public:
     void setPrimaryLinkByName(const QString &name);
     void setCommunicationLostEnabled(bool communicationLostEnabled);
     void closeVehicle();
+    /// NX: the user is closing the vehicle, so its links are not tried again (LinkManager keeps switched-on links)
+    void suppressReconnect();
 
 signals:
     void primaryLinkChanged();

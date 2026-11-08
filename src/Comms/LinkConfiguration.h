@@ -63,7 +63,9 @@ public:
 
     /// True while the link is connected or being kept connected by auto-reconnect.
     /// Stays true across reconnect attempts so UI doesn't flicker between retries.
-    bool linkActive() const { return (link() != nullptr) || (_autoConnect && _autoConnectStarted && !_suppressAutoReconnect); }
+    /// NX: every link the user switched on is kept until switched off, not only auto-connect ones: a vehicle
+    /// that is switched off or still booting is waited for (see LinkManager::_reconnectAutoConnectLinks).
+    bool linkActive() const { return (link() != nullptr) || (_autoConnectStarted && !_suppressAutoReconnect); }
 
     /// Is this a dynamic configuration?
     ///     @return True if not persisted

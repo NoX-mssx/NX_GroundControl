@@ -13,7 +13,8 @@ private slots:
     void _testReconnectsDroppedAutoConnectLink();
     void _testSuppressedLinkNotReconnected();
     void _testDynamicLinkNotReconnected();
-    void _testNonAutoConnectLinkNotReconnected();
+    void _testSwitchedOnLinkReconnected();
+    void _testRoomLinkReconnected();
     void _testNeverStartedLinkNotConnected();
     void _testLinkActiveStableAcrossReconnect();
 

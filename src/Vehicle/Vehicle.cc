@@ -432,7 +432,12 @@ QmlObjectListModel* Vehicle::escs()                 { return _escStatusFactGroup
 
 QObject* Vehicle::sysStatusSensorInfo()                             { return _sysStatusSensorInfo.get(); }
 QmlObjectListModel* Vehicle::cameraTriggerPoints()                  { return _cameraTriggerPoints.get(); }
-void Vehicle::closeVehicle()                                        { _vehicleLinkManager->closeVehicle(); }
+void Vehicle::closeVehicle()
+{
+    // Called when the user disconnects: the links are not to come back on their own
+    _vehicleLinkManager->suppressReconnect();
+    _vehicleLinkManager->closeVehicle();
+}
 
 void Vehicle::_deleteCameraManager()
 {
@@ -2312,7 +2317,8 @@ void Vehicle::_rebootCommandResultHandler(void* resultHandlerData, int /*compId*
         }
         QGC::showAppMessage(tr("Vehicle reboot failed."));
     } else {
-        vehicle->closeVehicle();
+        // Not the user's disconnect: links the user switched on wait for the vehicle to come back
+        vehicle->_vehicleLinkManager->closeVehicle();
     }
 }
 

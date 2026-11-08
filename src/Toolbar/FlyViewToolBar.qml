@@ -20,12 +20,13 @@ Item {
     property bool   _communicationLost: _activeVehicle ? _activeVehicle.vehicleLinkManager.communicationLost : false
     property bool   _armed:             _activeVehicle ? _activeVehicle.armed : false
     property string _flightMode:        _activeVehicle ? _activeVehicle.flightMode : ""
-    /// A connected link without a vehicle yet (no heartbeat), so it can still be shown and disconnected
+    /// A switched-on link without a vehicle yet (no heartbeat, or the vehicle is off or booting and the link
+    /// waits for it), so it can still be shown and switched off
     property var    _connectedConfig: {
         let configs = QGroundControl.linkManager.linkConfigurations
         for (let i = 0; i < configs.count; i++) {
             let config = configs.get(i)
-            if (config && (!config.dynamic || config.fromRoom) && config.link) {
+            if (config && (!config.dynamic || config.fromRoom) && config.linkActive) {
                 return config
             }
         }
@@ -382,7 +383,7 @@ Item {
                                 text:                   control._menuText(object)
                                 horizontalAlignment:    Text.AlignHCenter
                                 visible:            control._menuLink(object)
-                                enabled:            !object.link && RoomManager.connectingBoard === ""
+                                enabled:            !object.linkActive && RoomManager.connectingBoard === ""
 
                                 onClicked: {
                                     if (object.fromRoom) {

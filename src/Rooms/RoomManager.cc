@@ -1987,7 +1987,16 @@ void RoomManager::connectBoard(const QString &boardId)
         }
         _applyRoomModels();
         SharedLinkConfigurationPtr shared = sharedConfig(config);
+        if (shared) {
+            // Switched on by the operator: kept until switched off, waiting for a vehicle that is off or booting
+            shared->setSuppressAutoReconnect(false);
+            shared->resetReconnectBackoff();
+            shared->setAutoConnectStarted(true);
+        }
         if (!shared || !LinkManager::instance()->createConnectedLink(shared)) {
+            if (shared) {
+                shared->setAutoConnectStarted(false);
+            }
             // LinkManager has told the user what went wrong
             giveBack();
             _failConnect(QString());
@@ -2032,6 +2041,7 @@ void RoomManager::_startLease(const QString &boardId, const QString &serverKey, 
     _activeConfig = config;
     _activeLinkSeen = (config->link() != nullptr);
     (void) connect(config, &LinkConfiguration::linkChanged, this, &RoomManager::_roomLinkChanged, Qt::UniqueConnection);
+    (void) connect(config, &LinkConfiguration::linkActiveChanged, this, &RoomManager::_roomLinkChanged, Qt::UniqueConnection);
     _heartbeatTimer.start(qBound(5, heartbeatSeconds, 60) * 1000);
     emit activeBoardChanged();
     _scheduleRoomRefresh();
@@ -2042,6 +2052,7 @@ void RoomManager::_endLease(bool releaseOnHub)
     _heartbeatTimer.stop();
     if (_activeConfig) {
         (void) disconnect(_activeConfig, &LinkConfiguration::linkChanged, this, &RoomManager::_roomLinkChanged);
+        (void) disconnect(_activeConfig, &LinkConfiguration::linkActiveChanged, this, &RoomManager::_roomLinkChanged);
     }
     if (releaseOnHub && !_leaseId.isEmpty()) {
         _request(_leaseServer, QStringLiteral("POST"), QStringLiteral("/v1/boards/%1/release").arg(_activeBoard),
@@ -2076,7 +2087,11 @@ void RoomManager::_roomLinkChanged()
         _activeLinkSeen = true;
         return;
     }
-    if (_activeLinkSeen) {
+    // A link waiting for its vehicle (switched off or booting) keeps the vehicle reserved for this operator
+    if (_activeConfig->linkActive()) {
+        return;
+    }
+    if (_activeLinkSeen || _activeConfig->suppressAutoReconnect()) {
         _endLease(true);
     }
 }
