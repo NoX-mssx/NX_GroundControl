@@ -15,6 +15,7 @@
 #include <functional>
 #endif
 
+class QQuickItem;
 class QQuickWindow;
 class SubtitleWriter;
 class Vehicle;
@@ -27,6 +28,7 @@ class VideoManager : public QObject
     QML_ELEMENT
     QML_UNCREATABLE("")
     Q_MOC_INCLUDE("Vehicle.h")
+    Q_MOC_INCLUDE(<QtQuick/QQuickItem>)
 
     /// Mutes the audio of every stream that has audio enabled
     Q_PROPERTY(bool     audioMuted              READ audioMuted             WRITE setAudioMuted NOTIFY audioMutedChanged)
@@ -64,6 +66,13 @@ public:
     /// Sets the stream shown by an auxiliary video item (objectName "auxVideo<index + 1>") and whether
     /// its audio is played. An empty URI stops that stream.
     void setAuxiliaryVideo(int index, const QString &uri, bool audio);
+
+    /// NX: the receiver whose picture is shown large (objectName of its video item: "videoContent" or
+    /// "auxVideo<n>"). Recording state, decoding, size and aspect ratio follow it. The receivers keep their
+    /// streams, so the main camera changes at once when its stream already plays in a small window.
+    void setPrimaryStream(const QString &name);
+    /// NX: the video item a receiver draws into, for moving it between the main view and the small windows
+    Q_INVOKABLE QQuickItem *videoItem(const QString &name) const;
 
     /// Enables or disables audio playback of the main stream. Audio is selected when the stream
     /// connects, so a running stream only picks the change up on restart: pass @p restart = false
@@ -140,6 +149,19 @@ private:
     void _startReceiver(VideoReceiver *receiver);
     void _stopReceiver(VideoReceiver *receiver);
     static void _cleanupOldVideos();
+
+    /// NX: whether @p receiver is the one shown large (see setPrimaryStream)
+    bool _isPrimary(const VideoReceiver *receiver) const;
+
+    /// NX: what each receiver last reported, to show the state of the one that becomes primary
+    struct StreamState {
+        bool streaming = false;
+        bool decoding = false;
+        bool recording = false;
+        QSize videoSize;
+    };
+    QHash<const VideoReceiver *, StreamState> _streamStates;
+    QString _primaryStream = QStringLiteral("videoContent");
 
     QList<VideoReceiver*> _videoReceivers;
     QHash<QString, QString> _auxiliaryUris;     ///< Requested URI per auxiliary receiver name

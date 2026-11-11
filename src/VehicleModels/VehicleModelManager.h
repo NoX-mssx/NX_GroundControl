@@ -46,6 +46,12 @@ class VehicleModelManager : public QObject
     Q_PROPERTY(QVariantList cameraStates        READ cameraStates       NOTIFY cameraStatesChanged)
     /// Camera index shown by each auxiliary video item, -1 for an unused item
     Q_PROPERTY(QList<int>   auxiliaryCameras    READ auxiliaryCameras   NOTIFY cameraStatesChanged)
+    /// Per camera of the active model, the video receiver playing it ("videoContent", "auxVideo1", "auxVideo2"),
+    /// empty if none. A camera keeps its receiver while it is shown, large or small, so moving it to the main
+    /// video only moves its picture (VideoManager::videoItem) and is instant.
+    Q_PROPERTY(QStringList  cameraStreams       READ cameraStreams      NOTIFY cameraStreamsChanged)
+    /// The receiver playing the main camera, whose picture the main video shows
+    Q_PROPERTY(QString      mainStream          READ mainStream         NOTIFY cameraStreamsChanged)
     /// true: every camera plays its secondary (SD) stream instead of the main (HD) one
     /// On/off state of each button of the active model, by index
     Q_PROPERTY(QVariantList buttonStates        READ buttonStates       NOTIFY buttonStatesChanged)
@@ -71,6 +77,8 @@ public:
 
     QVariantList cameraStates() const;
     QList<int> auxiliaryCameras() const;
+    QStringList cameraStreams() const;
+    QString mainStream() const;
     bool secondaryStream() const { return _secondaryStream; }
     bool switchingStream() const { return _switchingStream; }
     void setSecondaryStream(bool secondaryStream);
@@ -145,6 +153,7 @@ signals:
     void modelsChanged();
     void activeModelChanged();
     void cameraStatesChanged();
+    void cameraStreamsChanged();
     void secondaryStreamChanged();
     void switchingStreamChanged();
     void buttonStatesChanged();
@@ -163,6 +172,9 @@ private:
     QVariantList _activeCameras() const;
     QString _cameraUri(int cameraIndex) const;
     void _applyCameraStreams();
+    /// Gives each shown camera a receiver, keeping the ones cameras already have
+    void _assignStreams();
+    static QString _streamName(int receiverIndex);
     void _beginStreamSwitch();
     void _endStreamSwitch();
     void _sendFunction(const QVariantMap &function, int value);
@@ -180,6 +192,10 @@ private:
     QPointer<Joystick> _joystick;
     QList<bool> _cameraEnabled;         ///< Per camera of the active model
     int _mainCameraIndex = 0;
+    /// Camera played by each video receiver: [videoContent, auxVideo1, auxVideo2]; -1 for none
+    QList<int> _streamCameras = QList<int>(1 + kAuxiliaryCameraCount, -1);
+    /// URI last given to each receiver, in the same order
+    QStringList _streamUris = QStringList(1 + kAuxiliaryCameraCount, QString());
     bool _secondaryStream = false;
     bool _switchingStream = false;
     bool _switchSawStop = false;        ///< The old picture has stopped; the next start ends the switch

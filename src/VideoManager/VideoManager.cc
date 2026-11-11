@@ -422,7 +422,7 @@ double VideoManager::aspectRatio() const
 
     for (VideoReceiver *receiver : _videoReceivers) {
         QGCVideoStreamInfo *pInfo = receiver->videoStreamInfo();
-        if (receiver->isPrimary() && pInfo && !pInfo->isThermal()) {
+        if (_isPrimary(receiver) && pInfo && !pInfo->isThermal()) {
             return pInfo->aspectRatio();
         }
     }
@@ -446,7 +446,7 @@ double VideoManager::hfov() const
 {
     for (VideoReceiver *receiver : _videoReceivers) {
         QGCVideoStreamInfo *pInfo = receiver->videoStreamInfo();
-        if (receiver->isPrimary() && pInfo && !pInfo->isThermal()) {
+        if (_isPrimary(receiver) && pInfo && !pInfo->isThermal()) {
             return pInfo->hfov();
         }
     }
@@ -936,7 +936,8 @@ void VideoManager::_initVideoReceiver(VideoReceiver *receiver, QQuickWindow *win
 
     (void) connect(receiver, &VideoReceiver::streamingChanged, this, [this, receiver](bool active) {
         qCDebug(VideoManagerLog) << "Video" << receiver->name() << "streaming changed, active:" << (active ? "yes" : "no");
-        if (receiver->isPrimary()) {
+        _streamStates[receiver].streaming = active;
+        if (_isPrimary(receiver)) {
             _streaming = active;
             emit streamingChanged();
         }
@@ -944,7 +945,8 @@ void VideoManager::_initVideoReceiver(VideoReceiver *receiver, QQuickWindow *win
 
     (void) connect(receiver, &VideoReceiver::decodingChanged, this, [this, receiver](bool active) {
         qCDebug(VideoManagerLog) << "Video" << receiver->name() << "decoding changed, active:" << (active ? "yes" : "no");
-        if (receiver->isPrimary()) {
+        _streamStates[receiver].decoding = active;
+        if (_isPrimary(receiver)) {
             _decoding = active;
             emit decodingChanged();
         }
@@ -952,7 +954,8 @@ void VideoManager::_initVideoReceiver(VideoReceiver *receiver, QQuickWindow *win
 
     (void) connect(receiver, &VideoReceiver::recordingChanged, this, [this, receiver](bool active) {
         qCDebug(VideoManagerLog) << "Video" << receiver->name() << "recording changed, active:" << (active ? "yes" : "no");
-        if (receiver->isPrimary()) {
+        _streamStates[receiver].recording = active;
+        if (_isPrimary(receiver)) {
             _recording = active;
             if (!active) {
                 _subtitleWriter->stopCapturingTelemetry();
@@ -963,6 +966,7 @@ void VideoManager::_initVideoReceiver(VideoReceiver *receiver, QQuickWindow *win
 
     (void) connect(receiver, &VideoReceiver::recordingStarted, this, [this, receiver](const QString &filename) {
         qCDebug(VideoManagerLog) << "Video" << receiver->name() << "recording started";
+        // The telemetry subtitles go with the main stream's file, whichever camera is shown large
         if (receiver->isPrimary()) {
             _subtitleWriter->startCapturingTelemetry(filename, videoSize());
         }
@@ -970,7 +974,8 @@ void VideoManager::_initVideoReceiver(VideoReceiver *receiver, QQuickWindow *win
 
     (void) connect(receiver, &VideoReceiver::videoSizeChanged, this, [this, receiver](QSize size) {
         qCDebug(VideoManagerLog) << "Video" << receiver->name() << "resized. New resolution:" << size.width() << "x" << size.height();
-        if (receiver->isPrimary()) {
+        _streamStates[receiver].videoSize = size;
+        if (_isPrimary(receiver)) {
             _videoSize = size;
             emit videoSizeChanged();
             emit aspectRatioChanged();
@@ -1007,6 +1012,54 @@ void VideoManager::_initVideoReceiver(VideoReceiver *receiver, QQuickWindow *win
     if (hasVideo()) {
         _startReceiver(receiver);
     }
+}
+
+bool VideoManager::_isPrimary(const VideoReceiver *receiver) const
+{
+    return receiver && (receiver->name() == _primaryStream);
+}
+
+void VideoManager::setPrimaryStream(const QString &name)
+{
+    if (name.isEmpty() || (name == _primaryStream)) {
+        return;
+    }
+    _primaryStream = name;
+
+    StreamState state;
+    for (const VideoReceiver *receiver : std::as_const(_videoReceivers)) {
+        if (_isPrimary(receiver)) {
+            state = _streamStates.value(receiver);
+            break;
+        }
+    }
+    qCDebug(VideoManagerLog) << "Primary stream" << name << "decoding:" << state.decoding;
+
+    if (_streaming != state.streaming) {
+        _streaming = state.streaming;
+        emit streamingChanged();
+    }
+    if (_decoding != state.decoding) {
+        _decoding = state.decoding;
+        emit decodingChanged();
+    }
+    if (_recording != state.recording) {
+        _recording = state.recording;
+        emit recordingChanged(_recording);
+    }
+    _videoSize = state.videoSize;
+    emit videoSizeChanged();
+    emit aspectRatioChanged();
+}
+
+QQuickItem *VideoManager::videoItem(const QString &name) const
+{
+    for (VideoReceiver *receiver : std::as_const(_videoReceivers)) {
+        if (receiver->name() == name) {
+            return receiver->widget();
+        }
+    }
+    return nullptr;
 }
 
 void VideoManager::setMainStreamAudio(bool enabled, bool restart)

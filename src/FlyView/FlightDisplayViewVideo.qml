@@ -36,6 +36,34 @@ Item {
     property bool   _isMode_FILL:       _fitMode === 2
     property bool   _isMode_NO_CROP:    _fitMode === 3
 
+    // NX: each camera keeps playing on its own receiver while it is shown, large or small. The main view shows
+    // the picture of the receiver playing the main camera, moved here from its small window, so a click on a small
+    // window swaps the pictures at once instead of restarting the streams.
+    readonly property string _mainStream: VehicleModelManager.mainStream
+
+    function _claimMainPicture() {
+        const item = QGroundControl.videoManager.videoItem(_mainStream)
+        if (!item || item.parent === videoStreamLoader) {
+            return
+        }
+        item.parent = videoStreamLoader
+        item.stretchToContainer = true
+    }
+
+    // Later, once every binding has the new streams: the small windows move pictures too
+    on_MainStreamChanged: claimMainTimer.restart()
+
+    Connections {
+        target: VehicleModelManager
+        function onCameraStreamsChanged() { claimMainTimer.restart() }
+    }
+
+    Timer {
+        id:             claimMainTimer
+        interval:       0
+        onTriggered:    root._claimMainPicture()
+    }
+
     function getWidth() {
         return videoBackground.getWidth()
     }
@@ -112,17 +140,16 @@ Item {
             }
             return root.height
         }
-        Loader {
+        // NX: a plain item rather than a Loader, so the picture in it can be swapped (see _claimMainPicture)
+        Item {
             id:                 videoStreamLoader
             anchors.fill:       videoContentArea
             visible:            _showStreamLoader
-            sourceComponent:    videoOutputComponent
 
             property bool videoDisabled: QGroundControl.settingsManager.videoSettings.videoSource.rawValue === QGroundControl.settingsManager.videoSettings.disabledVideoSource
-        }
-        Component {
-            id: videoOutputComponent
+
             FlightDisplayViewVideoOutput {
+                anchors.fill:       parent
                 stretchToContainer: true
             }
         }

@@ -31,6 +31,36 @@ Rectangle {
     property real _videoWidth:              defaultWidth
     property bool _moved:                   false
 
+    // NX: the receiver playing this window's camera. Its picture is moved here (the main view does the same for
+    // the main camera), so swapping cameras between the main view and the windows needs no stream restart.
+    readonly property string _stream:       (cameraIndex >= 0) ? (VehicleModelManager.cameraStreams[cameraIndex] ?? "") : ""
+
+    function _claimPicture() {
+        if ((_stream === "") || (_stream === VehicleModelManager.mainStream)) {
+            return
+        }
+        const item = QGroundControl.videoManager.videoItem(_stream)
+        if (!item || item.parent === videoHolder) {
+            return
+        }
+        item.parent = videoHolder
+        item.stretchToContainer = false
+    }
+
+    // Later, once every binding has the new streams: the main view and the other window move pictures too
+    on_StreamChanged: claimTimer.restart()
+
+    Connections {
+        target: VehicleModelManager
+        function onCameraStreamsChanged() { claimTimer.restart() }
+    }
+
+    Timer {
+        id:             claimTimer
+        interval:       0
+        onTriggered:    root._claimPicture()
+    }
+
     x:          defaultX
     y:          defaultY
     width:      _videoWidth
@@ -56,9 +86,15 @@ Rectangle {
         anchors.fill:   parent
         visible:        !root.collapsed
 
-        FlightDisplayViewVideoOutput {
-            objectName:     "auxVideo" + (root.slot + 1)
+        // Holds the picture of this window's camera, under the click area and the resize handle
+        Item {
+            id:             videoHolder
             anchors.fill:   parent
+
+            FlightDisplayViewVideoOutput {
+                objectName:     "auxVideo" + (root.slot + 1)
+                anchors.fill:   parent
+            }
         }
 
         MouseArea {

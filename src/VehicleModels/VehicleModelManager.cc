@@ -383,6 +383,8 @@ void VehicleModelManager::_updateActiveModel()
     for (qsizetype i = 0; i < _activeCameras().count(); i++) {
         _cameraEnabled.append(true);
     }
+    // Another model's cameras: every receiver gets its camera anew
+    _streamCameras.fill(-1);
     emit cameraStatesChanged();
     _applyCameraStreams();
 }
@@ -481,6 +483,73 @@ QString VehicleModelManager::_cameraUri(int cameraIndex) const
     return mainUrl.isEmpty() ? secondaryUrl : mainUrl;
 }
 
+QString VehicleModelManager::_streamName(int receiverIndex)
+{
+    return (receiverIndex == 0) ? QStringLiteral("videoContent") : QStringLiteral("auxVideo%1").arg(receiverIndex);
+}
+
+QStringList VehicleModelManager::cameraStreams() const
+{
+    QStringList streams;
+    for (qsizetype i = 0; i < _activeCameras().count(); i++) {
+        const int receiverIndex = static_cast<int>(_streamCameras.indexOf(static_cast<int>(i)));
+        streams.append((receiverIndex < 0) ? QString() : _streamName(receiverIndex));
+    }
+    return streams;
+}
+
+QString VehicleModelManager::mainStream() const
+{
+    const int receiverIndex = static_cast<int>(_streamCameras.indexOf(_mainCameraIndex));
+    return _streamName(qMax(0, receiverIndex));
+}
+
+void VehicleModelManager::_assignStreams()
+{
+    const int cameraCount = static_cast<int>(_activeCameras().count());
+
+    // The main camera first, then the ones in the small windows
+    QList<int> shown;
+    if ((_mainCameraIndex >= 0) && (_mainCameraIndex < cameraCount)) {
+        shown.append(_mainCameraIndex);
+    }
+    for (const int cameraIndex : auxiliaryCameras()) {
+        if (cameraIndex >= 0) {
+            shown.append(cameraIndex);
+        }
+    }
+
+    // A camera no longer shown frees its receiver; the others keep theirs
+    for (int &cameraIndex : _streamCameras) {
+        if (!shown.contains(cameraIndex)) {
+            cameraIndex = -1;
+        }
+    }
+    for (const int cameraIndex : shown) {
+        if (!_streamCameras.contains(cameraIndex)) {
+            const int freeIndex = static_cast<int>(_streamCameras.indexOf(-1));
+            if (freeIndex >= 0) {
+                _streamCameras[freeIndex] = cameraIndex;
+            }
+        }
+    }
+
+    // The main receiver plays the stream of the video settings, which must not go empty while a camera is shown:
+    // a camera from a small window moves there, the main camera only if it is the only one
+    if ((_streamCameras.at(0) < 0) && !shown.isEmpty()) {
+        int from = -1;
+        for (int receiverIndex = 1; receiverIndex < _streamCameras.count(); receiverIndex++) {
+            if ((_streamCameras.at(receiverIndex) >= 0) && ((from < 0) || (_streamCameras.at(receiverIndex) != _mainCameraIndex))) {
+                from = receiverIndex;
+            }
+        }
+        if (from > 0) {
+            _streamCameras[0] = _streamCameras.at(from);
+            _streamCameras[from] = -1;
+        }
+    }
+}
+
 void VehicleModelManager::_applyCameraStreams()
 {
     // Without cameras in the model the user's own video settings are left alone.
@@ -488,6 +557,10 @@ void VehicleModelManager::_applyCameraStreams()
         for (int i = 0; i < kAuxiliaryCameraCount; i++) {
             VideoManager::instance()->setAuxiliaryVideo(i, QString(), false);
         }
+        _streamCameras.fill(-1);
+        _streamUris.fill(QString());
+        VideoManager::instance()->setPrimaryStream(_streamName(0));
+        emit cameraStreamsChanged();
         return;
     }
 
@@ -495,25 +568,38 @@ void VehicleModelManager::_applyCameraStreams()
         return (cameraIndex >= 0) && _activeCameras().value(cameraIndex).toMap().value(QStringLiteral("audio")).toBool();
     };
 
-    VideoSettings *const videoSettings = SettingsManager::instance()->videoSettings();
-    const QString mainUri = _cameraUri(_mainCameraIndex);
-    // Changing the URL below restarts the main stream, which then picks the audio setting up by itself.
-    const bool mainUrlChanges = !mainUri.isEmpty() && (videoSettings->rtspUrl()->rawValue().toString() != mainUri);
-    if (mainUrlChanges && VideoManager::instance()->decoding()) {
+    _assignStreams();
+    const int mainReceiver = static_cast<int>(qMax<qsizetype>(0, _streamCameras.indexOf(_mainCameraIndex)));
+
+    QStringList uris;
+    for (const int cameraIndex : std::as_const(_streamCameras)) {
+        uris.append((cameraIndex < 0) ? QString() : _cameraUri(cameraIndex));
+    }
+    // A new stream for the main camera: the last picture stays up until the new one starts
+    if (!uris.at(mainReceiver).isEmpty() && (uris.at(mainReceiver) != _streamUris.at(mainReceiver)) &&
+        VideoManager::instance()->decoding()) {
         _beginStreamSwitch();
     }
-    VideoManager::instance()->setMainStreamAudio(cameraHasAudio(_mainCameraIndex), !mainUrlChanges);
+
+    // The main receiver plays the stream of the video settings. Changing the URL below restarts it, which then
+    // picks the audio setting up by itself.
+    VideoSettings *const videoSettings = SettingsManager::instance()->videoSettings();
+    const QString mainUri = uris.at(0);
+    const bool mainUrlChanges = !mainUri.isEmpty() && (videoSettings->rtspUrl()->rawValue().toString() != mainUri);
+    VideoManager::instance()->setMainStreamAudio(cameraHasAudio(_streamCameras.at(0)), !mainUrlChanges);
     if (!mainUri.isEmpty()) {
         videoSettings->rtspUrl()->setRawValue(mainUri);
         videoSettings->videoSource()->setRawValue(VideoSettings::videoSourceRTSP);
     }
-
-    const QList<int> auxiliary = auxiliaryCameras();
     for (int i = 0; i < kAuxiliaryCameraCount; i++) {
-        const int cameraIndex = auxiliary.at(i);
-        VideoManager::instance()->setAuxiliaryVideo(i, (cameraIndex < 0) ? QString() : _cameraUri(cameraIndex),
-                                                    cameraHasAudio(cameraIndex));
+        const int cameraIndex = _streamCameras.at(i + 1);
+        VideoManager::instance()->setAuxiliaryVideo(i, uris.at(i + 1), cameraHasAudio(cameraIndex));
     }
+    _streamUris = uris;
+
+    VideoManager::instance()->setPrimaryStream(mainStream());
+    // Also when only the main camera changed: QML moves the pictures by mainStream
+    emit cameraStreamsChanged();
 }
 
 void VehicleModelManager::_beginStreamSwitch()
