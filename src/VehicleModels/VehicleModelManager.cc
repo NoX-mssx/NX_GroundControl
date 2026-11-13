@@ -49,6 +49,8 @@ constexpr CameraType kCameraTypes[] = {
     {"Dahua (DH-IPC-HDW5541TM)", "dahua_hdw5541tm", "/cam/realmonitor?channel=1&subtype=0", "/cam/realmonitor?channel=1&subtype=1"},
     {"UNV (Ultra 265)", "unv_ultra_265", "/cam/realmonitor?channel=1&subtype=0", "/cam/realmonitor?channel=1&subtype=1"},
     {"Hikvision (DS-2CD)", "hikvision_ds2cd", "/Streaming/Channels/101", "/Streaming/Channels/102"},
+    // Controlled through the board's own HTTPS API (CameraControl::_runTrgn); its RTSP addresses are entered by hand
+    {"TRGN-Video", "trgn_video", "", ""},
 };
 
 /// Only "unv_ultra_265" is a known identifier of the exchange format; the others are matched loosely so
@@ -73,6 +75,9 @@ QString cameraTypeFromExchangeId(const QString &exchangeId)
     }
     if (id.contains(QLatin1String("hik"))) {
         return QString::fromLatin1(kCameraTypes[4].name);
+    }
+    if (id.contains(QLatin1String("trgn"))) {
+        return QString::fromLatin1(kCameraTypes[5].name);
     }
     return QString::fromLatin1(kCameraTypes[0].name);
 }
@@ -148,7 +153,7 @@ QVariantMap modelFromExchange(const QJsonObject &exchange)
     const QJsonArray exchangeCameras = exchange.value(QLatin1String("camerasArray")).toArray();
     for (const QJsonValue &cameraValue : exchangeCameras) {
         const QJsonObject camera = cameraValue.toObject();
-        cameras.append(QVariantMap{
+        QVariantMap modelCamera{
             {QStringLiteral("type"), cameraTypeFromExchangeId(camera.value(QLatin1String("modelName")).toString())},
             {QStringLiteral("name"), camera.value(QLatin1String("name")).toString()},
             {QStringLiteral("ip"), camera.value(QLatin1String("ip")).toString()},
@@ -160,7 +165,16 @@ QVariantMap modelFromExchange(const QJsonObject &exchange)
             // NX only: files from Nova have no microphone
             {QStringLiteral("microphone"), camera.value(QLatin1String("microphoneEnabled")).toBool()},
             {QStringLiteral("talkUrl"), camera.value(QLatin1String("talkUrl")).toString()},
-        });
+        };
+        // NX only: the board API camera of a TRGN-Video camera, and the picture settings sent with day/night
+        if (camera.contains(QLatin1String("trgnCameraId"))) {
+            modelCamera.insert(QStringLiteral("trgnCameraId"), camera.value(QLatin1String("trgnCameraId")).toString());
+        }
+        if (camera.contains(QLatin1String("imageFields"))) {
+            modelCamera.insert(QStringLiteral("imageFields"),
+                               camera.value(QLatin1String("imageFields")).toObject().toVariantMap());
+        }
+        cameras.append(modelCamera);
     }
 
     QVariantList buttons;
@@ -217,7 +231,7 @@ QJsonObject modelToExchange(const QVariantMap &model)
     const QVariantList modelCameras = model.value(QLatin1String(kCamerasKey)).toList();
     for (const QVariant &cameraVar : modelCameras) {
         const QVariantMap camera = cameraVar.toMap();
-        cameras.append(QJsonObject{
+        QJsonObject exchangeCamera{
             {QStringLiteral("modelName"), exchangeIdFromCameraType(camera.value(QStringLiteral("type")).toString())},
             {QStringLiteral("name"), camera.value(QStringLiteral("name")).toString()},
             {QStringLiteral("url"), camera.value(QStringLiteral("mainUrl")).toString()},
@@ -228,7 +242,16 @@ QJsonObject modelToExchange(const QVariantMap &model)
             {QStringLiteral("audioEnabled"), camera.value(QStringLiteral("audio")).toBool()},
             {QStringLiteral("microphoneEnabled"), camera.value(QStringLiteral("microphone")).toBool()},
             {QStringLiteral("talkUrl"), camera.value(QStringLiteral("talkUrl")).toString()},
-        });
+        };
+        if (camera.contains(QStringLiteral("trgnCameraId"))) {
+            exchangeCamera.insert(QStringLiteral("trgnCameraId"),
+                                  camera.value(QStringLiteral("trgnCameraId")).toString());
+        }
+        if (camera.contains(QStringLiteral("imageFields"))) {
+            exchangeCamera.insert(QStringLiteral("imageFields"),
+                                  QJsonObject::fromVariantMap(camera.value(QStringLiteral("imageFields")).toMap()));
+        }
+        cameras.append(exchangeCamera);
     }
 
     QJsonArray buttons;

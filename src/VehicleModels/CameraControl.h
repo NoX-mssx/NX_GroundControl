@@ -19,6 +19,9 @@ class QNetworkReply;
 ///
 /// Day/night and the illuminator are separate commands: switching the light never changes the mode.
 ///
+/// TRGN-Video cameras are driven through the board's HTTPS API (see _runTrgn): its address, user name and
+/// password are the camera's IP, user and password fields.
+///
 /// Dahua cameras are driven through their HTTP CGI interface, which covers day/night profiles and the
 /// illuminator. Hikvision cameras are driven through ISAPI: the IR cut filter for day/night and the supplement
 /// light, falling back to ONVIF for day/night (ONVIF is off by default on Hikvision). Uniview (UNV) cameras
@@ -42,6 +45,9 @@ public:
 
     /// @param command one of "day", "night", "irOn", "irOff", "reboot"
     Q_INVOKABLE void run(const QVariantMap &camera, const QString &command);
+
+    /// The picture settings a TRGN-Video camera gets with each day/night switch, with their default values
+    Q_INVOKABLE QVariantMap trgnImageDefaults() const;
 
     /// WS-Security UsernameToken digest: Base64(SHA-1(nonce + created + password))
     static QByteArray passwordDigest(const QByteArray &nonce, const QByteArray &created, const QByteArray &password);
@@ -86,6 +92,26 @@ private:
     /// Reads a LAPI resource, changes its data and writes it back; @p paths are tried in turn until one reads
     void _univiewUpdate(const Camera &camera, const QStringList &paths, const LapiChange &change, const Done &done);
 
+    /// The board API behind TRGN-Video cameras: address (https://host:port), user name and password
+    struct TrgnApi {
+        QString base;
+        QString user;
+        QString password;
+    };
+    /// @param fatal the API cannot be used at all (no answer, or the login failed): the other cameras are not tried
+    using TrgnDone = std::function<void(bool ok, bool fatal, const QString &error)>;
+    /// Day/night on every TRGN-Video camera of the vehicle behind the same API, as the board's interface does
+    void _runTrgn(const QVariantMap &camera, const QString &command, const Job &job);
+    /// Sends the picture settings and then day/night to @p cameras from @p index on, one after the other
+    void _trgnDayNight(const TrgnApi &api, const QVariantList &cameras, int index, bool night, const Job &job,
+                       const QStringList &failed);
+    void _trgnLogin(const TrgnApi &api, const TrgnDone &done);
+    /// POSTs @p body to the API, logging in first when there is no session; a session the API refuses
+    /// (401) is renewed and the request repeated once
+    void _trgnPost(const TrgnApi &api, const QString &path, const QJsonObject &body, const TrgnDone &done,
+                   bool retried = false);
+    QNetworkReply *_trgnSend(const TrgnApi &api, const QString &path, const QJsonObject &body, const QByteArray &token);
+
     /// HTTP GET with digest authentication
     void _get(const Camera &camera, const QUrl &url, const Reply &reply);
     /// Remembers why the last request to @p host failed (empty: it did not), for the message of a failed command
@@ -104,4 +130,5 @@ private:
     QString _status;
     int _pending = 0;
     QHash<QString, QString> _lastFailure;     ///< Why the last request to a camera host failed
+    QHash<QString, QByteArray> _trgnTokens;   ///< auth_token per board API and user, for the session
 };

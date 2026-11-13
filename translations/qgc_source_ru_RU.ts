@@ -5551,6 +5551,31 @@ Full (100%): %2 V</source>
     <name>CameraControl</name>
     <message>
       <location filename="../src/VehicleModels/CameraControl.cc" line="1" />
+      <source>the board API refuses access after login</source>
+      <translation>API борта отказывает в доступе после входа</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/CameraControl.cc" line="1" />
+      <source>the camera has no board API address in the vehicle model</source>
+      <translation>у камеры в модели борта нет адреса API борта</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/CameraControl.cc" line="1" />
+      <source>not available for this camera type</source>
+      <translation>недоступно для этого типа камеры</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/CameraControl.cc" line="1" />
+      <source>%1: picture settings not applied (%2)</source>
+      <translation>%1: настройки изображения не применены (%2)</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/CameraControl.cc" line="1" />
+      <source>the board API did not start a session</source>
+      <translation>API борта не открыл сессию</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/CameraControl.cc" line="1" />
       <source>connection refused</source>
       <translation>соединение отклонено</translation>
     </message>
@@ -23136,6 +23161,66 @@ If a vehicle still has this key configured, you will no longer be able to commun
   </context>
   <context>
     <name>VehicleModelsSettings</name>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Brightness</source>
+      <translation>Яркость</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Contrast</source>
+      <translation>Контраст</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Saturation</source>
+      <translation>Насыщенность</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Hue</source>
+      <translation>Оттенок</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Exposure</source>
+      <translation>Экспозиция</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>WDR</source>
+      <translation>WDR</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Gain</source>
+      <translation>Усиление</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Board API address (https://192.168.3.1:3000)</source>
+      <translation>Адрес API борта (https://192.168.3.1:3000)</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>API user name</source>
+      <translation>Логин API</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>API password</source>
+      <translation>Пароль API</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Camera ID in the board API</source>
+      <translation>ID камеры в API борта</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Picture settings, sent to the camera with every day/night switch</source>
+      <translation>Настройки изображения, отправляются камере при каждом переключении день/ночь</translation>
+    </message>
     <message>
       <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
       <source>Microphone Enabled</source>

@@ -924,6 +924,8 @@ Item {
 
                             required property var modelData
                             required property int index
+                            // A TRGN-Video camera is switched through the board's API, which offers only day/night so far
+                            readonly property bool dayNightOnly: modelData.type === "TRGN-Video"
 
                             spacing: ScreenTools.defaultFontPixelHeight / 3
 
@@ -933,12 +935,15 @@ Item {
                             }
 
                             Repeater {
-                                model: [
-                                    { command: "day",   label: qsTr("Day Mode") },
-                                    { command: "night", label: qsTr("Night Mode") },
-                                    { command: "irOn",  label: qsTr("IR Light On") },
-                                    { command: "irOff", label: qsTr("IR Light Off") }
-                                ]
+                                model: {
+                                    const commands = [
+                                        { command: "day",   label: qsTr("Day Mode") },
+                                        { command: "night", label: qsTr("Night Mode") },
+                                        { command: "irOn",  label: qsTr("IR Light On") },
+                                        { command: "irOff", label: qsTr("IR Light Off") }
+                                    ]
+                                    return cameraCommands.dayNightOnly ? commands.slice(0, 2) : commands
+                                }
 
                                 QGCButton {
                                     id: commandButton
@@ -969,8 +974,9 @@ Item {
                             QGCButton {
                                 readonly property bool armed: cameraCommandPanel._rebootArmedIndex === cameraCommands.index
 
-                                width:  cameraCommandPanel._buttonWidth
-                                text:   armed ? qsTr("Confirm Reboot") : qsTr("Reboot")
+                                width:      cameraCommandPanel._buttonWidth
+                                visible:    !cameraCommands.dayNightOnly
+                                text:       armed ? qsTr("Confirm Reboot") : qsTr("Reboot")
                                 onClicked: {
                                     if (armed) {
                                         cameraCommandPanel._rebootArmedIndex = -1

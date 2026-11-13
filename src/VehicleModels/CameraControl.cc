@@ -1,5 +1,6 @@
 #include "CameraControl.h"
 #include "QGCLoggingCategory.h"
+#include "VehicleModelManager.h"
 
 #include <QtCore/QCryptographicHash>
 #include <QtCore/QDateTime>
@@ -12,8 +13,12 @@
 #include <QtCore/QXmlStreamReader>
 #include <QtNetwork/QAuthenticator>
 #include <QtNetwork/QNetworkAccessManager>
+#include <QtNetwork/QNetworkCookie>
 #include <QtNetwork/QNetworkReply>
 #include <QtNetwork/QNetworkRequest>
+#if QT_CONFIG(ssl)
+#include <QtNetwork/QSslError>
+#endif
 
 #include <memory>
 
@@ -71,6 +76,30 @@ QJsonObject lapiData(const QByteArray &body, QString *error)
         return QJsonObject();
     }
     return root.value(QStringLiteral("Response")).toObject().value(QStringLiteral("Data")).toObject();
+}
+
+// TRGN-Video: the camera type, and the picture settings sent before each day/night switch with their defaults
+constexpr const char *kTrgnType = "TRGN-Video";
+struct TrgnImageField {
+    const char *key;
+    int defaultValue;
+};
+constexpr TrgnImageField kTrgnImageFields[] = {
+    {"image.luminance", 61}, {"image.contrast", 46}, {"image.saturation", 34}, {"image.hue", 43},
+    {"isp.exposure", 0},     {"isp.wdr", 0},         {"isp.aGain", 0},
+};
+
+/// The board API address as https://host:port without a trailing slash
+QString trgnBase(const QString &address)
+{
+    QString base = address.trimmed();
+    while (base.endsWith(QLatin1Char('/'))) {
+        base.chop(1);
+    }
+    if (!base.isEmpty() && !base.contains(QLatin1String("://"))) {
+        base.prepend(QStringLiteral("https://"));
+    }
+    return base;
 }
 
 /// Why a camera request failed, in a few words for the operator
@@ -211,13 +240,19 @@ void CameraControl::run(const QVariantMap &camera, const QString &command)
     };
     const Job job{QStringLiteral("%1: %2").arg(target.name, commandLabel(command)), target.host, command};
 
+    const QString type = camera.value(QStringLiteral("type")).toString();
     _begin();
     if (target.host.isEmpty()) {
-        _finish(job, false, tr("the camera has no IP address in the vehicle model"));
+        const bool boardApi = (type == QLatin1String(kTrgnType));
+        _finish(job, false, boardApi ? tr("the camera has no board API address in the vehicle model")
+                                     : tr("the camera has no IP address in the vehicle model"));
+        return;
+    }
+    if (type == QLatin1String(kTrgnType)) {
+        _runTrgn(camera, command, job);
         return;
     }
 
-    const QString type = camera.value(QStringLiteral("type")).toString();
     const bool illuminator = (command == QLatin1String("irOn")) || (command == QLatin1String("irOff"));
     const bool uniview = type.startsWith(QLatin1String("UNV"));
     if (type.startsWith(QLatin1String("Dahua"))) {
@@ -337,6 +372,206 @@ void CameraControl::_hikvisionSetLight(const Camera &camera, bool on, const Done
             const QString detail = xmlText(putBody, QLatin1String("subStatusCode"));
             done(putOk, putOk ? QString() : (detail.isEmpty() ? tr("the camera did not accept the request") : detail));
         });
+    });
+}
+
+QVariantMap CameraControl::trgnImageDefaults() const
+{
+    QVariantMap defaults;
+    for (const TrgnImageField &field : kTrgnImageFields) {
+        defaults.insert(QString::fromLatin1(field.key), QString::number(field.defaultValue));
+    }
+    return defaults;
+}
+
+void CameraControl::_runTrgn(const QVariantMap &camera, const QString &command, const Job &job)
+{
+    // The API's illuminator and reboot are not known yet; the menu offers only day/night for this type
+    if ((command != QLatin1String("day")) && (command != QLatin1String("night"))) {
+        _finish(job, false, tr("not available for this camera type"));
+        return;
+    }
+
+    const TrgnApi api{trgnBase(camera.value(QStringLiteral("ip")).toString()),
+                      camera.value(QStringLiteral("user")).toString(),
+                      camera.value(QStringLiteral("password")).toString()};
+
+    // Every TRGN-Video camera behind the same API switches, in the model's order, as the board's interface does
+    QVariantList cameras;
+    if (const VehicleModelManager *const models = VehicleModelManager::instance()) {
+        const QVariantList modelCameras = models->activeModel().value(QStringLiteral("cameras")).toList();
+        for (const QVariant &modelCamera : modelCameras) {
+            const QVariantMap other = modelCamera.toMap();
+            if ((other.value(QStringLiteral("type")).toString() == QLatin1String(kTrgnType)) &&
+                (trgnBase(other.value(QStringLiteral("ip")).toString()) == api.base)) {
+                cameras.append(other);
+            }
+        }
+    }
+    if (cameras.isEmpty()) {
+        cameras.append(camera);
+    }
+
+    QStringList names;
+    for (const QVariant &each : std::as_const(cameras)) {
+        names.append(each.toMap().value(QStringLiteral("name")).toString());
+    }
+    Job allCameras = job;
+    allCameras.label = QStringLiteral("%1: %2").arg(names.join(QStringLiteral(", ")), commandLabel(command));
+    _trgnDayNight(api, cameras, 0, command == QLatin1String("night"), allCameras, QStringList());
+}
+
+void CameraControl::_trgnDayNight(const TrgnApi &api, const QVariantList &cameras, int index, bool night,
+                                  const Job &job, const QStringList &failed)
+{
+    if (index >= cameras.count()) {
+        _finish(job, failed.isEmpty(), failed.join(QStringLiteral("; ")));
+        return;
+    }
+
+    const QVariantMap camera = cameras.at(index).toMap();
+    const QString name = camera.value(QStringLiteral("name")).toString();
+    QString camId = camera.value(QStringLiteral("trgnCameraId")).toString().trimmed();
+    if (camId.isEmpty()) {
+        camId = QStringLiteral("cam%1").arg(index + 1);
+    }
+
+    // The picture settings go first, as the board's interface sends them with each switch
+    const QVariantMap stored = camera.value(QStringLiteral("imageFields")).toMap();
+    QJsonObject fields;
+    for (const TrgnImageField &field : kTrgnImageFields) {
+        const QString key = QString::fromLatin1(field.key);
+        const QString value = stored.value(key).toString().trimmed();
+        fields.insert(key, value.isEmpty() ? QString::number(field.defaultValue) : value);
+    }
+
+    const QString cameraPath = QStringLiteral("/api/cam/%1").arg(QString::fromUtf8(QUrl::toPercentEncoding(camId)));
+    const QJsonObject image{{QStringLiteral("fields"), fields}};
+    _trgnPost(api, cameraPath + QStringLiteral("/image/many"), image,
+              [this, api, cameras, index, night, job, failed, name, cameraPath](bool imageOk, bool imageFatal,
+                                                                                 const QString &imageError) {
+        if (imageFatal) {
+            // The board is out of reach or refuses the login: the same goes for every camera
+            QStringList why = failed;
+            why.append(imageError);
+            _finish(job, false, why.join(QStringLiteral("; ")));
+            return;
+        }
+
+        const QJsonObject mode{{QStringLiteral("mode"), night ? QStringLiteral("on") : QStringLiteral("off")}};
+        _trgnPost(api, cameraPath + QStringLiteral("/nightmode/ircut"), mode,
+                  [this, api, cameras, index, night, job, failed, name, imageOk, imageError](bool ok, bool fatal,
+                                                                                              const QString &error) {
+            QStringList nowFailed = failed;
+            if (!ok) {
+                nowFailed.append(QStringLiteral("%1: %2").arg(name, error));
+                if (fatal) {
+                    _finish(job, false, nowFailed.join(QStringLiteral("; ")));
+                    return;
+                }
+            } else if (!imageOk) {
+                nowFailed.append(tr("%1: picture settings not applied (%2)").arg(name, imageError));
+            }
+            _trgnDayNight(api, cameras, index + 1, night, job, nowFailed);
+        });
+    });
+}
+
+QNetworkReply *CameraControl::_trgnSend(const TrgnApi &api, const QString &path, const QJsonObject &body,
+                                        const QByteArray &token)
+{
+    QNetworkRequest request(QUrl(api.base + path));
+    request.setTransferTimeout(kTimeoutMs);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
+    // The session cookie is handled here, not by the access manager's cookie jar
+    request.setAttribute(QNetworkRequest::CookieLoadControlAttribute, QNetworkRequest::Manual);
+    request.setAttribute(QNetworkRequest::CookieSaveControlAttribute, QNetworkRequest::Manual);
+    if (!token.isEmpty()) {
+        request.setRawHeader("Cookie", QByteArrayLiteral("auth_token=") + token);
+    }
+
+    QNetworkReply *const reply = _network->post(request, QJsonDocument(body).toJson(QJsonDocument::Compact));
+    // The API answers 401 itself; the HTTP login of the other camera types is not for it
+    reply->setProperty(kAuthAttemptedProperty, true);
+#if QT_CONFIG(ssl)
+    // The board's certificate is self-signed: for its own API address the certificate errors are ignored
+    (void) connect(reply, &QNetworkReply::sslErrors, reply,
+                   [reply](const QList<QSslError> &) { reply->ignoreSslErrors(); });
+#endif
+    return reply;
+}
+
+void CameraControl::_trgnLogin(const TrgnApi &api, const TrgnDone &done)
+{
+    const QJsonObject login{{QStringLiteral("username"), api.user}, {QStringLiteral("password"), api.password}};
+    QNetworkReply *const reply = _trgnSend(api, QStringLiteral("/api/login"), login, QByteArray());
+    (void) connect(reply, &QNetworkReply::finished, this, [this, api, reply, done]() {
+        reply->deleteLater();
+        const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        if (reply->error() != QNetworkReply::NoError) {
+            qCWarning(NxCameraControlLog) << "Board API login failed:" << api.base << "HTTP" << status
+                                          << reply->errorString();
+            const bool refused = (status == 401) || (status == 403);
+            done(false, true, refused ? tr("wrong user name or password") : failureReason(reply));
+            return;
+        }
+
+        QByteArray token;
+        const QList<QNetworkCookie> cookies =
+            reply->header(QNetworkRequest::SetCookieHeader).value<QList<QNetworkCookie>>();
+        for (const QNetworkCookie &cookie : cookies) {
+            if (cookie.name() == "auth_token") {
+                token = cookie.value();
+            }
+        }
+        if (token.isEmpty()) {
+            qCWarning(NxCameraControlLog) << "Board API login gave no auth_token cookie:" << api.base;
+            done(false, true, tr("the board API did not start a session"));
+            return;
+        }
+        _trgnTokens.insert(api.base + QLatin1Char('\n') + api.user, token);
+        done(true, false, QString());
+    });
+}
+
+void CameraControl::_trgnPost(const TrgnApi &api, const QString &path, const QJsonObject &body, const TrgnDone &done,
+                              bool retried)
+{
+    const QString key = api.base + QLatin1Char('\n') + api.user;
+    if (!_trgnTokens.contains(key)) {
+        _trgnLogin(api, [this, api, path, body, done, retried](bool ok, bool fatal, const QString &error) {
+            if (!ok) {
+                done(false, fatal, error);
+                return;
+            }
+            _trgnPost(api, path, body, done, retried);
+        });
+        return;
+    }
+
+    QNetworkReply *const reply = _trgnSend(api, path, body, _trgnTokens.value(key));
+    (void) connect(reply, &QNetworkReply::finished, this, [this, api, path, body, done, retried, key, reply]() {
+        reply->deleteLater();
+        const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        if ((status == 401) || (reply->error() == QNetworkReply::AuthenticationRequiredError)) {
+            // The session ran out (or the board restarted): log in again and repeat once
+            _trgnTokens.remove(key);
+            if (!retried) {
+                _trgnPost(api, path, body, done, true);
+            } else {
+                done(false, true, tr("the board API refuses access after login"));
+            }
+            return;
+        }
+        if (reply->error() != QNetworkReply::NoError) {
+            qCWarning(NxCameraControlLog) << "Board API request failed: POST"
+                                          << reply->url().toDisplayString(QUrl::RemoveUserInfo) << "HTTP" << status
+                                          << reply->errorString();
+            // Without any HTTP answer the board is out of reach, and the other cameras would only wait as long
+            done(false, status == 0, failureReason(reply));
+            return;
+        }
+        done(true, false, QString());
     });
 }
 

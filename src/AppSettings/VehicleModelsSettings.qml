@@ -109,6 +109,40 @@ Rectangle {
         }
     }
 
+    // TRGN-Video picture settings, sent with every day/night switch; CameraControl has their defaults
+    readonly property var _trgnImageFields: [
+        { key: "image.luminance",   label: qsTr("Brightness") },
+        { key: "image.contrast",    label: qsTr("Contrast") },
+        { key: "image.saturation",  label: qsTr("Saturation") },
+        { key: "image.hue",         label: qsTr("Hue") },
+        { key: "isp.exposure",      label: qsTr("Exposure") },
+        { key: "isp.wdr",           label: qsTr("WDR") },
+        { key: "isp.aGain",         label: qsTr("Gain") }
+    ]
+
+    function _setCameraType(camera, index, type) {
+        camera.type = type
+        if (type === "TRGN-Video") {
+            // The board's API names its cameras cam1, cam2, ...: by default the next one after the TRGN-Video
+            // cameras above, as CameraControl assumes for a camera without an ID
+            if (!camera.trgnCameraId) {
+                const above = _edit.cameras.slice(0, index).filter(other => other.type === "TRGN-Video").length
+                camera.trgnCameraId = "cam" + (above + 1)
+            }
+            camera.imageFields = Object.assign(CameraControl.trgnImageDefaults(), camera.imageFields || {})
+        }
+        _fillCameraUrls(camera)
+        // The editor shows other fields for this type
+        _refresh()
+    }
+
+    function _setTrgnImageField(camera, key, value) {
+        if (!camera.imageFields) {
+            camera.imageFields = CameraControl.trgnImageDefaults()
+        }
+        camera.imageFields[key] = value
+    }
+
     function _moveCamera(index, offset) {
         let target = index + offset
         if (target < 0 || target >= _edit.cameras.length) {
@@ -400,15 +434,14 @@ Rectangle {
                                 required property int index
 
                                 property var camera: root._edit.cameras[index]
+                                // Controlled through the board's API: the address and login below are the API's
+                                readonly property bool boardApi: modelData.type === "TRGN-Video"
 
                                 QGCComboBox {
                                     Layout.fillWidth:   true
                                     model:              VehicleModelManager.cameraTypes
                                     currentIndex:       Math.max(0, VehicleModelManager.cameraTypes.indexOf(cameraGroup.modelData.type))
-                                    onActivated: (typeIndex) => {
-                                        cameraGroup.camera.type = VehicleModelManager.cameraTypes[typeIndex]
-                                        root._fillCameraUrls(cameraGroup.camera)
-                                    }
+                                    onActivated: (typeIndex) => root._setCameraType(cameraGroup.camera, cameraGroup.index, VehicleModelManager.cameraTypes[typeIndex])
                                 }
 
                                 QGCTextField {
@@ -421,7 +454,7 @@ Rectangle {
                                 QGCTextField {
                                     Layout.fillWidth:   true
                                     text:               cameraGroup.modelData.ip
-                                    placeholderText:    qsTr("IP address")
+                                    placeholderText:    cameraGroup.boardApi ? qsTr("Board API address (https://192.168.3.1:3000)") : qsTr("IP address")
                                     onTextEdited:       cameraGroup.camera.ip = text
                                     onEditingFinished:  root._fillCameraUrls(cameraGroup.camera)
                                 }
@@ -429,7 +462,7 @@ Rectangle {
                                 QGCTextField {
                                     Layout.fillWidth:   true
                                     text:               cameraGroup.modelData.user
-                                    placeholderText:    qsTr("User name")
+                                    placeholderText:    cameraGroup.boardApi ? qsTr("API user name") : qsTr("User name")
                                     onTextEdited:       cameraGroup.camera.user = text
                                     onEditingFinished:  root._fillCameraUrls(cameraGroup.camera)
                                 }
@@ -437,10 +470,67 @@ Rectangle {
                                 QGCTextField {
                                     Layout.fillWidth:   true
                                     text:               cameraGroup.modelData.password
-                                    placeholderText:    qsTr("Password")
+                                    placeholderText:    cameraGroup.boardApi ? qsTr("API password") : qsTr("Password")
                                     echoMode:           TextInput.Password
                                     onTextEdited:       cameraGroup.camera.password = text
                                     onEditingFinished:  root._fillCameraUrls(cameraGroup.camera)
+                                }
+
+                                RowLayout {
+                                    Layout.fillWidth:   true
+                                    spacing:            ScreenTools.defaultFontPixelWidth
+                                    visible:            cameraGroup.boardApi
+
+                                    QGCLabel { text: qsTr("Camera ID in the board API") }
+                                    QGCTextField {
+                                        Layout.fillWidth:   true
+                                        text:               cameraGroup.modelData.trgnCameraId || ""
+                                        placeholderText:    "cam1, cam2, cam3"
+                                        onTextEdited:       cameraGroup.camera.trgnCameraId = text.trim()
+                                    }
+                                }
+
+                                QGCLabel {
+                                    Layout.fillWidth:   true
+                                    visible:            cameraGroup.boardApi
+                                    wrapMode:           Text.WordWrap
+                                    text:               qsTr("Picture settings, sent to the camera with every day/night switch")
+                                }
+
+                                GridLayout {
+                                    Layout.fillWidth:   true
+                                    visible:            cameraGroup.boardApi
+                                    columns:            4
+                                    columnSpacing:      ScreenTools.defaultFontPixelWidth
+                                    rowSpacing:         ScreenTools.defaultFontPixelHeight / 4
+
+                                    Repeater {
+                                        model: cameraGroup.boardApi ? root._trgnImageFields : []
+
+                                        RowLayout {
+                                            id:                     imageField
+                                            Layout.fillWidth:       true
+                                            Layout.columnSpan:      2
+                                            spacing:                ScreenTools.defaultFontPixelWidth
+
+                                            required property var modelData
+                                            readonly property var stored: cameraGroup.modelData.imageFields || {}
+
+                                            QGCLabel {
+                                                Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 12
+                                                text:                   imageField.modelData.label
+                                            }
+                                            QGCTextField {
+                                                Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 8
+                                                text:                   imageField.stored[imageField.modelData.key] !== undefined
+                                                                        ? String(imageField.stored[imageField.modelData.key])
+                                                                        : CameraControl.trgnImageDefaults()[imageField.modelData.key]
+                                                inputMethodHints:       Qt.ImhFormattedNumbersOnly
+                                                validator:              IntValidator { }
+                                                onTextEdited:           root._setTrgnImageField(cameraGroup.camera, imageField.modelData.key, text)
+                                            }
+                                        }
+                                    }
                                 }
 
                                 QGCTextField {
