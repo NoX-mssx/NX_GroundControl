@@ -10,6 +10,7 @@
 #include "Vehicle.h"
 #include "VehicleLinkManager.h"
 
+#include <QtCore/QMetaEnum>
 #include <QtCore/QtEndian>
 #include <QtCore/QUrl>
 #include <QtNetwork/QAbstractNetworkCache>
@@ -169,7 +170,12 @@ QString networkFailure(const QNetworkReply *reply)
         break;
     }
     const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-    return (status > 0) ? QStringLiteral("HTTP %1").arg(status) : reply->errorString();
+    if (status > 0) {
+        return QStringLiteral("HTTP %1").arg(status);
+    }
+    // Qt's own text carries the whole URL and does not fit the "!"; the log keeps it
+    const char *const name = QMetaEnum::fromType<QNetworkReply::NetworkError>().valueToKey(reply->error());
+    return name ? QString::fromLatin1(name) : reply->errorString();
 }
 
 } // namespace
@@ -432,6 +438,11 @@ void StarlinkPosition::_poll()
         const QByteArray grpcStatus = reply->rawHeader("grpc-status");
         if (reply->error() != QNetworkReply::NoError) {
             error = networkFailure(reply);
+            if (error != _error) {
+                qCWarning(StarlinkPositionLog) << "Dish request failed:" << reply->error() << reply->errorString()
+                                               << "HTTP" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt()
+                                               << "grpc-status" << grpcStatus << "grpc-message" << reply->rawHeader("grpc-message");
+            }
         } else if (!grpcStatus.isEmpty() && (grpcStatus != "0")) {
             // An error comes as headers only, with the reason in grpc-message
             QString message = QUrl::fromPercentEncoding(reply->rawHeader("grpc-message"));

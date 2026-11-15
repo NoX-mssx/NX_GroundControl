@@ -129,7 +129,8 @@ ToolIndicatorPage {
                     Layout.fillWidth:       true
                     Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 40
                     visible:                gpsSourceGroup._sourceFact.rawValue !== 0 && StarlinkPosition.starlinkError !== ""
-                    wrapMode:               Text.WordWrap
+                    // Breaks inside long words too (addresses), so the whole reason stays readable
+                    wrapMode:               Text.WrapAtWordBoundaryOrAnywhere
                     color:                  qgcPal.colorOrange
                     text:                   qsTr("Starlink: %1").arg(StarlinkPosition.starlinkError)
                 }

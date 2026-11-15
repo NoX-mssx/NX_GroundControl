@@ -177,7 +177,8 @@ Item {
                                         Layout.fillWidth:   true
                                         text:               modelData.text + (modelData.count > 1 ? "  ×" + modelData.count : "")
                                         color:              control._levelColor(modelData.level)
-                                        wrapMode:           Text.WordWrap
+                                        // Long addresses break too, so nothing runs past the edge
+                                        wrapMode:           Text.WrapAtWordBoundaryOrAnywhere
                                     }
 
                                     QGCButton {
