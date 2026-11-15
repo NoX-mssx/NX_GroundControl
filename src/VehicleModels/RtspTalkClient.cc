@@ -337,17 +337,23 @@ void RtspTalkClient::_onDescribe(const Response &response)
 
     // The track the camera takes audio on is the send-only audio media
     bool inAudio = false;
+    bool inVideo = false;
     bool sendOnly = false;
     bool found = false;
     int payload = -1;
     QString control;
     QMap<int, QString> encodings;
+    QStringList offered;    // What the address offers instead, for the message when there is no way to the speaker
     const QStringList lines = QString::fromUtf8(response.body).split(QLatin1Char('\n'));
     const auto finishMedia = [&]() {
         if (inAudio && sendOnly && !found && (payload >= 0)) {
             found = true;
             _payloadType = payload;
             _controlUrl = control;
+        } else if (inVideo && !offered.contains(tr("video"))) {
+            offered.append(tr("video"));
+        } else if (inAudio && !sendOnly && !offered.contains(tr("sound from the camera"))) {
+            offered.append(tr("sound from the camera"));
         }
     };
     for (const QString &rawLine : lines) {
@@ -355,6 +361,7 @@ void RtspTalkClient::_onDescribe(const Response &response)
         if (line.startsWith(QLatin1String("m="))) {
             finishMedia();
             inAudio = line.startsWith(QLatin1String("m=audio"));
+            inVideo = line.startsWith(QLatin1String("m=video"));
             sendOnly = false;
             control.clear();
             const QStringList parts = line.split(QLatin1Char(' '));
@@ -373,7 +380,12 @@ void RtspTalkClient::_onDescribe(const Response &response)
     finishMedia();
 
     if (!found) {
-        _fail(tr("the camera has no speaker input (no audio backchannel offered)"));
+        // Often the address is not the camera itself but MediaMTX or another relay, which has no way back to it
+        qCWarning(NxRtspTalkLog) << "No audio backchannel offered by" << withoutCredentials(_url) << "SDP:" << response.body;
+        _fail(tr("%1 offers no way to the camera's speaker (it offers: %2); the microphone needs the camera's own "
+                 "RTSP address, not MediaMTX or a relay")
+                  .arg(QStringLiteral("%1:%2").arg(_url.host()).arg(_url.port()),
+                       offered.isEmpty() ? tr("nothing") : offered.join(QStringLiteral(", "))));
         return;
     }
     QString encoding = encodings.value(_payloadType);

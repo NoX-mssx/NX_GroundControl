@@ -23203,6 +23203,11 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <name>VehicleModelsSettings</name>
     <message>
       <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Camera's own RTSP address for the microphone, not MediaMTX (empty: the RTSP URL above)</source>
+      <translation>RTSP-адрес самой камеры для микрофона, не MediaMTX (пусто: RTSP-адрес выше)</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
       <source>Brightness</source>
       <translation>Яркость</translation>
     </message>
@@ -26100,6 +26105,26 @@ Send this file together with the AppLog.log file from the Logs folder.</source>
   </context>
   <context>
     <name>RtspTalkClient</name>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>video</source>
+      <translation>видео</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>sound from the camera</source>
+      <translation>звук с камеры</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>nothing</source>
+      <translation>ничего</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>%1 offers no way to the camera's speaker (it offers: %2); the microphone needs the camera's own RTSP address, not MediaMTX or a relay</source>
+      <translation>%1 не даёт канала на динамик камеры (даёт только: %2); микрофону нужен RTSP-адрес самой камеры, а не MediaMTX или ретранслятора</translation>
+    </message>
     <message>
       <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
       <source>the camera did not answer</source>

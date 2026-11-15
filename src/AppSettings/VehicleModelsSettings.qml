@@ -564,7 +564,7 @@ Rectangle {
                                     Layout.fillWidth:   true
                                     visible:            microphoneCheck.checked
                                     text:               cameraGroup.modelData.talkUrl || ""
-                                    placeholderText:    qsTr("Camera RTSP URL for the microphone (empty: the RTSP URL above)")
+                                    placeholderText:    qsTr("Camera's own RTSP address for the microphone, not MediaMTX (empty: the RTSP URL above)")
                                     onTextEdited:       cameraGroup.camera.talkUrl = text
                                 }
 

@@ -23137,6 +23137,11 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <name>VehicleModelsSettings</name>
     <message>
       <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Camera's own RTSP address for the microphone, not MediaMTX (empty: the RTSP URL above)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
       <source>Brightness</source>
       <translation type="unfinished" />
     </message>
@@ -26031,6 +26036,26 @@ Send this file together with the AppLog.log file from the Logs folder.</source>
   </context>
   <context>
     <name>RtspTalkClient</name>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>video</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>sound from the camera</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>nothing</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
+      <source>%1 offers no way to the camera's speaker (it offers: %2); the microphone needs the camera's own RTSP address, not MediaMTX or a relay</source>
+      <translation type="unfinished" />
+    </message>
     <message>
       <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
       <source>the camera did not answer</source>
