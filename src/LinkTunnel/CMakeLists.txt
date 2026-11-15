@@ -4,6 +4,8 @@ target_sources(${CMAKE_PROJECT_NAME}
         IcmpPing.h
         LinkQualityMonitor.cc
         LinkQualityMonitor.h
+        StarlinkPosition.cc
+        StarlinkPosition.h
         WireGuardTunnel.cc
         WireGuardTunnel.h
 )

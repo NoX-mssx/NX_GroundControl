@@ -43,6 +43,16 @@ Item {
                 visible:                _rtkConnected
             }
 
+            // NX: the vehicle is shown at its Starlink dish's position
+            QGCLabel {
+                rotation:               90
+                text:                   "SL"
+                color:                  "#DB6536"
+                font.bold:              true
+                anchors.verticalCenter: parent.verticalCenter
+                visible:                StarlinkPosition.usingStarlink
+            }
+
             QGCColoredImage {
                 id:                 gpsIcon
                 width:              height
@@ -51,7 +61,7 @@ Item {
                 source:             "/res/Satellite.svg"
                 fillMode:           Image.PreserveAspectFit
                 sourceSize.height:  height
-                opacity:            (_activeVehicle && _activeVehicle.gps.count.value >= 0) ? 1 : 0.5
+                opacity:            (_activeVehicle && (_activeVehicle.gps.count.value >= 0 || StarlinkPosition.usingStarlink)) ? 1 : 0.5
                 color:              qgcPal.text
             }
         }

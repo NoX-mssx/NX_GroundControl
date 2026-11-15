@@ -30,4 +30,6 @@ public:
     DEFINE_SETTINGFACT(requestControlAllowTakeover)
     DEFINE_SETTINGFACT(requestControlTimeout)
     DEFINE_SETTINGFACT(enableAutomaticMissionPopups)
+    /// NX: 0 the vehicle's GPS, 1 the Starlink dish, 2 the dish while the vehicle's GPS has no fix
+    DEFINE_SETTINGFACT(gpsSource)
 };

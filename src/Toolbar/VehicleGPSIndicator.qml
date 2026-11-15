@@ -6,7 +6,8 @@ import QGroundControl.Controls
 
 GPSIndicator {
     objectName:     "toolbar_gpsIndicator"
-    property bool showIndicator: _activeVehicle.gps.telemetryAvailable
+    // NX: always there with a vehicle, since its menu chooses where the position comes from (Rover, STARLINK, Auto)
+    property bool showIndicator: true
 
     property var _activeVehicle: QGroundControl.multiVehicleManager.activeVehicle
 }

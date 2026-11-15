@@ -43,6 +43,8 @@ class LinkConfiguration : public QObject
     Q_PROPERTY(bool             fromRoom            READ fromRoom               CONSTANT)
     /// Address pinged to measure the link round trip time (the vehicle's router inside the tunnel), empty for none
     Q_PROPERTY(QString          pingAddress         MEMBER _pingAddress         NOTIFY tunnelSettingsChanged)
+    /// Starlink dish API (gRPC, host:port) as reached through the tunnel; empty: the ping address, port 9200
+    Q_PROPERTY(QString          starlinkAddress     MEMBER _starlinkAddress     NOTIFY tunnelSettingsChanged)
     /// Scale joystick throttle down while the ping is above the thresholds below
     Q_PROPERTY(bool             throttleLimitEnabled    MEMBER _throttleLimitEnabled    NOTIFY tunnelSettingsChanged)
     Q_PROPERTY(int              pingThreshold1Ms        MEMBER _pingThreshold1Ms        NOTIFY tunnelSettingsChanged)
@@ -87,6 +89,14 @@ public:
 
     QString wireGuardProfile() const { return _wireGuardProfile; }
     QString pingAddress() const { return _pingAddress; }
+    QString starlinkAddress() const { return _starlinkAddress; }
+    void setStarlinkAddress(const QString &address)
+    {
+        if (_starlinkAddress != address) {
+            _starlinkAddress = address;
+            emit tunnelSettingsChanged();
+        }
+    }
     QString boardId() const { return _boardId; }
     bool showInMenu() const { return _showInMenu; }
     QString room() const { return _room; }
@@ -225,6 +235,7 @@ private:
     QString _vehicleModel;
     QString _wireGuardProfile;
     QString _pingAddress;
+    QString _starlinkAddress;
     QString _boardId;
     bool _showInMenu = true;
     QString _room;

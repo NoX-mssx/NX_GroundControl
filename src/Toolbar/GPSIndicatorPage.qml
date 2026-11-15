@@ -10,6 +10,8 @@ import QGroundControl.FactControls
 ToolIndicatorPage {
     showExpand: true
 
+    QGCPalette { id: qgcPal }
+
     property var    activeVehicle:      QGroundControl.multiVehicleManager.activeVehicle
     property string na:                 qsTr("N/A", "No data to display")
     property string valueNA:            qsTr("–.––", "No data to display")
@@ -82,6 +84,49 @@ ToolIndicatorPage {
     contentComponent: Component {
         ColumnLayout {
             spacing: ScreenTools.defaultFontPixelHeight / 2
+
+            // NX: where the vehicle's position on the map comes from. Only what is shown changes.
+            SettingsGroupLayout {
+                id:         gpsSourceGroup
+                heading:    qsTr("GPS Source")
+                visible:    activeVehicle
+
+                property var _sourceFact: QGroundControl.settingsManager.flyViewSettings.gpsSource
+
+                RowLayout {
+                    spacing: ScreenTools.defaultFontPixelWidth
+
+                    Repeater {
+                        model: [ { value: 0, text: "Rover" }, { value: 1, text: "STARLINK" }, { value: 2, text: "Auto" } ]
+
+                        // The chosen one in the accent colour; not checkable, so a click cannot untick it
+                        QGCButton {
+                            required property var modelData
+                            readonly property bool _selected: gpsSourceGroup._sourceFact.rawValue === modelData.value
+
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 12
+                            text:                   modelData.text
+                            backgroundColor:        _selected ? "#DB6536" : qgcPal.button
+                            textColor:              _selected ? "#0B1F1D" : qgcPal.buttonText
+                            onClicked:              gpsSourceGroup._sourceFact.rawValue = modelData.value
+                        }
+                    }
+                }
+
+                LabelledLabel {
+                    label:      qsTr("On the map")
+                    labelText:  StarlinkPosition.usingStarlink ? qsTr("Starlink dish") : qsTr("Rover GPS")
+                }
+
+                QGCLabel {
+                    Layout.fillWidth:       true
+                    Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 40
+                    visible:                gpsSourceGroup._sourceFact.rawValue !== 0 && StarlinkPosition.starlinkError !== ""
+                    wrapMode:               Text.WordWrap
+                    color:                  qgcPal.colorOrange
+                    text:                   qsTr("Starlink: %1").arg(StarlinkPosition.starlinkError)
+                }
+            }
 
             SettingsGroupLayout {
                 heading: qsTr("Vehicle GPS Status")

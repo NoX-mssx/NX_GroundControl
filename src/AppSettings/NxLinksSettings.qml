@@ -490,6 +490,20 @@ Rectangle {
                             }
                         }
 
+                        // Where the GPS menu of the drive screen gets the Starlink dish's position from
+                        RowLayout {
+                            Layout.fillWidth:   true
+                            spacing:            ScreenTools.defaultFontPixelWidth
+
+                            QGCLabel { text: qsTr("Starlink address") }
+                            QGCTextField {
+                                Layout.fillWidth:   true
+                                text:               root.editingConfig.starlinkAddress
+                                placeholderText:    qsTr("Dish API through the tunnel; empty: ping address, port 9200")
+                                onTextEdited:       root.editingConfig.starlinkAddress = text.trim()
+                            }
+                        }
+
                         QGCCheckBoxSlider {
                             Layout.fillWidth:   true
                             text:               qsTr("Limit throttle on high ping")

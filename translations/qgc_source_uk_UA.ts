@@ -7718,6 +7718,11 @@ VTOL</translation>
     <name>FlyViewCustomLayer</name>
     <message>
       <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>Starlink GPS: %1</source>
+      <translation>GPS Starlink: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
       <source>Microphone: %1</source>
       <translation>Мікрофон: %1</translation>
     </message>
@@ -8295,6 +8300,31 @@ VTOL</translation>
   </context>
   <context>
     <name>GPSIndicatorPage</name>
+    <message>
+      <location filename="../src/Toolbar/GPSIndicatorPage.qml" line="1" />
+      <source>GPS Source</source>
+      <translation>Джерело GPS</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/GPSIndicatorPage.qml" line="1" />
+      <source>On the map</source>
+      <translation>На мапі</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/GPSIndicatorPage.qml" line="1" />
+      <source>Starlink dish</source>
+      <translation>Тарілка Starlink</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/GPSIndicatorPage.qml" line="1" />
+      <source>Rover GPS</source>
+      <translation>GPS борту</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/GPSIndicatorPage.qml" line="1" />
+      <source>Starlink: %1</source>
+      <translation>Starlink: %1</translation>
+    </message>
     <message>
       <location filename="../src/Toolbar/GPSIndicatorPage.qml" line="14" />
       <source>N/A</source>
@@ -14592,6 +14622,16 @@ Do you wish to proceed?</source>
   </context>
   <context>
     <name>NxLinksSettings</name>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="1" />
+      <source>Starlink address</source>
+      <translation>Адреса Starlink</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="1" />
+      <source>Dish API through the tunnel; empty: ping address, port 9200</source>
+      <translation>API тарілки через тунель; порожньо: адреса ping, порт 9200</translation>
+    </message>
     <message>
       <location filename="../src/AppSettings/NxLinksSettings.qml" line="1" />
       <source>Delete the link "%1"? The operators of the room lose this vehicle.</source>
@@ -26119,6 +26159,49 @@ Send this file together with the AppLog.log file from the Logs folder.</source>
       <location filename="../src/VehicleModels/RtspTalkClient.cc" line="1" />
       <source>the camera would not start the audio channel (RTSP %1)</source>
       <translation>камера не запустила звуковий канал (RTSP %1)</translation>
+    </message>
+  </context>
+  <context>
+    <name>StarlinkPosition</name>
+    <message>
+      <location filename="../src/LinkTunnel/StarlinkPosition.cc" line="1" />
+      <source>connection refused</source>
+      <translation>з'єднання відхилено</translation>
+    </message>
+    <message>
+      <location filename="../src/LinkTunnel/StarlinkPosition.cc" line="1" />
+      <source>address not found</source>
+      <translation>адресу не знайдено</translation>
+    </message>
+    <message>
+      <location filename="../src/LinkTunnel/StarlinkPosition.cc" line="1" />
+      <source>no answer</source>
+      <translation>немає відповіді</translation>
+    </message>
+    <message>
+      <location filename="../src/LinkTunnel/StarlinkPosition.cc" line="1" />
+      <source>the dish gave an empty answer</source>
+      <translation>тарілка дала порожню відповідь</translation>
+    </message>
+    <message>
+      <location filename="../src/LinkTunnel/StarlinkPosition.cc" line="1" />
+      <source>the dish's answer could not be read</source>
+      <translation>не вдалося прочитати відповідь тарілки</translation>
+    </message>
+    <message>
+      <location filename="../src/LinkTunnel/StarlinkPosition.cc" line="1" />
+      <source>the dish does not give its position: %1</source>
+      <translation>тарілка не віддає координати: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/LinkTunnel/StarlinkPosition.cc" line="1" />
+      <source>the dish's answer has no position</source>
+      <translation>у відповіді тарілки немає координат</translation>
+    </message>
+    <message>
+      <location filename="../src/LinkTunnel/StarlinkPosition.cc" line="1" />
+      <source>the link has no Starlink or ping address</source>
+      <translation>у лінку немає адреси Starlink або адреси ping</translation>
     </message>
   </context>
 </TS>

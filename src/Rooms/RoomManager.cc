@@ -1631,6 +1631,7 @@ QJsonObject RoomManager::_packBundle(LinkConfiguration *config, QString *error) 
     }
     link[QStringLiteral("highLatency")] = config->isHighLatency();
     link[QStringLiteral("pingAddress")] = config->pingAddress();
+    link[QStringLiteral("starlinkAddress")] = config->starlinkAddress();
     link[QStringLiteral("boardId")] = config->boardId();
     link[QStringLiteral("throttleLimitEnabled")] = config->throttleLimitEnabled();
     link[QStringLiteral("pingThreshold1Ms")] = config->pingThreshold1Ms();
@@ -1801,6 +1802,7 @@ LinkConfiguration *RoomManager::_createRoomLink(const QString &boardId, const QS
                               link.value(QStringLiteral("throttlePercent1"), 50).toInt(),
                               link.value(QStringLiteral("pingThreshold2Ms"), 600).toInt(),
                               link.value(QStringLiteral("throttlePercent2"), 25).toInt());
+    config->setStarlinkAddress(link.value(QStringLiteral("starlinkAddress")).toString());
     config->setFromRoom(boardId);
     // The room it came from: the connect menu shows the vehicles of the current room only
     config->setRoom(_currentRoom);

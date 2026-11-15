@@ -993,6 +993,12 @@ Item {
             }
         }
 
+        // The dish was chosen for the position (GPS menu) but gives none
+        Connections {
+            target: StarlinkPosition
+            function onProblem(message) { mainWindow.addVehicleNotice(qsTr("Starlink GPS: %1").arg(message), 1, false) }
+        }
+
         // The menu stays just buttons: a command that did not go through is reported under the "!" instead
         Connections {
             target: CameraTalk

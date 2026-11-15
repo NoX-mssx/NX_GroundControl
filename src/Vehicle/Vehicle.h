@@ -413,6 +413,12 @@ public:
     QGeoCoordinate coordinate() { return _coordinate; }
     QGeoCoordinate armedPosition    () { return _armedPosition; }
 
+    /// NX: shows the vehicle at a position from outside the autopilot (the Starlink dish) instead of the
+    /// autopilot's own; an invalid coordinate goes back to the autopilot's position. Only what is shown changes:
+    /// nothing is sent to the vehicle.
+    void setExternalPosition(const QGeoCoordinate &coordinate);
+    bool externalPositionActive() const { return _externalPositionActive; }
+
     qreal getInitialGCSPressure() const { return _initialGCSPressure; }
     qreal getInitialGCSTemperature() const { return _initialGCSTemperature; }
     void setInitialGCSPressure(qreal pressure) { _initialGCSPressure = pressure; }
@@ -868,6 +874,8 @@ private:
     void _handleCommandAck              (mavlink_message_t& message);
     void _handleGpsRawInt               (mavlink_message_t& message);
     void _handleGlobalPositionInt       (mavlink_message_t& message);
+    /// NX: every position from the autopilot goes through here, so an external position can stand in for it
+    void _applyAutopilotCoordinate      (const QGeoCoordinate &coordinate);
     void _handleHighLatency             (mavlink_message_t& message);
     void _handleHighLatency2            (mavlink_message_t& message);
     void _handleOrbitExecutionStatus    (const mavlink_message_t& message);
@@ -927,6 +935,9 @@ private:
     bool _isActiveVehicle = false;
 
     QGeoCoordinate  _coordinate;
+    /// NX: the autopilot's last position, kept while an external position is shown (setExternalPosition)
+    QGeoCoordinate  _autopilotCoordinate;
+    bool            _externalPositionActive = false;
     QGeoCoordinate  _homePosition;
     QGeoCoordinate  _armedPosition;
 

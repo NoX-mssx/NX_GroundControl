@@ -136,6 +136,17 @@
             "default": true,
             "label": "Enable automatic mission start/resume popups",
             "keywords": "mission popup"
+        },
+        {
+            "name": "gpsSource",
+            "shortDesc": "Where the vehicle position shown on the map comes from.",
+            "longDesc": "Rover: the vehicle's own GPS. STARLINK: the position of the vehicle's Starlink dish, read through the link's tunnel. Auto: the vehicle's GPS, and the dish while the vehicle's GPS has no fix. Only what is shown changes; nothing is sent to the vehicle.",
+            "type": "uint32",
+            "enumStrings": "Rover,STARLINK,Auto",
+            "enumValues": "0,1,2",
+            "default": 0,
+            "label": "GPS source",
+            "keywords": "gps,starlink"
         }
     ]
 }

@@ -851,10 +851,7 @@ void Vehicle::_handleGpsRawInt(mavlink_message_t& message)
     if (gpsRawInt.fix_type >= GPS_FIX_TYPE_3D_FIX) {
         if (!_globalPositionIntMessageAvailable) {
             QGeoCoordinate newPosition(gpsRawInt.lat  / (double)1E7, gpsRawInt.lon / (double)1E7, gpsRawInt.alt  / 1000.0);
-            if (newPosition != _coordinate) {
-                _coordinate = newPosition;
-                emit coordinateChanged(_coordinate);
-            }
+            _applyAutopilotCoordinate(newPosition);
             if (!_altitudeMessageAvailable) {
                 _altitudeAMSLFact.setRawValue(gpsRawInt.alt / 1000.0);
             }
@@ -885,8 +882,32 @@ void Vehicle::_handleGlobalPositionInt(mavlink_message_t& message)
 
     _globalPositionIntMessageAvailable = true;
     QGeoCoordinate newPosition(globalPositionInt.lat  / (double)1E7, globalPositionInt.lon / (double)1E7, globalPositionInt.alt  / 1000.0);
-    if (newPosition != _coordinate) {
-        _coordinate = newPosition;
+    _applyAutopilotCoordinate(newPosition);
+}
+
+void Vehicle::_applyAutopilotCoordinate(const QGeoCoordinate &coordinate)
+{
+    _autopilotCoordinate = coordinate;
+    // NX: while the Starlink dish's position is shown, the autopilot's is only kept for later
+    if (_externalPositionActive) {
+        return;
+    }
+    if (coordinate != _coordinate) {
+        _coordinate = coordinate;
+        emit coordinateChanged(_coordinate);
+    }
+}
+
+void Vehicle::setExternalPosition(const QGeoCoordinate &coordinate)
+{
+    const bool active = coordinate.isValid();
+    if (!active && !_externalPositionActive) {
+        return;
+    }
+    _externalPositionActive = active;
+    const QGeoCoordinate shown = active ? coordinate : _autopilotCoordinate;
+    if (shown != _coordinate) {
+        _coordinate = shown;
         emit coordinateChanged(_coordinate);
     }
 }
@@ -925,10 +946,7 @@ void Vehicle::_handleHighLatency(mavlink_message_t& message)
                 static_cast<double>(highLatency.altitude_amsl)
     };
 
-    _coordinate.setLatitude(coordinate.latitude);
-    _coordinate.setLongitude(coordinate.longitude);
-    _coordinate.setAltitude(coordinate.altitude);
-    emit coordinateChanged(_coordinate);
+    _applyAutopilotCoordinate(QGeoCoordinate(coordinate.latitude, coordinate.longitude, coordinate.altitude));
 
     _airSpeedFact.setRawValue((double)highLatency.airspeed / 5.0);
     _groundSpeedFact.setRawValue((double)highLatency.groundspeed / 5.0);
@@ -977,10 +995,8 @@ void Vehicle::_handleHighLatency2(mavlink_message_t& message)
         }
     }
 
-    _coordinate.setLatitude(highLatency2.latitude  / (double)1E7);
-    _coordinate.setLongitude(highLatency2.longitude / (double)1E7);
-    _coordinate.setAltitude(highLatency2.altitude);
-    emit coordinateChanged(_coordinate);
+    _applyAutopilotCoordinate(QGeoCoordinate(highLatency2.latitude / (double)1E7, highLatency2.longitude / (double)1E7,
+                                             highLatency2.altitude));
 
     _airSpeedFact.setRawValue((double)highLatency2.airspeed / 5.0);
     _groundSpeedFact.setRawValue((double)highLatency2.groundspeed / 5.0);

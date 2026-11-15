@@ -30,6 +30,7 @@ LinkConfiguration::LinkConfiguration(const LinkConfiguration *copy, QObject *par
     , _vehicleModel(copy->vehicleModel())
     , _wireGuardProfile(copy->_wireGuardProfile)
     , _pingAddress(copy->_pingAddress)
+    , _starlinkAddress(copy->_starlinkAddress)
     , _boardId(copy->_boardId)
     , _showInMenu(copy->_showInMenu)
     , _room(copy->_room)
@@ -64,6 +65,7 @@ void LinkConfiguration::copyFrom(const LinkConfiguration *source)
 
     _wireGuardProfile = source->_wireGuardProfile;
     _pingAddress = source->_pingAddress;
+    _starlinkAddress = source->_starlinkAddress;
     _boardId = source->_boardId;
     _showInMenu = source->_showInMenu;
     _room = source->_room;
@@ -81,6 +83,7 @@ void LinkConfiguration::loadTunnelSettings(const QSettings &settings, const QStr
 {
     _wireGuardProfile = settings.value(root + QStringLiteral("/wireguard_profile")).toString();
     _pingAddress = settings.value(root + QStringLiteral("/ping_address")).toString();
+    _starlinkAddress = settings.value(root + QStringLiteral("/starlink_address")).toString();
     _boardId = settings.value(root + QStringLiteral("/board_id")).toString();
     _showInMenu = settings.value(root + QStringLiteral("/show_in_menu"), true).toBool();
     _room = settings.value(root + QStringLiteral("/room")).toString();
@@ -112,6 +115,7 @@ void LinkConfiguration::saveTunnelSettings(QSettings &settings, const QString &r
 {
     settings.setValue(root + QStringLiteral("/wireguard_profile"), _wireGuardProfile);
     settings.setValue(root + QStringLiteral("/ping_address"), _pingAddress);
+    settings.setValue(root + QStringLiteral("/starlink_address"), _starlinkAddress);
     settings.setValue(root + QStringLiteral("/board_id"), _boardId);
     settings.setValue(root + QStringLiteral("/show_in_menu"), _showInMenu);
     settings.setValue(root + QStringLiteral("/room"), _room);
