@@ -8302,6 +8302,16 @@ VTOL</translation>
     <name>GPSIndicatorPage</name>
     <message>
       <location filename="../src/Toolbar/GPSIndicatorPage.qml" line="1" />
+      <source>Dish address</source>
+      <translation>Адрес тарелки</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/GPSIndicatorPage.qml" line="1" />
+      <source>none</source>
+      <translation>нет</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/GPSIndicatorPage.qml" line="1" />
       <source>GPS Source</source>
       <translation>Источник GPS</translation>
     </message>

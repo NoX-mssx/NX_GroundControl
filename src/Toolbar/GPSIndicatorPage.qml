@@ -118,6 +118,13 @@ ToolIndicatorPage {
                     labelText:  StarlinkPosition.usingStarlink ? qsTr("Starlink dish") : qsTr("Rover GPS")
                 }
 
+                // Where the dish is asked, so a wrong link address shows at once
+                LabelledLabel {
+                    label:      qsTr("Dish address")
+                    labelText:  StarlinkPosition.dishAddress !== "" ? StarlinkPosition.dishAddress : qsTr("none")
+                    visible:    gpsSourceGroup._sourceFact.rawValue !== 0
+                }
+
                 QGCLabel {
                     Layout.fillWidth:       true
                     Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 40

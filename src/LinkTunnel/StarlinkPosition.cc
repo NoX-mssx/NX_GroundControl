@@ -196,6 +196,12 @@ StarlinkPosition::StarlinkPosition(QObject *parent)
     _activeVehicleChanged(MultiVehicleManager::instance()->activeVehicle());
 }
 
+QString StarlinkPosition::dishAddress() const
+{
+    const QUrl url(_url);
+    return _url.isEmpty() ? QString() : QStringLiteral("%1:%2").arg(url.host()).arg(url.port(kDefaultPort));
+}
+
 bool StarlinkPosition::starlinkFresh() const
 {
     return _fix.isValid() && (_fixAt >= 0) && ((_clock.elapsed() - _fixAt) <= kFreshMs);
@@ -360,6 +366,7 @@ void StarlinkPosition::_updateAddress()
         if (_reply) {
             _reply->abort();
         }
+        emit stateChanged();
     }
     _tick();
 }

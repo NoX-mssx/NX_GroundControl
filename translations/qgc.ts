@@ -8276,6 +8276,16 @@ VTOL</source>
     <name>GPSIndicatorPage</name>
     <message>
       <location filename="../src/Toolbar/GPSIndicatorPage.qml" line="1" />
+      <source>Dish address</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/GPSIndicatorPage.qml" line="1" />
+      <source>none</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/GPSIndicatorPage.qml" line="1" />
       <source>GPS Source</source>
       <translation type="unfinished" />
     </message>

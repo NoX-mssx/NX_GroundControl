@@ -31,6 +31,8 @@ class StarlinkPosition : public QObject
     Q_PROPERTY(bool     starlinkFresh   READ starlinkFresh  NOTIFY stateChanged)
     /// Why the dish gives no position, empty while it does or while it is not asked
     Q_PROPERTY(QString  starlinkError   READ starlinkError  NOTIFY stateChanged)
+    /// host:port the dish is asked at, empty when the link gives no address
+    Q_PROPERTY(QString  dishAddress     READ dishAddress    NOTIFY stateChanged)
 
 public:
     enum Source { Rover = 0, Starlink = 1, Auto = 2 };
@@ -41,6 +43,7 @@ public:
     bool usingStarlink() const { return _usingStarlink; }
     bool starlinkFresh() const;
     QString starlinkError() const { return _error; }
+    QString dishAddress() const;
 
     /// Request body of get_location: a gRPC frame holding Request { get_location = {} }
     static QByteArray locationRequest();
