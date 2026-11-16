@@ -480,6 +480,15 @@ Item {
         value:      VehicleModelManager.activeModel.motorTelemetry || ({})
     }
 
+    // A controller counted new errors: a warning in the "!", one per report
+    Connections {
+        target: MotorTelemetryMonitor
+        function onErrorCountIncreased(side, added, total) {
+            const motor = side === "left" ? qsTr("Left motor") : qsTr("Right motor")
+            mainWindow.addVehicleNotice(qsTr("%1: %2 new controller errors (%3 in total)").arg(motor).arg(added).arg(total), 1, false)
+        }
+    }
+
     // Bottom right, left of the distance to home: temperature and current of the left and right motor controllers
     Rectangle {
         id:                     motorTelemetryPill
@@ -561,16 +570,17 @@ Item {
                         visible:                MotorTelemetryMonitor.showTemperature
                         width:                  Math.max(Math.ceil(widestTemperature.advanceWidth), implicitWidth)
                         horizontalAlignment:    Text.AlignRight
-                        text:                   modelData.hasData ? motorTelemetryPill.wholeNumber(modelData.temperature) + "°" : "--"
-                        color:                  modelData.hasData ? motorTelemetryPill.levelColor(modelData.temperatureLevel) : qgcPal.colorGrey
+                        // Each reading on its own: one that stopped coming shows as missing, not as its last value
+                        text:                   modelData.temperature !== undefined ? motorTelemetryPill.wholeNumber(modelData.temperature) + "°" : "--"
+                        color:                  modelData.temperature !== undefined ? motorTelemetryPill.levelColor(modelData.temperatureLevel) : qgcPal.colorGrey
                         font:                   motorRow.valueFont
                     }
                     QGCLabel {
                         anchors.verticalCenter: parent.verticalCenter
                         width:                  Math.max(Math.ceil(widestCurrent.advanceWidth), implicitWidth)
                         horizontalAlignment:    Text.AlignRight
-                        text:                   modelData.hasData ? qsTr("%1 A").arg(motorTelemetryPill.wholeNumber(modelData.current)) : "--"
-                        color:                  modelData.hasData ? motorTelemetryPill.levelColor(modelData.currentLevel) : qgcPal.colorGrey
+                        text:                   modelData.current !== undefined ? qsTr("%1 A").arg(motorTelemetryPill.wholeNumber(modelData.current)) : "--"
+                        color:                  modelData.current !== undefined ? motorTelemetryPill.levelColor(modelData.currentLevel) : qgcPal.colorGrey
                         font:                   motorRow.valueFont
                     }
                 }
@@ -603,7 +613,7 @@ Item {
 
         function valueText(side, key, format) {
             const motor = _motors[side]
-            if (!motor || !motor.hasData) {
+            if (!motor || motor[key] === undefined) {
                 return "--"
             }
             return format.arg(motorTelemetryPill.wholeNumber(Number(motor[key])))

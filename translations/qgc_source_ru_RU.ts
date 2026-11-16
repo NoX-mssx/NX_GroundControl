@@ -7718,6 +7718,21 @@ VTOL</translation>
     <name>FlyViewCustomLayer</name>
     <message>
       <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>Left motor</source>
+      <translation>Левый мотор</translation>
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>Right motor</source>
+      <translation>Правый мотор</translation>
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>%1: %2 new controller errors (%3 in total)</source>
+      <translation>%1: новых ошибок контроллера: %2 (всего %3)</translation>
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
       <source>Starlink GPS: %1</source>
       <translation>GPS Starlink: %1</translation>
     </message>
@@ -23213,6 +23228,11 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <name>VehicleModelsSettings</name>
     <message>
       <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Swap left and right</source>
+      <translation>Поменять местами левый и правый</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
       <source>Camera's own RTSP address for the microphone, not MediaMTX (empty: the RTSP URL above)</source>
       <translation>RTSP-адрес самой камеры для микрофона, не MediaMTX (пусто: RTSP-адрес выше)</translation>
     </message>
@@ -24388,6 +24408,51 @@ If a vehicle still has this key configured, you will no longer be able to commun
   </context>
   <context>
     <name>VehicleAlertIndicator</name>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>over-current</source>
+      <translation>перегрузка по току</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>over-voltage</source>
+      <translation>перенапряжение</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>over-temperature</source>
+      <translation>перегрев</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>over-RPM</source>
+      <translation>превышение оборотов</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>inconsistent command</source>
+      <translation>неверная команда</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>motor stuck</source>
+      <translation>мотор заклинило</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>generic failure</source>
+      <translation>общий отказ</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>flags 0x%1</source>
+      <translation>флаги 0x%1</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>%1: controller failure: %2</source>
+      <translation>%1: отказ контроллера: %2</translation>
+    </message>
     <message>
       <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
       <source>No GPS lock</source>

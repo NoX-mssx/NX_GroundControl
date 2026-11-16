@@ -7692,6 +7692,21 @@ VTOL</source>
     <name>FlyViewCustomLayer</name>
     <message>
       <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>Left motor</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>Right motor</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>%1: %2 new controller errors (%3 in total)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
       <source>Starlink GPS: %1</source>
       <translation type="unfinished" />
     </message>
@@ -23147,6 +23162,11 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <name>VehicleModelsSettings</name>
     <message>
       <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Swap left and right</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
       <source>Camera's own RTSP address for the microphone, not MediaMTX (empty: the RTSP URL above)</source>
       <translation type="unfinished" />
     </message>
@@ -24322,6 +24342,51 @@ If a vehicle still has this key configured, you will no longer be able to commun
   </context>
   <context>
     <name>VehicleAlertIndicator</name>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>over-current</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>over-voltage</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>over-temperature</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>over-RPM</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>inconsistent command</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>motor stuck</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>generic failure</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>flags 0x%1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
+      <source>%1: controller failure: %2</source>
+      <translation type="unfinished" />
+    </message>
     <message>
       <location filename="../src/Toolbar/VehicleAlertIndicator.qml" line="1" />
       <source>No GPS lock</source>

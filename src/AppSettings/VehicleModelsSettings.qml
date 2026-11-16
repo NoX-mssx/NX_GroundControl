@@ -823,6 +823,20 @@ Rectangle {
                             onTextEdited:           motorGroup.telemetry.rightEsc = parseInt(text) || 2
                         }
 
+                        // For a vehicle whose controllers report left and right the other way round
+                        QGCLabel { text: "" }
+                        QGCButton {
+                            Layout.columnSpan:  2
+                            text:               qsTr("Swap left and right")
+                            onClicked: {
+                                root._edit.motorTelemetry = motorGroup.telemetry
+                                const left = root._edit.motorTelemetry.leftEsc
+                                root._edit.motorTelemetry.leftEsc = root._edit.motorTelemetry.rightEsc
+                                root._edit.motorTelemetry.rightEsc = left
+                                root._refresh()
+                            }
+                        }
+
                         QGCLabel { text: "" }
                         QGCLabel { text: qsTr("Warning");  font.weight: Font.DemiBold; color: qgcPal.colorOrange }
                         QGCLabel { text: qsTr("Critical"); font.weight: Font.DemiBold; color: qgcPal.colorRed }

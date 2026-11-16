@@ -1,7 +1,5 @@
 #include "MotorTelemetryMonitor.h"
-#include "EscStatusFactGroupListModel.h"
 #include "MultiVehicleManager.h"
-#include "QmlObjectListModel.h"
 #include "Vehicle.h"
 
 #include <algorithm>
@@ -9,6 +7,7 @@
 MotorTelemetryMonitor::MotorTelemetryMonitor(QObject *parent)
     : QObject(parent)
 {
+    _clock.start();
     _staleTimer.setInterval(1000);
     (void) connect(&_staleTimer, &QTimer::timeout, this, &MotorTelemetryMonitor::_evaluate);
 
@@ -40,7 +39,8 @@ void MotorTelemetryMonitor::_activeVehicleChanged(Vehicle *vehicle)
         (void) disconnect(_vehicle, nullptr, this, nullptr);
     }
     _vehicle = vehicle;
-    _sinceTelemetry.start();
+    _vehicleAt = _clock.elapsed();
+    _escs.clear();
     _sides[0] = Side();
     _sides[1] = Side();
 
@@ -53,13 +53,122 @@ void MotorTelemetryMonitor::_activeVehicleChanged(Vehicle *vehicle)
     _evaluate();
 }
 
+bool MotorTelemetryMonitor::_fresh(qint64 at) const
+{
+    return (at >= 0) && ((_clock.elapsed() - at) <= kStaleMs);
+}
+
+int MotorTelemetryMonitor::_sideOf(int index) const
+{
+    if (index == (_config.value(QStringLiteral("leftEsc"), 1).toInt() - 1)) {
+        return 0;
+    }
+    if (index == (_config.value(QStringLiteral("rightEsc"), 2).toInt() - 1)) {
+        return 1;
+    }
+    return -1;
+}
+
+void MotorTelemetryMonitor::_setTemperature(int index, double celsius)
+{
+    Esc &esc = _escs[index];
+    esc.temperature = celsius;
+    esc.temperatureAt = _clock.elapsed();
+}
+
+void MotorTelemetryMonitor::_setErrorCount(int index, quint32 count)
+{
+    Esc &esc = _escs[index];
+    // The first reading is where counting starts; a lower one (the controller restarted) starts it again
+    if (esc.hasErrorBase && (count > esc.errorCount) && active()) {
+        const int side = _sideOf(index);
+        if (side >= 0) {
+            emit errorCountIncreased(side == 0 ? QStringLiteral("left") : QStringLiteral("right"),
+                                     static_cast<int>(count - esc.errorCount), static_cast<int>(count));
+        }
+    }
+    esc.errorCount = count;
+    esc.hasErrorBase = true;
+    esc.errorCountAt = _clock.elapsed();
+}
+
 void MotorTelemetryMonitor::_messageReceived(const mavlink_message_t &message)
 {
-    // Emitted after the vehicle's fact groups took the message, so the ESC values are already current
-    if ((message.msgid != MAVLINK_MSG_ID_ESC_TELEMETRY_1_TO_4) && (message.msgid != MAVLINK_MSG_ID_ESC_TELEMETRY_5_TO_8)) {
+    const qint64 now = _clock.elapsed();
+
+    switch (message.msgid) {
+    case MAVLINK_MSG_ID_ESC_STATUS: {
+        mavlink_esc_status_t status{};
+        mavlink_msg_esc_status_decode(&message, &status);
+        for (int i = 0; i < 4; i++) {
+            Esc &esc = _escs[status.index + i];
+            esc.current = status.current[i];
+            esc.voltage = status.voltage[i];
+            esc.rpm = status.rpm[i];
+            esc.statusAt = now;
+        }
+        break;
+    }
+    case MAVLINK_MSG_ID_ESC_INFO: {
+        mavlink_esc_info_t info{};
+        mavlink_msg_esc_info_decode(&message, &info);
+        for (int i = 0; i < 4; i++) {
+            const int index = info.index + i;
+            // Entries past the number of controllers hold no data
+            if (index >= info.count) {
+                break;
+            }
+            if (info.temperature[i] != kTemperatureNotSupplied) {
+                _setTemperature(index, info.temperature[i] / 100.0);      // centi-degrees
+            }
+            Esc &esc = _escs[index];
+            esc.failureFlags = info.failure_flags[i];
+            esc.failureAt = now;
+            _setErrorCount(index, info.error_count[i]);
+        }
+        break;
+    }
+    case MAVLINK_MSG_ID_ESC_TELEMETRY_1_TO_4:
+    case MAVLINK_MSG_ID_ESC_TELEMETRY_5_TO_8: {
+        // Both have the same layout; the second covers ESC 5-8
+        const bool first = (message.msgid == MAVLINK_MSG_ID_ESC_TELEMETRY_1_TO_4);
+        uint8_t temperature[4]{};
+        uint16_t voltage[4]{};
+        uint16_t current[4]{};
+        uint16_t rpm[4]{};
+        if (first) {
+            mavlink_esc_telemetry_1_to_4_t telemetry{};
+            mavlink_msg_esc_telemetry_1_to_4_decode(&message, &telemetry);
+            std::copy(std::begin(telemetry.temperature), std::end(telemetry.temperature), temperature);
+            std::copy(std::begin(telemetry.voltage), std::end(telemetry.voltage), voltage);
+            std::copy(std::begin(telemetry.current), std::end(telemetry.current), current);
+            std::copy(std::begin(telemetry.rpm), std::end(telemetry.rpm), rpm);
+        } else {
+            mavlink_esc_telemetry_5_to_8_t telemetry{};
+            mavlink_msg_esc_telemetry_5_to_8_decode(&message, &telemetry);
+            std::copy(std::begin(telemetry.temperature), std::end(telemetry.temperature), temperature);
+            std::copy(std::begin(telemetry.voltage), std::end(telemetry.voltage), voltage);
+            std::copy(std::begin(telemetry.current), std::end(telemetry.current), current);
+            std::copy(std::begin(telemetry.rpm), std::end(telemetry.rpm), rpm);
+        }
+        const int firstIndex = first ? 0 : 4;
+        for (int i = 0; i < 4; i++) {
+            Esc &esc = _escs[firstIndex + i];
+            // Voltage and current arrive in hundredths. ArduPilot puts its signed temperature into the unsigned
+            // byte without a bound, so below zero it wraps (-1 C arrives as 255): read as signed it covers
+            // -128..127 C, every real controller and motor.
+            esc.current = current[i] / 100.0;
+            esc.voltage = voltage[i] / 100.0;
+            esc.rpm = rpm[i];
+            esc.statusAt = now;
+            _setTemperature(firstIndex + i, static_cast<int8_t>(temperature[i]));
+        }
+        break;
+    }
+    default:
         return;
     }
-    _sinceTelemetry.start();
+
     _evaluate();
 }
 
@@ -93,7 +202,7 @@ void MotorTelemetryMonitor::_evaluate()
         const double tempCrit = _config.value(QStringLiteral("tempCrit")).toDouble();
         const double currentWarn = _config.value(QStringLiteral("currentWarn")).toDouble();
         const double currentCrit = _config.value(QStringLiteral("currentCrit")).toDouble();
-        const bool stale = _sinceTelemetry.elapsed() > kStaleMs;
+        const double currentHysteresis = std::max(0.5, std::max(currentWarn, currentCrit) * kCurrentHysteresis);
 
         const QString sideNames[2] = {QStringLiteral("left"), QStringLiteral("right")};
         const int escNumbers[2] = {
@@ -101,70 +210,84 @@ void MotorTelemetryMonitor::_evaluate()
             _config.value(QStringLiteral("rightEsc"), 2).toInt(),
         };
 
-        QmlObjectListModel *const escs = _vehicle->escs();
+        bool anyData = false;
         for (int s = 0; s < 2; s++) {
-            EscStatusFactGroup *group = nullptr;
-            for (int i = 0; escs && (i < escs->count()); i++) {
-                auto *const candidate = qobject_cast<EscStatusFactGroup *>(escs->get(i));
-                if (candidate && (candidate->id()->rawValue().toInt() == (escNumbers[s] - 1))) {
-                    group = candidate;
-                    break;
-                }
-            }
+            const Esc esc = _escs.value(escNumbers[s] - 1);
+            Side &side = _sides[s];
+            const bool hasStatus = _fresh(esc.statusAt);
+            const bool hasTemperature = _fresh(esc.temperatureAt) && showTemperature();
+            const bool hasFailure = _fresh(esc.failureAt);
+            const bool hasErrorCount = _fresh(esc.errorCountAt);
+            const bool hasData = hasStatus || hasTemperature || hasFailure;
+            anyData = anyData || hasStatus || _fresh(esc.temperatureAt) || hasFailure;
 
-            const bool hasData = group && group->telemetryAvailable() && !stale;
             QVariantMap motor{
                 {QStringLiteral("side"), sideNames[s]},
                 {QStringLiteral("esc"), escNumbers[s]},
                 {QStringLiteral("hasData"), hasData},
             };
 
-            if (hasData) {
-                const double temperature = group->temperature()->rawValue().toDouble() / 100.0;
-                const double current = group->current()->rawValue().toDouble();
-                Side &side = _sides[s];
-                const double currentHysteresis = std::max(0.5, std::max(currentWarn, currentCrit) * kCurrentHysteresis);
-                side.temperatureLevel = showTemperature()
-                    ? _levelWithHysteresis(temperature, tempWarn, tempCrit, kTemperatureHysteresis, side.temperatureLevel)
-                    : 0;
-                side.currentLevel = _levelWithHysteresis(current, currentWarn, currentCrit, currentHysteresis, side.currentLevel);
-
-                motor.insert(QStringLiteral("temperature"), temperature);
-                motor.insert(QStringLiteral("current"), current);
-                motor.insert(QStringLiteral("voltage"), group->voltage()->rawValue().toDouble());
-                motor.insert(QStringLiteral("rpm"), group->rpm()->rawValue().toInt());
-                motor.insert(QStringLiteral("temperatureLevel"), side.temperatureLevel);
-                motor.insert(QStringLiteral("currentLevel"), side.currentLevel);
-
-                if (side.temperatureLevel > 0) {
-                    alerts.append(QVariantMap{
-                        {QStringLiteral("side"), sideNames[s]},
-                        {QStringLiteral("kind"), QStringLiteral("temperature")},
-                        {QStringLiteral("value"), temperature},
-                        {QStringLiteral("threshold"), (side.temperatureLevel >= 2) ? tempCrit : tempWarn},
-                        {QStringLiteral("level"), side.temperatureLevel},
-                    });
-                }
-                if (side.currentLevel > 0) {
-                    alerts.append(QVariantMap{
-                        {QStringLiteral("side"), sideNames[s]},
-                        {QStringLiteral("kind"), QStringLiteral("current")},
-                        {QStringLiteral("value"), current},
-                        {QStringLiteral("threshold"), (side.currentLevel >= 2) ? currentCrit : currentWarn},
-                        {QStringLiteral("level"), side.currentLevel},
-                    });
-                }
-                level = std::max({level, side.temperatureLevel, side.currentLevel});
+            // A reading that stopped coming is left out, so it shows as missing instead of its last value
+            if (hasStatus) {
+                motor.insert(QStringLiteral("current"), esc.current);
+                motor.insert(QStringLiteral("voltage"), esc.voltage);
+                motor.insert(QStringLiteral("rpm"), esc.rpm);
+                side.currentLevel = _levelWithHysteresis(esc.current, currentWarn, currentCrit, currentHysteresis,
+                                                         side.currentLevel);
             } else {
-                _sides[s] = Side();
-                motor.insert(QStringLiteral("temperatureLevel"), 0);
-                motor.insert(QStringLiteral("currentLevel"), 0);
+                side.currentLevel = 0;
             }
+            if (hasTemperature) {
+                motor.insert(QStringLiteral("temperature"), esc.temperature);
+                side.temperatureLevel = _levelWithHysteresis(esc.temperature, tempWarn, tempCrit, kTemperatureHysteresis,
+                                                             side.temperatureLevel);
+            } else {
+                side.temperatureLevel = 0;
+            }
+            if (hasFailure) {
+                motor.insert(QStringLiteral("failureFlags"), esc.failureFlags);
+            }
+            if (hasErrorCount) {
+                motor.insert(QStringLiteral("errorCount"), static_cast<qint64>(esc.errorCount));
+            }
+            motor.insert(QStringLiteral("temperatureLevel"), side.temperatureLevel);
+            motor.insert(QStringLiteral("currentLevel"), side.currentLevel);
+
+            if (side.temperatureLevel > 0) {
+                alerts.append(QVariantMap{
+                    {QStringLiteral("side"), sideNames[s]},
+                    {QStringLiteral("kind"), QStringLiteral("temperature")},
+                    {QStringLiteral("value"), esc.temperature},
+                    {QStringLiteral("threshold"), (side.temperatureLevel >= 2) ? tempCrit : tempWarn},
+                    {QStringLiteral("level"), side.temperatureLevel},
+                });
+            }
+            if (side.currentLevel > 0) {
+                alerts.append(QVariantMap{
+                    {QStringLiteral("side"), sideNames[s]},
+                    {QStringLiteral("kind"), QStringLiteral("current")},
+                    {QStringLiteral("value"), esc.current},
+                    {QStringLiteral("threshold"), (side.currentLevel >= 2) ? currentCrit : currentWarn},
+                    {QStringLiteral("level"), side.currentLevel},
+                });
+            }
+            // The controller itself reports a failure: critical while the flags stay set
+            if (hasFailure && (esc.failureFlags != 0)) {
+                alerts.append(QVariantMap{
+                    {QStringLiteral("side"), sideNames[s]},
+                    {QStringLiteral("kind"), QStringLiteral("failure")},
+                    {QStringLiteral("value"), esc.failureFlags},
+                    {QStringLiteral("threshold"), 0},
+                    {QStringLiteral("level"), 2},
+                });
+                level = 2;
+            }
+            level = std::max({level, side.temperatureLevel, side.currentLevel});
             motors.append(motor);
         }
 
         // Nothing at all for a while: the CAN bus, the stream rate or the controllers themselves
-        if (stale) {
+        if (!anyData && ((_clock.elapsed() - _vehicleAt) > kStaleMs)) {
             alerts.append(QVariantMap{
                 {QStringLiteral("side"), QString()},
                 {QStringLiteral("kind"), QStringLiteral("noData")},

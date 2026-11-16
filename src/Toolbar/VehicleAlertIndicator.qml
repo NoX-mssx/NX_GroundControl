@@ -69,7 +69,32 @@ Item {
         return []
     }
 
-    /// Motor controller temperature and current against the thresholds of the vehicle model
+    /// Names of the set bits of MAVLink ESC_FAILURE_FLAGS
+    function _escFailureText(flags) {
+        const names = [
+            [1,  qsTr("over-current")],
+            [2,  qsTr("over-voltage")],
+            [4,  qsTr("over-temperature")],
+            [8,  qsTr("over-RPM")],
+            [16, qsTr("inconsistent command")],
+            [32, qsTr("motor stuck")],
+            [64, qsTr("generic failure")]
+        ]
+        const list = []
+        for (let i = 0; i < names.length; i++) {
+            if (flags & names[i][0]) {
+                list.push(names[i][1])
+            }
+        }
+        const unknown = flags & ~127
+        if (unknown) {
+            list.push(qsTr("flags 0x%1").arg(unknown.toString(16)))
+        }
+        return list.join(", ")
+    }
+
+    /// Motor controller temperature and current against the thresholds of the vehicle model, and the failures
+    /// the controllers report themselves
     function _motorAlerts() {
         const list = []
         const motorAlerts = MotorTelemetryMonitor.alerts
@@ -81,6 +106,8 @@ Item {
                 text = qsTr("%1: temperature %2 °C (limit %3)").arg(motor).arg(Math.round(alert.value)).arg(alert.threshold)
             } else if (alert.kind === "current") {
                 text = qsTr("%1: current %2 A (limit %3)").arg(motor).arg(alert.value.toFixed(1)).arg(alert.threshold)
+            } else if (alert.kind === "failure") {
+                text = qsTr("%1: controller failure: %2").arg(motor).arg(_escFailureText(alert.value))
             } else {
                 text = qsTr("No motor telemetry")
             }
