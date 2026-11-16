@@ -45,6 +45,8 @@ public:
     QString starlinkError() const { return _error; }
     QString dishAddress() const;
 
+    /// The grpc-status header says OK; Qt may list a header twice ("0, 0") once the trailers arrive
+    static bool grpcStatusOk(const QByteArray &value);
     /// Request body of get_location: a gRPC frame holding Request { get_location = {} }
     static QByteArray locationRequest();
     /// Reads the position out of a gRPC response body; on failure returns an invalid coordinate and the reason

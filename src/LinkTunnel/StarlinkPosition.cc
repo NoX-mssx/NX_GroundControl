@@ -213,6 +213,19 @@ bool StarlinkPosition::starlinkFresh() const
     return _fix.isValid() && (_fixAt >= 0) && ((_clock.elapsed() - _fixAt) <= kFreshMs);
 }
 
+bool StarlinkPosition::grpcStatusOk(const QByteArray &value)
+{
+    // Qt adds the headers again when the trailers arrive, so a status can read "0, 0"
+    const QList<QByteArray> statuses = value.split(',');
+    for (const QByteArray &status : statuses) {
+        const QByteArray code = status.trimmed();
+        if (!code.isEmpty() && (code != "0")) {
+            return false;
+        }
+    }
+    return true;
+}
+
 QByteArray StarlinkPosition::locationRequest()
 {
     // Request { get_location (1017) = GetLocationRequest {} }: key 1017 << 3 | 2 as a varint, then length 0
@@ -443,15 +456,25 @@ void StarlinkPosition::_poll()
                                                << "HTTP" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt()
                                                << "grpc-status" << grpcStatus << "grpc-message" << reply->rawHeader("grpc-message");
             }
-        } else if (!grpcStatus.isEmpty() && (grpcStatus != "0")) {
+        } else if (!grpcStatusOk(grpcStatus)) {
             // An error comes as headers only, with the reason in grpc-message
-            QString message = QUrl::fromPercentEncoding(reply->rawHeader("grpc-message"));
+            QString message = QUrl::fromPercentEncoding(reply->rawHeader("grpc-message").split(',').constFirst().trimmed());
             if (message.isEmpty()) {
                 message = QStringLiteral("gRPC status %1").arg(QString::fromLatin1(grpcStatus));
             }
             error = tr("the dish does not give its position: %1").arg(message);
+            if (error != _error) {
+                qCWarning(StarlinkPositionLog) << "Dish refused: grpc-status" << grpcStatus << "grpc-message" << message
+                                               << "headers" << reply->rawHeaderPairs();
+            }
         } else {
-            coordinate = parseLocationResponse(reply->readAll(), &error);
+            const QByteArray body = reply->readAll();
+            coordinate = parseLocationResponse(body, &error);
+            if (!coordinate.isValid() && (error != _error)) {
+                // What the dish actually sent, to see why it could not be read
+                qCWarning(StarlinkPositionLog) << "Dish answer without a position:" << error << "body" << body.left(256).toHex(' ')
+                                               << "headers" << reply->rawHeaderPairs();
+            }
         }
 
         if (coordinate.isValid()) {

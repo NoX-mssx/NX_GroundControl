@@ -13,4 +13,5 @@ private slots:
     void _testParseStatusError();
     void _testParseNoPosition();
     void _testParseDamaged();
+    void _testGrpcStatus();
 };

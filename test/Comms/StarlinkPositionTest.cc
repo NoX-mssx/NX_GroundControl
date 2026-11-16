@@ -116,4 +116,14 @@ void StarlinkPositionTest::_testParseDamaged()
     QVERIFY(!error.isEmpty());
 }
 
+void StarlinkPositionTest::_testGrpcStatus()
+{
+    QVERIFY(StarlinkPosition::grpcStatusOk(QByteArray()));
+    QVERIFY(StarlinkPosition::grpcStatusOk("0"));
+    // The same header seen twice, as Qt lists it after the trailers
+    QVERIFY(StarlinkPosition::grpcStatusOk("0, 0"));
+    QVERIFY(!StarlinkPosition::grpcStatusOk("7"));
+    QVERIFY(!StarlinkPosition::grpcStatusOk("0, 7"));
+}
+
 UT_REGISTER_TEST_LIGHTWEIGHT(StarlinkPositionTest, TestLabel::Unit, TestLabel::Comms)
