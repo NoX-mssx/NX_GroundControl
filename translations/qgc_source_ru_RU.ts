@@ -26265,6 +26265,11 @@ Send this file together with the AppLog.log file from the Logs folder.</source>
     <name>StarlinkPosition</name>
     <message>
       <location filename="../src/LinkTunnel/StarlinkPosition.cc" line="1" />
+      <source>no connection</source>
+      <translation>нет соединения</translation>
+    </message>
+    <message>
+      <location filename="../src/LinkTunnel/StarlinkPosition.cc" line="1" />
       <source>connection refused</source>
       <translation>соединение отклонено</translation>
     </message>

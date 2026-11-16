@@ -3,6 +3,7 @@
 #include <QtCore/QElapsedTimer>
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
+#include <QtCore/QSet>
 #include <QtCore/QString>
 #include <QtCore/QTimer>
 #include <QtPositioning/QGeoCoordinate>
@@ -80,7 +81,8 @@ private:
     QGeoCoordinate _fix;                ///< Last position from the dish
     qint64 _fixAt = -1;                 ///< _clock time of _fix
     QString _error;
-    QString _reportedError;             ///< Last reason given to the "!", so it is not repeated every second
+    QSet<QString> _reportedErrors;      ///< Reasons given to the "!" since the dish last gave a position
+    QSet<QString> _seenErrors;          ///< Reasons logged since then, each logged once
 
     bool _usingStarlink = false;
     bool _fresh = false;                ///< starlinkFresh() when last told

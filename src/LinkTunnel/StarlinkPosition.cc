@@ -166,6 +166,8 @@ QString networkFailure(const QNetworkReply *reply)
     case QNetworkReply::TimeoutError:
     case QNetworkReply::OperationCanceledError:     // the transfer timeout aborts the request
         return StarlinkPosition::tr("no answer");
+    case QNetworkReply::UnknownNetworkError:        // on Windows also a connection that timed out
+        return StarlinkPosition::tr("no connection");
     default:
         break;
     }
@@ -353,7 +355,7 @@ void StarlinkPosition::_activeVehicleChanged(Vehicle *vehicle)
     _autoOnDish = false;
     _roverFixSince = -1;
     _roverFixLostAt = -1;
-    _reportedError.clear();
+    _reportedErrors.clear();
     // The old address goes first, so the aborted request reads as stale rather than as a failure
     _url.clear();
     if (_reply) {
@@ -451,7 +453,7 @@ void StarlinkPosition::_poll()
         const QByteArray grpcStatus = reply->rawHeader("grpc-status");
         if (reply->error() != QNetworkReply::NoError) {
             error = networkFailure(reply);
-            if (error != _error) {
+            if (!_seenErrors.contains(error)) {
                 qCWarning(StarlinkPositionLog) << "Dish request failed:" << reply->error() << reply->errorString()
                                                << "HTTP" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt()
                                                << "grpc-status" << grpcStatus << "grpc-message" << reply->rawHeader("grpc-message");
@@ -463,14 +465,14 @@ void StarlinkPosition::_poll()
                 message = QStringLiteral("gRPC status %1").arg(QString::fromLatin1(grpcStatus));
             }
             error = tr("the dish does not give its position: %1").arg(message);
-            if (error != _error) {
+            if (!_seenErrors.contains(error)) {
                 qCWarning(StarlinkPositionLog) << "Dish refused: grpc-status" << grpcStatus << "grpc-message" << message
                                                << "headers" << reply->rawHeaderPairs();
             }
         } else {
             const QByteArray body = reply->readAll();
             coordinate = parseLocationResponse(body, &error);
-            if (!coordinate.isValid() && (error != _error)) {
+            if (!coordinate.isValid() && !_seenErrors.contains(error)) {
                 // What the dish actually sent, to see why it could not be read
                 qCWarning(StarlinkPositionLog) << "Dish answer without a position:" << error << "body" << body.left(256).toHex(' ')
                                                << "headers" << reply->rawHeaderPairs();
@@ -490,11 +492,16 @@ void StarlinkPosition::_poll()
 
 void StarlinkPosition::_setError(const QString &error)
 {
+    if (error.isEmpty()) {
+        // A position came (or nothing is asked): reasons are told again the next time they come up
+        _seenErrors.clear();
+    } else if (!_seenErrors.contains(error)) {
+        // Once per reason, so a dish that keeps failing in two ways does not fill the log
+        qCWarning(StarlinkPositionLog) << "Starlink position:" << error << QUrl(_url).toDisplayString(QUrl::RemovePath);
+        _seenErrors.insert(error);
+    }
     if (error == _error) {
         return;
-    }
-    if (!error.isEmpty()) {
-        qCWarning(StarlinkPositionLog) << "Starlink position:" << error << QUrl(_url).toDisplayString(QUrl::RemovePath);
     }
     _error = error;
     emit stateChanged();
@@ -542,12 +549,12 @@ void StarlinkPosition::_update()
 
     // The "!" hears once about each reason the dish cannot be used while it is wanted
     if (wantDish && !fresh && !_error.isEmpty()) {
-        if (_error != _reportedError) {
-            _reportedError = _error;
+        if (!_reportedErrors.contains(_error)) {
+            _reportedErrors.insert(_error);
             emit problem(_error);
         }
     } else if (fresh) {
-        _reportedError.clear();
+        _reportedErrors.clear();
     }
 
     const bool changed = (useDish != _usingStarlink) || (fresh != _fresh);
