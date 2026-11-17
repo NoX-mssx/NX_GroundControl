@@ -95,11 +95,40 @@ Function SkipPageOnUpdate
     ${EndIf}
 FunctionEnd
 
+; A file in use cannot be deleted, and an uninstaller then has Windows delete it at the next restart: that restart
+; would take the newly installed file of the same name with it. So NX Rover is closed first, and afterwards any such
+; leftover "delete at restart" for the program's folders is cancelled (ClearPendingDeletes.ps1).
+Function CloseRunningApp
+    DetailPrint "Closing ${APPNAME} if it is running..."
+    nsExec::Exec '"$SYSDIR\taskkill.exe" /F /T /IM ${EXENAME}.exe'
+    Pop $0
+    ${If} $0 == 0
+        ; Give Windows a moment to release the files
+        Sleep 1500
+    ${EndIf}
+FunctionEnd
+
+Function ClearPendingDeletes
+    InitPluginsDir
+    SetOutPath $PLUGINSDIR
+    File "${__FILEDIR__}\ClearPendingDeletes.ps1"
+    ; The 64-bit PowerShell; Sysnative is how a 32-bit installer reaches it
+    StrCpy $1 "$WINDIR\Sysnative\WindowsPowerShell\v1.0\powershell.exe"
+    ${IfNot} ${FileExists} $1
+        StrCpy $1 "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe"
+    ${EndIf}
+    SetShellVarContext all
+    nsExec::ExecToLog '"$1" -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$PLUGINSDIR\ClearPendingDeletes.ps1" "$INSTDIR" "$SMPROGRAMS\${APPNAME}" "$DESKTOP\${APPNAME}.lnk"'
+    Pop $0
+    SetShellVarContext current
+FunctionEnd
+
 Section "Install" SecMain
     SectionIn RO
     ${If} $IsUpdate == 1
         SetAutoClose true
     ${EndIf}
+    Call CloseRunningApp
     DetailPrint "Checking for 64 bit uninstaller"
     SetRegView 64
     ReadRegStr $R0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "UninstallString"
@@ -135,6 +164,7 @@ doUninstall:
     Abort
 
 doInstall:
+    Call ClearPendingDeletes
     SetRegView 64
     SetOutPath $INSTDIR
     ; Install payload
@@ -170,14 +200,16 @@ Section "Uninstall"
     ${GetOptions} $R0 "-LEAVE_DATA=" $R1
     !insertmacro MUI_STARTMENU_GETFOLDER Application $StartMenuFolder
 
-    ; Remove files and shortcuts
+    ; Remove files and shortcuts. Nothing is left for Windows to delete at the next restart: when this runs before
+    ; an update, that restart would delete the new files of the same names.
     SetShellVarContext all
-    RMDir /r /REBOOTOK "$INSTDIR"
-    RMDir /r /REBOOTOK "$SMPROGRAMS\$StartMenuFolder\"
+    RMDir /r "$INSTDIR"
+    RMDir /r "$SMPROGRAMS\$StartMenuFolder\"
+    Delete "$DESKTOP\${APPNAME}.lnk"
     SetShellVarContext current
 
     ${If} $R1 != 1
-        RMDir /r /REBOOTOK "$APPDATA\${ORGNAME}\"
+        RMDir /r "$APPDATA\${ORGNAME}\"
     ${EndIf}
 
     ; Remove ARP + WER
@@ -195,4 +227,11 @@ Section "Create Start Menu Shortcuts"
         CreateShortCut "$SMPROGRAMS\$StartMenuFolder\${APPNAME} (GPU Safe Mode).lnk" "$INSTDIR\bin\${EXENAME}.exe" "-swrast" "$INSTDIR\bin\${EXENAME}.exe" 0
         !insertmacro DemoteShortCut "$SMPROGRAMS\$StartMenuFolder\${APPNAME} (GPU Safe Mode).lnk"
     !insertmacro MUI_STARTMENU_WRITE_END
+SectionEnd
+
+; On the desktop of every user of the computer
+Section "Create Desktop Shortcut"
+    SetShellVarContext all
+    CreateShortCut "$DESKTOP\${APPNAME}.lnk" "$INSTDIR\bin\${EXENAME}.exe" "" "$INSTDIR\bin\${EXENAME}.exe" 0
+    SetShellVarContext current
 SectionEnd
