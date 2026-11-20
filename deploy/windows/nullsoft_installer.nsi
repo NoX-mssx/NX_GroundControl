@@ -98,11 +98,17 @@ FunctionEnd
 ; A file in use cannot be deleted, and an uninstaller then has Windows delete it at the next restart: that restart
 ; would take the newly installed file of the same name with it. So NX Rover is closed first, and afterwards any such
 ; leftover "delete at restart" for the program's folders is cancelled (ClearPendingDeletes.ps1).
+; Own variables, so the helpers leave $0 and the other registers of the install section alone
+Var KillResult
+Var PowerShell
+Var ScriptResult
+Var UninstallResult
+
 Function CloseRunningApp
     DetailPrint "Closing ${APPNAME} if it is running..."
     nsExec::Exec '"$SYSDIR\taskkill.exe" /F /T /IM ${EXENAME}.exe'
-    Pop $0
-    ${If} $0 == 0
+    Pop $KillResult
+    ${If} $KillResult == 0
         ; Give Windows a moment to release the files
         Sleep 1500
     ${EndIf}
@@ -113,13 +119,13 @@ Function ClearPendingDeletes
     SetOutPath $PLUGINSDIR
     File "${__FILEDIR__}\ClearPendingDeletes.ps1"
     ; The 64-bit PowerShell; Sysnative is how a 32-bit installer reaches it
-    StrCpy $1 "$WINDIR\Sysnative\WindowsPowerShell\v1.0\powershell.exe"
-    ${IfNot} ${FileExists} $1
-        StrCpy $1 "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe"
+    StrCpy $PowerShell "$WINDIR\Sysnative\WindowsPowerShell\v1.0\powershell.exe"
+    ${IfNot} ${FileExists} $PowerShell
+        StrCpy $PowerShell "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe"
     ${EndIf}
     SetShellVarContext all
-    nsExec::ExecToLog '"$1" -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$PLUGINSDIR\ClearPendingDeletes.ps1" "$INSTDIR" "$SMPROGRAMS\${APPNAME}" "$DESKTOP\${APPNAME}.lnk"'
-    Pop $0
+    nsExec::ExecToLog '"$PowerShell" -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$PLUGINSDIR\ClearPendingDeletes.ps1" "$INSTDIR" "$SMPROGRAMS\${APPNAME}" "$DESKTOP\${APPNAME}.lnk"'
+    Pop $ScriptResult
     SetShellVarContext current
 FunctionEnd
 
@@ -154,14 +160,17 @@ cleanupOrphanedRegistry:
 doUninstall:
     DetailPrint "Uninstalling previous version..."
     ClearErrors
-    ExecWait "$R0 /S -LEAVE_DATA=1 _?=$INSTDIR"
+    ; The exit code goes into a variable of its own. Without one, the check below read whatever $0 held before.
+    ExecWait "$R0 /S -LEAVE_DATA=1 _?=$INSTDIR" $UninstallResult
     ${If} ${Errors}
         MessageBox MB_OK|MB_ICONEXCLAMATION "Failed to start previous uninstaller."
         Abort
     ${EndIf}
-    IntCmp $0 0 doInstall
-    MessageBox MB_OK|MB_ICONEXCLAMATION "Could not remove a previously installed ${APPNAME} version.$\n$\nPlease remove it before continuing."
-    Abort
+    ; The old uninstaller has run, so stopping here would leave the computer without the program: whatever it
+    ; reports, the new version is installed over what is left
+    ${If} $UninstallResult != 0
+        DetailPrint "The previous uninstaller returned $UninstallResult; installing over what is left"
+    ${EndIf}
 
 doInstall:
     Call ClearPendingDeletes
