@@ -9,6 +9,8 @@ target_sources(${CMAKE_PROJECT_NAME}
         SubtitleWriter.h
         VideoManager.cc
         VideoManager.h
+        WebRtcVideoStatus.cc
+        WebRtcVideoStatus.h
 )
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

@@ -70,6 +70,8 @@ set(GSTREAMER_COMPONENT_REGISTRY
     "Pbutils:api_pbutils:gstreamer-pbutils-1.0:0"
     "Tag:api_tag:gstreamer-tag-1.0:0"
     "Audio:api_audio:gstreamer-audio-1.0:0"
+    "Sdp:api_sdp:gstreamer-sdp-1.0:0"
+    "Webrtc:api_webrtc:gstreamer-webrtc-1.0:0"
 )
 
 # Internal: split a registry entry "Component:api:pc:mandatory" into 4 OUT vars.

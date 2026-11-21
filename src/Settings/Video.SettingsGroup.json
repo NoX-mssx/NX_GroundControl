@@ -209,6 +209,18 @@
             "keywords": "srt,latency,buffer,advanced"
         },
         {
+            "name": "webrtcLatencyMs",
+            "shortDesc": "WebRTC buffer (ms).",
+            "longDesc": "How long the WebRTC (WHEP) receiver holds packets to put them in order and to get lost ones sent again before the picture is shown. A browser adjusts this by itself, mostly between 50 and 150 ms; a larger buffer hides a jittery link at the price of the same amount of extra delay.",
+            "type": "uint32",
+            "min": 50,
+            "max": 1000,
+            "units": "ms",
+            "default": 150,
+            "label": "WebRTC buffer",
+            "keywords": "webrtc,whep,latency,buffer,advanced"
+        },
+        {
             "name": "showFramesImmediately",
             "shortDesc": "Show every frame as soon as it arrives.",
             "longDesc": "The player does not line frames up by their time stamps. The delay is lower, but uneven arrival shows as uneven motion.",

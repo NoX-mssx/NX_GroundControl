@@ -60,7 +60,7 @@
       ],
       "android": ["androidmedia", "dav1d"],
       "apple": ["applemedia", "dav1d"],
-      "windows": ["alaw", "audioconvert", "audioparsers", "audioresample", "autodetect", "d3d", "d3d11", "d3d12", "dav1d", "directsound", "mulaw", "nvcodec", "qsv", "srt", "volume", "wasapi", "wasapi2"],
+      "windows": ["alaw", "audioconvert", "audioparsers", "audioresample", "autodetect", "d3d", "d3d11", "d3d12", "dav1d", "directsound", "dtls", "mulaw", "nice", "nvcodec", "opus", "qsv", "srt", "srtp", "volume", "wasapi", "wasapi2", "webrtc"],
       "linux": ["nvcodec", "qsv", "va", "vulkan"]
     },
     "checksums": {

@@ -168,6 +168,15 @@ DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, srtLatencyMs)
     return _srtLatencyMsFact;
 }
 
+DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, webrtcLatencyMs)
+{
+    if (!_webrtcLatencyMsFact) {
+        _webrtcLatencyMsFact = _createSettingsFact(webrtcLatencyMsName);
+        _webrtcLatencyMsFact->setUserVisible(kGstEnabled);
+    }
+    return _webrtcLatencyMsFact;
+}
+
 DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, showFramesImmediately)
 {
     if (!_showFramesImmediatelyFact) {

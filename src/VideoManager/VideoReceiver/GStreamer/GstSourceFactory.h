@@ -28,6 +28,8 @@ struct Config
     bool audioMuted = false;
     /// Buffer of an SRT source in ms; an address that sets latency= overrides it.
     int srtLatencyMs = 400;
+    /// Jitter buffer of webrtcbin for a WebRTC (WHEP) source, in ms.
+    int webrtcLatencyMs = 150;
     /// RTSP over UDP with TCP as fallback. When false the picture is carried inside the RTSP TCP connection.
     bool rtspUdp = false;
 };
@@ -43,7 +45,8 @@ bool isInAudioBranch(GstObject* object);
 
 /// Build a source bin (`source` [+ `tsdemux`] [+ `rtpjitterbuffer`] + `parsebin`)
 /// for `uri`. Supported schemes: rtsp/rtspt, tcp:// (MPEG-TS), udp:// (H.264 RTP),
-/// udp265:// (H.265 RTP), mpegts:// (MPEG-TS over UDP), srt:// (MPEG-TS over SRT).
+/// udp265:// (H.265 RTP), mpegts:// (MPEG-TS over UDP), srt:// (MPEG-TS over SRT),
+/// http(s):// and whep(s):// (WebRTC from a WHEP server, see GstWhepSource.h).
 ///
 /// Ghost pads on the returned bin are wired lazily; for `rtspsrc`/`tsdemux`/`parsebin`
 /// they appear only after upstream produces pads, so callers must connect any

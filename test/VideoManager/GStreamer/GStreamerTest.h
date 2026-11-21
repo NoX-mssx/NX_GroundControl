@@ -97,6 +97,8 @@ private slots:
     void _testSourceFactorySchemeCaseInsensitive();
     void _testSourceFactoryNegativeLatencyClamped();
     void _testSourceFactoryDynamicRtpLinkFailureCleansJitterBuffer();
+    void _testWhepUrls();
+    void _testSourceFactoryWhepUsesWebrtcbin();
     void _testColorimetryColorRangeMapping();
     void _testPixelFormatAcceptedButNotAdvertised();
     void _testAdvertisedFormatListMatchesTable();

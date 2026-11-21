@@ -35,6 +35,7 @@ public:
     DEFINE_SETTINGFACT(rtpJitterLatencyMs)
     DEFINE_SETTINGFACT(rtspAutoReconnect)
     DEFINE_SETTINGFACT(srtLatencyMs)
+    DEFINE_SETTINGFACT(webrtcLatencyMs)
     DEFINE_SETTINGFACT(showFramesImmediately)
     DEFINE_SETTINGFACT(rtspUseUdp)
     DEFINE_SETTINGFACT(catchUpMs)

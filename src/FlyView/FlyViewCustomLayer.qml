@@ -1009,6 +1009,12 @@ Item {
             function onProblem(message) { mainWindow.addVehicleNotice(qsTr("Starlink GPS: %1").arg(message), 1, false) }
         }
 
+        // A WebRTC stream reconnects by itself every 2 s; why it dropped goes under the "!", once per outage
+        Connections {
+            target: WebRtcVideoStatus
+            function onProblem(stream, reason) { mainWindow.addVehicleNotice(qsTr("WebRTC video %1: %2").arg(stream).arg(reason), 1, false) }
+        }
+
         // The menu stays just buttons: a command that did not go through is reported under the "!" instead
         Connections {
             target: CameraTalk

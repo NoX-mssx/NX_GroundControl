@@ -46,8 +46,12 @@ void CameraTalk::press(const QVariantMap &camera)
     }
 
     QString address = camera.value(QStringLiteral("talkUrl")).toString().trimmed();
-    if (address.isEmpty()) {
-        address = camera.value(QStringLiteral("mainUrl")).toString().trimmed();
+    // Talking goes over RTSP to the camera itself; a WebRTC or SRT picture address cannot carry it
+    for (const QLatin1String key : {QLatin1String("mainUrl"), QLatin1String("secondaryUrl")}) {
+        const QString url = camera.value(key).toString().trimmed();
+        if (address.isEmpty() && url.startsWith(QLatin1String("rtsp"), Qt::CaseInsensitive)) {
+            address = url;
+        }
     }
     if (address.isEmpty()) {
         emit failed(tr("the camera has no RTSP address to talk through"));

@@ -7718,6 +7718,11 @@ VTOL</translation>
     <name>FlyViewCustomLayer</name>
     <message>
       <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>WebRTC video %1: %2</source>
+      <translation>Відео WebRTC %1: %2</translation>
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
       <source>Left motor</source>
       <translation>Лівий мотор</translation>
     </message>
@@ -23228,6 +23233,21 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <name>VehicleModelsSettings</name>
     <message>
       <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>SRT address: srt://server:8890?streamid=read:path</source>
+      <translation>Адреса SRT: srt://сервер:8890?streamid=read:шлях</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>WebRTC (WHEP) address: http://server:8889/path/whep</source>
+      <translation>Адреса WebRTC (WHEP): http://сервер:8889/шлях/whep</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>RTSP address: rtsp://server:8554/path</source>
+      <translation>Адреса RTSP: rtsp://сервер:8554/шлях</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
       <source>Swap left and right</source>
       <translation>Поміняти місцями лівий і правий</translation>
     </message>
@@ -26307,6 +26327,97 @@ Send this file together with the AppLog.log file from the Logs folder.</source>
       <location filename="../src/LinkTunnel/StarlinkPosition.cc" line="1" />
       <source>the link has no Starlink or ping address</source>
       <translation>у лінку немає адреси Starlink або адреси ping</translation>
+    </message>
+  </context>
+  <context>
+    <name>WhepSource</name>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>connection refused</source>
+      <translation>з'єднання відхилено</translation>
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>address not found</source>
+      <translation>адресу не знайдено</translation>
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>no answer</source>
+      <translation>немає відповіді</translation>
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>no connection</source>
+      <translation>немає зв'язку</translation>
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>connection lost</source>
+      <translation>зв'язок втрачено</translation>
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>the server's answer was not accepted: %1</source>
+      <translation>відповідь сервера не прийнято: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>no media connection (ICE failed): the server's UDP port is not reachable</source>
+      <translation>немає з'єднання для відео (ICE): UDP-порт сервера недоступний</translation>
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>no media connection (DTLS)</source>
+      <translation>немає з'єднання для відео (DTLS)</translation>
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>no offer</source>
+      <translation>немає пропозиції (offer)</translation>
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>WHEP server: %1</source>
+      <translation>WHEP-сервер: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>the server has no such stream (404)</source>
+      <translation>на сервері немає такого потоку (404)</translation>
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>access denied (%1)</source>
+      <translation>доступ заборонено (%1)</translation>
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>not a WHEP address (405)</source>
+      <translation>це не WHEP-адреса (405)</translation>
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>the server refused (%1)</source>
+      <translation>сервер відмовив (%1)</translation>
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>the server's answer is not SDP</source>
+      <translation>відповідь сервера не SDP</translation>
+    </message>
+  </context>
+  <context>
+    <name>GstVideoReceiver</name>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstVideoReceiver.cc" line="1" />
+      <source>no picture for %1 s</source>
+      <translation>немає картинки %1 с</translation>
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstVideoReceiver.cc" line="1" />
+      <source>no picture %1 s after connecting</source>
+      <translation>немає картинки через %1 с після підключення</translation>
     </message>
   </context>
 </TS>

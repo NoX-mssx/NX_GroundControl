@@ -7718,6 +7718,11 @@ VTOL</translation>
     <name>FlyViewCustomLayer</name>
     <message>
       <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>WebRTC video %1: %2</source>
+      <translation>Видео WebRTC %1: %2</translation>
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
       <source>Left motor</source>
       <translation>Левый мотор</translation>
     </message>
@@ -23228,6 +23233,21 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <name>VehicleModelsSettings</name>
     <message>
       <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>SRT address: srt://server:8890?streamid=read:path</source>
+      <translation>Адрес SRT: srt://сервер:8890?streamid=read:путь</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>WebRTC (WHEP) address: http://server:8889/path/whep</source>
+      <translation>Адрес WebRTC (WHEP): http://сервер:8889/путь/whep</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>RTSP address: rtsp://server:8554/path</source>
+      <translation>Адрес RTSP: rtsp://сервер:8554/путь</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
       <source>Swap left and right</source>
       <translation>Поменять местами левый и правый</translation>
     </message>
@@ -26307,6 +26327,97 @@ Send this file together with the AppLog.log file from the Logs folder.</source>
       <location filename="../src/LinkTunnel/StarlinkPosition.cc" line="1" />
       <source>the link has no Starlink or ping address</source>
       <translation>в линке нет адреса Starlink или адреса ping</translation>
+    </message>
+  </context>
+  <context>
+    <name>WhepSource</name>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>connection refused</source>
+      <translation>соединение отклонено</translation>
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>address not found</source>
+      <translation>адрес не найден</translation>
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>no answer</source>
+      <translation>нет ответа</translation>
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>no connection</source>
+      <translation>нет связи</translation>
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>connection lost</source>
+      <translation>связь потеряна</translation>
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>the server's answer was not accepted: %1</source>
+      <translation>ответ сервера не принят: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>no media connection (ICE failed): the server's UDP port is not reachable</source>
+      <translation>нет соединения для видео (ICE): UDP-порт сервера недоступен</translation>
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>no media connection (DTLS)</source>
+      <translation>нет соединения для видео (DTLS)</translation>
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>no offer</source>
+      <translation>нет предложения (offer)</translation>
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>WHEP server: %1</source>
+      <translation>WHEP-сервер: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>the server has no such stream (404)</source>
+      <translation>на сервере нет такого потока (404)</translation>
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>access denied (%1)</source>
+      <translation>доступ запрещён (%1)</translation>
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>not a WHEP address (405)</source>
+      <translation>это не WHEP-адрес (405)</translation>
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>the server refused (%1)</source>
+      <translation>сервер отказал (%1)</translation>
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>the server's answer is not SDP</source>
+      <translation>ответ сервера не SDP</translation>
+    </message>
+  </context>
+  <context>
+    <name>GstVideoReceiver</name>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstVideoReceiver.cc" line="1" />
+      <source>no picture for %1 s</source>
+      <translation>нет картинки %1 с</translation>
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstVideoReceiver.cc" line="1" />
+      <source>no picture %1 s after connecting</source>
+      <translation>нет картинки через %1 с после подключения</translation>
     </message>
   </context>
 </TS>

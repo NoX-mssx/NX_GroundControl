@@ -8,6 +8,9 @@
 
 #include "GStreamerHelpers.h"
 #include "QGCLoggingCategory.h"
+#ifdef QGC_GST_WHEP
+#include "GstWhepSource.h"
+#endif
 
 QGC_LOGGING_CATEGORY(GstSourceFactoryLog, "Video.GStreamer.GstSourceFactory")
 
@@ -203,7 +206,7 @@ struct DynamicLinkContext
     GstElement* binParser;
     Config config;
     guint latencyMs;
-    bool allowJitterBuffer;  // false for RTSP (rtspsrc has its own internal jitterbuffer)
+    bool allowJitterBuffer;  // false for RTSP and WebRTC (rtspsrc and webrtcbin have their own jitterbuffer)
 };
 
 // Plays an audio pad of the source (RTP from RTSP, or an elementary stream such as AAC from tsdemux
@@ -388,7 +391,8 @@ void linkPad(GstElement* element, GstPad* pad, gpointer data)
     }
 
     // Insert a jitterbuffer ahead of the parser for RTP pads on non-RTSP dynamic sources, matching the
-    // static path's policy. RTSP is excluded: rtspsrc owns an internal jitterbuffer (no double-buffering).
+    // static path's policy. RTSP and WebRTC are excluded: rtspsrc and webrtcbin own an internal jitterbuffer
+    // (no double-buffering).
     GstElement* downstream = ctx->binParser;
     GstElement* dynamicBuffer = nullptr;
     const auto removeDynamicBuffer = [&dynamicBuffer] {
@@ -606,8 +610,9 @@ GstElement* buildUdpSource(const QUrl& sourceUrl, bool isUdpH264, bool isUdpH265
 
 // Wire upstream → (optional rtpjitterbuffer) → binParser, topology chosen by RTP probe (MPEG-TS
 // links via pad-added). Created elements join @p bin; returns false (logged) on failure.
+// @p ownJitterBuffer: the source buffers RTP itself (rtspsrc, webrtcbin), so none is added.
 bool linkSourceToParser(GstElement* bin, GstElement* upstream, GstElement* binParser, const Config& config,
-                        guint latencyMs, bool isMpegTs, bool isRtsp)
+                        guint latencyMs, bool isMpegTs, bool ownJitterBuffer)
 {
     // MPEG-TS exposes elementary streams via tsdemux dynamic src pads (none at NULL state) and
     // isn't raw RTP, so skip the RTP probe and link via pad-added when the video pad appears.
@@ -645,7 +650,7 @@ bool linkSourceToParser(GstElement* bin, GstElement* upstream, GstElement* binPa
     } else {
         // linkPad applies the jitter-buffer policy itself when an application/x-rtp pad appears on a
         // non-RTSP source. Context lifetime is tied to binParser (freed on its finalize).
-        auto* ctx = new DynamicLinkContext{binParser, config, latencyMs, !isRtsp};
+        auto* ctx = new DynamicLinkContext{binParser, config, latencyMs, !ownJitterBuffer};
         g_object_set_data_full(G_OBJECT(binParser), "qgc-dynamic-link-ctx", ctx,
                                [](gpointer p) { delete static_cast<DynamicLinkContext*>(p); });
         (void) g_signal_connect(upstream, "pad-added", G_CALLBACK(linkPad), ctx);
@@ -711,8 +716,13 @@ GstElement* create(const QString& uri, const Config& config)
     const bool isTcpMPEGTS = (scheme == QLatin1String("tcp"));
     const bool isSrt = (scheme == QLatin1String("srt"));
     const bool isMpegTs = isTcpMPEGTS || isUdpMPEGTS || isSrt;
+#ifdef QGC_GST_WHEP
+    const bool isWhep = Whep::isWhepUrl(uri);
+#else
+    const bool isWhep = false;
+#endif
 
-    if (!isRtsp && !isUdpH264 && !isUdpH265 && !isMpegTs) {
+    if (!isRtsp && !isUdpH264 && !isUdpH265 && !isMpegTs && !isWhep) {
         qCWarning(GstSourceFactoryLog) << "Unsupported URI scheme:" << scheme << "in" << sourceUrl.toDisplayString(QUrl::RemoveUserInfo);
         return nullptr;
     }
@@ -729,6 +739,11 @@ GstElement* create(const QString& uri, const Config& config)
     do {
         if (isRtsp) {
             source = buildRtspSource(uri, sourceUrl, config, latencyMs);
+#ifdef QGC_GST_WHEP
+        } else if (isWhep) {
+            source = Whep::createSource(uri, config.audio, (config.webrtcLatencyMs < 0) ? 0u : static_cast<guint>(config.webrtcLatencyMs),
+                                        config.jitterBuffer == JitterBuffer::DropOnLatency);
+#endif
         } else if (isTcpMPEGTS) {
             source = buildTcpSource(sourceUrl);
         } else if (isSrt) {
@@ -831,7 +846,7 @@ GstElement* create(const QString& uri, const Config& config)
                 break;
             }
         } else {
-            if (!linkSourceToParser(bin, upstream, binParser, config, latencyMs, isMpegTs, isRtsp)) {
+            if (!linkSourceToParser(bin, upstream, binParser, config, latencyMs, isMpegTs, isRtsp || isWhep)) {
                 break;
             }
         }

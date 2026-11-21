@@ -8,6 +8,10 @@ endif()
 # rtsp-server lib out of release builds. It is also optional: a define is emitted below only
 # when the SDK actually ships it.
 set(_qgc_gst_components Core Base Video App Rtsp)
+# WebRTC video from a WHEP server (GstWhepSource) needs the webrtc and sdp libraries of gst-plugins-bad/base.
+if(WIN32 OR LINUX)
+    list(APPEND _qgc_gst_components Sdp Webrtc)
+endif()
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     list(APPEND _qgc_gst_components RtspServer)
 endif()
@@ -108,6 +112,19 @@ target_sources(${CMAKE_PROJECT_NAME}
         QGCQVideoSinkController.cc
         QGCQVideoSinkController.h
 )
+
+# WHEP source: only where the SDK ships gstreamer-webrtc-1.0 and gstreamer-sdp-1.0; without it http(s)
+# addresses stay unsupported like any other unknown scheme.
+if(GStreamer_Webrtc_FOUND AND GStreamer_Sdp_FOUND)
+    target_sources(${CMAKE_PROJECT_NAME}
+        PRIVATE
+            GstWhepSource.cc
+            GstWhepSource.h
+    )
+    target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE QGC_GST_WHEP)
+else()
+    message(STATUS "GStreamer webrtc/sdp libraries not found: WebRTC (WHEP) video disabled")
+endif()
 
 # iOS xcframework ships no CA list / no keychain-via-OpenSSL; bundle a Mozilla NSS extract for
 # libgioopenssl (fetched at configure time, IOS.cmake). On the app target for MACOSX_PACKAGE_LOCATION.

@@ -7,6 +7,9 @@
 #include <gst/gst.h>
 
 #include "GstSourceFactory.h"
+#ifdef QGC_GST_WHEP
+#include "GstWhepSource.h"
+#endif
 
 namespace {
 
@@ -352,6 +355,57 @@ void GStreamerTest::_testSourceFactoryDynamicRtpLinkFailureCleansJitterBuffer()
              "a failed dynamic RTP pad link must leave parsebin available for the next valid pad");
     QVERIFY2(!findChildByFactoryName(bin, "rtpjitterbuffer"),
              "a failed dynamic RTP pad link must remove its temporary jitterbuffer");
+}
+
+void GStreamerTest::_testWhepUrls()
+{
+#ifdef QGC_GST_WHEP
+    using namespace GStreamer::Whep;
+    QVERIFY(isWhepUrl(QStringLiteral("http://10.0.0.1:8889/front-sd/whep")));
+    QVERIFY(isWhepUrl(QStringLiteral("HTTPS://server/cam/whep")));
+    QVERIFY(isWhepUrl(QStringLiteral("whep://server:8889/cam")));
+    QVERIFY(!isWhepUrl(QStringLiteral("rtsp://10.0.0.1:8554/cam")));
+    QVERIFY(!isWhepUrl(QStringLiteral("srt://10.0.0.1:8890?streamid=read:cam")));
+
+    // The MediaMTX page address takes its WHEP endpoint; user and password stay out of it
+    QCOMPARE(endpointUrl(QStringLiteral("http://user:pass@10.0.0.1:8889/front-sub/")).toString(),
+             QStringLiteral("http://10.0.0.1:8889/front-sub/whep"));
+    QCOMPARE(endpointUrl(QStringLiteral("http://10.0.0.1:8889/front-sub/whep")).toString(),
+             QStringLiteral("http://10.0.0.1:8889/front-sub/whep"));
+    QCOMPARE(endpointUrl(QStringLiteral("wheps://server/cam")).toString(), QStringLiteral("https://server/cam/whep"));
+
+    QCOMPARE(streamName(QStringLiteral("http://10.0.0.1:8889/front-sd/whep")), QStringLiteral("front-sd"));
+    QCOMPARE(streamName(QStringLiteral("http://10.0.0.1:8889/")), QStringLiteral("10.0.0.1"));
+#else
+    QSKIP("built without WebRTC (WHEP)");
+#endif
+}
+
+void GStreamerTest::_testSourceFactoryWhepUsesWebrtcbin()
+{
+#ifdef QGC_GST_WHEP
+    if (!gst_element_factory_find("webrtcbin") || !gst_element_factory_find("parsebin")) {
+        QSKIP("webrtcbin/parsebin plugin unavailable");
+    }
+
+    GStreamer::SourceFactory::Config config;
+    config.jitterBuffer = GStreamer::SourceFactory::JitterBuffer::Buffered;
+    config.webrtcLatencyMs = 120;
+    GstElement* bin = GStreamer::SourceFactory::create(QStringLiteral("http://127.0.0.1:8889/cam/whep"), config);
+    QVERIFY(bin);
+    const auto cleanup = qScopeGuard([&] { gst_object_unref(bin); });
+
+    GstElement* webrtc = findChildByFactoryName(bin, "webrtcbin");
+    QVERIFY(webrtc);
+    QCOMPARE(QString::fromUtf8(GST_OBJECT_NAME(webrtc)), QStringLiteral("source"));
+    guint latency = 0;
+    g_object_get(webrtc, "latency", &latency, nullptr);
+    QCOMPARE(latency, 120u);
+    QVERIFY(findChildByFactoryName(bin, "parsebin"));
+    QVERIFY2(!findChildByFactoryName(bin, "rtpjitterbuffer"), "webrtcbin buffers RTP itself; none may be added in front of the parser");
+#else
+    QSKIP("built without WebRTC (WHEP)");
+#endif
 }
 
 #endif

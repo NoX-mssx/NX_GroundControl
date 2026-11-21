@@ -109,6 +109,78 @@ Rectangle {
         }
     }
 
+    readonly property var _streamTypes: ["RTSP", "SRT", "WebRTC"]
+
+    /// Kind of a stream address: 0 RTSP, 1 SRT, 2 WebRTC (WHEP over http), -1 another kind
+    function _streamType(url) {
+        const scheme = url.trim().toLowerCase().split(":")[0]
+        if (scheme.startsWith("rtsp")) {
+            return 0
+        }
+        if (scheme === "srt") {
+            return 1
+        }
+        if (["http", "https", "whep", "wheps"].indexOf(scheme) >= 0) {
+            return 2
+        }
+        return -1
+    }
+
+    function _streamPlaceholder(type) {
+        switch (type) {
+        case 1:
+            return qsTr("SRT address: srt://server:8890?streamid=read:path")
+        case 2:
+            return qsTr("WebRTC (WHEP) address: http://server:8889/path/whep")
+        default:
+            return qsTr("RTSP address: rtsp://server:8554/path")
+        }
+    }
+
+    /// MediaMTX gives every path over RTSP (port 8554), SRT (8890) and WebRTC (8889), so its address of one kind
+    /// becomes the same stream of another. A camera's own address (another port) has no such twin: it empties.
+    function _convertStreamUrl(url, type) {
+        const text = url.trim()
+        const kind = _streamType(text)
+        if (text === "" || kind === type) {
+            return url
+        }
+        const parts = /^([a-z0-9+]+):\/\/(?:([^@\/]*)@)?([^:\/?#]+)(?::(\d+))?([^?#]*)(?:\?([^#]*))?/i.exec(text)
+        if (!parts) {
+            return ""
+        }
+        const host = parts[3]
+        const port = parts[4] || ""
+        let login = parts[2] || ""
+        let path = ""
+        if (kind === 0 && port === "8554") {
+            path = parts[5]
+        } else if (kind === 2) {
+            path = parts[5].replace(/\/whep\/?$/i, "")
+        } else if (kind === 1 && port === "8890") {
+            const streamId = /(?:^|&)streamid=([^&]*)/.exec(parts[6] || "")
+            const fields = streamId ? decodeURIComponent(streamId[1]).split(":") : []
+            if (fields.length >= 2 && fields[0] === "read") {
+                path = fields[1]
+                if (fields.length >= 4) {
+                    login = fields[2] + ":" + fields[3]
+                }
+            }
+        }
+        path = path.replace(/^\/+|\/+$/g, "")
+        if (path === "") {
+            return ""
+        }
+        switch (type) {
+        case 0:
+            return "rtsp://" + (login !== "" ? login + "@" : "") + host + ":8554/" + path
+        case 1:
+            return "srt://" + host + ":8890?streamid=read:" + path + (login !== "" ? ":" + login : "")
+        default:
+            return "http://" + (login !== "" ? login + "@" : "") + host + ":8889/" + path + "/whep"
+        }
+    }
+
     // TRGN-Video picture settings, sent with every day/night switch; CameraControl has their defaults
     readonly property var _trgnImageFields: [
         { key: "image.luminance",   label: qsTr("Brightness") },
@@ -533,18 +605,48 @@ Rectangle {
                                     }
                                 }
 
-                                QGCTextField {
-                                    Layout.fillWidth:   true
-                                    text:               cameraGroup.modelData.mainUrl
-                                    placeholderText:    qsTr("RTSP URL")
-                                    onTextEdited:       cameraGroup.camera.mainUrl = text
-                                }
+                                // HD and SD streams, each RTSP, SRT or WebRTC; the kind follows the address
+                                Repeater {
+                                    model: [ { key: "mainUrl", label: "HD" }, { key: "secondaryUrl", label: "SD" } ]
 
-                                QGCTextField {
-                                    Layout.fillWidth:   true
-                                    text:               cameraGroup.modelData.secondaryUrl
-                                    placeholderText:    qsTr("Secondary RTSP URL")
-                                    onTextEdited:       cameraGroup.camera.secondaryUrl = text
+                                    RowLayout {
+                                        id:                 streamRow
+                                        Layout.fillWidth:   true
+                                        spacing:            ScreenTools.defaultFontPixelWidth
+
+                                        required property var modelData
+                                        property string url:        cameraGroup.modelData[modelData.key] || ""
+                                        // Kind picked while the address is empty
+                                        property int    chosenType: 0
+                                        readonly property int shownType: url.trim() === "" ? chosenType : root._streamType(url)
+
+                                        QGCLabel {
+                                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 3
+                                            text:                   streamRow.modelData.label
+                                        }
+
+                                        QGCComboBox {
+                                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 12
+                                            model:                  root._streamTypes
+                                            currentIndex:           streamRow.shownType
+                                            onActivated: (typeIndex) => {
+                                                streamRow.chosenType = typeIndex
+                                                const converted = root._convertStreamUrl(streamRow.url, typeIndex)
+                                                cameraGroup.camera[streamRow.modelData.key] = converted
+                                                streamRow.url = converted
+                                            }
+                                        }
+
+                                        QGCTextField {
+                                            Layout.fillWidth:   true
+                                            text:               streamRow.url
+                                            placeholderText:    root._streamPlaceholder(streamRow.shownType)
+                                            onTextEdited: {
+                                                cameraGroup.camera[streamRow.modelData.key] = text
+                                                streamRow.url = text
+                                            }
+                                        }
+                                    }
                                 }
 
                                 QGCCheckBox {

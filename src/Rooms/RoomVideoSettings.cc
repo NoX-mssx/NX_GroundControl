@@ -21,7 +21,7 @@ const QStringList &keys()
         QStringLiteral("showDamagedFrames"),     QStringLiteral("rtspTimeout"),
         QStringLiteral("rtspAutoReconnect"),     QStringLiteral("forceVideoDecoder"),
         QStringLiteral("recordingFormat"),       QStringLiteral("enableStorageLimit"),
-        QStringLiteral("maxVideoSize"),
+        QStringLiteral("maxVideoSize"),          QStringLiteral("webrtcLatencyMs"),
     };
     return list;
 }

@@ -78,6 +78,9 @@
                     "setting": "videoSettings.srtLatencyMs"
                 },
                 {
+                    "setting": "videoSettings.webrtcLatencyMs"
+                },
+                {
                     "setting": "videoSettings.showFramesImmediately"
                 },
                 {

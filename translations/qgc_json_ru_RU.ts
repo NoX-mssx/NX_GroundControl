@@ -6169,6 +6169,30 @@
       <translation>srt,задержка,буфер,дополнительно</translation>
     </message>
     <message>
+      <extracomment>.QGC.MetaData.Facts[webrtcLatencyMs].shortDesc</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>WebRTC buffer (ms).</source>
+      <translation>Буфер WebRTC (мс).</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[webrtcLatencyMs].longDesc</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>How long the WebRTC (WHEP) receiver holds packets to put them in order and to get lost ones sent again before the picture is shown. A browser adjusts this by itself, mostly between 50 and 150 ms; a larger buffer hides a jittery link at the price of the same amount of extra delay.</source>
+      <translation>Сколько приёмник WebRTC (WHEP) держит пакеты, чтобы расставить их по порядку и дозапросить потерянные, прежде чем показать картинку. Браузер подбирает это сам, обычно от 50 до 150 мс; больший буфер скрывает неровную связь ценой такой же дополнительной задержки.</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[webrtcLatencyMs].label</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>WebRTC buffer</source>
+      <translation>Буфер WebRTC</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[webrtcLatencyMs].keywords</extracomment>
+      <location filename="../src/Settings/Video.SettingsGroup.json" />
+      <source>webrtc,whep,latency,buffer,advanced</source>
+      <translation>webrtc,whep,задержка,буфер,дополнительно</translation>
+    </message>
+    <message>
       <extracomment>.QGC.MetaData.Facts[showFramesImmediately].shortDesc</extracomment>
       <location filename="../src/Settings/Video.SettingsGroup.json" />
       <source>Show every frame as soon as it arrives.</source>

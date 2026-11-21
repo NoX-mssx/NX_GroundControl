@@ -41,6 +41,7 @@ public:
     struct Tuning
     {
         int srtLatencyMs = 400;         ///< Buffer of an SRT source, unless its address sets latency=
+        int webrtcLatencyMs = 150;      ///< Jitter buffer of a WebRTC (WHEP) source
         bool showImmediately = false;   ///< Do not line frames up by time stamp
         bool rtspUdp = false;           ///< RTSP over UDP with TCP as fallback instead of TCP only
         bool showDamagedFrames = false; ///< Keep showing frames the decoder reports as damaged

@@ -184,7 +184,7 @@ void VideoManager::init(QQuickWindow *mainWindow)
     // pushes the new value to each receiver and restarts exactly once (no double restart).
     (void) connect(_videoSettings->rtpJitterLatencyMs(), &Fact::rawValueChanged, this, [this](const QVariant &value) { Q_UNUSED(value); _videoSourceChanged(); });
     // The stream tuning is read when a receiver starts, so a change restarts the streams once.
-    for (Fact *tuningFact : {_videoSettings->srtLatencyMs(), _videoSettings->showFramesImmediately(),
+    for (Fact *tuningFact : {_videoSettings->srtLatencyMs(), _videoSettings->webrtcLatencyMs(), _videoSettings->showFramesImmediately(),
                              _videoSettings->rtspUseUdp(), _videoSettings->showDamagedFrames(),
                              _videoSettings->catchUpMs(), _videoSettings->dropLateVideo()}) {
         (void) connect(tuningFact, &Fact::rawValueChanged, this, [this](const QVariant &value) { Q_UNUSED(value); _videoSourceChanged(); });
@@ -691,6 +691,7 @@ bool VideoManager::_updateSettings(VideoReceiver *receiver)
 
     VideoReceiver::Tuning tuning;
     tuning.srtLatencyMs = static_cast<int>(std::min(_videoSettings->srtLatencyMs()->rawValue().toUInt(), static_cast<uint>(INT_MAX)));
+    tuning.webrtcLatencyMs = static_cast<int>(std::min(_videoSettings->webrtcLatencyMs()->rawValue().toUInt(), static_cast<uint>(INT_MAX)));
     tuning.showImmediately = _videoSettings->showFramesImmediately()->rawValue().toBool();
     tuning.rtspUdp = _videoSettings->rtspUseUdp()->rawValue().toBool();
     tuning.showDamagedFrames = _videoSettings->showDamagedFrames()->rawValue().toBool();

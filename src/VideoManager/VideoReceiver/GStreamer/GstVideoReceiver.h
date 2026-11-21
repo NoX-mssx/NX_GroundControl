@@ -155,6 +155,9 @@ private:
     std::atomic<quint64> _reconnectEpoch = 0;    ///< Bumped on every stop() — pending singleShot lambdas check this before firing, replacing an explicit cancel/pending-flag pair.
     std::atomic<quint64> _sourceFrameCount =
         0;  ///< Tee-probe frame tally (streaming thread); drives the source-side flow heartbeat log.
+    bool _isWhep = false;                          ///< WebRTC from a WHEP server; set by start() on the worker thread
+    std::atomic<qint64> _lastSourceFrameMs{0};     ///< Like _lastSourceFrameTime in ms, 0 until the first frame of this start
+    qint64 _whepStartMs = 0;                       ///< First watchdog tick of this start (worker thread)
     gulong _teeProbeId = 0;
     gulong _videoSinkProbeId = 0;
     gulong _eosProbeId = 0;

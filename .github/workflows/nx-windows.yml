@@ -145,7 +145,7 @@ jobs:
           $scanner = Join-Path $installDir "libexec\gstreamer-1.0\gst-plugin-scanner.exe"
           if (Test-Path $scanner) { $env:GST_PLUGIN_SCANNER_1_0 = $scanner }
           $missing = @()
-          foreach ($element in @("srtsrc", "tsdemux", "rtspsrc", "parsebin", "decodebin3", "h264parse", "h265parse", "avdec_h264", "avdec_h265", "avdec_aac", "autoaudiosink")) {
+          foreach ($element in @("srtsrc", "tsdemux", "rtspsrc", "parsebin", "decodebin3", "h264parse", "h265parse", "avdec_h264", "avdec_h265", "avdec_aac", "autoaudiosink", "webrtcbin", "nicesrc", "dtlsdec", "srtpdec", "opusdec", "mulawdec", "alawdec")) {
             & $inspect --exists $element
             if ($LASTEXITCODE -ne 0) { $missing += $element }
           }
@@ -159,6 +159,18 @@ jobs:
           $hevcList = if ($hevc.Count -gt 0) { $hevc -join ' ' } else { 'none' }
           Write-Host "::notice title=H.265 hardware decoders::$hevcList"
           Remove-Item $inspect
+          # WebRTC: the app has its own WHEP client on webrtcbin; report whether the SDK also has the Rust one.
+          $env:GST_PLUGIN_SYSTEM_PATH_1_0 = Join-Path $env:GST_ROOT "lib\gstreamer-1.0"
+          $env:GST_REGISTRY_1_0 = Join-Path "${{ runner.temp }}" "sdk-gst-registry.bin"
+          Remove-Item Env:GST_PLUGIN_SCANNER_1_0 -ErrorAction SilentlyContinue
+          $sdkInspect = Join-Path $env:GST_ROOT "bin\gst-inspect-1.0.exe"
+          $whep = @()
+          foreach ($element in @("whepsrc", "whepclientsrc")) {
+            & $sdkInspect --exists $element
+            if ($LASTEXITCODE -eq 0) { $whep += $element }
+          }
+          $whepList = if ($whep.Count -gt 0) { $whep -join ' ' } else { 'none' }
+          Write-Host "::notice title=WHEP elements in the GStreamer SDK::$whepList"
           # A missing optional element leaves a non-zero native exit code that would fail the step.
           $global:LASTEXITCODE = 0
           $plugins = (Get-ChildItem -Path $pluginDir -Filter "gst*.dll" | ForEach-Object { $_.BaseName }) -join " "

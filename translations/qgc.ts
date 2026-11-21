@@ -7692,6 +7692,11 @@ VTOL</source>
     <name>FlyViewCustomLayer</name>
     <message>
       <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
+      <source>WebRTC video %1: %2</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/FlyView/FlyViewCustomLayer.qml" line="1" />
       <source>Left motor</source>
       <translation type="unfinished" />
     </message>
@@ -23162,6 +23167,21 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <name>VehicleModelsSettings</name>
     <message>
       <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>SRT address: srt://server:8890?streamid=read:path</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>WebRTC (WHEP) address: http://server:8889/path/whep</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>RTSP address: rtsp://server:8554/path</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
       <source>Swap left and right</source>
       <translation type="unfinished" />
     </message>
@@ -26237,6 +26257,97 @@ Send this file together with the AppLog.log file from the Logs folder.</source>
     <message>
       <location filename="../src/LinkTunnel/StarlinkPosition.cc" line="1" />
       <source>the link has no Starlink or ping address</source>
+      <translation type="unfinished" />
+    </message>
+  </context>
+  <context>
+    <name>WhepSource</name>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>connection refused</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>address not found</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>no answer</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>no connection</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>connection lost</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>the server's answer was not accepted: %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>no media connection (ICE failed): the server's UDP port is not reachable</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>no media connection (DTLS)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>no offer</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>WHEP server: %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>the server has no such stream (404)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>access denied (%1)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>not a WHEP address (405)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>the server refused (%1)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstWhepSource.cc" line="1" />
+      <source>the server's answer is not SDP</source>
+      <translation type="unfinished" />
+    </message>
+  </context>
+  <context>
+    <name>GstVideoReceiver</name>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstVideoReceiver.cc" line="1" />
+      <source>no picture for %1 s</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstVideoReceiver.cc" line="1" />
+      <source>no picture %1 s after connecting</source>
       <translation type="unfinished" />
     </message>
   </context>

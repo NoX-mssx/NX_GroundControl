@@ -14,6 +14,10 @@
 
 #include "GStreamerHelpers.h"
 #include "GstSourceFactory.h"
+#ifdef QGC_GST_WHEP
+#include "GstWhepSource.h"
+#include "WebRtcVideoStatus.h"
+#endif
 #include "QGCLoggingCategory.h"
 #include "QGCQVideoSinkController.h"
 
@@ -30,6 +34,12 @@
 QGC_LOGGING_CATEGORY(GstVideoReceiverLog, "Video.GStreamer.GstVideoReceiver")
 
 namespace {
+// WebRTC (WHEP): a stream that gave frames and stops for this long is opened again
+constexpr qint64 kWhepNoFramesMs = 3000;
+// Until the first frame: the server starts an on-demand stream (HD) first, which takes 5–10 s
+constexpr qint64 kWhepFirstFrameMs = 20000;
+// WebRTC reconnects at this fixed pace instead of the growing RTSP backoff
+constexpr int kWhepReconnectSec = 2;
 // kEosTimeoutNs: bus wait budget for EOS/ERROR during stop(); 3 s covers slow hw decoders.
 constexpr GstClockTime kEosTimeoutNs = 3 * GST_SECOND;
 
@@ -121,6 +131,9 @@ void GstVideoReceiver::start(uint32_t timeout)
     _buffer = lowLatency() ? -1 : 1;
     // Copied once per start: the settings thread may change tuning() while this pipeline runs.
     _activeTuning = tuning();
+#ifdef QGC_GST_WHEP
+    _isWhep = GStreamer::Whep::isWhepUrl(_uri);
+#endif
 
     qCDebug(GstVideoReceiverLog) << "Starting" << _uri << ", lowLatency" << lowLatency() << ", timeout" << _timeout;
 
@@ -156,6 +169,8 @@ void GstVideoReceiver::start(uint32_t timeout)
         }
 
         _lastSourceFrameTime = 0;
+        _lastSourceFrameMs = 0;
+        _whepStartMs = 0;
         _lastKeyframeMs = 0;
         _behindMs.store(0, std::memory_order_relaxed);
         _behindTicks = 0;
@@ -239,6 +254,7 @@ void GstVideoReceiver::start(uint32_t timeout)
         // forcibly disable for sub-frame latency configurations to avoid retransmit storms.
         sourceConfig.doRetransmission = (_rtpJitterLatencyMs >= 40) && (sourceConfig.jitterBuffer != GStreamer::SourceFactory::JitterBuffer::None);
         sourceConfig.srtLatencyMs = _activeTuning.srtLatencyMs;
+        sourceConfig.webrtcLatencyMs = _activeTuning.webrtcLatencyMs;
         sourceConfig.rtspUdp = _activeTuning.rtspUdp;
         sourceConfig.audio = audioEnabled();
         sourceConfig.audioMuted = audioMuted();
@@ -451,6 +467,8 @@ void GstVideoReceiver::stop()
         _source = nullptr;
 
         _lastSourceFrameTime = 0;
+        _lastSourceFrameMs = 0;
+        _whepStartMs = 0;
         _lastKeyframeMs = 0;
 
         if (_streaming) {
@@ -771,8 +789,32 @@ void GstVideoReceiver::_watchdog()
             emit decoderStatsChanged();
         }
 
+        // WebRTC: no frames for 3 s once the stream ran, or none 20 s after the start
+        if (_isWhep) {
+            const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+            if (_whepStartMs == 0) {
+                _whepStartMs = nowMs;
+            }
+            const qint64 lastMs = _lastSourceFrameMs.load(std::memory_order_relaxed);
+            const bool started = (lastMs != 0);
+            const qint64 silentMs = nowMs - (started ? lastMs : _whepStartMs);
+            if (silentMs > (started ? kWhepNoFramesMs : kWhepFirstFrameMs)) {
+#ifdef QGC_GST_WHEP
+                const QString stream = GStreamer::Whep::streamName(_uri);
+                qCInfo(GstVideoReceiverLog) << "WebRTC stream" << stream << (started ? "stopped" : "gave no frames") << "for" << silentMs << "ms";
+                const QString reason = started ? tr("no picture for %1 s").arg(kWhepNoFramesMs / 1000)
+                                               : tr("no picture %1 s after connecting").arg(kWhepFirstFrameMs / 1000);
+                QMetaObject::invokeMethod(this, [stream, reason]() { WebRtcVideoStatus::instance()->reportProblem(stream, reason); },
+                                          Qt::QueuedConnection);
+#endif
+                emit timeout();
+                _scheduleReconnect("WebRTC watchdog");
+                return;
+            }
+        }
+
         qint64 elapsed = now - lastSourceFrameTime;
-        if (elapsed > _timeout) {
+        if (!_isWhep && (elapsed > _timeout)) {
             qCDebug(GstVideoReceiverLog) << "Stream timeout, no frames for" << elapsed << _uri;
             GST_DEBUG_BIN_TO_DOT_FILE(GST_BIN(_pipeline), GST_DEBUG_GRAPH_SHOW_ALL, "pipeline-watchdog-timeout");
             emit timeout();
@@ -841,7 +883,8 @@ void GstVideoReceiver::_watchStreamLag(GstElement *source)
     }
     GstElementFactory *factory = gst_element_get_factory(element);
     const gchar *name = factory ? gst_plugin_feature_get_name(GST_PLUGIN_FEATURE(factory)) : nullptr;
-    if (g_strcmp0(name, "rtspsrc") == 0) {
+    if ((g_strcmp0(name, "rtspsrc") == 0) || (g_strcmp0(name, "webrtcbin") == 0)) {
+        // Both give RTP pads, already through their jitter buffer
         _lagMeter.reset();
         (void) g_signal_connect(element, "pad-added", G_CALLBACK(_onRtspPad), this);
     } else if (g_strcmp0(name, "srtsrc") == 0) {
@@ -984,16 +1027,18 @@ void GstVideoReceiver::_scheduleReconnect(const char *reason)
     // are already sequenced — so the GUI-thread lambdas below don't read racy members.
     const uint32_t reconnectTimeout = (_timeout != 0) ? _timeout : 8;
     const QString uri = _uri;
+    const bool fixedPace = _isWhep;
 
     // Schedule on the GUI thread (QTimer::singleShot requires its receiver's thread). Worker
     // is the only caller today, but route through invokeMethod so a future direct GUI-thread
     // call (e.g. user-initiated retry) stays correct.
-    QMetaObject::invokeMethod(this, [this, reason, reconnectTimeout, uri]() {
+    QMetaObject::invokeMethod(this, [this, reason, reconnectTimeout, uri, fixedPace]() {
         const int next = std::min(_reconnectAttempts.load(std::memory_order_relaxed) + 1, 30);
         _reconnectAttempts.store(next, std::memory_order_relaxed);
         // 1s → 2s → 4s → 8s → 16s, capped at 30s. Capping bounds worst-case "vehicle in flight,
         // RF down for 5 min" recovery; lower than typical RTSP server keepalive (60s).
-        const int delaySec = std::min(1 << std::min(next - 1, 5), 30);
+        // WebRTC: every 2 s; each attempt is one HTTP request to the stream server.
+        const int delaySec = fixedPace ? kWhepReconnectSec : std::min(1 << std::min(next - 1, 5), 30);
         const quint64 epoch = _reconnectEpoch.load(std::memory_order_relaxed);
         const int attempts = next;
         qCInfo(GstVideoReceiverLog) << "Scheduling reconnect #" << attempts
@@ -1468,6 +1513,7 @@ bool GstVideoReceiver::_addVideoSink(GstPad *pad)
 void GstVideoReceiver::_noteTeeFrame(const GstBuffer *buffer)
 {
     _lastSourceFrameTime.store(QDateTime::currentSecsSinceEpoch(), std::memory_order_relaxed);
+    _lastSourceFrameMs.store(QDateTime::currentMSecsSinceEpoch(), std::memory_order_relaxed);
     // Successful frame arrival: drop the reconnect backoff so the next failure starts at 1 s,
     // not minutes-into-the-curve. This probe runs on the streaming thread while the backoff
     // increment runs on the GUI thread; post the reset there too so all mutation of
