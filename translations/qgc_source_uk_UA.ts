@@ -24771,6 +24771,26 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <name>RoomManager</name>
     <message>
       <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The admin has not let you edit the table.</source>
+      <translation>Адмін не дозволив вам редагувати таблицю.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The row was deleted by someone else.</source>
+      <translation>Цей рядок уже видалив хтось інший.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The server did not accept this row.</source>
+      <translation>Сервер не прийняв цей рядок.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
+      <source>The table is full. Delete some rows first.</source>
+      <translation>Таблиця заповнена. Спершу видаліть частину рядків.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/RoomManager.cc" line="1" />
       <source>Enter a name for the track.</source>
       <translation>Введіть назву треку.</translation>
     </message>
@@ -25064,6 +25084,11 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <name>RoverSettings</name>
     <message>
       <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
+      <source>Table</source>
+      <translation>Таблиця</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoverSettings.qml" line="1" />
       <source>%1 (waiting)</source>
       <translation>%1 (очікування)</translation>
     </message>
@@ -25280,6 +25305,21 @@ If a vehicle still has this key configured, you will no longer be able to commun
   </context>
   <context>
     <name>AccessSettings</name>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Table</source>
+      <translation>Таблиця</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>View</source>
+      <translation>Перегляд</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Edit</source>
+      <translation>Редагування</translation>
+    </message>
     <message>
       <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
       <source>%1 · ID %2</source>
@@ -26418,6 +26458,159 @@ Send this file together with the AppLog.log file from the Logs folder.</source>
       <location filename="../src/VideoManager/VideoReceiver/GStreamer/GstVideoReceiver.cc" line="1" />
       <source>no picture %1 s after connecting</source>
       <translation>немає картинки через %1 с після підключення</translation>
+    </message>
+  </context>
+  <context>
+    <name>RoomTableSettings</name>
+    <message>
+      <location filename="../src/AppSettings/RoomTableSettings.qml" line="1" />
+      <source>Garage</source>
+      <translation>Гараж</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoomTableSettings.qml" line="1" />
+      <source>Working</source>
+      <translation>Працює</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoomTableSettings.qml" line="1" />
+      <source>Broken</source>
+      <translation>Поломка</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoomTableSettings.qml" line="1" />
+      <source>Written off</source>
+      <translation>Списаний</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoomTableSettings.qml" line="1" />
+      <source>Date</source>
+      <translation>Дата</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoomTableSettings.qml" line="1" />
+      <source>Drone</source>
+      <translation>Дрон</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoomTableSettings.qml" line="1" />
+      <source>Drone No.</source>
+      <translation>№ дрона</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoomTableSettings.qml" line="1" />
+      <source>Starlink No.</source>
+      <translation>№ Starlink</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoomTableSettings.qml" line="1" />
+      <source>Starlink activated</source>
+      <translation>Активація Starlink</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoomTableSettings.qml" line="1" />
+      <source>Notes</source>
+      <translation>Дод. опис</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoomTableSettings.qml" line="1" />
+      <source>dd.mm.yyyy</source>
+      <translation>дд.мм.рррр</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoomTableSettings.qml" line="1" />
+      <source>Tags</source>
+      <translation>Теги</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoomTableSettings.qml" line="1" />
+      <source>All</source>
+      <translation>Усі</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoomTableSettings.qml" line="1" />
+      <source>%1 of %2 rows</source>
+      <translation>%1 з %2 рядків</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoomTableSettings.qml" line="1" />
+      <source>%1 rows</source>
+      <translation>Рядків: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoomTableSettings.qml" line="1" />
+      <source>Add row</source>
+      <translation>Додати рядок</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoomTableSettings.qml" line="1" />
+      <source>View only: the admin has not let you edit the table.</source>
+      <translation>Лише перегляд: адмін не дозволив вам редагувати таблицю.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoomTableSettings.qml" line="1" />
+      <source>Tag</source>
+      <translation>Тег</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoomTableSettings.qml" line="1" />
+      <source>Changed by %1, %2</source>
+      <translation>Змінив %1, %2</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoomTableSettings.qml" line="1" />
+      <source>Set tag</source>
+      <translation>Тег…</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoomTableSettings.qml" line="1" />
+      <source>No tag</source>
+      <translation>Без тегу</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoomTableSettings.qml" line="1" />
+      <source>without a name</source>
+      <translation>без назви</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoomTableSettings.qml" line="1" />
+      <source>Delete Row</source>
+      <translation>Видалити рядок</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoomTableSettings.qml" line="1" />
+      <source>Delete the row of drone "%1"? Everyone in the room loses it.</source>
+      <translation>Видалити рядок дрона «%1»? Він зникне в усіх у кімнаті.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoomTableSettings.qml" line="1" />
+      <source>No rows yet. "Add row" starts the table.</source>
+      <translation>Рядків поки немає. Почніть з кнопки «Додати рядок».</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoomTableSettings.qml" line="1" />
+      <source>The table is empty.</source>
+      <translation>Таблиця порожня.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoomTableSettings.qml" line="1" />
+      <source>No rows with these tags.</source>
+      <translation>Немає рядків з такими тегами.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoomTableSettings.qml" line="1" />
+      <source>Loading the table…</source>
+      <translation>Завантаження таблиці…</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoomTableSettings.qml" line="1" />
+      <source>The room server keeps no table yet: it has to be updated first.</source>
+      <translation>Сервер кімнати поки не зберігає таблицю: його потрібно оновити.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/RoomTableSettings.qml" line="1" />
+      <source>The admin has not opened the table to you.</source>
+      <translation>Адмін не відкрив вам таблицю.</translation>
     </message>
   </context>
 </TS>

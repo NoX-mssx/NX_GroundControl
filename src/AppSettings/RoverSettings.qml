@@ -24,7 +24,7 @@ Rectangle {
     property bool   _roomsOpen: false
     property string _info:      ""
     /// Tabs opened so far stay loaded, so switching tabs keeps unsaved edits
-    property var    _visitedTabs: [ true, false, false ]
+    property var    _visitedTabs: [ true, false, false, false ]
 
     function _roomIndex() {
         const rooms = RoomManager.rooms
@@ -322,21 +322,36 @@ Rectangle {
                 anchors.margins:    _margins
                 spacing:            _margins * 0.6
 
-                QGCLabel {
-                    text:           qsTr("Vehicles")
-                    font.weight:    Font.ExtraBold
-                    font.pointSize: ScreenTools.largeFontPointSize
+                // Vehicles, and the room's table when the admin opened it to this operator
+                QGCTabBar {
+                    id:                 operatorTabs
+                    Layout.fillWidth:   true
+                    currentIndex:       0
+
+                    QGCTabButton { text: qsTr("Vehicles") }
+                    QGCTabButton { text: qsTr("Table"); visible: RoomManager.table.canView === true }
                 }
+
                 QGCLabel {
                     Layout.fillWidth:   true
+                    visible:            operatorTabs.currentIndex !== 1
                     wrapMode:           Text.WordWrap
                     color:              qgcPal.colorGrey
                     text:               qsTr("The admin of \"%1\" gave you these vehicles. Connect here or from the link menu on the main screen. Only one operator can drive a vehicle at a time.").arg(root._room.name ?? "")
                 }
 
+                Loader {
+                    Layout.fillWidth:   true
+                    Layout.fillHeight:  true
+                    visible:            operatorTabs.currentIndex === 1
+                    active:             visible
+                    source:             "qrc:/qml/QGroundControl/AppSettings/RoomTableSettings.qml"
+                }
+
                 QGCFlickable {
                     Layout.fillWidth:   true
                     Layout.fillHeight:  true
+                    visible:            operatorTabs.currentIndex !== 1
                     contentHeight:      boardColumn.height
                     clip:               true
 
@@ -459,6 +474,8 @@ Rectangle {
                 QGCTabButton { text: qsTr("Links") }
                 QGCTabButton { text: qsTr("Vehicle Models") }
                 QGCTabButton { text: qsTr("WireGuard") }
+                // The table belongs to a room, so it shows only when a room is chosen above
+                QGCTabButton { text: qsTr("Table"); visible: RoomManager.currentRole === "admin" }
             }
 
             StackLayout {
@@ -485,6 +502,13 @@ Rectangle {
                         anchors.fill:   parent
                         active:         root._visitedTabs[2]
                         source:         "qrc:/qml/QGroundControl/AppSettings/WireGuardSettings.qml"
+                    }
+                }
+                Item {
+                    Loader {
+                        anchors.fill:   parent
+                        active:         root._visitedTabs[3] && RoomManager.currentRole === "admin"
+                        source:         "qrc:/qml/QGroundControl/AppSettings/RoomTableSettings.qml"
                     }
                 }
             }

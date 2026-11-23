@@ -949,6 +949,42 @@ Rectangle {
                 }
             }
 
+            // The room's table (Rover → Table): admins may always edit it; an operator only as let here
+            QGCLabel {
+                text:           qsTr("Table")
+                font.weight:    Font.ExtraBold
+                visible:        tableAccess.visible
+            }
+            RowLayout {
+                id:                 tableAccess
+                Layout.fillWidth:   true
+                spacing:            ScreenTools.defaultFontPixelWidth * 3
+                visible:            _member && _member.role !== "admin" && RoomManager.table.supported === true
+
+                QGCCheckBoxSlider {
+                    id:         tableViewSwitch
+                    text:       qsTr("View")
+                    checked:    _member ? (_member.tableView || _member.tableEdit) : false
+                    onClicked: {
+                        const member = _member
+                        // Without viewing there is no editing either
+                        RoomManager.setMemberTableAccess(member.deviceId, checked, checked && member.tableEdit)
+                        tableViewSwitch.checked = Qt.binding(function () { return _member ? (_member.tableView || _member.tableEdit) : false })
+                    }
+                }
+                QGCCheckBoxSlider {
+                    id:         tableEditSwitch
+                    text:       qsTr("Edit")
+                    checked:    _member ? _member.tableEdit : false
+                    onClicked: {
+                        const member = _member
+                        RoomManager.setMemberTableAccess(member.deviceId, checked || member.tableView, checked)
+                        tableEditSwitch.checked = Qt.binding(function () { return _member ? _member.tableEdit : false })
+                    }
+                }
+                Item { Layout.fillWidth: true }
+            }
+
             QGCLabel {
                 text:           qsTr("Vehicles")
                 font.weight:    Font.ExtraBold

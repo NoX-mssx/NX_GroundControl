@@ -14,6 +14,7 @@
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QCryptographicHash>
+#include <QtCore/QDate>
 #include <QtCore/QDirIterator>
 #include <QtCore/QEventLoop>
 #include <QtCore/QFile>
@@ -355,6 +356,7 @@ void RoomManager::setCurrentRoom(const QString &roomKey)
     _requests.clear();
     _removeRoomLinks();
     _setRadio(0, QJsonObject());
+    _setTable(0, QJsonObject());
     emit currentRoomChanged();
     emit boardsChanged();
     emit membersChanged();
@@ -655,6 +657,10 @@ QString RoomManager::_errorText(int status, const QJsonObject &reply) const
         {QStringLiteral("no_track"), QT_TR_NOOP("The track was not found.")},
         {QStringLiteral("no_member"), QT_TR_NOOP("The operator is no longer in the room.")},
         {QStringLiteral("bad_settings"), QT_TR_NOOP("The server did not accept these video settings.")},
+        {QStringLiteral("no_table_access"), QT_TR_NOOP("The admin has not let you edit the table.")},
+        {QStringLiteral("no_row"), QT_TR_NOOP("The row was deleted by someone else.")},
+        {QStringLiteral("bad_row"), QT_TR_NOOP("The server did not accept this row.")},
+        {QStringLiteral("table_full"), QT_TR_NOOP("The table is full. Delete some rows first.")},
     };
     if (const auto it = messages.constFind(code); it != messages.cend()) {
         return tr(it.value());
@@ -1072,9 +1078,11 @@ void RoomManager::_refreshCurrentRoom()
         _setMembers(QJsonArray());
         _setRequests(QJsonArray());
         _setRadio(0, QJsonObject());
+        _setTable(0, QJsonObject());
         return;
     }
     refreshRadio();
+    refreshTable();
     _syncVideoSettings();
 
     const QString roomKey = _currentRoom;
@@ -1179,6 +1187,8 @@ void RoomManager::_setMembers(const QJsonArray &members)
             {QStringLiteral("boards"), member.value(QLatin1String("boards")).toArray().toVariantList()},
             {QStringLiteral("activeBoard"), member.value(QLatin1String("active_board")).toString()},
             {QStringLiteral("isMe"), member.value(QLatin1String("is_me")).toBool()},
+            {QStringLiteral("tableView"), member.value(QLatin1String("table_view")).toBool()},
+            {QStringLiteral("tableEdit"), member.value(QLatin1String("table_edit")).toBool()},
         });
     }
     if (list != _members) {
@@ -1362,6 +1372,153 @@ void RoomManager::_setRadio(int status, const QJsonObject &reply)
         _radio = radio;
         emit radioChanged();
     }
+}
+
+// ---- table of the current room ------------------------------------------------------------------------------
+
+namespace {
+
+// Field names of a table row: here (QML) and on the hub
+const QList<QPair<QString, QString>> &tableFields()
+{
+    static const QList<QPair<QString, QString>> fields = {
+        {QStringLiteral("date"), QStringLiteral("date")},
+        {QStringLiteral("droneName"), QStringLiteral("drone_name")},
+        {QStringLiteral("droneNumber"), QStringLiteral("drone_number")},
+        {QStringLiteral("starlinkNumber"), QStringLiteral("starlink_number")},
+        {QStringLiteral("starlinkActivated"), QStringLiteral("starlink_activated")},
+        {QStringLiteral("notes"), QStringLiteral("notes")},
+        {QStringLiteral("tag"), QStringLiteral("tag")},
+    };
+    return fields;
+}
+
+}  // namespace
+
+void RoomManager::_setTable(int status, const QJsonObject &reply)
+{
+    QVariantMap table;
+    const QString error = reply.value(QLatin1String("error")).toString();
+    if (status == 200) {
+        table[QStringLiteral("supported")] = true;
+        table[QStringLiteral("loaded")] = true;
+        table[QStringLiteral("canView")] = reply.value(QLatin1String("can_view")).toBool(true);
+        table[QStringLiteral("canEdit")] = reply.value(QLatin1String("can_edit")).toBool();
+        QVariantList rows;
+        for (const QJsonValue &value : reply.value(QLatin1String("rows")).toArray()) {
+            const QJsonObject row = value.toObject();
+            QVariantMap entry{
+                {QStringLiteral("rowId"), row.value(QLatin1String("id")).toString()},
+                {QStringLiteral("updatedAt"), row.value(QLatin1String("updated_at")).toDouble()},
+                {QStringLiteral("updatedBy"), row.value(QLatin1String("updated_by")).toString()},
+            };
+            for (const auto &[name, hubName] : tableFields()) {
+                entry[name] = row.value(hubName).toString();
+            }
+            rows.append(entry);
+        }
+        table[QStringLiteral("rows")] = rows;
+    } else if ((status == 403) && (error == QLatin1String("no_table_access"))) {
+        // The admin has not opened the table to this operator
+        table[QStringLiteral("supported")] = true;
+        table[QStringLiteral("loaded")] = true;
+        table[QStringLiteral("canView")] = false;
+        table[QStringLiteral("canEdit")] = false;
+        table[QStringLiteral("rows")] = QVariantList();
+    } else if ((status == 404) && (error != QLatin1String("no_room"))) {
+        // A hub from before the tables
+        table[QStringLiteral("supported")] = false;
+        table[QStringLiteral("loaded")] = true;
+    } else if ((status != 0) || !reply.isEmpty()) {
+        // Not reachable for a moment, or another error: the rows shown stay
+        return;
+    }
+    if (table != _table) {
+        _table = table;
+        emit tableChanged();
+    }
+}
+
+void RoomManager::refreshTable()
+{
+    if (_currentRoom.isEmpty() || currentRole().isEmpty()) {
+        _setTable(0, QJsonObject());
+        return;
+    }
+    const QString roomKey = _currentRoom;
+    _request(_serverKeyOf(roomKey), QStringLiteral("GET"), QStringLiteral("/v1/rooms/%1/table").arg(_roomIdOf(roomKey)), QJsonObject(),
+             [this, roomKey](int status, const QJsonObject &reply) {
+        if (roomKey == _currentRoom) {
+            _setTable(status, reply);
+        }
+    });
+}
+
+void RoomManager::_tableRequest(const QString &method, const QString &subPath, const QJsonObject &body)
+{
+    if (_currentRoom.isEmpty()) {
+        return;
+    }
+    const QString roomKey = _currentRoom;
+    _request(_serverKeyOf(roomKey), method, QStringLiteral("/v1/rooms/%1/table%2").arg(_roomIdOf(roomKey), subPath), body,
+             [this, roomKey](int status, const QJsonObject &reply) {
+        if (roomKey != _currentRoom) {
+            return;
+        }
+        if (status != 200) {
+            _setError(_errorText(status, reply));
+            // Back to what the hub has: an edit it refused does not stay on screen
+            refreshTable();
+            return;
+        }
+        _setTable(status, reply);
+    });
+}
+
+void RoomManager::addTableRow()
+{
+    _tableRequest(QStringLiteral("POST"), QStringLiteral("/rows"),
+                  QJsonObject{{QStringLiteral("date"), QDate::currentDate().toString(Qt::ISODate)}});
+}
+
+void RoomManager::updateTableRow(const QString &rowId, const QVariantMap &values)
+{
+    QJsonObject body;
+    for (const auto &[name, hubName] : tableFields()) {
+        if (values.contains(name)) {
+            body.insert(hubName, values.value(name).toString().trimmed());
+        }
+    }
+    if (rowId.isEmpty() || body.isEmpty()) {
+        return;
+    }
+    // Shown at once; the hub's answer replaces it
+    QVariantList rows = _table.value(QStringLiteral("rows")).toList();
+    for (QVariant &row : rows) {
+        QVariantMap entry = row.toMap();
+        if (entry.value(QStringLiteral("rowId")).toString() == rowId) {
+            for (auto it = values.cbegin(); it != values.cend(); ++it) {
+                entry[it.key()] = it.value().toString().trimmed();
+            }
+            row = entry;
+        }
+    }
+    _table[QStringLiteral("rows")] = rows;
+    emit tableChanged();
+    _tableRequest(QStringLiteral("PATCH"), QStringLiteral("/rows/%1").arg(rowId), body);
+}
+
+void RoomManager::deleteTableRow(const QString &rowId)
+{
+    if (!rowId.isEmpty()) {
+        _tableRequest(QStringLiteral("DELETE"), QStringLiteral("/rows/%1").arg(rowId), QJsonObject());
+    }
+}
+
+void RoomManager::setMemberTableAccess(const QString &deviceId, bool view, bool edit)
+{
+    _roomRequest(QStringLiteral("PUT"), QStringLiteral("/members/%1/table").arg(deviceId),
+                 QJsonObject{{QStringLiteral("view"), view || edit}, {QStringLiteral("edit"), edit}});
 }
 
 void RoomManager::refreshRadio()

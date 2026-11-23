@@ -56,7 +56,8 @@ class RoomManager : public QObject
     /// hasLink (admin): one of this computer's links is published as this vehicle
     Q_PROPERTY(QVariantList boards          READ boards             NOTIFY boardsChanged)
     /// Admin: operators of the current room
-    ///     [{ deviceId, name, role, enabled, lastSeen, deviceCode, boards, activeBoard, isMe }]
+    ///     [{ deviceId, name, role, enabled, lastSeen, deviceCode, boards, activeBoard, isMe, tableView, tableEdit }]
+    /// tableView, tableEdit: what the operator may do with the room's table (admins may do both)
     Q_PROPERTY(QVariantList members         READ members            NOTIFY membersChanged)
     /// Admin: join requests waiting for an answer: [{ deviceId, name, requested, deviceCode }]
     Q_PROPERTY(QVariantList requests        READ requests           NOTIFY membersChanged)
@@ -82,6 +83,12 @@ class RoomManager : public QObject
     ///       pending: { setting: value } or null (last sent), applied (he applied what was sent last),
     ///       reportedAt, pendingAt, appliedAt (seconds since 1970) }
     Q_PROPERTY(QVariantMap  memberVideo     READ memberVideo        NOTIFY memberVideoChanged)
+    /// Table of the current room's vehicles, kept on the hub:
+    ///     { supported (the hub has tables), loaded, canView, canEdit,
+    ///       rows: [{ rowId, date, droneName, droneNumber, starlinkNumber, starlinkActivated, notes, tag,
+    ///                updatedAt (seconds since 1970), updatedBy }] }
+    /// Dates are "yyyy-MM-dd" or empty; tag is "garage", "working", "broken", "retired" or empty.
+    Q_PROPERTY(QVariantMap  table           READ table              NOTIFY tableChanged)
     /// Names of the video settings an admin can send (VideoSettings facts, in the order of the Video page)
     Q_PROPERTY(QStringList  videoSettingKeys READ videoSettingKeys  CONSTANT)
 
@@ -116,6 +123,7 @@ public:
     QVariantMap radio() const { return _radio; }
     QVariantMap radioUpload() const { return _radioUpload; }
     QVariantMap memberVideo() const { return _memberVideo; }
+    QVariantMap table() const { return _table; }
     static QStringList videoSettingKeys();
 
     /// Opens the live radio stream of the current room; the caller owns the reply. nullptr when not in a room.
@@ -166,6 +174,16 @@ public:
     Q_INVOKABLE void uploadRadioTracks(const QVariantList &files);
     Q_INVOKABLE void cancelRadioUpload();
 
+    // Table of the current room
+    Q_INVOKABLE void refreshTable();
+    /// Adds an empty row dated today
+    Q_INVOKABLE void addTableRow();
+    /// Changes the given fields of a row (names as in table.rows)
+    Q_INVOKABLE void updateTableRow(const QString &rowId, const QVariantMap &values);
+    Q_INVOKABLE void deleteTableRow(const QString &rowId);
+    /// Admin: what an operator may do with the table; edit includes view
+    Q_INVOKABLE void setMemberTableAccess(const QString &deviceId, bool view, bool edit);
+
     // Operator
     Q_INVOKABLE void connectBoard(const QString &boardId);
     Q_INVOKABLE void disconnectBoard();
@@ -193,6 +211,7 @@ signals:
     void radioChanged();
     void radioUploadChanged();
     void memberVideoChanged();
+    void tableChanged();
     /// Connecting to a room vehicle failed or the vehicle was taken back; shown to the user as a dialog
     void connectFailed(const QString &message);
     /// Something the user asked for went through (e.g. a join request was sent)
@@ -259,6 +278,9 @@ private:
     void _syncVideoSettings();
     void _watchVideoSettings();
     void _setMemberVideo(const QString &deviceId, const QJsonObject &reply);
+    /// Takes a table reply ({ rows, can_view, can_edit }); a failed one keeps the rows shown
+    void _setTable(int status, const QJsonObject &reply);
+    void _tableRequest(const QString &method, const QString &subPath, const QJsonObject &body);
     void _startNextUpload();
     /// Refreshes the current room shortly, once for a burst of changes
     void _scheduleRoomRefresh();
@@ -291,6 +313,7 @@ private:
     QTimer _videoSyncTimer;                         ///< Reports a changed video setting, once for a burst of changes
     bool _videoWatched = false;
     QVariantMap _memberVideo;
+    QVariantMap _table;
 
     QString _deviceName;
     QString _deviceCode;

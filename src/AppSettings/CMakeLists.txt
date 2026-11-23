@@ -93,6 +93,7 @@ qt_add_qml_module(AppSettingsModule
         PX4LogUploadSettings.qml
         QmlTest.qml
         RemoteIDGpsLocation.qml
+        RoomTableSettings.qml
         RoverSettings.qml
         SerialSettings.qml
         SettingsPage.qml
