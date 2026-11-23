@@ -1,3 +1,4 @@
+import QtCore
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -209,76 +210,209 @@ Rectangle {
         _navigateTo(pageIndex, _firstSectionIndex(settingsPagesModel.get(pageIndex)))
     }
 
-    // ---- Pages as chips across the top ----
-    Flow {
-        id:                 pageChips
-        objectName:         "settings_buttonList"
+    // Open or hidden sidebar, kept between runs
+    Settings {
+        id:                     viewState
+        category:               "SettingsView"
+        property bool sidebarOpen: true
+    }
+
+    readonly property real _sidebarWidth: _defaultTextWidth * 26
+
+    /// What each sidebar entry is: "divider", or whether the page is available. The entries report it themselves,
+    /// so a divider's visibility does not read the model from inside a delegate binding.
+    property var _entryState: []
+
+    function _reportEntry(index, state) {
+        if (_entryState[index] !== state) {
+            const states = _entryState.slice()
+            states[index] = state
+            _entryState = states
+        }
+    }
+
+    // Same rule as _dividerVisible: only between two available pages, and only the first of several in a row
+    function _sidebarDividerShown(index) {
+        const states = _entryState
+        let before = false
+        for (let i = index - 1; i >= 0; i--) {
+            if (states[i] === "divider") {
+                return false
+            }
+            if (states[i] === true) {
+                before = true
+                break
+            }
+        }
+        if (!before) {
+            return false
+        }
+        for (let j = index + 1; j < states.length; j++) {
+            if (states[j] === true) {
+                return true
+            }
+        }
+        return false
+    }
+
+    // ---- Pages in a sidebar on the left, which can be hidden ----
+    Rectangle {
+        id:                 sidebar
         anchors.left:       parent.left
-        anchors.right:      parent.right
         anchors.top:        parent.top
+        anchors.bottom:     parent.bottom
         anchors.margins:    _defaultTextHeight
-        spacing:            _defaultTextWidth * 0.8
+        width:              viewState.sidebarOpen ? _sidebarWidth : _defaultTextHeight * 2.3
+        radius:             _defaultTextHeight * 1.1
+        color:              Qt.rgba(1, 1, 1, 0.04)
+        border.color:       Qt.rgba(1, 1, 1, 0.10)
+        clip:               true
 
-        Repeater {
-            id:     buttonRepeater
-            model:  settingsPagesModel
+        Behavior on width { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
 
-            Rectangle {
-                id:         pageChip
-                objectName: "settingsButton_" + (model.nameKey ?? pageName)
-                height:     _defaultTextHeight * 2.3
-                width:      chipRow.implicitWidth + _defaultTextWidth * 3
-                radius:     height / 2
-                visible:    pageName !== "Divider" && pageAvailable
-                color:      isSelected ? qgcPal.buttonHighlight : (chipMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.10) : Qt.rgba(1, 1, 1, 0.05))
+        QGCLabel {
+            anchors.left:           parent.left
+            anchors.right:          sidebarToggle.left
+            anchors.leftMargin:     _defaultTextWidth * 2
+            anchors.verticalCenter: sidebarToggle.verticalCenter
+            visible:                viewState.sidebarOpen
+            text:                   qsTr("Settings")
+            elide:                  Text.ElideRight
+            color:                  qgcPal.colorGrey
+            font.weight:            Font.Bold
+        }
 
-                required property int index
-                required property var model
+        // Hides the sidebar; when hidden the same button brings it back
+        Rectangle {
+            id:                 sidebarToggle
+            objectName:         "settings_sidebarToggle"
+            anchors.top:        parent.top
+            anchors.right:      parent.right
+            anchors.margins:    _defaultTextHeight * 0.4
+            width:              _defaultTextHeight * 1.5
+            height:             width
+            radius:             width / 2
+            color:              toggleMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.10) : "transparent"
 
-                property string pageName:       model.name ?? ""
-                property string pageIconUrl:    model.iconUrl ?? ""
-                property var    pageVisible:    model.pageVisible ?? function() { return true }
-                property var    pageSections:   pageVisible() ? settingsView._pageSections(model) : []
-                property bool   pageAvailable:  pageVisible() &&
-                                                (pageSections.length === 0 || pageSections.some(function(section) { return section.visible }))
-                property bool   isSelected:     settingsView._selectedPageIndex === index
+            QGCColoredImage {
+                anchors.centerIn:   parent
+                width:              _defaultTextHeight
+                height:             width
+                sourceSize.height:  height
+                source:             viewState.sidebarOpen ? "qrc:/InstrumentValueIcons/cheveron-left.svg" : "qrc:/InstrumentValueIcons/menu.svg"
+                color:              qgcPal.text
+            }
 
-                // Make the setter usable as a clickable control for tests and keyboard users
-                function click() { settingsView._openPage(index) }
+            MouseArea {
+                id:             toggleMouse
+                anchors.fill:   parent
+                hoverEnabled:   true
+                onClicked:      viewState.sidebarOpen = !viewState.sidebarOpen
+            }
+        }
 
-                onPageAvailableChanged: {
-                    if (isSelected && !pageAvailable) {
-                        settingsView._navigateToFirstAvailablePage()
+        QGCFlickable {
+            id:                 pageList
+            objectName:         "settings_buttonList"
+            anchors.left:       parent.left
+            anchors.right:      parent.right
+            anchors.top:        sidebarToggle.bottom
+            anchors.bottom:     parent.bottom
+            anchors.margins:    _defaultTextHeight * 0.4
+            contentHeight:      pageColumn.height
+            visible:            viewState.sidebarOpen
+            clip:               true
+
+            Column {
+                id:         pageColumn
+                width:      pageList.width
+                spacing:    _defaultTextHeight * 0.2
+
+                Repeater {
+                    id:     buttonRepeater
+                    model:  settingsPagesModel
+
+                    Item {
+                        id:         pageButton
+                        objectName: "settingsButton_" + (model.nameKey ?? pageName)
+                        width:      pageColumn.width
+                        height:     pageName === "Divider" ? _defaultTextHeight * 0.8 : _defaultTextHeight * 2.2
+                        visible:    pageName === "Divider" ? settingsView._sidebarDividerShown(index) : pageAvailable
+
+                        required property int index
+                        required property var model
+
+                        property string pageName:       model.name ?? ""
+                        property string pageIconUrl:    model.iconUrl ?? ""
+                        property var    pageVisible:    model.pageVisible ?? function() { return true }
+                        property var    pageSections:   pageVisible() ? settingsView._pageSections(model) : []
+                        property bool   pageAvailable:  pageName !== "Divider" && pageVisible() &&
+                                                        (pageSections.length === 0 || pageSections.some(function(section) { return section.visible }))
+                        property bool   isSelected:     settingsView._selectedPageIndex === index
+
+                        // Make the setter usable as a clickable control for tests and keyboard users
+                        function click() { settingsView._openPage(index) }
+
+                        onPageAvailableChanged: {
+                            settingsView._reportEntry(index, pageName === "Divider" ? "divider" : pageAvailable)
+                            if (isSelected && !pageAvailable) {
+                                settingsView._navigateToFirstAvailablePage()
+                            }
+                        }
+                        Component.onCompleted: settingsView._reportEntry(index, pageName === "Divider" ? "divider" : pageAvailable)
+
+                        Rectangle {
+                            anchors.left:           parent.left
+                            anchors.right:          parent.right
+                            anchors.verticalCenter: parent.verticalCenter
+                            height:                 1
+                            color:                  Qt.rgba(1, 1, 1, 0.10)
+                            visible:                pageButton.pageName === "Divider"
+                        }
+
+                        Rectangle {
+                            anchors.fill:   parent
+                            visible:        pageButton.pageName !== "Divider"
+                            radius:         height / 2
+                            color:          pageButton.isSelected ? qgcPal.buttonHighlight
+                                                                  : (pageMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.10) : "transparent")
+
+                            Row {
+                                anchors.left:           parent.left
+                                anchors.right:          parent.right
+                                anchors.leftMargin:     _defaultTextWidth * 1.5
+                                anchors.rightMargin:    _defaultTextWidth
+                                anchors.verticalCenter: parent.verticalCenter
+                                spacing:                _defaultTextWidth * 0.9
+
+                                QGCColoredImage {
+                                    id:                     pageIcon
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    width:                  _defaultTextHeight
+                                    height:                 width
+                                    sourceSize.height:      height
+                                    source:                 pageButton.pageIconUrl
+                                    color:                  pageButton.isSelected ? qgcPal.buttonHighlightText : qgcPal.text
+                                    visible:                pageButton.pageIconUrl !== ""
+                                }
+                                QGCLabel {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    width:                  parent.width - (pageIcon.visible ? pageIcon.width + parent.spacing : 0)
+                                    text:                   pageButton.pageName
+                                    elide:                  Text.ElideRight
+                                    color:                  pageButton.isSelected ? qgcPal.buttonHighlightText : qgcPal.text
+                                    font.weight:            Font.Bold
+                                }
+                            }
+
+                            MouseArea {
+                                id:             pageMouse
+                                anchors.fill:   parent
+                                hoverEnabled:   true
+                                onClicked:      settingsView._openPage(pageButton.index)
+                            }
+                        }
                     }
-                }
-
-                Row {
-                    id:                 chipRow
-                    anchors.centerIn:   parent
-                    spacing:            _defaultTextWidth * 0.7
-
-                    QGCColoredImage {
-                        anchors.verticalCenter: parent.verticalCenter
-                        width:                  _defaultTextHeight
-                        height:                 width
-                        sourceSize.height:      height
-                        source:                 pageChip.pageIconUrl
-                        color:                  pageChip.isSelected ? qgcPal.buttonHighlightText : qgcPal.text
-                        visible:                pageChip.pageIconUrl !== ""
-                    }
-                    QGCLabel {
-                        anchors.verticalCenter: parent.verticalCenter
-                        text:                   pageChip.pageName
-                        color:                  pageChip.isSelected ? qgcPal.buttonHighlightText : qgcPal.text
-                        font.weight:            Font.Bold
-                    }
-                }
-
-                MouseArea {
-                    id:             chipMouse
-                    anchors.fill:   parent
-                    hoverEnabled:   true
-                    onClicked:      settingsView._openPage(pageChip.index)
                 }
             }
         }
@@ -287,9 +421,9 @@ Rectangle {
     // ---- The selected page in a card, with its sections as tabs ----
     Rectangle {
         id:                 pageCard
-        anchors.left:       parent.left
+        anchors.left:       sidebar.right
         anchors.right:      parent.right
-        anchors.top:        pageChips.bottom
+        anchors.top:        parent.top
         anchors.bottom:     parent.bottom
         anchors.margins:    _defaultTextHeight
         radius:             _defaultTextHeight * 1.1
