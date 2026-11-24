@@ -20,6 +20,8 @@ Item {
     property bool   _communicationLost: _activeVehicle ? _activeVehicle.vehicleLinkManager.communicationLost : false
     property bool   _armed:             _activeVehicle ? _activeVehicle.armed : false
     property string _flightMode:        _activeVehicle ? _activeVehicle.flightMode : ""
+    /// A UDP RC stream drives the vehicle: arm only from the transmitter's switch, no modes to pick
+    property bool   _rcDriven:          _activeVehicle ? UdpRcManager.controlsActiveVehicle : false
     /// A switched-on link without a vehicle yet (no heartbeat, or the vehicle is off or booting and the link
     /// waits for it), so it can still be shown and switched off
     property var    _connectedConfig: {
@@ -148,7 +150,7 @@ Item {
             QGCButton {
                 Layout.fillHeight:      true
                 Layout.preferredWidth:  control._switchWidth(armTitles)
-                visible:                control._armed
+                visible:                control._armed && !control._rcDriven
                 text:                   qsTr("Armed")
                 fontWeight:             Font.ExtraBold
                 showBorder:             false
@@ -160,7 +162,7 @@ Item {
             QGCDelayButton {
                 Layout.fillHeight:      true
                 Layout.preferredWidth:  Math.max(control._switchWidth(armTitles), implicitWidth)
-                visible:                !control._armed
+                visible:                !control._armed && !control._rcDriven
                 text:                   qsTr("Disarmed")
                 fontWeight:             Font.ExtraBold
                 backRadius:             height / 2
@@ -170,18 +172,56 @@ Item {
                 onActivated:            control._activeVehicle.armed = true
             }
 
+            // UDP RC: the same look, but only the state the vehicle reports; arm and disarm are on the transmitter
+            Rectangle {
+                Layout.fillHeight:      true
+                Layout.preferredWidth:  control._switchWidth(armTitles)
+                visible:                control._rcDriven
+                radius:                 height / 2
+                color:                  control._armed ? "transparent" : control._accent
+
+                QGCLabel {
+                    anchors.centerIn:   parent
+                    text:               control._armed ? qsTr("Armed") : qsTr("Disarmed")
+                    font.weight:        Font.ExtraBold
+                    color:              control._armed ? qgcPal.text : control._accentText
+                }
+
+                MouseArea {
+                    id:             rcArmHover
+                    anchors.fill:   parent
+                    hoverEnabled:   true
+                }
+
+                ToolTip.visible:    rcArmHover.containsMouse
+                ToolTip.text:       qsTr("Arm and disarm with the arm switch of the transmitter")
+            }
+
+            // Arm sent for 2 s, the vehicle does not report armed
+            QGCLabel {
+                Layout.alignment:   Qt.AlignVCenter
+                visible:            control._rcDriven && UdpRcManager.armMismatch
+                text:               "!"
+                color:              qgcPal.colorOrange
+                font.weight:        Font.ExtraBold
+                font.pointSize:     ScreenTools.mediumFontPointSize
+            }
+
             Rectangle {
                 Layout.preferredWidth:  1
                 Layout.fillHeight:      true
                 Layout.margins:         control._margins / 2
+                visible:                !control._rcDriven
                 color:                  Qt.rgba(1, 1, 1, 0.12)
             }
 
             // Hold and Manual: a click switches between them. Any other mode the vehicle is in (e.g. after a
             // failsafe) is shown in orange too, so it is not hidden, and a click puts the vehicle on Hold.
+            // UDP RC vehicles report one fixed mode and take no mode commands: hidden
             QGCButton {
                 readonly property bool _manual: control._flightMode === control._manualMode
 
+                visible:                !control._rcDriven
                 Layout.fillHeight:      true
                 Layout.preferredWidth:  Math.max(control._switchWidth(modeTitles), implicitWidth)
                 text:                   control._flightMode !== "" ? control._flightMode : control._holdMode
@@ -219,9 +259,13 @@ Item {
             model: control._activeVehicle ? [
                 "qrc:/qml/QGroundControl/Toolbar/VehicleGPSIndicator.qml",
                 "qrc:/qml/QGroundControl/Toolbar/LinkQualityIndicator.qml",
+                "qrc:/qml/QGroundControl/Toolbar/RcStreamIndicator.qml",
                 "qrc:/qml/QGroundControl/Toolbar/BatteryIndicator.qml",
                 "qrc:/qml/QGroundControl/Toolbar/VehicleAlertIndicator.qml"
-            ] : [ "qrc:/qml/QGroundControl/Toolbar/LinkQualityIndicator.qml" ]
+            ] : [
+                "qrc:/qml/QGroundControl/Toolbar/LinkQualityIndicator.qml",
+                "qrc:/qml/QGroundControl/Toolbar/RcStreamIndicator.qml"
+            ]
 
             Loader {
                 anchors.top:    parent.top

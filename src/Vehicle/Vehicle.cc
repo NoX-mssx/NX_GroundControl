@@ -78,6 +78,7 @@
 #include "GimbalController.h"
 #include "MavlinkSettings.h"
 #include "APM.h"
+#include "UdpRcManager.h"
 
 #ifdef QT_DEBUG
 #include "MockLink.h"
@@ -1457,8 +1458,19 @@ QGeoCoordinate Vehicle::homePosition()
     return _homePosition;
 }
 
+bool Vehicle::_drivenByUdpRc() const
+{
+    const SharedLinkInterfacePtr sharedLink = _vehicleLinkManager ? _vehicleLinkManager->primaryLink().lock() : nullptr;
+    return sharedLink && UdpRcManager::controlsLink(sharedLink->linkConfiguration().get());
+}
+
 void Vehicle::setArmed(bool armed, bool showError)
 {
+    // NX: arm comes from the switch on the transmitter, through the RC stream
+    if (_drivenByUdpRc()) {
+        qCWarning(VehicleLog) << "setArmed ignored: the vehicle is driven by a UDP RC stream";
+        return;
+    }
     // We specifically use COMMAND_LONG:MAV_CMD_COMPONENT_ARM_DISARM since it is supported by more flight stacks.
     sendMavCommand(_defaultComponentId,
                    MAV_CMD_COMPONENT_ARM_DISARM,
@@ -1468,6 +1480,10 @@ void Vehicle::setArmed(bool armed, bool showError)
 
 void Vehicle::forceArm(void)
 {
+    if (_drivenByUdpRc()) {
+        qCWarning(VehicleLog) << "forceArm ignored: the vehicle is driven by a UDP RC stream";
+        return;
+    }
     sendMavCommand(_defaultComponentId,
                    MAV_CMD_COMPONENT_ARM_DISARM,
                    true,    // show error if fails
@@ -1498,6 +1514,10 @@ bool Vehicle::setFlightModeCustom(const QString& flightMode, uint8_t* base_mode,
 
 void Vehicle::setFlightMode(const QString& flightMode)
 {
+    if (_drivenByUdpRc()) {
+        qCWarning(VehicleLog) << "setFlightMode ignored: the vehicle is driven by a UDP RC stream";
+        return;
+    }
     uint8_t     base_mode;
     uint32_t    custom_mode;
 
@@ -2999,6 +3019,11 @@ void Vehicle::sendJoystickDataThreadSafe(float roll, float pitch, float yaw, flo
         return;
     }
 
+    // NX: the UDP RC stream carries the sticks of this vehicle
+    if (UdpRcManager::controlsLink(sharedLink->linkConfiguration().get())) {
+        return;
+    }
+
     mavlink_message_t message;
 
     float axesScaling = 1.0 * 1000.0;
@@ -3056,6 +3081,10 @@ void Vehicle::sendJoystickAuxRcOverrideThreadSafe(const std::array<uint16_t, kAu
     }
 
     if (sharedLink->linkConfiguration()->isHighLatency()) {
+        return;
+    }
+
+    if (UdpRcManager::controlsLink(sharedLink->linkConfiguration().get())) {
         return;
     }
 

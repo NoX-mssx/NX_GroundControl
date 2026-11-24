@@ -8,6 +8,7 @@
 #include "RoomScope.h"
 #include "SecretProtector.h"
 #include "SettingsManager.h"
+#include "UdpRcStream.h"
 #include "Vehicle.h"
 #include "VehicleLinkManager.h"
 #include "VideoManager.h"
@@ -217,7 +218,8 @@ QVariantMap modelFromExchange(const QJsonObject &exchange)
         {QStringLiteral("buttons"), buttons},
     };
     // NX only: files from Nova have no motor telemetry or battery block
-    for (const QString &key : {QStringLiteral("motorTelemetry"), QStringLiteral("battery")}) {
+    for (const QString &key :
+         {QStringLiteral("motorTelemetry"), QStringLiteral("battery"), QStringLiteral("rcControl")}) {
         if (exchange.contains(key)) {
             model.insert(key, exchange.value(key).toObject().toVariantMap());
         }
@@ -288,7 +290,8 @@ QJsonObject modelToExchange(const QVariantMap &model)
         {QStringLiteral("camerasArray"), cameras},
         {QStringLiteral("buttonsArray"), buttons},
     };
-    for (const QString &key : {QStringLiteral("motorTelemetry"), QStringLiteral("battery")}) {
+    for (const QString &key :
+         {QStringLiteral("motorTelemetry"), QStringLiteral("battery"), QStringLiteral("rcControl")}) {
         if (model.contains(key)) {
             exchange.insert(key, QJsonObject::fromVariantMap(model.value(key).toMap()));
         }
@@ -940,6 +943,12 @@ QString VehicleModelManager::saveModel(const QString &originalName, const QVaria
     const QString name = model.value(kNameKey).toString().trimmed();
     if (name.isEmpty()) {
         return tr("Enter a model name.");
+    }
+
+    // A UDP RC model drives a vehicle: settings that cannot be used (or that would send arm + Auto) are not stored
+    const UdpRcSettings rc = UdpRcSettings::fromModel(model.value(QStringLiteral("rcControl")).toMap());
+    if (rc.enabled && !rc.problem().isEmpty()) {
+        return tr("Control: %1.").arg(rc.problem());
     }
 
     const QString scope = RoomScope::current();

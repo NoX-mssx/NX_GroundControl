@@ -862,6 +862,8 @@ private slots:
     void _gotProgressUpdate                 (float progressValue);
 
 private:
+    /// NX: a UDP RC stream drives this vehicle; it gets no joystick, arm or mode commands over MAVLink
+    bool _drivenByUdpRc                 () const;
     void _activeVehicleChanged          (Vehicle* newActiveVehicle);
     void _handlePing                    (LinkInterface* link, mavlink_message_t& message);
     void _handleHomePosition            (mavlink_message_t& message);

@@ -6,6 +6,7 @@
 #include <QtCore/QMetaObject>
 #include <QtCore/QThread>
 
+#include <algorithm>
 #include <array>
 
 #include <SDL3/SDL.h>
@@ -471,6 +472,17 @@ int JoystickSDL::_getAxisValue(int idx) const
     }
 
     return SDL_GetJoystickAxis(_sdlJoystick, idx);
+}
+
+int JoystickSDL::_rawAxisCount() const
+{
+    return _sdlJoystick ? std::max(0, SDL_GetNumJoystickAxes(_sdlJoystick)) : 0;
+}
+
+int JoystickSDL::_getRawAxisValue(int idx) const
+{
+    // The joystick under a gamepad mapping too: the axes as numbered by the device (TX12: ch1 = axis 0, ...)
+    return (_sdlJoystick && (idx >= 0)) ? SDL_GetJoystickAxis(_sdlJoystick, idx) : 0;
 }
 
 bool JoystickSDL::_getHat(int hat, int idx) const

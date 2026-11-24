@@ -8061,6 +8061,11 @@ VTOL</translation>
     <name>FlyViewToolBar</name>
     <message>
       <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
+      <source>Arm and disarm with the arm switch of the transmitter</source>
+      <translation>Арм і дизарм — тумблером арму на пульті</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
       <source>No access to this room</source>
       <translation>Немає доступу до цієї кімнати</translation>
     </message>
@@ -23182,6 +23187,11 @@ If a vehicle still has this key configured, you will no longer be able to commun
   <context>
     <name>VehicleModelManager</name>
     <message>
+      <location filename="../src/VehicleModels/VehicleModelManager.cc" line="1" />
+      <source>Control: %1.</source>
+      <translation>Керування: %1.</translation>
+    </message>
+    <message>
       <location filename="../src/VehicleModels/VehicleModelManager.cc" line="456" />
       <source>Enter a model name.</source>
       <translation>Введіть назву моделі.</translation>
@@ -23231,6 +23241,136 @@ If a vehicle still has this key configured, you will no longer be able to commun
   </context>
   <context>
     <name>VehicleModelsSettings</name>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Arm above</source>
+      <translation>Арм вище</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Arm and disarm values are at most 1500: 1811 on the arm channel is arm + Auto and is never sent.</source>
+      <translation>Значення арму й дизарму не більші за 1500: 1811 на каналі арму — це арм + Auto, він не надсилається ніколи.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Arm channel</source>
+      <translation>Канал арму</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Arm switch axis</source>
+      <translation>Вісь тумблера арму</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Arm value</source>
+      <translation>Значення арму</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Axis</source>
+      <translation>Вісь</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Channel values at rest (172–1811). Throttle, steering and arm take the place of theirs.</source>
+      <translation>Значення каналів у спокої (172–1811). Газ, кермо й арм замінюють значення своїх каналів.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Channel</source>
+      <translation>Канал</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Control</source>
+      <translation>Керування</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Dead zone</source>
+      <translation>Мертва зона</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Disarm value</source>
+      <translation>Значення дизарму</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>IP of the link</source>
+      <translation>IP підключення</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Invert</source>
+      <translation>Інверсія</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Limit, %</source>
+      <translation>Межа, %</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>MAVLink (joystick)</source>
+      <translation>MAVLink (джойстик)</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Port</source>
+      <translation>Порт</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Rate, Hz</source>
+      <translation>Частота, Гц</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Slew, strokes/s</source>
+      <translation>Наростання, ходів/с</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Source port</source>
+      <translation>Порт джерела</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Steering</source>
+      <translation>Кермо</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Throttle</source>
+      <translation>Газ</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>UDP RC (TX12 Ethernet module)</source>
+      <translation>UDP RC (Ethernet-модуль TX12)</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>UDP RC: 16 channels in CRSF units (172–992–1811) over UDP, as the Ethernet module of the TX12 sends them, for vehicles that take no joystick, arm or mode commands over MAVLink. The stream runs while the link is on and ends with a second of neutral and disarm. Arm comes only from the arm switch of the transmitter.</source>
+      <translation>UDP RC: 16 каналів в одиницях CRSF (172–992–1811) по UDP, як їх надсилає Ethernet-модуль TX12, — для бортів, які не приймають джойстик, арм і режими по MAVLink. Потік іде, поки підключення увімкнене, і закінчується секундою нейтралі й дизарму. Арм — лише тумблером на пульті.</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Vehicle address</source>
+      <translation>Адреса борту</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>any</source>
+      <translation>будь-який</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>ch%1</source>
+      <translation>к%1</translation>
+    </message>
     <message>
       <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
       <source>SRT address: srt://server:8890?streamid=read:path</source>
@@ -26611,6 +26751,190 @@ Send this file together with the AppLog.log file from the Logs folder.</source>
       <location filename="../src/AppSettings/RoomTableSettings.qml" line="1" />
       <source>The admin has not opened the table to you.</source>
       <translation>Адмін не відкрив вам таблицю.</translation>
+    </message>
+  </context>
+  <context>
+    <name>RcStreamIndicator</name>
+    <message>
+      <location filename="../src/Toolbar/RcStreamIndicator.qml" line="1" />
+      <source>%1 of %2 Hz</source>
+      <translation>%1 з %2 Гц</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/RcStreamIndicator.qml" line="1" />
+      <source>%1% / %2%</source>
+      <translation>%1% / %2%</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/RcStreamIndicator.qml" line="1" />
+      <source>Arm channel</source>
+      <translation>Канал арму</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/RcStreamIndicator.qml" line="1" />
+      <source>Joystick</source>
+      <translation>Джойстик</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/RcStreamIndicator.qml" line="1" />
+      <source>Link</source>
+      <translation>Підключення</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/RcStreamIndicator.qml" line="1" />
+      <source>RC %1 Hz</source>
+      <translation>RC %1 Гц</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/RcStreamIndicator.qml" line="1" />
+      <source>Rate</source>
+      <translation>Частота</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/RcStreamIndicator.qml" line="1" />
+      <source>Send errors</source>
+      <translation>Помилки надсилання</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/RcStreamIndicator.qml" line="1" />
+      <source>Sent to</source>
+      <translation>Куди</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/RcStreamIndicator.qml" line="1" />
+      <source>Throttle / steering</source>
+      <translation>Газ / кермо</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/RcStreamIndicator.qml" line="1" />
+      <source>arm</source>
+      <translation>арм</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/RcStreamIndicator.qml" line="1" />
+      <source>arm: centre the throttle</source>
+      <translation>для арму постав газ у центр</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/RcStreamIndicator.qml" line="1" />
+      <source>arm: switch off, then on</source>
+      <translation>тумблер арму: вимкни й увімкни</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/RcStreamIndicator.qml" line="1" />
+      <source>disarm</source>
+      <translation>дизарм</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/RcStreamIndicator.qml" line="1" />
+      <source>no joystick</source>
+      <translation>немає джойстика</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/RcStreamIndicator.qml" line="1" />
+      <source>none: neutral and disarm</source>
+      <translation>немає: нейтраль і дизарм</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/RcStreamIndicator.qml" line="1" />
+      <source>not armed</source>
+      <translation>не армований</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/RcStreamIndicator.qml" line="1" />
+      <source>throttle not centred</source>
+      <translation>газ не в центрі</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/RcStreamIndicator.qml" line="1" />
+      <source>yes</source>
+      <translation>є</translation>
+    </message>
+  </context>
+  <context>
+    <name>UdpRcManager</name>
+    <message>
+      <location filename="../src/VehicleModels/UdpRcManager.cc" line="1" />
+      <source>RC %1: the model's RC settings are not usable: %2</source>
+      <translation>RC %1: налаштування керування моделі не придатні: %2</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/UdpRcManager.cc" line="1" />
+      <source>RC %1: no vehicle address for the RC stream</source>
+      <translation>RC %1: немає адреси борту для потоку керування</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/UdpRcManager.cc" line="1" />
+      <source>RC %1: joystick lost, neutral and disarm sent</source>
+      <translation>RC %1: джойстик зник — надіслано нейтраль і дизарм</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/UdpRcManager.cc" line="1" />
+      <source>RC %1: arm sent, the vehicle did not arm within 2 s</source>
+      <translation>RC %1: арм надіслано, але борт не армувався за 2 с</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/UdpRcManager.cc" line="1" />
+      <source>RC %1: throttle not centred, neutral sent until it is</source>
+      <translation>RC %1: газ не в центрі — надсилається нейтраль, доки газ не буде в центрі</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/UdpRcManager.cc" line="1" />
+      <source>RC %1: sending at %2 Hz instead of %3</source>
+      <translation>RC %1: надсилання %2 Гц замість %3</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/UdpRcManager.cc" line="1" />
+      <source>RC %1: frames are not going out (%2)</source>
+      <translation>RC %1: кадри не йдуть (%2)</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/UdpRcManager.cc" line="1" />
+      <source>RC %1: the arm channel was to carry a value above 1500; disarm sent instead</source>
+      <translation>RC %1: на каналі арму мало піти значення понад 1500 — замість нього надіслано дизарм</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/UdpRcManager.cc" line="1" />
+      <source>RC %1: the stream stopped while the link is on</source>
+      <translation>RC %1: потік керування зупинився при увімкненому підключенні</translation>
+    </message>
+  </context>
+  <context>
+    <name>UdpRcSettings</name>
+    <message>
+      <location filename="../src/VehicleModels/UdpRcStream.cc" line="1" />
+      <source>channels are 1 to 16</source>
+      <translation>канали — від 1 до 16</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/UdpRcStream.cc" line="1" />
+      <source>throttle, steering and arm need different channels</source>
+      <translation>газу, керму й арму потрібні різні канали</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/UdpRcStream.cc" line="1" />
+      <source>rest values are 172 to 1811</source>
+      <translation>значення у спокої — від 172 до 1811</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/UdpRcStream.cc" line="1" />
+      <source>arm and disarm values are 172 to 1500 (1811 is arm + Auto)</source>
+      <translation>значення арму й дизарму — від 172 до 1500 (1811 — це арм + Auto)</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/UdpRcStream.cc" line="1" />
+      <source>rate is 50 to 500 Hz</source>
+      <translation>частота — від 50 до 500 Гц</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/UdpRcStream.cc" line="1" />
+      <source>throttle, steering and arm need different joystick axes</source>
+      <translation>газу, керму й арму потрібні різні осі джойстика</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/UdpRcStream.cc" line="1" />
+      <source>dead zone, limits, slew or arm threshold out of range</source>
+      <translation>мертва зона, межі, наростання або поріг арму поза допустимими значеннями</translation>
     </message>
   </context>
 </TS>

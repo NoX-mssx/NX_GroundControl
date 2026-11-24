@@ -72,6 +72,9 @@ public:
     Q_INVOKABLE LogReplayLink *startLogReplay(const QString &logFile);
 
     QList<SharedLinkInterfacePtr> links();
+
+    /// NX: the user has this link on: connected, or waiting to connect again
+    bool linkSwitchedOn(const LinkConfiguration *config) const;
     /// All configurations, including the dynamic ones
     QList<SharedLinkConfigurationPtr> linkConfigurationList() const { return _rgLinkConfigs; }
     QStringList linkTypeStrings() const;
@@ -141,6 +144,8 @@ private:
     bool _awaitingReconnect(const LinkConfiguration *config) const;
     /// Stops the WireGuard tunnel of @p config unless another connected link uses it
     void _stopTunnelIfUnused(const LinkConfiguration *config);
+    /// NX: stops the tunnel of a link switched off, after the last second of its UDP RC stream if it has one
+    void _releaseTunnel(LinkConfiguration *config);
     void _createDynamicForwardLink(const char *linkName, const QString &hostName);
 
     QTimer *_portListTimer = nullptr;

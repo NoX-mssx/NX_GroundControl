@@ -29,6 +29,7 @@ qt_add_qml_module(ToolbarModule
         RemoteIDIndicator.qml
         RemoteIDIndicatorPage.qml
         LinkQualityIndicator.qml
+        RcStreamIndicator.qml
         LagometerPanel.qml
         StarlinkLogPanel.qml
         RTKGPSIndicator.qml

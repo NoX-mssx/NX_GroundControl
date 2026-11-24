@@ -12,6 +12,7 @@
 #include "AutoConnectSettings.h"
 #include "TCPLink.h"
 #include "UDPLink.h"
+#include "UdpRcManager.h"
 #include "WireGuardTunnel.h"
 
 #include "BluetoothLink.h"
@@ -34,6 +35,7 @@
 #endif
 
 #include <QtCore/QApplicationStatic>
+#include <QtCore/QPointer>
 #include <QtCore/QTimer>
 
 QGC_LOGGING_CATEGORY(LinkManagerLog, "Comms.LinkManager")
@@ -130,7 +132,7 @@ void LinkManager::disconnectLinkConfiguration(LinkConfiguration *config)
         link->disconnect();
     } else {
         // Switched off while waiting for the vehicle: no link is there to stop the tunnel when it goes
-        _stopTunnelIfUnused(config);
+        _releaseTunnel(config);
     }
 }
 
@@ -230,6 +232,7 @@ void LinkManager::_linkConnected()
     const SharedLinkConfigurationPtr config = link ? link->linkConfiguration() : nullptr;
     if (config) {
         config->noteConnected();
+        UdpRcManager::instance()->linkConnected(config.get());
     }
 }
 
@@ -321,7 +324,7 @@ void LinkManager::_linkDisconnected()
 
     // A link that will be tried again keeps its tunnel up: restarting it for every attempt is slow
     if (config && !_awaitingReconnect(config.get())) {
-        _stopTunnelIfUnused(config.get());
+        _releaseTunnel(config.get());
     }
 
     if (config) {
@@ -523,6 +526,32 @@ bool LinkManager::_awaitingReconnect(const LinkConfiguration *config) const
            (!config->isDynamic() || config->fromRoom());
 }
 
+bool LinkManager::linkSwitchedOn(const LinkConfiguration *config) const
+{
+    if (!config) {
+        return false;
+    }
+    const LinkInterface *const link = config->link();
+    return (link && link->isConnected()) || _awaitingReconnect(config);
+}
+
+void LinkManager::_releaseTunnel(LinkConfiguration *config)
+{
+    // A UDP RC stream sends neutral and disarm for its last second; through the tunnel, so that waits
+    const int waitMs = UdpRcManager::instance()->linkClosing(config);
+    if (waitMs <= 0) {
+        _stopTunnelIfUnused(config);
+        return;
+    }
+    const QPointer<LinkConfiguration> guard(config);
+    QTimer::singleShot(waitMs, this, [this, guard]() {
+        // Switched on again meanwhile: the tunnel is in use
+        if (guard && !linkSwitchedOn(guard.data())) {
+            _stopTunnelIfUnused(guard.data());
+        }
+    });
+}
+
 void LinkManager::_stopTunnelIfUnused(const LinkConfiguration *config)
 {
     if (!config || config->wireGuardProfile().isEmpty()) {
@@ -618,6 +647,8 @@ void LinkManager::_updateAutoConnectLinks()
 
 void LinkManager::shutdown()
 {
+    // Every UDP RC stream sends its last second of neutral and disarm while the tunnels are still up
+    UdpRcManager::instance()->stopAllBlocking();
     setConnectionsSuspended(tr("Shutdown"));
     disconnectAll();
     // Links waiting for their vehicle have no link to stop their tunnel

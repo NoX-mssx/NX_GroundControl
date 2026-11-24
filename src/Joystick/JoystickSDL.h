@@ -148,6 +148,8 @@ private:
 
     bool _getButton(int idx) const final;
     int _getAxisValue(int idx) const final;
+    int _rawAxisCount() const final;
+    int _getRawAxisValue(int idx) const final;
     bool _getHat(int hat, int idx) const final;
 
     quint64 _getProperties() const;

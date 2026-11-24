@@ -338,6 +338,9 @@ public:
     /// resting in a position, once a vehicle and its model are there to take them. Called from the GUI thread.
     void resyncModelSteps() { _resyncModelSteps.store(true, std::memory_order_relaxed); }
 
+    /// NX: polls the joystick for the UDP RC stream (RcJoystickFeed), with or without a vehicle. GUI thread.
+    void setPollingForRcStream(bool polling);
+
 signals:
     void buttonActionsChanged();
     void assignableActionsChanged();
@@ -406,6 +409,7 @@ private:
         PollingNone             = 0x0,
         PollingForVehicle       = 0x1, ///< Normal polling for joystick output to Vehicle
         PollingForConfiguration = 0x2, ///< Polling for configuration/calibration display
+        PollingForRcStream      = 0x4, ///< NX: raw axes for the UDP RC stream, vehicle or not
     };
     using PollingFlags = QFlags<PollingFlag>;
 
@@ -418,6 +422,10 @@ private:
     virtual bool _getButton(int i) const = 0;
     virtual int _getAxisValue(int axis) const = 0;
     virtual bool _getHat(int hat, int i) const = 0;
+    /// NX: the device's own axis numbering and value (-32768..32767), without gamepad remapping or calibration
+    virtual int _rawAxisCount() const { return _axisCount; }
+    virtual int _getRawAxisValue(int axis) const { return _getAxisValue(axis); }
+    void _publishRcAxes();
 
     void run() override;
 

@@ -1,5 +1,6 @@
 #include "Joystick.h"
 #include "LinkQualityMonitor.h"
+#include "RcJoystickFeed.h"
 #include "Fact.h"
 #include "MavlinkAction.h"
 #include "MavlinkActionManager.h"
@@ -684,6 +685,11 @@ void Joystick::run()
                 break;
             }
 
+            const bool rcStream = _pollingFlags.testFlag(PollingForRcStream);
+            if (rcStream) {
+                _publishRcAxes();
+            }
+
             _handleButtons();
 
             if (axisCount() != 0) {
@@ -693,12 +699,19 @@ void Joystick::run()
             const double axisFrequencyHz = _joystickSettings.axisFrequencyHz()->rawValue().toDouble();
             const double buttonFrequencyHz = _joystickSettings.buttonFrequencyHz()->rawValue().toDouble();
 
-            const int sleep = qMin(static_cast<int>(1000.0 / axisFrequencyHz), static_cast<int>(1000.0 / buttonFrequencyHz)) / 2;
+            int sleep = qMin(static_cast<int>(1000.0 / axisFrequencyHz), static_cast<int>(1000.0 / buttonFrequencyHz)) / 2;
+            if (rcStream) {
+                // The RC stream sends 100 frames a second; fresh axes for each
+                sleep = qMin(sleep, 4);
+            }
             QThread::msleep(sleep);
         }
 
         _close();
     }
+
+    // The RC stream goes to neutral and disarm at once
+    RcJoystickFeed::invalidate(this);
 
     if ((openFailed || updateFailed) && !_exitPollingThread) {
         qCDebug(JoystickLog) << "Triggering joystick rescan after failure";
@@ -1381,7 +1394,42 @@ QString Joystick::_pollingFlagsToString(PollingFlags flags) const
     if (flags.testFlag(PollingForConfiguration)) {
         parts << QStringLiteral("PollingForConfiguration");
     }
+    if (flags.testFlag(PollingForRcStream)) {
+        parts << QStringLiteral("PollingForRcStream");
+    }
     return parts.join(QStringLiteral("|"));
+}
+
+void Joystick::_publishRcAxes()
+{
+    const int count = _rawAxisCount();
+    QVector<double> axes(count);
+    for (int axis = 0; axis < count; axis++) {
+        axes[axis] = static_cast<double>(_getRawAxisValue(axis)) / 32768.0;
+    }
+    RcJoystickFeed::publish(this, axes);
+}
+
+void Joystick::setPollingForRcStream(bool polling)
+{
+    if (polling == _pollingFlags.testFlag(PollingForRcStream)) {
+        return;
+    }
+    qCDebug(JoystickLog) << "RC stream polling" << polling << "Current flags:" << _pollingFlagsToString(_pollingFlags);
+
+    if (polling) {
+        _pollingFlags |= PollingForRcStream;
+        _startPollingThread();
+        return;
+    }
+
+    const PollingFlags remainingFlags = _pollingFlags & ~PollingFlags(PollingForRcStream);
+    // As for the other polling kinds: stop the thread before the flags say nothing is polled
+    if (remainingFlags == PollingNone) {
+        _stopPollingThread();
+    }
+    _pollingFlags = remainingFlags;
+    RcJoystickFeed::invalidate(this);
 }
 
 void Joystick::setAxisCalibration(int axis, const AxisCalibration_t &calibration)

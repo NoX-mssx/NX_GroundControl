@@ -24,7 +24,13 @@ Rectangle {
     property string _errorText:     ""
 
     function _blankModel() {
-        return { name: "", cameras: [], buttons: [], motorTelemetry: _blankMotorTelemetry(), battery: _blankBattery() }
+        return { name: "", cameras: [], buttons: [], motorTelemetry: _blankMotorTelemetry(), battery: _blankBattery(),
+                 rcControl: _blankRcControl() }
+    }
+
+    // MAVLink joystick, with the UDP RC settings at the values of zmiy_rc_emulator.py ready for a switch
+    function _blankRcControl() {
+        return JSON.parse(JSON.stringify(UdpRcManager.rcDefaults()))
     }
 
     // Starts from the range entered in the battery menu of the main screen
@@ -67,6 +73,7 @@ Rectangle {
             copy.buttons = copy.buttons || []
             copy.motorTelemetry = Object.assign(_blankMotorTelemetry(), copy.motorTelemetry || {})
             copy.battery = Object.assign(_blankBattery(), copy.battery || {})
+            copy.rcControl = Object.assign(_blankRcControl(), copy.rcControl || {})
             _edit = copy
         } else {
             _originalName = ""
@@ -1055,6 +1062,277 @@ Rectangle {
                         color:              qgcPal.colorOrange
                         text:               qsTr("Full voltage must be higher than empty voltage")
                         visible:            batteryGroup.battery.enabled === true && !batteryGroup.rangeValid
+                    }
+                }
+
+                // Control: the joystick over MAVLink, or the UDP RC frames of the TX12 Ethernet module for vehicles that
+                // take no control over MAVLink
+                SettingsGroupLayout {
+                    id:                 rcGroup
+                    Layout.fillWidth:   true
+                    Layout.topMargin:   _margins * 0.5
+                    heading:            qsTr("Control")
+                    headingDescription: qsTr("UDP RC: 16 channels in CRSF units (172–992–1811) over UDP, as the Ethernet module of the TX12 sends them, for vehicles that take no joystick, arm or mode commands over MAVLink. The stream runs while the link is on and ends with a second of neutral and disarm. Arm comes only from the arm switch of the transmitter.")
+
+                    property var rc: root._edit.rcControl || root._blankRcControl()
+                    // Field edits change the object in place, which bindings do not see; counting them re-checks
+                    property int  edits:    0
+                    readonly property bool udp: rc.type === "udp"
+                    readonly property string problem: { edits; return udp ? UdpRcManager.rcProblem(rc) : "" }
+
+                    function set(key, value) {
+                        root._edit.rcControl = rc
+                        root._edit.rcControl[key] = value
+                        edits++
+                    }
+
+                    function number(text, fallback) {
+                        const value = parseFloat(String(text).replace(",", "."))
+                        return isNaN(value) ? fallback : value
+                    }
+
+                    function integer(text, fallback) {
+                        const value = parseInt(text)
+                        return isNaN(value) ? fallback : value
+                    }
+
+                    // Throttle, steering and arm replace the rest value of their channel
+                    function sticksChannel(channel) {
+                        edits
+                        return channel === rc.throttleChannel || channel === rc.steerChannel ||
+                               (channel === rc.armChannel && rc.armAxis >= 0)
+                    }
+
+                    QGCComboBox {
+                        Layout.fillWidth:   true
+                        model:              [ qsTr("MAVLink (joystick)"), qsTr("UDP RC (TX12 Ethernet module)") ]
+                        currentIndex:       rcGroup.udp ? 1 : 0
+                        onActivated: (typeIndex) => {
+                            root._edit.rcControl = rcGroup.rc
+                            root._edit.rcControl.type = typeIndex === 1 ? "udp" : "mavlink"
+                            root._refresh()
+                        }
+                    }
+
+                    GridLayout {
+                        columns:        4
+                        columnSpacing:  ScreenTools.defaultFontPixelWidth * 2
+                        rowSpacing:     ScreenTools.defaultFontPixelHeight * 0.3
+                        visible:        rcGroup.udp
+
+                        QGCLabel { text: qsTr("Vehicle address") }
+                        QGCTextField {
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 18
+                            text:                   rcGroup.rc.host || ""
+                            placeholderText:        qsTr("IP of the link")
+                            onTextEdited:           rcGroup.set("host", text.trim())
+                        }
+                        QGCLabel { text: qsTr("Port") }
+                        QGCTextField {
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 10
+                            text:                   String(rcGroup.rc.port)
+                            validator:              IntValidator { bottom: 1; top: 65535 }
+                            onTextEdited:           rcGroup.set("port", rcGroup.integer(text, 14300))
+                        }
+
+                        QGCLabel { text: qsTr("Rate, Hz") }
+                        QGCTextField {
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 10
+                            text:                   String(rcGroup.rc.rateHz)
+                            validator:              IntValidator { bottom: 50; top: 500 }
+                            onTextEdited:           rcGroup.set("rateHz", rcGroup.integer(text, 100))
+                        }
+                        QGCLabel { text: qsTr("Source port") }
+                        QGCTextField {
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 10
+                            text:                   String(rcGroup.rc.sourcePort)
+                            placeholderText:        qsTr("any")
+                            validator:              IntValidator { bottom: 0; top: 65535 }
+                            onTextEdited:           rcGroup.set("sourcePort", rcGroup.integer(text, 0))
+                        }
+                    }
+
+                    QGCLabel {
+                        Layout.fillWidth:   true
+                        wrapMode:           Text.WordWrap
+                        visible:            rcGroup.udp
+                        text:               qsTr("Channel values at rest (172–1811). Throttle, steering and arm take the place of theirs.")
+                    }
+
+                    GridLayout {
+                        columns:        8
+                        columnSpacing:  ScreenTools.defaultFontPixelWidth
+                        rowSpacing:     ScreenTools.defaultFontPixelHeight * 0.3
+                        visible:        rcGroup.udp
+
+                        Repeater {
+                            model: 16
+
+                            delegate: RowLayout {
+                                required property int index
+                                Layout.columnSpan:  2
+                                spacing:            ScreenTools.defaultFontPixelWidth * 0.5
+
+                                QGCLabel {
+                                    Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 4
+                                    horizontalAlignment:    Text.AlignRight
+                                    text:                   qsTr("ch%1").arg(index + 1)
+                                }
+                                QGCTextField {
+                                    Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 8
+                                    enabled:                !rcGroup.sticksChannel(index + 1)
+                                    text:                   String(rcGroup.rc.rest[index] !== undefined ? rcGroup.rc.rest[index] : 992)
+                                    validator:              IntValidator { bottom: 0; top: 2000 }
+                                    onTextEdited: {
+                                        root._edit.rcControl = rcGroup.rc
+                                        root._edit.rcControl.rest[index] = rcGroup.integer(text, 992)
+                                        rcGroup.edits++
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    GridLayout {
+                        columns:        5
+                        columnSpacing:  ScreenTools.defaultFontPixelWidth * 2
+                        rowSpacing:     ScreenTools.defaultFontPixelHeight * 0.3
+                        visible:        rcGroup.udp
+
+                        QGCLabel { text: "" }
+                        QGCLabel { text: qsTr("Channel");     font.weight: Font.DemiBold }
+                        QGCLabel { text: qsTr("Axis");        font.weight: Font.DemiBold }
+                        QGCLabel { text: qsTr("Limit, %");    font.weight: Font.DemiBold }
+                        QGCLabel { text: "" }
+
+                        QGCLabel { text: qsTr("Throttle") }
+                        QGCTextField {
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 8
+                            text:                   String(rcGroup.rc.throttleChannel)
+                            validator:              IntValidator { bottom: 1; top: 16 }
+                            onTextEdited:           rcGroup.set("throttleChannel", rcGroup.integer(text, 1))
+                        }
+                        QGCTextField {
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 8
+                            text:                   String(rcGroup.rc.throttleAxis)
+                            validator:              IntValidator { bottom: 0; top: 31 }
+                            onTextEdited:           rcGroup.set("throttleAxis", rcGroup.integer(text, 0))
+                        }
+                        QGCTextField {
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 8
+                            text:                   String(rcGroup.rc.throttleLimitPct)
+                            validator:              IntValidator { bottom: 0; top: 100 }
+                            onTextEdited:           rcGroup.set("throttleLimitPct", rcGroup.integer(text, 30))
+                        }
+                        QGCCheckBox {
+                            text:       qsTr("Invert")
+                            checked:    rcGroup.rc.invertThrottle === true
+                            onClicked:  rcGroup.set("invertThrottle", checked)
+                        }
+
+                        QGCLabel { text: qsTr("Steering") }
+                        QGCTextField {
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 8
+                            text:                   String(rcGroup.rc.steerChannel)
+                            validator:              IntValidator { bottom: 1; top: 16 }
+                            onTextEdited:           rcGroup.set("steerChannel", rcGroup.integer(text, 2))
+                        }
+                        QGCTextField {
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 8
+                            text:                   String(rcGroup.rc.steerAxis)
+                            validator:              IntValidator { bottom: 0; top: 31 }
+                            onTextEdited:           rcGroup.set("steerAxis", rcGroup.integer(text, 1))
+                        }
+                        QGCTextField {
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 8
+                            text:                   String(rcGroup.rc.steerLimitPct)
+                            validator:              IntValidator { bottom: 0; top: 100 }
+                            onTextEdited:           rcGroup.set("steerLimitPct", rcGroup.integer(text, 50))
+                        }
+                        QGCCheckBox {
+                            text:       qsTr("Invert")
+                            checked:    rcGroup.rc.invertSteer === true
+                            onClicked:  rcGroup.set("invertSteer", checked)
+                        }
+                    }
+
+                    GridLayout {
+                        columns:        4
+                        columnSpacing:  ScreenTools.defaultFontPixelWidth * 2
+                        rowSpacing:     ScreenTools.defaultFontPixelHeight * 0.3
+                        visible:        rcGroup.udp
+
+                        QGCLabel { text: qsTr("Dead zone") }
+                        QGCTextField {
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 8
+                            text:                   String(rcGroup.rc.deadzone)
+                            validator:              RegularExpressionValidator { regularExpression: /^0?([.,]\d{0,3})?$/ }
+                            onTextEdited:           rcGroup.set("deadzone", rcGroup.number(text, 0.08))
+                        }
+                        // Full strokes per second; a release towards the centre is at once
+                        QGCLabel { text: qsTr("Slew, strokes/s") }
+                        QGCTextField {
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 8
+                            text:                   String(rcGroup.rc.slew)
+                            validator:              RegularExpressionValidator { regularExpression: /^\d{0,2}([.,]\d{0,2})?$/ }
+                            onTextEdited:           rcGroup.set("slew", rcGroup.number(text, 4))
+                        }
+
+                        // A switch on a joystick axis: above the threshold is arm. -1: no switch, always disarm.
+                        QGCLabel { text: qsTr("Arm switch axis") }
+                        QGCTextField {
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 8
+                            text:                   String(rcGroup.rc.armAxis)
+                            validator:              IntValidator { bottom: -1; top: 31 }
+                            onTextEdited:           rcGroup.set("armAxis", rcGroup.integer(text, 6))
+                        }
+                        QGCLabel { text: qsTr("Arm above") }
+                        QGCTextField {
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 8
+                            text:                   String(rcGroup.rc.armThreshold)
+                            validator:              RegularExpressionValidator { regularExpression: /^-?0?([.,]\d{0,2})?$/ }
+                            onTextEdited:           rcGroup.set("armThreshold", rcGroup.number(text, 0.5))
+                        }
+
+                        QGCLabel { text: qsTr("Arm channel") }
+                        QGCTextField {
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 8
+                            text:                   String(rcGroup.rc.armChannel)
+                            validator:              IntValidator { bottom: 1; top: 16 }
+                            onTextEdited:           rcGroup.set("armChannel", rcGroup.integer(text, 8))
+                        }
+                        QGCLabel { text: "" }
+                        QGCLabel { text: "" }
+
+                        QGCLabel { text: qsTr("Arm value") }
+                        QGCTextField {
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 8
+                            text:                   String(rcGroup.rc.armValue)
+                            validator:              IntValidator { bottom: 0; top: 2000 }
+                            onTextEdited:           rcGroup.set("armValue", rcGroup.integer(text, 992))
+                        }
+                        QGCLabel { text: qsTr("Disarm value") }
+                        QGCTextField {
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 8
+                            text:                   String(rcGroup.rc.disarmValue)
+                            validator:              IntValidator { bottom: 0; top: 2000 }
+                            onTextEdited:           rcGroup.set("disarmValue", rcGroup.integer(text, 173))
+                        }
+                    }
+
+                    QGCLabel {
+                        Layout.fillWidth:   true
+                        wrapMode:           Text.WordWrap
+                        visible:            rcGroup.udp
+                        text:               qsTr("Arm and disarm values are at most 1500: 1811 on the arm channel is arm + Auto and is never sent.")
+                    }
+
+                    QGCLabel {
+                        Layout.fillWidth:   true
+                        wrapMode:           Text.WordWrap
+                        color:              qgcPal.colorOrange
+                        text:               rcGroup.problem
+                        visible:            rcGroup.problem !== ""
                     }
                 }
             }

@@ -11,6 +11,10 @@ target_sources(${CMAKE_PROJECT_NAME}
         SecretProtector.cc
         SecretProtector.h
         TalkAudio.h
+        UdpRcManager.cc
+        UdpRcManager.h
+        UdpRcStream.cc
+        UdpRcStream.h
         VehicleModelManager.cc
         VehicleModelManager.h
 )
@@ -20,4 +24,6 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_
 if(WIN32)
     # CryptProtectData / CryptUnprotectData
     target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE crypt32)
+    # timeBeginPeriod for the UDP RC stream's 10 ms pace
+    target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE winmm)
 endif()

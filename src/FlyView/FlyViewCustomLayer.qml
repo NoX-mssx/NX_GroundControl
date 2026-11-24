@@ -1009,6 +1009,12 @@ Item {
             function onProblem(message) { mainWindow.addVehicleNotice(qsTr("Starlink GPS: %1").arg(message), 1, false) }
         }
 
+        // UDP RC stream: joystick lost, throttle not centred, arm not taken, frames not going out, stream stopped
+        Connections {
+            target: UdpRcManager
+            function onProblem(text, level) { mainWindow.addVehicleNotice(text, level, false) }
+        }
+
         // A WebRTC stream reconnects by itself every 2 s; why it dropped goes under the "!", once per outage
         Connections {
             target: WebRtcVideoStatus

@@ -40,6 +40,9 @@ public:
     int joystickCount() const { return _name2JoystickMap.count(); }
 
     Joystick *activeJoystick();
+
+    /// NX: while a UDP RC stream runs, the active joystick is polled for it with or without a vehicle
+    void setRcStreamPolling(bool polling);
     bool activeJoystickEnabledForActiveVehicle() const;
     void setActiveJoystickEnabledForActiveVehicle(bool enabled);
 

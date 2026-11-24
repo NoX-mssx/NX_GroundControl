@@ -1,4 +1,5 @@
 #include "JoystickManager.h"
+#include "RcJoystickFeed.h"
 #include "Joystick.h"
 #include "Vehicle.h"
 #include "MultiVehicleManager.h"
@@ -199,6 +200,7 @@ void JoystickManager::_setActiveJoystick(Joystick *newActiveJoystick)
     // Cleanup old active joystick
     if (_activeJoystick) {
         _activeJoystick->_stopAllPollingForVehicle();
+        _activeJoystick->setPollingForRcStream(false);
         _activeJoystick = nullptr;
         emit activeJoystickChanged(nullptr);
     }
@@ -207,6 +209,7 @@ void JoystickManager::_setActiveJoystick(Joystick *newActiveJoystick)
         qCDebug(JoystickManagerLog) << "Set active:" << newActiveJoystick->name();
 
         _activeJoystick = newActiveJoystick;
+        _activeJoystick->setPollingForRcStream(RcJoystickFeed::wanted());
 
         auto multiVehicleManager = MultiVehicleManager::instance();
         auto activeVehicle = multiVehicleManager->activeVehicle();
@@ -226,6 +229,14 @@ void JoystickManager::_setActiveJoystick(Joystick *newActiveJoystick)
 
         emit activeJoystickChanged(_activeJoystick);
         emit activeJoystickEnabledForActiveVehicleChanged();
+    }
+}
+
+void JoystickManager::setRcStreamPolling(bool polling)
+{
+    RcJoystickFeed::setWanted(polling);
+    if (_activeJoystick) {
+        _activeJoystick->setPollingForRcStream(polling);
     }
 }
 
