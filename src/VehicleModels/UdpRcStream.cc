@@ -13,8 +13,11 @@
 #include "RcJoystickFeed.h"
 
 #ifdef Q_OS_WIN
-#include <timeapi.h>
+// windows.h first: timeapi.h needs its types
+// clang-format off
 #include <windows.h>
+#include <timeapi.h>
+// clang-format on
 #ifndef CREATE_WAITABLE_TIMER_HIGH_RESOLUTION
 #define CREATE_WAITABLE_TIMER_HIGH_RESOLUTION 0x00000002
 #endif
