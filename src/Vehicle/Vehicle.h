@@ -148,6 +148,10 @@ public:
     Q_PROPERTY(QGeoCoordinate       homePosition                READ homePosition                                                   NOTIFY homePositionChanged)
     Q_PROPERTY(QGeoCoordinate       armedPosition               READ armedPosition                                                  NOTIFY armedPositionChanged)
     Q_PROPERTY(bool                 armed                       READ armed                      WRITE setArmedShowError             NOTIFY armedChanged)
+    /// NX: a local HotRC remote on the flight controller's SBUS drives the vehicle; the TX12 sticks are not sent
+    Q_PROPERTY(bool                 localRcControl              READ localRcControl             WRITE setLocalRcControl             NOTIFY localRcControlChanged)
+    /// NX: back to the TX12 asked for; it takes over once its sticks are centred
+    Q_PROPERTY(bool                 localRcResuming             READ localRcResuming                                                NOTIFY localRcControlChanged)
     Q_PROPERTY(bool                 autoDisarm                  READ autoDisarm                                                     NOTIFY autoDisarmChanged)
     Q_PROPERTY(bool                 flightModeSetAvailable      READ flightModeSetAvailable                                         CONSTANT)
     Q_PROPERTY(QStringList          flightModes                 READ flightModes                                                    NOTIFY flightModesChanged)
@@ -418,6 +422,14 @@ public:
     /// nothing is sent to the vehicle.
     void setExternalPosition(const QGeoCoordinate &coordinate);
     bool externalPositionActive() const { return _externalPositionActive; }
+
+    /// NX: hands the vehicle to a local HotRC remote (SBUS into the flight controller), or back to the TX12.
+    /// To HotRC: the TX12 sticks stop and the flight controller is told to release every RC override, so its
+    /// SBUS input counts again. To the TX12: nothing is sent until its steering and throttle are centred, so the
+    /// vehicle does not lurch. Kept per link, so a reconnect or a restart does not take the vehicle from HotRC.
+    bool localRcControl() const { return _localRcState.load() == LocalRcLocal; }
+    bool localRcResuming() const { return _localRcState.load() == LocalRcResuming; }
+    void setLocalRcControl(bool local);
 
     qreal getInitialGCSPressure() const { return _initialGCSPressure; }
     qreal getInitialGCSTemperature() const { return _initialGCSTemperature; }
@@ -752,6 +764,7 @@ public slots:
     Q_INVOKABLE void sendGripperAction(GRIPPER_ACTIONS gripperOption);
 
 signals:
+    void localRcControlChanged          ();
     void coordinateChanged              (QGeoCoordinate coordinate);
     void mavlinkMessageReceived         (const mavlink_message_t& message);
     void homePositionChanged            (const QGeoCoordinate& homePosition);
@@ -967,6 +980,17 @@ private:
     bool            _allSensorsHealthy                      = true;
     VehicleSigningController* _signingController            = nullptr;
     std::atomic<bool> _joystickAuxRcOverrideActive           = false;
+
+    // NX: local HotRC control (setLocalRcControl)
+    enum LocalRcState { LocalRcRemote = 0, LocalRcLocal = 1, LocalRcResuming = 2 };
+    void _sendRcRelease();
+    void _localRcResumed();
+    void _restoreLocalRc();
+    QString _localRcSettingsKey() const;
+    std::atomic<int> _localRcState                          = LocalRcRemote;
+    QTimer*         _localRcReleaseTimer                    = nullptr;
+    /// The TX12 takes the vehicle back below this much steering and throttle (of -1..1)
+    static constexpr float kLocalRcCentre                   = 0.05f;
 
     std::unique_ptr<SysStatusSensorInfo> _sysStatusSensorInfo;
 

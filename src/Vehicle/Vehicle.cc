@@ -79,12 +79,14 @@
 #include "MavlinkSettings.h"
 #include "APM.h"
 #include "UdpRcManager.h"
+#include "VehicleModelManager.h"
 
 #ifdef QT_DEBUG
 #include "MockLink.h"
 #endif
 
 #include <QtCore/QDateTime>
+#include <QtCore/QSettings>
 
 QGC_LOGGING_CATEGORY(VehicleLog, "Vehicle.Vehicle")
 
@@ -273,6 +275,12 @@ void Vehicle::_commonInit(LinkInterface* link)
     if (link) {
         _vehicleLinkManager->_addLink(link);
     }
+
+    // NX: a vehicle left with its local HotRC remote stays with it
+    _localRcReleaseTimer = new QTimer(this);
+    _localRcReleaseTimer->setInterval(1000);
+    (void) connect(_localRcReleaseTimer, &QTimer::timeout, this, &Vehicle::_sendRcRelease);
+    _restoreLocalRc();
 
     connect(_standardModes, &StandardModes::modesUpdated, this, &Vehicle::flightModesChanged);
     // Re-emit flightModeChanged after available modes mapping updates so UI refreshes
@@ -1456,6 +1464,100 @@ void Vehicle::_activeVehicleChanged(Vehicle *newActiveVehicle)
 QGeoCoordinate Vehicle::homePosition()
 {
     return _homePosition;
+}
+
+QString Vehicle::_localRcSettingsKey() const
+{
+    const SharedLinkInterfacePtr sharedLink = _vehicleLinkManager ? _vehicleLinkManager->primaryLink().lock() : nullptr;
+    if (!sharedLink || !sharedLink->linkConfiguration()) {
+        return QString();
+    }
+    QString name = sharedLink->linkConfiguration()->name();
+    (void) name.replace(QLatin1Char('/'), QLatin1Char('_')).replace(QLatin1Char('\\'), QLatin1Char('_'));
+    return QStringLiteral("NxLocalRc/%1").arg(name);
+}
+
+void Vehicle::_restoreLocalRc()
+{
+    const QString key = _localRcSettingsKey();
+    if (key.isEmpty() || !QSettings().value(key, false).toBool()) {
+        return;
+    }
+    // Only while the vehicle's model still offers HotRC: otherwise nothing on screen could hand it back
+    const SharedLinkInterfacePtr sharedLink = _vehicleLinkManager->primaryLink().lock();
+    const LinkConfiguration *const config = sharedLink ? sharedLink->linkConfiguration().get() : nullptr;
+    const VehicleModelManager *const models = VehicleModelManager::instance();
+    const QVariantMap rcControl = (models && config)
+        ? models->modelForLink(config->vehicleModel(), config->room()).value(QStringLiteral("rcControl")).toMap()
+        : QVariantMap();
+    if (!rcControl.value(QStringLiteral("localRc")).toBool()) {
+        QSettings().remove(key);
+        return;
+    }
+    qCInfo(VehicleLog) << "Vehicle stays with its local HotRC remote";
+    setLocalRcControl(true);
+}
+
+void Vehicle::setLocalRcControl(bool local)
+{
+    const int state = _localRcState.load();
+    const QString key = _localRcSettingsKey();
+    if (local) {
+        if (state == LocalRcLocal) {
+            return;
+        }
+        _localRcState = LocalRcLocal;
+        // A few times: a release lost on the way would leave the TX12's last command in force
+        _sendRcRelease();
+        QTimer::singleShot(150, this, &Vehicle::_sendRcRelease);
+        QTimer::singleShot(300, this, &Vehicle::_sendRcRelease);
+        _localRcReleaseTimer->start();
+        qCInfo(VehicleLog) << "Control handed to the local HotRC remote";
+    } else {
+        if (state != LocalRcLocal) {
+            return;
+        }
+        // The releases go on until the TX12 has its sticks centred and takes over
+        _localRcState = LocalRcResuming;
+        qCInfo(VehicleLog) << "Control back to the TX12 once its sticks are centred";
+    }
+    if (!key.isEmpty()) {
+        QSettings().setValue(key, local);
+    }
+    emit localRcControlChanged();
+}
+
+void Vehicle::_localRcResumed()
+{
+    _localRcReleaseTimer->stop();
+    qCInfo(VehicleLog) << "TX12 sticks centred: control back to the TX12";
+    emit localRcControlChanged();
+}
+
+void Vehicle::_sendRcRelease()
+{
+    if (_localRcState.load() == LocalRcRemote) {
+        return;
+    }
+    const SharedLinkInterfacePtr sharedLink = _vehicleLinkManager->primaryLink().lock();
+    if (!sharedLink) {
+        return;
+    }
+    // MAVLink: 0 on channels 1-8 and UINT16_MAX-1 on 9-18 give each channel back to the RC receiver
+    constexpr uint16_t kReleaseExt = UINT16_MAX - 1;
+    mavlink_message_t message;
+    mavlink_msg_rc_channels_override_pack_chan(
+        static_cast<uint8_t>(MAVLinkProtocol::instance()->getSystemId()),
+        static_cast<uint8_t>(MAVLinkProtocol::getComponentId()),
+        sharedLink->mavlinkChannel(),
+        &message,
+        static_cast<uint8_t>(_systemID),
+        static_cast<uint8_t>(_defaultComponentId),
+        0, 0, 0, 0, 0, 0, 0, 0,
+        kReleaseExt, kReleaseExt, kReleaseExt, kReleaseExt, kReleaseExt,
+        kReleaseExt, kReleaseExt, kReleaseExt, kReleaseExt, kReleaseExt);
+    sendMessageOnLinkThreadSafe(sharedLink.get(), message);
+    _joystickAuxRcOverrideActive = false;
 }
 
 bool Vehicle::_drivenByUdpRc() const
@@ -3024,6 +3126,21 @@ void Vehicle::sendJoystickDataThreadSafe(float roll, float pitch, float yaw, flo
         return;
     }
 
+    // NX: the local HotRC remote has the vehicle; the TX12 takes it back only with steering and throttle centred
+    const int localRc = _localRcState.load();
+    if (localRc == LocalRcLocal) {
+        return;
+    }
+    if (localRc == LocalRcResuming) {
+        if ((qAbs(roll) > kLocalRcCentre) || (qAbs(thrust) > kLocalRcCentre)) {
+            return;
+        }
+        int expected = LocalRcResuming;
+        if (_localRcState.compare_exchange_strong(expected, LocalRcRemote)) {
+            (void) QMetaObject::invokeMethod(this, &Vehicle::_localRcResumed, Qt::QueuedConnection);
+        }
+    }
+
     mavlink_message_t message;
 
     float axesScaling = 1.0 * 1000.0;
@@ -3085,6 +3202,11 @@ void Vehicle::sendJoystickAuxRcOverrideThreadSafe(const std::array<uint16_t, kAu
     }
 
     if (UdpRcManager::controlsLink(sharedLink->linkConfiguration().get())) {
+        return;
+    }
+
+    // NX: nothing from the TX12 while the local HotRC remote has the vehicle
+    if (_localRcState.load() != LocalRcRemote) {
         return;
     }
 

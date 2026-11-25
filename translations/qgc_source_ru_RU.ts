@@ -8061,6 +8061,21 @@ VTOL</translation>
     <name>FlyViewToolBar</name>
     <message>
       <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
+      <source>HotRC</source>
+      <translation>HotRC</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
+      <source>TX12</source>
+      <translation>TX12</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
+      <source>TX12: centre sticks</source>
+      <translation>TX12: стики в центр</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
       <source>Arm and disarm with the arm switch of the transmitter</source>
       <translation>Арм и дизарм — тумблером арма на пульте</translation>
     </message>
@@ -23241,6 +23256,16 @@ If a vehicle still has this key configured, you will no longer be able to commun
   </context>
   <context>
     <name>VehicleModelsSettings</name>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Local HotRC remote (SBUS into the flight controller)</source>
+      <translation>Местный пульт HotRC (SBUS в полётник)</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>The top bar gets a TX12 / HotRC switch. HotRC: the TX12 sticks are no longer sent and the flight controller is told to take its SBUS input again. Back to TX12: it takes over once its steering and throttle are centred.</source>
+      <translation>На верхней панели появится переключатель TX12 / HotRC. HotRC: стики TX12 больше не отправляются, а полётнику даётся команда снова слушать свой вход SBUS. Обратно на TX12: управление переходит, когда руль и газ на TX12 стоят в центре.</translation>
+    </message>
     <message>
       <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
       <source>Arm above</source>

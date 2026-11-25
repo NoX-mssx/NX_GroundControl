@@ -22,6 +22,10 @@ Item {
     property string _flightMode:        _activeVehicle ? _activeVehicle.flightMode : ""
     /// A UDP RC stream drives the vehicle: arm only from the transmitter's switch, no modes to pick
     property bool   _rcDriven:          _activeVehicle ? UdpRcManager.controlsActiveVehicle : false
+    /// The vehicle's model has a local HotRC remote on the flight controller's SBUS (or the vehicle is with it now)
+    property bool   _localRcOffered:    _activeVehicle && !_rcDriven &&
+                                        ((VehicleModelManager.activeModel.rcControl || {}).localRc === true ||
+                                         _activeVehicle.localRcControl || _activeVehicle.localRcResuming)
     /// A switched-on link without a vehicle yet (no heartbeat, or the vehicle is off or booting and the link
     /// waits for it), so it can still be shown and switched off
     property var    _connectedConfig: {
@@ -55,6 +59,12 @@ Item {
         id:     armTitles
         font:   Qt.font({ family: ScreenTools.normalFontFamily, pointSize: ScreenTools.defaultFontPointSize, weight: Font.ExtraBold })
         text:   qsTr("Disarmed").length > qsTr("Armed").length ? qsTr("Disarmed") : qsTr("Armed")
+    }
+
+    TextMetrics {
+        id:     rcTitles
+        font:   Qt.font({ family: ScreenTools.normalFontFamily, pointSize: ScreenTools.defaultFontPointSize, weight: Font.ExtraBold })
+        text:   qsTr("HotRC")
     }
 
     TextMetrics {
@@ -231,6 +241,32 @@ Item {
                 backgroundColor:        _manual ? "transparent" : control._accent
                 textColor:              _manual ? qgcPal.text : control._accentText
                 onClicked:              control._activeVehicle.flightMode = (control._flightMode === control._holdMode) ? control._manualMode : control._holdMode
+            }
+
+            Rectangle {
+                Layout.preferredWidth:  1
+                Layout.fillHeight:      true
+                Layout.margins:         control._margins / 2
+                visible:                control._localRcOffered
+                color:                  Qt.rgba(1, 1, 1, 0.12)
+            }
+
+            // Who drives: the TX12 over the link, or the local HotRC remote on the flight controller's SBUS.
+            // Back to the TX12 waits for its sticks to be centred; a click meanwhile stays with HotRC.
+            QGCButton {
+                readonly property bool _local:      control._activeVehicle ? control._activeVehicle.localRcControl : false
+                readonly property bool _resuming:   control._activeVehicle ? control._activeVehicle.localRcResuming : false
+
+                visible:                control._localRcOffered
+                Layout.fillHeight:      true
+                Layout.preferredWidth:  Math.max(control._switchWidth(rcTitles), implicitWidth)
+                text:                   _local ? qsTr("HotRC") : (_resuming ? qsTr("TX12: centre sticks") : qsTr("TX12"))
+                fontWeight:             Font.ExtraBold
+                showBorder:             false
+                checkable:              false
+                backgroundColor:        _local ? control._accent : "transparent"
+                textColor:              _local ? control._accentText : (_resuming ? qgcPal.colorOrange : qgcPal.text)
+                onClicked:              control._activeVehicle.localRcControl = !_local
             }
         }
     }

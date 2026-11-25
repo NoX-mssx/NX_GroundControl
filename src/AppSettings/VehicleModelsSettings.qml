@@ -1114,6 +1114,20 @@ Rectangle {
                         }
                     }
 
+                    QGCCheckBox {
+                        visible:    !rcGroup.udp
+                        text:       qsTr("Local HotRC remote (SBUS into the flight controller)")
+                        checked:    rcGroup.rc.localRc === true
+                        onClicked:  rcGroup.set("localRc", checked)
+                    }
+
+                    QGCLabel {
+                        Layout.fillWidth:   true
+                        wrapMode:           Text.WordWrap
+                        visible:            !rcGroup.udp && rcGroup.rc.localRc === true
+                        text:               qsTr("The top bar gets a TX12 / HotRC switch. HotRC: the TX12 sticks are no longer sent and the flight controller is told to take its SBUS input again. Back to TX12: it takes over once its steering and throttle are centred.")
+                    }
+
                     GridLayout {
                         columns:        4
                         columnSpacing:  ScreenTools.defaultFontPixelWidth * 2

@@ -106,6 +106,8 @@ QVariantMap UdpRcManager::rcDefaults() const
 {
     QVariantMap defaults = UdpRcSettings().toModel();
     defaults.insert(QStringLiteral("type"), QStringLiteral("mavlink"));
+    // MAVLink only: a local HotRC remote on the flight controller's SBUS, with a TX12 / HotRC switch on screen
+    defaults.insert(QStringLiteral("localRc"), false);
     return defaults;
 }
 

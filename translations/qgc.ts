@@ -8035,6 +8035,21 @@ VTOL</source>
     <name>FlyViewToolBar</name>
     <message>
       <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
+      <source>HotRC</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
+      <source>TX12</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
+      <source>TX12: centre sticks</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
       <source>Arm and disarm with the arm switch of the transmitter</source>
       <translation type="unfinished" />
     </message>
@@ -23175,6 +23190,16 @@ If a vehicle still has this key configured, you will no longer be able to commun
 </context>
 <context>
     <name>VehicleModelsSettings</name>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Local HotRC remote (SBUS into the flight controller)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>The top bar gets a TX12 / HotRC switch. HotRC: the TX12 sticks are no longer sent and the flight controller is told to take its SBUS input again. Back to TX12: it takes over once its steering and throttle are centred.</source>
+      <translation type="unfinished" />
+    </message>
     <message>
       <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
       <source>Arm above</source>
