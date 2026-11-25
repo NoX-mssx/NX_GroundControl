@@ -441,7 +441,15 @@ Item {
             color:                      _root._glassColor
             border.color:               _root._glassBorder
 
-            readonly property int _speed: _root._activeVehicle ? Math.min(999, Math.max(0, Math.round(_root._activeVehicle.groundSpeed.value))) : -1
+            // Shown at the dish (GPS source STARLINK, or Auto without a fix): the dish's speed, 0 while it gives none
+            readonly property real _speedValue: {
+                if (StarlinkPosition.speedFromDish) {
+                    return QGroundControl.unitsConversion.metersSecondToAppSettingsSpeedUnits(StarlinkPosition.dishSpeed)
+                }
+                return _root._activeVehicle ? _root._activeVehicle.groundSpeed.value : 0
+            }
+            readonly property int _speed: _root._activeVehicle ?
+                                              Math.min(999, Math.max(0, Math.round(_speedValue))) : -1
 
             TextMetrics {
                 id:     widestSpeed

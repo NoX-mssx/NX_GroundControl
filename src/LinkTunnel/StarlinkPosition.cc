@@ -352,6 +352,7 @@ void StarlinkPosition::_activeVehicleChanged(Vehicle *vehicle)
     _vehicle = vehicle;
     _fix = QGeoCoordinate();
     _fixAt = -1;
+    _track.clear();
     _autoOnDish = false;
     _roverFixSince = -1;
     _roverFixLostAt = -1;
@@ -383,6 +384,7 @@ void StarlinkPosition::_updateAddress()
         _url = url;
         _fix = QGeoCoordinate();
         _fixAt = -1;
+        _track.clear();
         _setError(QString());
         if (_reply) {
             _reply->abort();
@@ -438,7 +440,8 @@ void StarlinkPosition::_poll()
 
     QNetworkReply *const reply = _network->post(request, locationRequest());
     _reply = reply;
-    (void) connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+    const qint64 sentAt = _clock.elapsed();
+    (void) connect(reply, &QNetworkReply::finished, this, [this, reply, sentAt]() {
         reply->deleteLater();
         if (_reply == reply) {
             _reply = nullptr;
@@ -482,6 +485,9 @@ void StarlinkPosition::_poll()
         if (coordinate.isValid()) {
             _fix = coordinate;
             _fixAt = _clock.elapsed();
+            // The dish answered somewhere between the request and its answer: the middle is the best guess,
+            // and keeps the tunnel's changing delay out of the speed
+            _addTrackPoint((sentAt + _fixAt) / 2, coordinate);
             _setError(QString());
         } else {
             _setError(error);
@@ -563,4 +569,39 @@ void StarlinkPosition::_update()
     if (changed) {
         emit stateChanged();
     }
+
+    // The speed follows the chosen source: from the dish while it is wanted, and 0 while it gives nothing
+    const double speed = useDish ? trackSpeed(_track) : 0.0;
+    if ((wantDish != _speedFromDish) || !qFuzzyCompare(speed + 1.0, _dishSpeed + 1.0)) {
+        _speedFromDish = wantDish;
+        _dishSpeed = speed;
+        emit speedChanged();
+    }
+}
+
+void StarlinkPosition::_addTrackPoint(qint64 atMs, const QGeoCoordinate &coordinate)
+{
+    _track.append({atMs, coordinate});
+    // A little more than the window, so a late answer still leaves a full window to measure over
+    while (!_track.isEmpty() && ((atMs - _track.constFirst().atMs) > (kSpeedWindowMs + (kPollIntervalMs / 2)))) {
+        _track.removeFirst();
+    }
+}
+
+double StarlinkPosition::trackSpeed(const QList<TrackPoint> &track)
+{
+    if (track.size() < 2) {
+        return 0.0;
+    }
+    const TrackPoint &oldest = track.constFirst();
+    const TrackPoint &newest = track.constLast();
+    const qint64 spanMs = newest.atMs - oldest.atMs;
+    if (spanMs < kSpeedMinSpanMs) {
+        return 0.0;
+    }
+    const double meters = oldest.coordinate.distanceTo(newest.coordinate);
+    if (meters < kStillMeters) {
+        return 0.0;
+    }
+    return meters / (static_cast<double>(spanMs) / 1000.0);
 }

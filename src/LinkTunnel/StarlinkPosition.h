@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QtCore/QElapsedTimer>
+#include <QtCore/QList>
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
 #include <QtCore/QSet>
@@ -21,6 +22,9 @@ class Vehicle;
 /// The dish is asked for its location once a second through the link's tunnel, over its local gRPC API
 /// (SpaceX.API.Device.Device/Handle, get_location), at the link's Starlink address or else its ping address on
 /// port 9200. Only what is shown changes (Vehicle::setExternalPosition); nothing is sent to the vehicle.
+///
+/// While the vehicle is shown at the dish, its speed is shown from the dish too: the dish gives positions only,
+/// so the speed is the distance over the last seconds of them. Without positions from the dish it is 0.
 class StarlinkPosition : public QObject
 {
     Q_OBJECT
@@ -34,6 +38,10 @@ class StarlinkPosition : public QObject
     Q_PROPERTY(QString  starlinkError   READ starlinkError  NOTIFY stateChanged)
     /// host:port the dish is asked at, empty when the link gives no address
     Q_PROPERTY(QString  dishAddress     READ dishAddress    NOTIFY stateChanged)
+    /// The speed shown is the dish's (dishSpeed): the chosen source is the dish, whether it gives positions or not
+    Q_PROPERTY(bool     speedFromDish   READ speedFromDish  NOTIFY speedChanged)
+    /// Speed over the ground from the dish's positions, m/s; 0 while the dish gives none
+    Q_PROPERTY(double   dishSpeed       READ dishSpeed      NOTIFY speedChanged)
 
 public:
     enum Source { Rover = 0, Starlink = 1, Auto = 2 };
@@ -45,6 +53,23 @@ public:
     bool starlinkFresh() const;
     QString starlinkError() const { return _error; }
     QString dishAddress() const;
+    bool speedFromDish() const { return _speedFromDish; }
+    double dishSpeed() const { return _dishSpeed; }
+
+    /// A position of the dish and when it was taken (ms of a steady clock)
+    struct TrackPoint
+    {
+        qint64 atMs = 0;
+        QGeoCoordinate coordinate;
+    };
+    /// Speed in m/s from the oldest to the newest point of a track, oldest first. 0 with less than
+    /// kSpeedMinSpanMs between them, or under kStillMeters apart: a standing dish's position wanders.
+    static double trackSpeed(const QList<TrackPoint> &track);
+
+    /// The speed is taken over this much of the track: longer is steadier, shorter follows sooner
+    static constexpr qint64 kSpeedWindowMs = 3000;
+    static constexpr qint64 kSpeedMinSpanMs = 800;
+    static constexpr double kStillMeters = 1.5;
 
     /// The grpc-status header says OK; Qt may list a header twice ("0, 0") once the trailers arrive
     static bool grpcStatusOk(const QByteArray &value);
@@ -55,6 +80,7 @@ public:
 
 signals:
     void stateChanged();
+    void speedChanged();
     /// The chosen source needs the dish, and the dish gives no position; for the "!" of the drive screen
     void problem(const QString &message);
 
@@ -69,6 +95,7 @@ private:
     void _poll();
     void _setError(const QString &error);
     void _update();
+    void _addTrackPoint(qint64 atMs, const QGeoCoordinate &coordinate);
 
     QNetworkAccessManager *_network = nullptr;
     QPointer<Vehicle> _vehicle;
@@ -83,6 +110,9 @@ private:
     QString _error;
     QSet<QString> _reportedErrors;      ///< Reasons given to the "!" since the dish last gave a position
     QSet<QString> _seenErrors;          ///< Reasons logged since then, each logged once
+    QList<TrackPoint> _track;           ///< The dish's positions of the last kSpeedWindowMs, oldest first
+    bool _speedFromDish = false;
+    double _dishSpeed = 0;
 
     bool _usingStarlink = false;
     bool _fresh = false;                ///< starlinkFresh() when last told

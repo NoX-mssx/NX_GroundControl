@@ -14,4 +14,5 @@ private slots:
     void _testParseNoPosition();
     void _testParseDamaged();
     void _testGrpcStatus();
+    void _testTrackSpeed();
 };

@@ -126,4 +126,26 @@ void StarlinkPositionTest::_testGrpcStatus()
     QVERIFY(!StarlinkPosition::grpcStatusOk("0, 7"));
 }
 
+void StarlinkPositionTest::_testTrackSpeed()
+{
+    const QGeoCoordinate start(50.0, 30.0);
+    using Track = QList<StarlinkPosition::TrackPoint>;
+
+    // 10 m/s due north over 3 s, with a point in between that does not change the result
+    const Track moving{
+        {0, start}, {1000, start.atDistanceAndAzimuth(10, 0)}, {3000, start.atDistanceAndAzimuth(30, 0)}};
+    QVERIFY(qAbs(StarlinkPosition::trackSpeed(moving) - 10.0) < 0.01);
+
+    // A single position, or two too close in time: no speed yet
+    QCOMPARE(StarlinkPosition::trackSpeed(Track{{0, start}}), 0.0);
+    QCOMPARE(StarlinkPosition::trackSpeed(Track{{0, start}, {500, start.atDistanceAndAzimuth(10, 0)}}), 0.0);
+
+    // A standing dish wanders by a metre: still
+    QCOMPARE(StarlinkPosition::trackSpeed(Track{{0, start}, {3000, start.atDistanceAndAzimuth(1.0, 90)}}), 0.0);
+
+    // Walking pace still counts: 2 m over 2 s
+    const Track walking{{0, start}, {2000, start.atDistanceAndAzimuth(2.0, 45)}};
+    QVERIFY(qAbs(StarlinkPosition::trackSpeed(walking) - 1.0) < 0.01);
+}
+
 UT_REGISTER_TEST_LIGHTWEIGHT(StarlinkPositionTest, TestLabel::Unit, TestLabel::Comms)
