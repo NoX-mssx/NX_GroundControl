@@ -63,6 +63,15 @@ public:
         None,
         SwitchOnAtStart,  ///< the arm switch has not been in "disarm" since the start or the joystick came
         ThrottleNotCentered,
+        NoJoystick,
+    };
+
+    /// Arm or disarm from the screen (a click on the arm state), besides the switch
+    enum class ArmRequest
+    {
+        None,
+        Arm,
+        Disarm,
     };
 
     struct Input
@@ -70,6 +79,7 @@ public:
         bool joystick = false;   ///< a joystick is there and its axes are fresh
         quint64 generation = 0;  ///< changes whenever a joystick (re)appears
         QVector<double> axes;    ///< raw value / 32768, as pygame gives it
+        ArmRequest armRequest = ArmRequest::None;
     };
 
     struct Output
@@ -81,6 +91,8 @@ public:
         double throttle = 0;    ///< command sent, after limit and slew, -1..1
         double steer = 0;
         bool armGuard = false;  ///< the arm channel held a value above kArmChannelMax; disarm went instead
+        /// An arm from the screen asked for in this frame and not done, and why; None otherwise
+        ArmBlock screenArmRefused = ArmBlock::None;
     };
 
     explicit UdpRcLogic(const UdpRcSettings& settings = UdpRcSettings());
@@ -110,7 +122,10 @@ private:
     UdpRcSettings _settings;
     quint64 _generation = 0;
     bool _throttleOk = false;
-    bool _armed = false;
+    bool _armed = false;        ///< what goes out: armed by the switch or from the screen
+    bool _switchArmed = false;
+    bool _screenArmed = false;  ///< armed from the screen; the switch going off (or a disarm click) ends it
+    bool _switchWasOn = false;
     bool _armReady = false;
     double _throttle = 0;
     double _steer = 0;
@@ -138,6 +153,8 @@ public:
         double steer = 0;
         bool armGuard = false;
         quint16 sourcePort = 0;
+        quint64 screenArmRefusals = 0;  ///< arms from the screen not done so far
+        UdpRcLogic::ArmBlock lastScreenArmRefusal = UdpRcLogic::ArmBlock::None;
     };
 
     UdpRcStream(const UdpRcSettings& settings, const QHostAddress& target, QObject* parent = nullptr);
@@ -153,6 +170,10 @@ public:
     Status status() const;
     QHostAddress target() const;
 
+    /// Arm or disarm from the screen, applied by the next frame. An arm needs the joystick and its throttle
+    /// centred, like the switch; a refusal shows in Status::screenArmRefusals.
+    void requestArm(bool arm);
+
 protected:
     void run() override;
 
@@ -162,6 +183,7 @@ private:
     QHostAddress _target;
     bool _settingsChanged = false;
     Status _status;
+    std::atomic<int> _armRequest{0};  ///< UdpRcLogic::ArmRequest, taken by the next frame
     std::atomic<bool> _graceful{false};
     std::atomic<bool> _abort{false};
 };

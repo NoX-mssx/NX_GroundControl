@@ -26880,6 +26880,21 @@ Send this file together with the AppLog.log file from the Logs folder.</source>
     <name>UdpRcManager</name>
     <message>
       <location filename="../src/VehicleModels/UdpRcManager.cc" line="1" />
+      <source>RC %1: no arm: %2</source>
+      <translation>RC %1: арм не виконано: %2</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/UdpRcManager.cc" line="1" />
+      <source>no joystick</source>
+      <translation>немає джойстика</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/UdpRcManager.cc" line="1" />
+      <source>centre the throttle first</source>
+      <translation>спершу постав газ у центр</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/UdpRcManager.cc" line="1" />
       <source>RC %1: the model's RC settings are not usable: %2</source>
       <translation>RC %1: налаштування керування моделі не придатні: %2</translation>
     </message>

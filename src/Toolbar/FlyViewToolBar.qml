@@ -160,51 +160,39 @@ Item {
             QGCButton {
                 Layout.fillHeight:      true
                 Layout.preferredWidth:  control._switchWidth(armTitles)
-                visible:                control._armed && !control._rcDriven
+                visible:                control._armed
                 text:                   qsTr("Armed")
                 fontWeight:             Font.ExtraBold
                 showBorder:             false
                 backgroundColor:        "transparent"
                 textColor:              qgcPal.text
-                onClicked:              control._activeVehicle.armed = false
+                // UDP RC: the disarm goes in the RC stream, the vehicle takes no MAVLink arm commands
+                onClicked: {
+                    if (control._rcDriven) {
+                        UdpRcManager.setArmed(false)
+                    } else {
+                        control._activeVehicle.armed = false
+                    }
+                }
             }
 
             QGCDelayButton {
                 Layout.fillHeight:      true
                 Layout.preferredWidth:  Math.max(control._switchWidth(armTitles), implicitWidth)
-                visible:                !control._armed && !control._rcDriven
+                visible:                !control._armed
                 text:                   qsTr("Disarmed")
                 fontWeight:             Font.ExtraBold
                 backRadius:             height / 2
                 backgroundColor:        control._accent
                 textColor:              control._accentText
                 defaultDelay:           1000
-                onActivated:            control._activeVehicle.armed = true
-            }
-
-            // UDP RC: the same look, but only the state the vehicle reports; arm and disarm are on the transmitter
-            Rectangle {
-                Layout.fillHeight:      true
-                Layout.preferredWidth:  control._switchWidth(armTitles)
-                visible:                control._rcDriven
-                radius:                 height / 2
-                color:                  control._armed ? "transparent" : control._accent
-
-                QGCLabel {
-                    anchors.centerIn:   parent
-                    text:               control._armed ? qsTr("Armed") : qsTr("Disarmed")
-                    font.weight:        Font.ExtraBold
-                    color:              control._armed ? qgcPal.text : control._accentText
+                onActivated: {
+                    if (control._rcDriven) {
+                        UdpRcManager.setArmed(true)
+                    } else {
+                        control._activeVehicle.armed = true
+                    }
                 }
-
-                MouseArea {
-                    id:             rcArmHover
-                    anchors.fill:   parent
-                    hoverEnabled:   true
-                }
-
-                ToolTip.visible:    rcArmHover.containsMouse
-                ToolTip.text:       qsTr("Arm and disarm with the arm switch of the transmitter")
             }
 
             // Arm sent for 2 s, the vehicle does not report armed

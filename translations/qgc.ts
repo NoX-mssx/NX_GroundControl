@@ -26811,6 +26811,21 @@ Send this file together with the AppLog.log file from the Logs folder.</source>
     <name>UdpRcManager</name>
     <message>
       <location filename="../src/VehicleModels/UdpRcManager.cc" line="1" />
+      <source>RC %1: no arm: %2</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/UdpRcManager.cc" line="1" />
+      <source>no joystick</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/UdpRcManager.cc" line="1" />
+      <source>centre the throttle first</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/VehicleModels/UdpRcManager.cc" line="1" />
       <source>RC %1: the model's RC settings are not usable: %2</source>
       <translation type="unfinished" />
     </message>

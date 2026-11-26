@@ -56,6 +56,9 @@ public:
     /// Thread safe: a stream drives the vehicle of this link, so MAVLink must not
     static bool controlsLink(const LinkConfiguration* config);
 
+    /// The top bar: arm or disarm the active vehicle's stream from the screen, besides the arm switch
+    Q_INVOKABLE void setArmed(bool arm);
+
     /// The model settings page: why these RC settings ("rcControl" of a model) cannot be used, empty if they can
     Q_INVOKABLE QString rcProblem(const QVariantMap& rcControl) const;
     /// The settings a model without any get (the script's defaults), "rcControl" form
@@ -124,6 +127,7 @@ private:
         qint64 lastErrorMs = -1;
         bool errorsReported = false;
         bool guardReported = false;
+        quint64 seenScreenArmRefusals = 0;
         bool stoppedReported = false;
     };
 

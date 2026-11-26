@@ -221,4 +221,91 @@ void UdpRcLogicTest::_settingsTest()
     QVERIFY(!bad.problem().isEmpty());
 }
 
+namespace {
+
+Input screen(Input input, UdpRcLogic::ArmRequest request)
+{
+    input.armRequest = request;
+    return input;
+}
+
+}  // namespace
+
+void UdpRcLogicTest::_screenArmTest()
+{
+    using Request = UdpRcLogic::ArmRequest;
+    UdpRcLogic logic;
+    double now = 0;
+    (void) runFrames(logic, joystick(1, 0, 0, -1), now, 5);
+
+    // Throttle held: refused, nothing armed
+    UdpRcLogic::Output output = logic.step(screen(joystick(1, 0.9, 0, -1), Request::Arm), now);
+    now += kFrame;
+    QVERIFY(output.screenArmRefused == UdpRcLogic::ArmBlock::ThrottleNotCentered);
+    QVERIFY(!output.armed);
+
+    // Centred: armed from the screen with the switch off, and it stays armed
+    output = logic.step(screen(joystick(1, 0, 0, -1), Request::Arm), now);
+    now += kFrame;
+    QVERIFY(output.armed);
+    QCOMPARE(output.channels[7], quint16(992));
+    output = runFrames(logic, joystick(1, 0.9, 0, -1), now, 20);
+    QVERIFY(output.armed);
+
+    // The switch on and off again ends it
+    output = runFrames(logic, joystick(1, 0, 0, 1.0), now, 2);
+    QVERIFY(output.armed);
+    output = runFrames(logic, joystick(1, 0, 0, -1.0), now, 1);
+    QVERIFY(!output.armed);
+    QCOMPARE(output.channels[7], quint16(173));
+
+    // Armed by the switch, disarmed from the screen: the switch has to go off and on to arm again
+    output = runFrames(logic, joystick(1, 0, 0, 1.0), now, 2);
+    QVERIFY(output.armed);
+    output = logic.step(screen(joystick(1, 0, 0, 1.0), Request::Disarm), now);
+    now += kFrame;
+    QVERIFY(!output.armed);
+    output = runFrames(logic, joystick(1, 0, 0, 1.0), now, 10);
+    QVERIFY(!output.armed);
+    QVERIFY(output.armBlock == UdpRcLogic::ArmBlock::SwitchOnAtStart);
+    (void) runFrames(logic, joystick(1, 0, 0, -1.0), now, 1);
+    output = runFrames(logic, joystick(1, 0, 0, 1.0), now, 1);
+    QVERIFY(output.armed);
+
+    // Armed from the screen, the joystick lost: disarm, and it does not come back with the joystick
+    (void) runFrames(logic, joystick(1, 0, 0, -1.0), now, 1);
+    output = logic.step(screen(joystick(1, 0, 0, -1), Request::Arm), now);
+    now += kFrame;
+    QVERIFY(output.armed);
+    output = logic.step(Input(), now);
+    now += kFrame;
+    QVERIFY(!output.armed);
+    output = runFrames(logic, joystick(2, 0, 0, -1), now, 10);
+    QVERIFY(!output.armed);
+
+    // No joystick: refused
+    output = logic.step(screen(Input(), Request::Arm), now);
+    QVERIFY(output.screenArmRefused == UdpRcLogic::ArmBlock::NoJoystick);
+    QVERIFY(!output.armed);
+}
+
+void UdpRcLogicTest::_screenArmWithoutSwitchTest()
+{
+    using Request = UdpRcLogic::ArmRequest;
+    UdpRcSettings settings;
+    settings.armAxis = -1;  // no arm switch on this joystick
+    UdpRcLogic logic(settings);
+    double now = 0;
+    UdpRcLogic::Output output = runFrames(logic, joystick(1, 0, 0, 1.0), now, 5);
+    QVERIFY(!output.armed);
+    output = logic.step(screen(joystick(1, 0, 0, 1.0), Request::Arm), now);
+    now += kFrame;
+    QVERIFY(output.armed);
+    output = runFrames(logic, joystick(1, 0.5, 0.5, 1.0), now, 20);
+    QVERIFY(output.armed);
+    output = logic.step(screen(joystick(1, 0.5, 0.5, 1.0), Request::Disarm), now);
+    QVERIFY(!output.armed);
+    QCOMPARE(output.channels[7], quint16(173));
+}
+
 UT_REGISTER_TEST_LIGHTWEIGHT(UdpRcLogicTest, TestLabel::Unit, TestLabel::Joystick)

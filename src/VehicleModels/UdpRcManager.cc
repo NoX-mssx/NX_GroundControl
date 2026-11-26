@@ -96,6 +96,21 @@ bool UdpRcManager::controlsLink(const LinkConfiguration* config)
     return config && s_controlled.contains(config);
 }
 
+void UdpRcManager::setArmed(bool arm)
+{
+    Vehicle* const activeVehicle = MultiVehicleManager::instance()->activeVehicle();
+    if (!activeVehicle) {
+        return;
+    }
+    const SharedLinkInterfacePtr link = activeVehicle->vehicleLinkManager()->primaryLink().lock();
+    const auto it = link ? _entries.find(link->linkConfiguration().get()) : _entries.end();
+    if (it == _entries.end()) {
+        return;
+    }
+    qCInfo(UdpRcManagerLog) << (arm ? "Arm" : "Disarm") << "from the screen for" << it->second.name;
+    it->second.stream->requestArm(arm);
+}
+
 QString UdpRcManager::rcProblem(const QVariantMap& rcControl) const
 {
     const UdpRcSettings settings = UdpRcSettings::fromModel(rcControl);
@@ -457,6 +472,15 @@ int UdpRcManager::_check(Entry& entry, const UdpRcStream::Status& status, qint64
         }
     } else if (entry.errorsReported && ((now - entry.lastErrorMs) >= 5000)) {
         entry.errorsReported = false;
+    }
+
+    // An arm from the screen the stream did not do
+    if (status.screenArmRefusals > entry.seenScreenArmRefusals) {
+        entry.seenScreenArmRefusals = status.screenArmRefusals;
+        const QString reason = (status.lastScreenArmRefusal == UdpRcLogic::ArmBlock::NoJoystick)
+                                   ? tr("no joystick")
+                                   : tr("centre the throttle first");
+        emit problem(tr("RC %1: no arm: %2").arg(name, reason), 1);
     }
 
     if (status.armGuard && !entry.guardReported) {

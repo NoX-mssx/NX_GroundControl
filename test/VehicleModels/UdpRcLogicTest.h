@@ -18,4 +18,6 @@ private slots:
     void _throttleScaleTest();
     void _armGuardTest();
     void _settingsTest();
+    void _screenArmTest();
+    void _screenArmWithoutSwitchTest();
 };

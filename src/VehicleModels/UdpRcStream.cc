@@ -225,17 +225,25 @@ UdpRcLogic::Output UdpRcLogic::step(const Input& input, double nowSeconds, doubl
         return ((index >= 0) && (index < input.axes.size())) ? input.axes.at(index) : 0.0;
     };
 
+    const auto resetArm = [this]() {
+        _switchArmed = false;
+        _screenArmed = false;
+        _switchWasOn = false;
+        _armReady = false;
+    };
+
     if (!input.joystick) {
         // No joystick: neutral and disarm, and everything to be shown again once it is back
         _throttleOk = false;
-        _armed = false;
-        _armReady = false;
+        resetArm();
+        if (input.armRequest == ArmRequest::Arm) {
+            output.screenArmRefused = ArmBlock::NoJoystick;
+        }
     } else {
         if (input.generation != _generation) {
             _generation = input.generation;
             _throttleOk = false;
-            _armed = false;
-            _armReady = false;
+            resetArm();
         }
         const double rawThrottle =
             shapeAxis(axis(_settings.throttleAxis), _settings.deadzone, _settings.invertThrottle);
@@ -255,26 +263,44 @@ UdpRcLogic::Output UdpRcLogic::step(const Input& input, double nowSeconds, doubl
         }
 
         // Arm switch: arm only once it has been in "disarm" since the start, and with the throttle centred.
-        // Disarm at once, always.
-        if (_settings.armAxis >= 0) {
-            const bool switchOn =
-                (_settings.armAxis < input.axes.size()) && (axis(_settings.armAxis) > _settings.armThreshold);
-            if (!switchOn) {
-                _armed = false;
-                _armReady = true;
-            } else if (!_armed) {
-                if (!_armReady) {
-                    output.armBlock = ArmBlock::SwitchOnAtStart;
-                } else if (!_throttleOk || (rawThrottle != 0.0)) {
-                    output.armBlock = ArmBlock::ThrottleNotCentered;
-                } else {
-                    _armed = true;
-                }
+        // Disarm at once, always: switching off also ends an arm from the screen.
+        const bool switchOn = (_settings.armAxis >= 0) && (_settings.armAxis < input.axes.size()) &&
+                              (axis(_settings.armAxis) > _settings.armThreshold);
+        if (!switchOn) {
+            if (_switchWasOn) {
+                _screenArmed = false;
             }
-        } else {
-            _armed = false;
+            _switchArmed = false;
+            _armReady = (_settings.armAxis >= 0);
+        } else if (!_switchArmed) {
+            if (!_armReady) {
+                output.armBlock = ArmBlock::SwitchOnAtStart;
+            } else if (!_throttleOk || (rawThrottle != 0.0)) {
+                output.armBlock = ArmBlock::ThrottleNotCentered;
+            } else {
+                _switchArmed = true;
+            }
+        }
+        _switchWasOn = switchOn;
+
+        // From the screen: a disarm always; an arm under the switch's rule of a centred throttle. After a disarm
+        // with the switch on, the switch has to go off and on again to arm.
+        if (input.armRequest == ArmRequest::Disarm) {
+            _screenArmed = false;
+            _switchArmed = false;
+            _armReady = _armReady && !switchOn;
+        } else if ((input.armRequest == ArmRequest::Arm) && !_switchArmed && !_screenArmed) {
+            if (!_throttleOk || (rawThrottle != 0.0)) {
+                output.screenArmRefused = ArmBlock::ThrottleNotCentered;
+            } else {
+                _screenArmed = true;
+            }
+        }
+        if (_screenArmed) {
+            output.armBlock = ArmBlock::None;
         }
     }
+    _armed = _switchArmed || _screenArmed;
 
     const double step = (_lastFrame >= 0.0) ? _settings.slew * std::max(nowSeconds - _lastFrame, 0.0) : 0.0;
     _throttle = slewTo(_throttle, targetThrottle, step);
@@ -365,6 +391,11 @@ void UdpRcStream::updateSettings(const UdpRcSettings& settings, const QHostAddre
     _settingsChanged = true;
 }
 
+void UdpRcStream::requestArm(bool arm)
+{
+    _armRequest.store(static_cast<int>(arm ? UdpRcLogic::ArmRequest::Arm : UdpRcLogic::ArmRequest::Disarm));
+}
+
 void UdpRcStream::stopGracefully()
 {
     _graceful.store(true);
@@ -450,6 +481,7 @@ void UdpRcStream::run()
         input.joystick = joystick.valid;
         input.generation = joystick.generation;
         input.axes = joystick.axes;
+        input.armRequest = static_cast<UdpRcLogic::ArmRequest>(_armRequest.exchange(0));
         const double now = seconds();
         const UdpRcLogic::Output output = logic.step(input, now, LinkQualityMonitor::throttleScale());
         send(UdpRcLogic::frame(output.channels));
@@ -473,6 +505,10 @@ void UdpRcStream::run()
             _status.steer = output.steer;
             _status.armGuard = _status.armGuard || output.armGuard;
             _status.sourcePort = sourcePort;
+            if (output.screenArmRefused != UdpRcLogic::ArmBlock::None) {
+                _status.screenArmRefusals++;
+                _status.lastScreenArmRefusal = output.screenArmRefused;
+            }
         }
 
         // Even pace; after a long stall (the computer slept) the count starts again instead of catching up
