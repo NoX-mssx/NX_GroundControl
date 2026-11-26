@@ -20,4 +20,5 @@ private slots:
     void _settingsTest();
     void _screenArmTest();
     void _screenArmWithoutSwitchTest();
+    void _controlsChangeTest();
 };

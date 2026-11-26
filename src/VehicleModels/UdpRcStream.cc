@@ -216,6 +216,25 @@ std::array<quint16, UdpRcSettings::kChannels> UdpRcLogic::neutralDisarmed() cons
     return _build(0.0, 0.0, false, armGuard);
 }
 
+void UdpRcLogic::setSettings(const UdpRcSettings& settings)
+{
+    const bool controlsChanged =
+        (settings.throttleAxis != _settings.throttleAxis) || (settings.steerAxis != _settings.steerAxis) ||
+        (settings.invertThrottle != _settings.invertThrottle) || (settings.invertSteer != _settings.invertSteer) ||
+        (settings.throttleChannel != _settings.throttleChannel) || (settings.steerChannel != _settings.steerChannel) ||
+        (settings.armAxis != _settings.armAxis) || (settings.armThreshold != _settings.armThreshold) ||
+        (settings.armChannel != _settings.armChannel);
+    _settings = settings;
+    if (controlsChanged) {
+        _throttleOk = false;
+        _switchArmed = false;
+        _screenArmed = false;
+        _switchWasOn = false;
+        _armReady = false;
+        _armed = false;
+    }
+}
+
 UdpRcLogic::Output UdpRcLogic::step(const Input& input, double nowSeconds, double throttleScale)
 {
     Output output;

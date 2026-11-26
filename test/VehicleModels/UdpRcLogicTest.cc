@@ -308,4 +308,39 @@ void UdpRcLogicTest::_screenArmWithoutSwitchTest()
     QCOMPARE(output.channels[7], quint16(173));
 }
 
+void UdpRcLogicTest::_controlsChangeTest()
+{
+    UdpRcLogic logic;
+    double now = 0;
+    (void) runFrames(logic, joystick(1, 0, 0, -1), now, 5);
+    (void) runFrames(logic, joystick(1, 0, 0, 1.0), now, 5);
+    UdpRcLogic::Output output = runFrames(logic, joystick(1, 0.9, 0, 1.0), now, 50);
+    QVERIFY(output.armed);
+    QVERIFY(output.channels[0] > 1150);
+
+    // Throttle moved to axis 2 while driving, which shows 0.9 too: disarm and neutral
+    UdpRcSettings settings = logic.settings();
+    settings.throttleAxis = 2;
+    logic.setSettings(settings);
+    Input input = joystick(1, 0.9, 0, 1.0);
+    input.axes[2] = 0.9;
+    output = runFrames(logic, input, now, 20);
+    QVERIFY(!output.armed);
+    QCOMPARE(output.channels[0], quint16(992));
+    QVERIFY(!output.throttleCentered);
+
+    // A new limit alone changes nothing else
+    input.axes[2] = 0;
+    (void) runFrames(logic, input, now, 5);
+    input.axes[6] = -1.0;
+    (void) runFrames(logic, input, now, 2);
+    input.axes[6] = 1.0;
+    output = runFrames(logic, input, now, 2);
+    QVERIFY(output.armed);
+    settings.throttleLimit = 0.5;
+    logic.setSettings(settings);
+    output = runFrames(logic, input, now, 2);
+    QVERIFY(output.armed);
+}
+
 UT_REGISTER_TEST_LIGHTWEIGHT(UdpRcLogicTest, TestLabel::Unit, TestLabel::Joystick)

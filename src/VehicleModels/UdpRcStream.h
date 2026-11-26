@@ -97,7 +97,9 @@ public:
 
     explicit UdpRcLogic(const UdpRcSettings& settings = UdpRcSettings());
 
-    void setSettings(const UdpRcSettings& settings) { _settings = settings; }
+    /// Other axes, inversions, channels or arm switch: neutral until the throttle is centred again, and disarm
+    /// until the switch has been off, so the vehicle does not move or arm on what the new controls happen to show
+    void setSettings(const UdpRcSettings& settings);
 
     const UdpRcSettings& settings() const { return _settings; }
 
