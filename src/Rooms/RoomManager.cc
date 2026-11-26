@@ -1807,9 +1807,9 @@ QJsonObject RoomManager::_packBundle(LinkConfiguration *config, QString *error) 
         }
     }
 
+    // A link without a tunnel goes to the operators as it is: they reach the vehicle directly
     if (config->wireGuardProfile().isEmpty()) {
-        *error = tr("Link \"%1\" has no WireGuard tunnel, so operators cannot reach the vehicle. Choose a tunnel for it.").arg(config->name());
-        return QJsonObject();
+        return bundle;
     }
     const QVariantMap profile = WireGuardTunnel::profileSettings(config->wireGuardProfile(), config->room());
     if (profile.isEmpty()) {
