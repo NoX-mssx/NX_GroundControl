@@ -15,6 +15,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QCryptographicHash>
 #include <QtCore/QDate>
+#include <QtCore/QDateTime>
 #include <QtCore/QDirIterator>
 #include <QtCore/QEventLoop>
 #include <QtCore/QFile>
@@ -597,6 +598,17 @@ void RoomManager::_whenFinished(QNetworkReply *reply, const Done &done)
             json = QJsonObject{{QStringLiteral("error"), QStringLiteral("network")}, {QStringLiteral("message"), reply->errorString()}};
         } else {
             json = QJsonDocument::fromJson(reply->readAll()).object();
+            // The hub's clock, so times it gives can be compared with it rather than with this computer's clock.
+            // HTTP writes the zone as "GMT", which Qt's RFC 2822 reading does not take everywhere: "+0000" it does.
+            QString date = QString::fromLatin1(reply->rawHeader(QByteArrayLiteral("Date"))).trimmed();
+            if (date.endsWith(QLatin1String(" GMT"))) {
+                date.chop(3);
+                date.append(QLatin1String("+0000"));
+            }
+            const QDateTime serverTime = QDateTime::fromString(date, Qt::RFC2822Date);
+            if (serverTime.isValid()) {
+                json.insert(QLatin1String(kServerTimeKey), static_cast<double>(serverTime.toSecsSinceEpoch()));
+            }
         }
         qCDebug(RoomManagerLog) << reply->operation() << reply->url().path() << status << json.value(QLatin1String("error")).toString();
         done(status, json);
@@ -1075,7 +1087,7 @@ void RoomManager::_refreshCurrentRoom()
     const QString role = currentRole();
     if (_currentRoom.isEmpty() || role.isEmpty()) {
         _setBoards(QJsonArray());
-        _setMembers(QJsonArray());
+        _setMembers(QJsonObject());
         _setRequests(QJsonArray());
         _setRadio(0, QJsonObject());
         _setTable(0, QJsonObject());
@@ -1108,7 +1120,7 @@ void RoomManager::_refreshCurrentRoom()
     });
     _request(serverKey, QStringLiteral("GET"), roomPath + QStringLiteral("/members"), QJsonObject(), [this, roomKey](int status, const QJsonObject &reply) {
         if ((roomKey == _currentRoom) && (status == 200)) {
-            _setMembers(reply.value(QLatin1String("members")).toArray());
+            _setMembers(reply);
         }
     });
 }
@@ -1172,17 +1184,23 @@ void RoomManager::_setBoards(const QJsonArray &boards)
     }
 }
 
-void RoomManager::_setMembers(const QJsonArray &members)
+void RoomManager::_setMembers(const QJsonObject &reply)
 {
+    const QJsonArray members = reply.value(QLatin1String("members")).toArray();
+    const double serverNow = reply.contains(QLatin1String(kServerTimeKey))
+                                 ? reply.value(QLatin1String(kServerTimeKey)).toDouble()
+                                 : static_cast<double>(QDateTime::currentSecsSinceEpoch());
     QVariantList list;
     for (const QJsonValue &value : members) {
         const QJsonObject member = value.toObject();
+        const double lastSeen = member.value(QLatin1String("last_seen")).toDouble();
         list.append(QVariantMap{
             {QStringLiteral("deviceId"), member.value(QLatin1String("device_id")).toString()},
             {QStringLiteral("name"), member.value(QLatin1String("name")).toString()},
             {QStringLiteral("role"), member.value(QLatin1String("role")).toString()},
             {QStringLiteral("enabled"), member.value(QLatin1String("enabled")).toBool()},
-            {QStringLiteral("lastSeen"), member.value(QLatin1String("last_seen")).toDouble()},
+            {QStringLiteral("lastSeen"), lastSeen},
+            {QStringLiteral("online"), (lastSeen > 0) && ((serverNow - lastSeen) <= kOnlineSeconds)},
             {QStringLiteral("deviceCode"), member.value(QLatin1String("device_code")).toString()},
             {QStringLiteral("boards"), member.value(QLatin1String("boards")).toArray().toVariantList()},
             {QStringLiteral("activeBoard"), member.value(QLatin1String("active_board")).toString()},
@@ -1233,7 +1251,7 @@ void RoomManager::_roomRequest(const QString &method, const QString &subPath, co
             return;
         }
         if (reply.contains(QLatin1String("members"))) {
-            _setMembers(reply.value(QLatin1String("members")).toArray());
+            _setMembers(reply);
         }
         if (reply.contains(QLatin1String("requests"))) {
             _setRequests(reply.value(QLatin1String("requests")).toArray());

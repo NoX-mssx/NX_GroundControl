@@ -263,8 +263,10 @@ Rectangle {
                                             Layout.preferredWidth:  ScreenTools.defaultFontPixelHeight * 0.55
                                             Layout.preferredHeight: Layout.preferredWidth
                                             radius:                 width / 2
+                                            // Green: driving a vehicle. Orange: NX Rover running. Grey: not running. Red: access off.
                                             color:                  modelData.activeBoard !== "" ? qgcPal.colorGreen
-                                                                        : (modelData.enabled ? Qt.rgba(1, 1, 1, 0.3) : qgcPal.colorRed)
+                                                                        : (!modelData.enabled ? qgcPal.colorRed
+                                                                        : (modelData.online ? qgcPal.colorOrange : Qt.rgba(1, 1, 1, 0.3)))
                                         }
 
                                         Column {

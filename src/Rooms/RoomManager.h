@@ -285,7 +285,8 @@ private:
     /// Refreshes the current room shortly, once for a burst of changes
     void _scheduleRoomRefresh();
     void _setBoards(const QJsonArray &boards);
-    void _setMembers(const QJsonArray &members);
+    /// @p reply: the hub's answer holding "members", and its clock (kServerTimeKey) to tell who is online
+    void _setMembers(const QJsonObject &reply);
     void _setRequests(const QJsonArray &requests);
     void _rebuildRoomLinks();
     void _removeRoomLinks();
@@ -350,6 +351,11 @@ private:
     QString _lastError;
 
     static constexpr int kRefreshMs = 15000;
+    /// Every NX Rover with a hub asks it every kRefreshMs, which the hub notes as the device's last_seen: seen
+    /// within this many seconds (by the hub's clock), its NX Rover is running
+    static constexpr double kOnlineSeconds = 45.0;
+    /// Added to a hub answer: the hub's clock (its Date header), seconds since the epoch
+    static constexpr const char *kServerTimeKey = "nx_server_time";
     static constexpr int kRequestTimeoutMs = 15000;
     /// An upload waits for the server to convert the file after the last byte
     /// The server measures the loudness of a track and converts it after the upload, with nothing sent meanwhile
