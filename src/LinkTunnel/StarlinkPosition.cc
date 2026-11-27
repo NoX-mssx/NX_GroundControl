@@ -1,4 +1,5 @@
 #include "StarlinkPosition.h"
+#include "AdminWatch.h"
 #include "Fact.h"
 #include "FactGroup.h"
 #include "FlyViewSettings.h"
@@ -201,6 +202,8 @@ StarlinkPosition::StarlinkPosition(QObject *parent)
 
     (void) connect(MultiVehicleManager::instance(), &MultiVehicleManager::activeVehicleChanged,
                    this, &StarlinkPosition::_activeVehicleChanged);
+    (void) connect(AdminWatch::instance(), &AdminWatch::watchedConfigChanged, this,
+                   &StarlinkPosition::_watchedConfigChanged);
     _activeVehicleChanged(MultiVehicleManager::instance()->activeVehicle());
 }
 
@@ -366,8 +369,26 @@ void StarlinkPosition::_activeVehicleChanged(Vehicle *vehicle)
     if (_vehicle) {
         (void) connect(_vehicle->vehicleLinkManager(), &VehicleLinkManager::primaryLinkChanged,
                        this, &StarlinkPosition::_updateAddress);
+    }
+    _watchConfig = _vehicle ? nullptr : AdminWatch::watchedConfig();
+    if (_vehicle || _watchConfig) {
         _timer.start();
     } else {
+        _timer.stop();
+    }
+    _updateAddress();
+}
+
+void StarlinkPosition::_watchedConfigChanged()
+{
+    LinkConfiguration *const config = _vehicle ? nullptr : AdminWatch::watchedConfig();
+    if (config == _watchConfig) {
+        return;
+    }
+    _watchConfig = config;
+    if (_watchConfig) {
+        _timer.start();
+    } else if (!_vehicle) {
         _timer.stop();
     }
     _updateAddress();
@@ -379,6 +400,8 @@ void StarlinkPosition::_updateAddress()
     if (_vehicle) {
         const SharedLinkInterfacePtr link = _vehicle->vehicleLinkManager()->primaryLink().lock();
         url = dishUrl(link ? link->linkConfiguration().get() : nullptr, kDefaultPort);
+    } else if (_watchConfig) {
+        url = dishUrl(_watchConfig.data(), kDefaultPort);
     }
     if (url != _url) {
         _url = url;
@@ -412,7 +435,7 @@ bool StarlinkPosition::_roverHasFix() const
 void StarlinkPosition::_tick()
 {
     // Rover alone needs nothing from the dish; Auto keeps asking so the position is there when the GPS drops
-    if (_vehicle && (_source() != Rover)) {
+    if ((_vehicle && (_source() != Rover)) || (!_vehicle && _watchConfig)) {
         _poll();
     } else {
         _setError(QString());
@@ -541,9 +564,17 @@ void StarlinkPosition::_update()
         _autoOnDish = false;
     }
 
-    const bool wantDish = _vehicle && ((source == Starlink) || ((source == Auto) && _autoOnDish));
+    // The admin view has no vehicle and no GPS of its own: always the dish
+    const bool watching = !_vehicle && _watchConfig;
+    const bool wantDish = watching || (_vehicle && ((source == Starlink) || ((source == Auto) && _autoOnDish)));
     const bool fresh = starlinkFresh();
     const bool useDish = wantDish && fresh;
+
+    const QGeoCoordinate watchCoordinate = (watching && useDish) ? _fix : QGeoCoordinate();
+    if (watchCoordinate != _watchCoordinate) {
+        _watchCoordinate = watchCoordinate;
+        emit watchCoordinateChanged();
+    }
 
     if (_vehicle) {
         if (useDish) {

@@ -8061,6 +8061,21 @@ VTOL</translation>
     <name>FlyViewToolBar</name>
     <message>
       <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
+      <source>Admin: %1, tunnel coming up…</source>
+      <translation>Админ: %1, туннель поднимается…</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
+      <source>Admin: %1</source>
+      <translation>Админ: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
+      <source>Leave</source>
+      <translation>Выйти</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
       <source>HotRC</source>
       <translation>HotRC</translation>
     </message>
@@ -14672,6 +14687,11 @@ Do you wish to proceed?</source>
   </context>
   <context>
     <name>NxLinksSettings</name>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="1" />
+      <source>Admin Tunnel</source>
+      <translation>Админ туннель</translation>
+    </message>
     <message>
       <location filename="../src/AppSettings/NxLinksSettings.qml" line="1" />
       <source>Starlink address</source>
@@ -25472,6 +25492,11 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <name>AccessSettings</name>
     <message>
       <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
+      <source>Admin view</source>
+      <translation>Админ</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/AccessSettings.qml" line="1" />
       <source>Table</source>
       <translation>Таблица</translation>
     </message>
@@ -26975,6 +27000,49 @@ Send this file together with the AppLog.log file from the Logs folder.</source>
       <location filename="../src/VehicleModels/UdpRcStream.cc" line="1" />
       <source>dead zone, limits, slew or arm threshold out of range</source>
       <translation>мёртвая зона, пределы, нарастание или порог арма вне допустимых значений</translation>
+    </message>
+  </context>
+  <context>
+    <name>AdminWatch</name>
+    <message>
+      <location filename="../src/Rooms/AdminWatch.cc" line="1" />
+      <source>This vehicle is not among your links of this room.</source>
+      <translation>Этого борта нет среди ваших линков этой комнаты.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/AdminWatch.cc" line="1" />
+      <source>Link "%1" has no admin tunnel. Choose one in the link's settings (Rover → Links).</source>
+      <translation>У линка «%1» не выбран админский туннель. Выберите его в настройках линка (Ровер → Линки).</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/AdminWatch.cc" line="1" />
+      <source>The admin tunnel "%1" of link "%2" was not found.</source>
+      <translation>Админский туннель «%1» линка «%2» не найден.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/AdminWatch.cc" line="1" />
+      <source>Disconnect from your own vehicle first: the admin view shows one vehicle without its telemetry.</source>
+      <translation>Сначала отключитесь от своего борта: режим админа показывает один борт без его телеметрии.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/AdminWatch.cc" line="1" />
+      <source>The admin tunnel is still coming up or going down. Try again in a moment.</source>
+      <translation>Админский туннель ещё поднимается или закрывается. Попробуйте через несколько секунд.</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/AdminWatch.cc" line="1" />
+      <source>Admin %1: %2</source>
+      <translation>Админ %1: %2</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/AdminWatch.cc" line="1" />
+      <source>the link was removed</source>
+      <translation>линк удалён</translation>
+    </message>
+    <message>
+      <location filename="../src/Rooms/AdminWatch.cc" line="1" />
+      <source>Admin view of %1 closed: a vehicle connected</source>
+      <translation>Режим админа для %1 закрыт: подключился борт</translation>
     </message>
   </context>
 </TS>

@@ -31,6 +31,9 @@ class LinkConfiguration : public QObject
     /// Name of the WireGuard tunnel profile (see WireGuardTunnel) started before this link connects and
     /// stopped when it disconnects, empty for none
     Q_PROPERTY(QString          wireGuardProfile    MEMBER _wireGuardProfile    NOTIFY tunnelSettingsChanged)
+    /// Admin side: the admin's own WireGuard tunnel to this vehicle, for watching it (AdminWatch) while an operator
+    /// drives it. Never published to the room.
+    Q_PROPERTY(QString          adminWireGuardProfile   MEMBER _adminWireGuardProfile   NOTIFY tunnelSettingsChanged)
     /// Operator-facing board number of the vehicle behind this link (free text), shown next to the link name
     Q_PROPERTY(QString          boardId             MEMBER _boardId             NOTIFY tunnelSettingsChanged)
     /// Whether the link is offered in the connect menu of the fly view
@@ -88,6 +91,7 @@ public:
     void setVehicleModel(const QString &vehicleModel);
 
     QString wireGuardProfile() const { return _wireGuardProfile; }
+    QString adminWireGuardProfile() const { return _adminWireGuardProfile; }
     QString pingAddress() const { return _pingAddress; }
     QString starlinkAddress() const { return _starlinkAddress; }
     void setStarlinkAddress(const QString &address)
@@ -234,6 +238,7 @@ private:
     bool _highLatency = false;
     QString _vehicleModel;
     QString _wireGuardProfile;
+    QString _adminWireGuardProfile;
     QString _pingAddress;
     QString _starlinkAddress;
     QString _boardId;

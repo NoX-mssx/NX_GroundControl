@@ -124,7 +124,8 @@ Item {
         radius:             height / 2
         color:              _root._glassColor
         border.color:       _root._glassBorder
-        visible:            modelButtonRepeater.count > 0
+        // The buttons act on the vehicle over MAVLink: none in the admin view (AdminWatch), which has no link to it
+        visible:            modelButtonRepeater.count > 0 && _root._activeVehicle !== null
 
         RowLayout {
             id:                 modelButtonLayout
@@ -400,7 +401,8 @@ Item {
         anchors.horizontalCenter:   parent.horizontalCenter
         anchors.bottom:             parent.bottom
         spacing:                    ScreenTools.defaultFontPixelHeight / 3
-        visible:                    _root._activeVehicle !== null
+        // The admin view shows the watched vehicle's speed from its Starlink dish
+        visible:                    _root._activeVehicle !== null || AdminWatch.active
 
         Rectangle {
             anchors.horizontalCenter:   parent.horizontalCenter
@@ -448,7 +450,7 @@ Item {
                 }
                 return _root._activeVehicle ? _root._activeVehicle.groundSpeed.value : 0
             }
-            readonly property int _speed: _root._activeVehicle ?
+            readonly property int _speed: (_root._activeVehicle || AdminWatch.active) ?
                                               Math.min(999, Math.max(0, Math.round(_speedValue))) : -1
 
             TextMetrics {
@@ -474,7 +476,8 @@ Item {
                 QGCLabel {
                     id:                     speedUnits
                     anchors.verticalCenter: parent.verticalCenter
-                    text:                   _root._activeVehicle ? _root._activeVehicle.groundSpeed.units : ""
+                    text:                   _root._activeVehicle ? _root._activeVehicle.groundSpeed.units
+                                                                 : QGroundControl.unitsConversion.appSettingsSpeedUnitsString
                     color:                  qgcPal.colorGrey
                 }
             }
@@ -1015,6 +1018,12 @@ Item {
         Connections {
             target: StarlinkPosition
             function onProblem(message) { mainWindow.addVehicleNotice(qsTr("Starlink GPS: %1").arg(message), 1, false) }
+        }
+
+        // Admin view: the admin tunnel did not come up, or a vehicle of this computer closed the view
+        Connections {
+            target: AdminWatch
+            function onProblem(text, level) { mainWindow.addVehicleNotice(text, level, false) }
         }
 
         // UDP RC stream: joystick lost, throttle not centred, arm not taken, frames not going out, stream stopped

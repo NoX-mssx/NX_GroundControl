@@ -32,7 +32,8 @@ Item {
     readonly property int level: Math.max(alerts.reduce(function(worst, alert) { return Math.max(worst, alert.level) }, 0),
                                           activeNotices.reduce(function(worst, notice) { return Math.max(worst, notice.level) }, 0))
 
-    property bool showIndicator: _activeVehicle && (alerts.length > 0 || activeNotices.length > 0)
+    // Also without a vehicle: the admin view, the RC stream and the room tell of their problems here too
+    property bool showIndicator: alerts.length > 0 || activeNotices.length > 0
 
     readonly property int _warningHoldMs:   30000
     readonly property int _criticalHoldMs:  60000

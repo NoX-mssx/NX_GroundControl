@@ -1,4 +1,5 @@
 #include "LinkQualityMonitor.h"
+#include "AdminWatch.h"
 #include "IcmpPing.h"
 #include "LinkConfiguration.h"
 #include "LinkInterface.h"
@@ -33,6 +34,9 @@ LinkQualityMonitor::LinkQualityMonitor(QObject *parent)
 
     (void) connect(MultiVehicleManager::instance(), &MultiVehicleManager::activeVehicleChanged,
                    this, &LinkQualityMonitor::_activeVehicleChanged);
+    // The admin view pings the watched vehicle through the admin tunnel
+    (void) connect(AdminWatch::instance(), &AdminWatch::watchedConfigChanged, this,
+                   &LinkQualityMonitor::_updateConfiguration);
     _activeVehicleChanged(MultiVehicleManager::instance()->activeVehicle());
 }
 
@@ -73,6 +77,9 @@ void LinkQualityMonitor::_updateConfiguration()
             _throttlePercent1 = std::clamp(config->throttlePercent1(), 0, 100);
             _throttlePercent2 = std::clamp(config->throttlePercent2(), 0, _throttlePercent1);
         }
+    } else if (const LinkConfiguration *const watched = AdminWatch::watchedConfig()) {
+        // Admin view: the ping only, nothing to limit
+        pingAddress = watched->pingAddress().trimmed();
     }
 
     const bool changed = (pingAddress != _pingAddress) || (throttleLimitEnabled != _throttleLimitEnabled);

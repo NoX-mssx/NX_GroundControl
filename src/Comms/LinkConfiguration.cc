@@ -29,6 +29,7 @@ LinkConfiguration::LinkConfiguration(const LinkConfiguration *copy, QObject *par
     , _highLatency(copy->isHighLatency())
     , _vehicleModel(copy->vehicleModel())
     , _wireGuardProfile(copy->_wireGuardProfile)
+    , _adminWireGuardProfile(copy->_adminWireGuardProfile)
     , _pingAddress(copy->_pingAddress)
     , _starlinkAddress(copy->_starlinkAddress)
     , _boardId(copy->_boardId)
@@ -64,6 +65,7 @@ void LinkConfiguration::copyFrom(const LinkConfiguration *source)
     setVehicleModel(source->vehicleModel());
 
     _wireGuardProfile = source->_wireGuardProfile;
+    _adminWireGuardProfile = source->_adminWireGuardProfile;
     _pingAddress = source->_pingAddress;
     _starlinkAddress = source->_starlinkAddress;
     _boardId = source->_boardId;
@@ -82,6 +84,7 @@ void LinkConfiguration::copyFrom(const LinkConfiguration *source)
 void LinkConfiguration::loadTunnelSettings(const QSettings &settings, const QString &root)
 {
     _wireGuardProfile = settings.value(root + QStringLiteral("/wireguard_profile")).toString();
+    _adminWireGuardProfile = settings.value(root + QStringLiteral("/admin_wireguard_profile")).toString();
     _pingAddress = settings.value(root + QStringLiteral("/ping_address")).toString();
     _starlinkAddress = settings.value(root + QStringLiteral("/starlink_address")).toString();
     _boardId = settings.value(root + QStringLiteral("/board_id")).toString();
@@ -114,6 +117,7 @@ void LinkConfiguration::setTunnelSettings(const QString &wireGuardProfile, const
 void LinkConfiguration::saveTunnelSettings(QSettings &settings, const QString &root) const
 {
     settings.setValue(root + QStringLiteral("/wireguard_profile"), _wireGuardProfile);
+    settings.setValue(root + QStringLiteral("/admin_wireguard_profile"), _adminWireGuardProfile);
     settings.setValue(root + QStringLiteral("/ping_address"), _pingAddress);
     settings.setValue(root + QStringLiteral("/starlink_address"), _starlinkAddress);
     settings.setValue(root + QStringLiteral("/board_id"), _boardId);

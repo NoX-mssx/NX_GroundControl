@@ -30,7 +30,9 @@ FlightMap {
     property var    _planMasterController:      planMasterController
     property var    _geoFenceController:        planMasterController.geoFenceController
     property var    _rallyPointController:      planMasterController.rallyPointController
-    property var    _activeVehicleCoordinate:   _activeVehicle ? _activeVehicle.coordinate : QtPositioning.coordinate()
+    // NX admin view (AdminWatch): the watched vehicle, placed by its Starlink dish
+    property var    _activeVehicleCoordinate:   _activeVehicle ? _activeVehicle.coordinate
+                                                               : (AdminWatch.active ? StarlinkPosition.watchCoordinate : QtPositioning.coordinate())
     property real   _toolButtonTopMargin:       parent.height - mainWindow.height + (ScreenTools.defaultFontPixelHeight / 2)
     property real   _toolsMargin:               ScreenTools.defaultFontPixelWidth * 0.75
     property var    _flyViewSettings:           QGroundControl.settingsManager.flyViewSettings
@@ -256,6 +258,35 @@ FlightMap {
             function onPointAdded(coordinate) { trajectoryPolyline.addCoordinate(coordinate) }
             function onUpdateLastPoint(coordinate) { trajectoryPolyline.replaceCoordinate(trajectoryPolyline.pathLength() - 1, coordinate) }
             function onPointsCleared() { trajectoryPolyline.path = [] }
+        }
+    }
+
+    // NX admin view: the watched vehicle has no Vehicle here, only its dish's place
+    MapQuickItem {
+        visible:        !_activeVehicle && AdminWatch.active && StarlinkPosition.watchCoordinate.isValid
+        coordinate:     StarlinkPosition.watchCoordinate
+        anchorPoint.x:  watchMarker.width / 2
+        anchorPoint.y:  watchMarker.height / 2
+        z:              QGroundControl.zOrderVehicles
+
+        sourceItem: Rectangle {
+            id:             watchMarker
+            width:          pipMode ? ScreenTools.defaultFontPixelHeight : ScreenTools.defaultFontPixelHeight * 1.6
+            height:         width
+            radius:         width / 2
+            color:          "#DB6536"
+            border.color:   "white"
+            border.width:   2
+        }
+    }
+
+    // A new admin view centres the map on its vehicle once the dish gives a place
+    Connections {
+        target: AdminWatch
+        function onWatchedConfigChanged() {
+            if (AdminWatch.active) {
+                firstVehiclePositionReceived = false
+            }
         }
     }
 

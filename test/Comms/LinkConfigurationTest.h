@@ -37,4 +37,7 @@ private slots:
     void _testUdpHostnameRoundtrip();
     void _testUdpRemoveByHostname();
     void _testUdpResolveHostsUpdatesAddress();
+
+    // NX tunnel settings
+    void _testAdminTunnelRoundtrip();
 };

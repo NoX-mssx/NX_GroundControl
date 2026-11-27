@@ -454,4 +454,32 @@ void LinkConfigurationTest::_testUdpResolveHostsUpdatesAddress()
     QVERIFY(resolved.isLoopback());
 }
 
+void LinkConfigurationTest::_testAdminTunnelRoundtrip()
+{
+    TestFixtures::TempDirFixture tmpDir;
+    QVERIFY(tmpDir.isValid());
+    QSettings settings(tmpDir.path() + QStringLiteral("/settings.ini"), QSettings::IniFormat);
+    const QString root = QStringLiteral("LinkConfigTest_Tunnels");
+
+    {
+        UDPConfiguration config(QStringLiteral("TunnelSave"));
+        config.setTunnelSettings(QStringLiteral("operator"), QStringLiteral("10.0.0.1"), QString(), false, 300, 50,
+                                 600, 20);
+        QVERIFY(config.setProperty("adminWireGuardProfile", QStringLiteral("admin")));
+        config.saveTunnelSettings(settings, root);
+    }
+
+    UDPConfiguration loaded(QStringLiteral("TunnelLoad"));
+    loaded.loadTunnelSettings(settings, root);
+    QCOMPARE(loaded.wireGuardProfile(), QStringLiteral("operator"));
+    QCOMPARE(loaded.adminWireGuardProfile(), QStringLiteral("admin"));
+
+    // The link editor works on a copy and copies it back
+    const UDPConfiguration copy(&loaded);
+    QCOMPARE(copy.adminWireGuardProfile(), QStringLiteral("admin"));
+    UDPConfiguration target(QStringLiteral("TunnelTarget"));
+    target.copyFrom(&loaded);
+    QCOMPARE(target.adminWireGuardProfile(), QStringLiteral("admin"));
+}
+
 UT_REGISTER_TEST(LinkConfigurationTest, TestLabel::Unit, TestLabel::Comms)

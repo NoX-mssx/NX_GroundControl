@@ -138,6 +138,41 @@ Item {
         }
     }
 
+    // ---- Centre, admin view (AdminWatch): which vehicle is watched, and the way out ----
+    Rectangle {
+        anchors.centerIn:       parent
+        height:                 control.height * 0.72
+        width:                  adminRow.implicitWidth + control._margins
+        radius:                 height / 2
+        color:                  control._pillColor
+        visible:                !control._activeVehicle && (AdminWatch.active || AdminWatch.starting)
+
+        RowLayout {
+            id:                 adminRow
+            anchors.centerIn:   parent
+            height:             parent.height - control._margins
+            spacing:            control._margins / 2
+
+            QGCLabel {
+                Layout.leftMargin:  control._margins / 2
+                text:               AdminWatch.starting ? qsTr("Admin: %1, tunnel coming up…").arg(AdminWatch.linkName)
+                                                        : qsTr("Admin: %1").arg(AdminWatch.linkName)
+                font.weight:        Font.ExtraBold
+                color:              control._accent
+            }
+
+            QGCButton {
+                Layout.fillHeight:  true
+                text:               qsTr("Leave")
+                fontWeight:         Font.ExtraBold
+                showBorder:         false
+                backgroundColor:    "transparent"
+                textColor:          qgcPal.text
+                onClicked:          AdminWatch.stop()
+            }
+        }
+    }
+
     // ---- Centre: arm and drive mode, or a pending guided action ----
     Rectangle {
         id:                     modePill
@@ -288,7 +323,8 @@ Item {
                 "qrc:/qml/QGroundControl/Toolbar/VehicleAlertIndicator.qml"
             ] : [
                 "qrc:/qml/QGroundControl/Toolbar/LinkQualityIndicator.qml",
-                "qrc:/qml/QGroundControl/Toolbar/RcStreamIndicator.qml"
+                "qrc:/qml/QGroundControl/Toolbar/RcStreamIndicator.qml",
+                "qrc:/qml/QGroundControl/Toolbar/VehicleAlertIndicator.qml"
             ]
 
             Loader {

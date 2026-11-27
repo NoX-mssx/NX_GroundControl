@@ -11,6 +11,7 @@
 #include <QtQmlIntegration/QtQmlIntegration>
 
 class Fact;
+class LinkConfiguration;
 class QNetworkAccessManager;
 class QNetworkReply;
 class Vehicle;
@@ -42,6 +43,8 @@ class StarlinkPosition : public QObject
     Q_PROPERTY(bool     speedFromDish   READ speedFromDish  NOTIFY speedChanged)
     /// Speed over the ground from the dish's positions, m/s; 0 while the dish gives none
     Q_PROPERTY(double   dishSpeed       READ dishSpeed      NOTIFY speedChanged)
+    /// Admin view (AdminWatch): the watched vehicle's place from its dish, invalid without a fresh one
+    Q_PROPERTY(QGeoCoordinate watchCoordinate READ watchCoordinate NOTIFY watchCoordinateChanged)
 
 public:
     enum Source { Rover = 0, Starlink = 1, Auto = 2 };
@@ -55,6 +58,7 @@ public:
     QString dishAddress() const;
     bool speedFromDish() const { return _speedFromDish; }
     double dishSpeed() const { return _dishSpeed; }
+    QGeoCoordinate watchCoordinate() const { return _watchCoordinate; }
 
     /// A position of the dish and when it was taken (ms of a steady clock)
     struct TrackPoint
@@ -81,11 +85,14 @@ public:
 signals:
     void stateChanged();
     void speedChanged();
+    void watchCoordinateChanged();
     /// The chosen source needs the dish, and the dish gives no position; for the "!" of the drive screen
     void problem(const QString &message);
 
 private slots:
     void _activeVehicleChanged(Vehicle *vehicle);
+    /// The admin view's link (AdminWatch::watchedConfig) changed: its dish is asked while no vehicle is active
+    void _watchedConfigChanged();
     void _updateAddress();
     void _tick();
 
@@ -99,6 +106,8 @@ private:
 
     QNetworkAccessManager *_network = nullptr;
     QPointer<Vehicle> _vehicle;
+    QPointer<LinkConfiguration> _watchConfig;   ///< Admin view: the watched link, while no vehicle is active
+    QGeoCoordinate _watchCoordinate;
     Fact *_sourceFact = nullptr;
     QTimer _timer;
     QElapsedTimer _clock;

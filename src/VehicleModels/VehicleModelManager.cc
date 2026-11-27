@@ -1,4 +1,5 @@
 #include "VehicleModelManager.h"
+#include "AdminWatch.h"
 #include "Joystick.h"
 #include "JoystickManager.h"
 #include "LinkConfiguration.h"
@@ -340,6 +341,9 @@ VehicleModelManager::VehicleModelManager(QObject *parent)
 
     (void) connect(MultiVehicleManager::instance(), &MultiVehicleManager::activeVehicleChanged,
                    this, &VehicleModelManager::_activeVehicleChanged);
+    // The admin view shows the cameras of the watched vehicle's model
+    (void) connect(AdminWatch::instance(), &AdminWatch::watchedConfigChanged, this,
+                   &VehicleModelManager::_updateActiveModel);
     // Joystick buttons can be assigned to the model buttons and to the HD / SD switch
     (void) connect(JoystickManager::instance(), &JoystickManager::activeJoystickChanged,
                    this, &VehicleModelManager::_activeJoystickChanged);
@@ -387,6 +391,8 @@ void VehicleModelManager::_updateActiveModel()
         if (link && link->linkConfiguration()) {
             activeModel = modelForLink(link->linkConfiguration()->vehicleModel(), link->linkConfiguration()->room());
         }
+    } else if (const LinkConfiguration *const watched = AdminWatch::watchedConfig()) {
+        activeModel = modelForLink(watched->vehicleModel(), watched->room());
     }
 
     if (activeModel == _activeModel) {

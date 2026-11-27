@@ -1,5 +1,7 @@
 target_sources(${CMAKE_PROJECT_NAME}
     PRIVATE
+        AdminWatch.cc
+        AdminWatch.h
         AppUpdater.cc
         AppUpdater.h
         RoomManager.cc

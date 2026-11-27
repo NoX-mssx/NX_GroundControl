@@ -1087,6 +1087,21 @@ Rectangle {
                     visible:    _member && !_member.isMe
                     onClicked:  videoDialogFactory.open({ member: _member })
                 }
+                // The operator is driving: watch his vehicle's cameras, Starlink position and ping through the
+                // admin tunnel of its link, without taking the vehicle from him
+                QGCButton {
+                    text:       qsTr("Admin view")
+                    visible:    _member && !_member.isMe && _member.activeBoard !== ""
+                    enabled:    !AdminWatch.starting
+                    onClicked: {
+                        const error = AdminWatch.start(_member.activeBoard)
+                        if (error !== "") {
+                            QGroundControl.showMessageDialog(root, qsTr("Admin"), error)
+                        } else {
+                            mainWindow.showFlyView()
+                        }
+                    }
+                }
                 QGCButton {
                     text:       qsTr("Give a vehicle")
                     primary:    true

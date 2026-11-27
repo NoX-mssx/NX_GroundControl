@@ -93,6 +93,9 @@ Rectangle {
             if (editingConfig.wireGuardProfile !== "") {
                 WireGuardTunnel.copyProfileToRoom(editingConfig.wireGuardProfile, _room, _editRoom)
             }
+            if (editingConfig.adminWireGuardProfile !== "") {
+                WireGuardTunnel.copyProfileToRoom(editingConfig.adminWireGuardProfile, _room, _editRoom)
+            }
         }
         if (originalConfig) {
             _linkManager.endConfigurationEditing(originalConfig, editingConfig)
@@ -454,6 +457,16 @@ Rectangle {
                         // Index 0 is "None"; a tunnel deleted since the link was saved also falls back to it.
                         Component.onCompleted: currentIndex = WireGuardTunnel.profileNames.indexOf(root.editingConfig.wireGuardProfile) + 1
                         onActivated: (index) => root.editingConfig.wireGuardProfile = index > 0 ? WireGuardTunnel.profileNames[index - 1] : ""
+                    }
+
+                    // The admin's own tunnel to this vehicle: Access → an operator driving it → "Admin" watches its
+                    // cameras, Starlink position and ping through it, without taking the vehicle. Never sent to operators.
+                    LabelledComboBox {
+                        label:      qsTr("Admin Tunnel")
+                        model:      [ qsTr("None") ].concat(WireGuardTunnel.profileNames)
+                        visible:    WireGuardTunnel.available && root._editRoom !== ""
+                        Component.onCompleted: currentIndex = WireGuardTunnel.profileNames.indexOf(root.editingConfig.adminWireGuardProfile) + 1
+                        onActivated: (index) => root.editingConfig.adminWireGuardProfile = index > 0 ? WireGuardTunnel.profileNames[index - 1] : ""
                     }
 
                     QGCCheckBoxSlider {

@@ -26,7 +26,9 @@ Map {
     property bool   pinchZoomDisabledByVirtualJoysticks: false ///< true: disable pinch-to-zoom while virtual joystick thumbs are down
 
     property var    _activeVehicle:             QGroundControl.multiVehicleManager.activeVehicle
-    property var    _activeVehicleCoordinate:   _activeVehicle ? _activeVehicle.coordinate : QtPositioning.coordinate()
+    // NX admin view (AdminWatch): the watched vehicle, placed by its Starlink dish
+    property var    _activeVehicleCoordinate:   _activeVehicle ? _activeVehicle.coordinate
+                                                               : (AdminWatch.active ? StarlinkPosition.watchCoordinate : QtPositioning.coordinate())
 
     function setVisibleRegion(region) {
         // This works around a bug on Qt where if you set a visibleRegion and then the user moves or zooms the map
