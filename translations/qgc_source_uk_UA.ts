@@ -8061,6 +8061,21 @@ VTOL</translation>
     <name>FlyViewToolBar</name>
     <message>
       <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
+      <source>centre sticks</source>
+      <translation>стіки в центр</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
+      <source>HotRC drives. Click to take the vehicle back to the TX12</source>
+      <translation>Керує HotRC. Натисніть, щоб повернути борт на TX12</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
+      <source>The TX12 drives. Click to hand the vehicle to HotRC</source>
+      <translation>Керує TX12. Натисніть, щоб віддати борт HotRC</translation>
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
       <source>Admin: %1, tunnel coming up…</source>
       <translation>Адмін: %1, тунель піднімається…</translation>
     </message>

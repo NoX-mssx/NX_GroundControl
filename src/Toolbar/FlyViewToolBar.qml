@@ -274,22 +274,29 @@ Item {
                 color:                  Qt.rgba(1, 1, 1, 0.12)
             }
 
-            // Who drives: the TX12 over the link, or the local HotRC remote on the flight controller's SBUS.
-            // Back to the TX12 waits for its sticks to be centred; a click meanwhile stays with HotRC.
+            // Who drives: the TX12 over the link (a joystick icon), or the local HotRC remote on the flight controller's
+            // SBUS. Back to the TX12 waits for its sticks to be centred; a click meanwhile stays with HotRC.
             QGCButton {
+                id:                                 rcSwitch
                 readonly property bool _local:      control._activeVehicle ? control._activeVehicle.localRcControl : false
                 readonly property bool _resuming:   control._activeVehicle ? control._activeVehicle.localRcResuming : false
 
                 visible:                control._localRcOffered
                 Layout.fillHeight:      true
                 Layout.preferredWidth:  Math.max(control._switchWidth(rcTitles), implicitWidth)
-                text:                   _local ? qsTr("HotRC") : (_resuming ? qsTr("TX12: centre sticks") : qsTr("TX12"))
+                text:                   _local ? qsTr("HotRC") : (_resuming ? qsTr("centre sticks") : "")
+                iconSource:             _local ? "" : "/qmlimages/Joystick.png"
                 fontWeight:             Font.ExtraBold
                 showBorder:             false
                 checkable:              false
                 backgroundColor:        _local ? control._accent : "transparent"
                 textColor:              _local ? control._accentText : (_resuming ? qgcPal.colorOrange : qgcPal.text)
                 onClicked:              control._activeVehicle.localRcControl = !_local
+
+                ToolTip.visible:        hovered
+                ToolTip.delay:          500
+                ToolTip.text:           _local ? qsTr("HotRC drives. Click to take the vehicle back to the TX12")
+                                               : qsTr("The TX12 drives. Click to hand the vehicle to HotRC")
             }
         }
     }

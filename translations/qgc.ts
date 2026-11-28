@@ -8035,6 +8035,21 @@ VTOL</source>
     <name>FlyViewToolBar</name>
     <message>
       <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
+      <source>centre sticks</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
+      <source>HotRC drives. Click to take the vehicle back to the TX12</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
+      <source>The TX12 drives. Click to hand the vehicle to HotRC</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/Toolbar/FlyViewToolBar.qml" line="1" />
       <source>Admin: %1, tunnel coming up…</source>
       <translation type="unfinished" />
     </message>
