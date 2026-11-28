@@ -1,11 +1,13 @@
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Layouts
 
 import QGroundControl
 import QGroundControl.Controls
 
 /// Editor for WireGuard tunnel profiles. A profile is a named tunnel that links can select; saving one
-/// registers it with Windows, which asks for administrator rights.
+/// registers it with Windows, which asks for administrator rights. As in WireGuard for Windows, a tunnel is edited
+/// as its .conf text: pasted whole, or typed.
 Rectangle {
     id:             root
     objectName:     "settingsPage_WireGuard"
@@ -23,19 +25,29 @@ Rectangle {
     property var    _edit:          ({})
     property string _publicKey:     ""
     property string _message:       ""
+    /// The text as read: { settings, missing, ignored } (WireGuardTunnel.parseConfText)
+    property var    _parsed:        ({ settings: {}, missing: [], ignored: [] })
+    property string _keyOfPublicKey: ""
 
     function _setValue(key, value) {
         let updated = Object.assign({}, _edit)
         updated[key] = value
         _edit = updated
-        if (key === "privateKey") {
-            _publicKey = WireGuardTunnel.publicKey(value)
-        }
     }
 
     function _load(profile) {
         _edit = Object.assign({}, profile)
-        _publicKey = WireGuardTunnel.publicKey(_edit.privateKey ?? "")
+        confArea.text = WireGuardTunnel.confText(profile)
+    }
+
+    function _textEdited(text) {
+        _parsed = WireGuardTunnel.parseConfText(text)
+        // The public key comes from the wg tool: only for a new private key, not on every key press
+        const privateKey = _parsed.settings.privateKey ?? ""
+        if (privateKey !== _keyOfPublicKey) {
+            _keyOfPublicKey = privateKey
+            _publicKey = privateKey === "" ? "" : WireGuardTunnel.publicKey(privateKey)
+        }
     }
 
     function _selectProfile(name) {
@@ -52,7 +64,12 @@ Rectangle {
     }
 
     function _save() {
-        _message = WireGuardTunnel.saveProfile(_originalName, _edit)
+        if (_parsed.missing.length > 0) {
+            _message = qsTr("The text lacks: %1.").arg(_parsed.missing.join(", "))
+            return
+        }
+        const profile = Object.assign({}, _parsed.settings, { name: _edit.name ?? "" })
+        _message = WireGuardTunnel.saveProfile(_originalName, profile)
         if (_message === "") {
             _selectProfile(_edit.name.trim())
             _message = qsTr("Saved. The tunnel is registered with Windows.")
@@ -94,16 +111,15 @@ Rectangle {
         rememberFolderKey:  "NxWireGuardFilesFolder"
         nameFilters:        [ qsTr("WireGuard Configuration (*.conf)"), qsTr("All Files (*)") ]
 
-        // Fills the fields from an existing tunnel file, keeping its key pair and the name typed so far.
+        // Puts the file's text in the editor, keeping the name typed so far
         onAcceptedForLoad: (file) => {
             close()
-            let imported = WireGuardTunnel.settingsFromConfFile(file)
-            if (imported.privateKey === undefined) {
+            const text = WireGuardTunnel.readConfFile(file)
+            if (WireGuardTunnel.parseConfText(text).settings.privateKey === undefined) {
                 root._message = qsTr("The file is not a WireGuard configuration.")
                 return
             }
-            imported.name = root._edit.name ?? ""
-            root._load(imported)
+            confArea.text = text
             root._message = qsTr("Imported. Press Save to register the tunnel.")
         }
     }
@@ -285,7 +301,7 @@ Rectangle {
                 SettingsGroupLayout {
                     Layout.fillWidth:       true
                     heading:                qsTr("This PC")
-                    headingDescription:     qsTr("Add this public key as a peer on the server.")
+                    headingDescription:     qsTr("Add this public key as a peer on the server. It comes from the PrivateKey line below.")
 
                     RowLayout {
                         Layout.fillWidth:   true
@@ -294,6 +310,8 @@ Rectangle {
                         QGCTextField {
                             Layout.fillWidth:   true
                             text:               root._publicKey
+                            placeholderText:    (root._parsed.settings.privateKey ?? "") === "" ? qsTr("no PrivateKey in the text")
+                                                                                                 : qsTr("not a valid PrivateKey")
                             readOnly:           true
                         }
 
@@ -303,72 +321,58 @@ Rectangle {
                             onClicked:  QGroundControl.copyToClipboard(root._publicKey)
                         }
                     }
-
-                    Repeater {
-                        model: [
-                            { key: "address",   label: qsTr("Address"),     hint: "10.30.1.252/24" },
-                            { key: "dns",       label: qsTr("DNS"),         hint: qsTr("optional") },
-                            { key: "mtu",       label: qsTr("MTU"),         hint: qsTr("optional") }
-                        ]
-
-                        RowLayout {
-                            required property var modelData
-
-                            Layout.fillWidth:   true
-                            spacing:            ScreenTools.defaultFontPixelWidth
-
-                            QGCLabel {
-                                Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 22
-                                text:                   modelData.label
-                            }
-
-                            QGCTextField {
-                                Layout.fillWidth:   true
-                                text:               root._edit[modelData.key] ?? ""
-                                placeholderText:    modelData.hint
-                                onTextEdited:       root._setValue(modelData.key, text)
-                            }
-                        }
-                    }
                 }
 
-                SettingsGroupLayout {
-                    Layout.fillWidth:       true
-                    heading:                qsTr("Server")
+                ColumnLayout {
+                    Layout.fillWidth:   true
+                    spacing:            ScreenTools.defaultFontPixelHeight * 0.3
 
-                    Repeater {
-                        model: [
-                            { key: "peerPublicKey", label: qsTr("Public key"),              hint: "" },
-                            { key: "endpoint",      label: qsTr("Endpoint"),                hint: "203.0.113.5:51821" },
-                            { key: "allowedIps",    label: qsTr("Allowed IPs"),             hint: "10.30.1.0/24, 192.168.106.0/24" },
-                            { key: "keepalive",     label: qsTr("Persistent keepalive"),    hint: "25" },
-                            { key: "presharedKey",  label: qsTr("Preshared key"),           hint: qsTr("optional") }
-                        ]
-
-                        RowLayout {
-                            required property var modelData
-
-                            Layout.fillWidth:   true
-                            spacing:            ScreenTools.defaultFontPixelWidth
-
-                            QGCLabel {
-                                Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 22
-                                text:                   modelData.label
-                            }
-
-                            QGCTextField {
-                                Layout.fillWidth:   true
-                                text:               root._edit[modelData.key] ?? ""
-                                placeholderText:    modelData.hint
-                                onTextEdited:       root._setValue(modelData.key, text)
-                            }
-                        }
+                    QGCLabel {
+                        text:           qsTr("Configuration")
+                        color:          qgcPal.colorGrey
+                        font.weight:    Font.DemiBold
                     }
-                }
+                    QGCLabel {
+                        Layout.fillWidth:   true
+                        wrapMode:           Text.WordWrap
+                        color:              qgcPal.colorGrey
+                        font.pointSize:     ScreenTools.smallFontPointSize
+                        text:               qsTr("As in WireGuard: paste the whole tunnel text, or edit it here. [Interface]: PrivateKey, Address, DNS, MTU. [Peer]: PublicKey, PresharedKey, AllowedIPs, Endpoint, PersistentKeepalive.")
+                    }
 
-                QGCButton {
-                    text:       qsTr("New Key")
-                    onClicked:  root._setValue("privateKey", WireGuardTunnel.generatePrivateKey())
+                    // The whole tunnel as .conf text, as the WireGuard for Windows editor shows it
+                    TextArea {
+                        id:                     confArea
+                        Layout.fillWidth:       true
+                        Layout.preferredHeight: Math.max(ScreenTools.defaultFontPixelHeight * 16, contentHeight + topPadding + bottomPadding)
+                        wrapMode:               TextEdit.WrapAtWordBoundaryOrAnywhere
+                        selectByMouse:          true
+                        font.family:            ScreenTools.fixedFontFamily
+                        font.pointSize:         ScreenTools.defaultFontPointSize
+                        color:                  qgcPal.textFieldText
+                        placeholderText:        "[Interface]\nPrivateKey = …\nAddress = 10.30.1.252/24\n\n[Peer]\nPublicKey = …\nAllowedIPs = 10.30.1.0/24\nEndpoint = 203.0.113.5:51821\nPersistentKeepalive = 25"
+                        background: Rectangle {
+                            color:          qgcPal.textField
+                            radius:         ScreenTools.defaultFontPixelHeight * 0.3
+                            border.color:   root._parsed.missing.length > 0 ? qgcPal.colorOrange : Qt.rgba(1, 1, 1, 0.10)
+                        }
+                        onTextChanged: root._textEdited(text)
+                    }
+
+                    QGCLabel {
+                        Layout.fillWidth:   true
+                        wrapMode:           Text.WordWrap
+                        color:              qgcPal.colorOrange
+                        text:               qsTr("Missing: %1").arg(root._parsed.missing.join(", "))
+                        visible:            root._parsed.missing.length > 0 && confArea.text.trim() !== ""
+                    }
+                    QGCLabel {
+                        Layout.fillWidth:   true
+                        wrapMode:           Text.WordWrap
+                        color:              qgcPal.colorGrey
+                        text:               qsTr("Not kept: %1").arg(root._parsed.ignored.join("; "))
+                        visible:            root._parsed.ignored.length > 0
+                    }
                 }
             }
         }

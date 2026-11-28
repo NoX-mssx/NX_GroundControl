@@ -24023,6 +24023,46 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <name>WireGuardSettings</name>
     <message>
       <location filename="../src/AppSettings/WireGuardSettings.qml" line="1" />
+      <source>The text lacks: %1.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="1" />
+      <source>Add this public key as a peer on the server. It comes from the PrivateKey line below.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="1" />
+      <source>no PrivateKey in the text</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="1" />
+      <source>not a valid PrivateKey</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="1" />
+      <source>Configuration</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="1" />
+      <source>As in WireGuard: paste the whole tunnel text, or edit it here. [Interface]: PrivateKey, Address, DNS, MTU. [Peer]: PublicKey, PresharedKey, AllowedIPs, Endpoint, PersistentKeepalive.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="1" />
+      <source>Missing: %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="1" />
+      <source>Not kept: %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="1" />
       <source>Delete Tunnel</source>
       <translation type="unfinished" />
     </message>

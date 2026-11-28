@@ -87,6 +87,15 @@ public:
     /// @return the settings, or an empty map if the file has no [Interface] private key
     Q_INVOKABLE static QVariantMap settingsFromConfFile(const QString &confFilePath);
 
+    /// The text editor of a tunnel, as in WireGuard for Windows: the settings as .conf text
+    Q_INVOKABLE static QString confText(const QVariantMap &settings);
+    /// Reads .conf text as typed or pasted:
+    ///     { settings: {...as above}, missing: [keys it lacks, as in a .conf], ignored: [lines not kept] }
+    /// Kept are the keys in the settings above, of [Interface] and the first [Peer]; the rest is listed in ignored.
+    Q_INVOKABLE static QVariantMap parseConfText(const QString &text);
+    /// The text of a .conf file for the editor, empty when it cannot be read or is not a small text file
+    Q_INVOKABLE static QString readConfFile(const QString &confFilePath);
+
     /// @return a new private key, empty if WireGuard's wg tool could not be run
     Q_INVOKABLE static QString generatePrivateKey();
     /// @return the public key matching a private key, empty if it is not a valid key

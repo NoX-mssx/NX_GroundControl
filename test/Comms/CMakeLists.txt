@@ -19,6 +19,8 @@ target_sources(${CMAKE_PROJECT_NAME}
         QGCSerialPortInfoTest.h
         StarlinkPositionTest.cc
         StarlinkPositionTest.h
+        WireGuardConfTextTest.cc
+        WireGuardConfTextTest.h
 )
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -32,3 +34,4 @@ add_qgc_test(LogReplayLinkTest LABELS Unit Comms)
 add_qgc_test(MAVLinkV1TrafficTest LABELS Integration Comms)
 add_qgc_test(QGCSerialPortInfoTest LABELS Unit Comms)
 add_qgc_test(StarlinkPositionTest LABELS Unit Comms)
+add_qgc_test(WireGuardConfTextTest LABELS Unit Comms)
