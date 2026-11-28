@@ -274,7 +274,7 @@ Item {
                 color:                  Qt.rgba(1, 1, 1, 0.12)
             }
 
-            // Who drives: the TX12 over the link (a joystick icon), or the local HotRC remote on the flight controller's
+            // Who drives: the TX12 over the link (a transmitter icon), or the local HotRC remote on the flight controller's
             // SBUS. Back to the TX12 waits for its sticks to be centred; a click meanwhile stays with HotRC.
             QGCButton {
                 id:                                 rcSwitch
@@ -285,7 +285,7 @@ Item {
                 Layout.fillHeight:      true
                 Layout.preferredWidth:  Math.max(control._switchWidth(rcTitles), implicitWidth)
                 text:                   _local ? qsTr("HotRC") : (_resuming ? qsTr("centre sticks") : "")
-                iconSource:             _local ? "" : "/qmlimages/Joystick.png"
+                iconSource:             _local ? "" : "/qmlimages/RcTransmitter.svg"
                 fontWeight:             Font.ExtraBold
                 showBorder:             false
                 checkable:              false

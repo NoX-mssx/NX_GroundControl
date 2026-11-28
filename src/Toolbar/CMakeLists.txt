@@ -82,6 +82,7 @@ qt_add_resources(${CMAKE_PROJECT_NAME} toolbar_qmlimages
         "${CMAKE_SOURCE_DIR}/src/Toolbar/Images/Plan.svg"
         "${CMAKE_SOURCE_DIR}/src/Toolbar/Images/Quad.svg"
         "${CMAKE_SOURCE_DIR}/src/Toolbar/Images/RC.svg"
+        "${CMAKE_SOURCE_DIR}/src/Toolbar/Images/RcTransmitter.svg"
         "${CMAKE_SOURCE_DIR}/src/Toolbar/Images/RidEmergencyBackgroundHighlight.svg"
         "${CMAKE_SOURCE_DIR}/src/Toolbar/Images/RidEmergencyBackground.svg"
         "${CMAKE_SOURCE_DIR}/src/Toolbar/Images/RidFlagBackgroundGreen.svg"

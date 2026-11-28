@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72">
+    <!-- NX: an RC transmitter seen from the front (two sticks, a screen, switches and an antenna on top), in one
+         colour with see-through cut-outs, so it can be tinted -->
+    <path fill="#fff" fill-rule="evenodd" d="
+        M47.5 3 h4 a1.5 1.5 0 0 1 1.5 1.5 V22 h-7 V4.5 a1.5 1.5 0 0 1 1.5 -1.5 Z
+        M12 14 h5 v8 h-5 Z
+        M21 16.5 h5 v5.5 h-5 Z
+        M56 16.5 h5 v5.5 h-5 Z
+        M6 31 Q6 22 15 22 H57 Q66 22 66 31 V52 Q66 62 58 63 H52 Q46 63 43.5 57 H28.5 Q26 63 20 63 H14 Q6 62 6 52 Z
+        M11.5 41 a9.5 9.5 0 1 0 19 0 a9.5 9.5 0 1 0 -19 0 Z
+        M17 41 a4 4 0 1 0 8 0 a4 4 0 1 0 -8 0 Z
+        M41.5 41 a9.5 9.5 0 1 0 19 0 a9.5 9.5 0 1 0 -19 0 Z
+        M47 41 a4 4 0 1 0 8 0 a4 4 0 1 0 -8 0 Z
+        M30.5 27 h11 a1 1 0 0 1 1 1 v6 a1 1 0 0 1 -1 1 h-11 a1 1 0 0 1 -1 -1 v-6 a1 1 0 0 1 1 -1 Z
+        M33 46 a3 3 0 1 0 6 0 a3 3 0 1 0 -6 0 Z"/>
+</svg>
