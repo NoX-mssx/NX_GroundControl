@@ -104,10 +104,12 @@ Rectangle {
             _linkManager.endCreateConfiguration(editingConfig)
         }
         // The edited copy now belongs to the link manager.
+        const savedName = editingConfig.name
         editingConfig = null
         originalConfig = null
         editorLoader.active = false
         RoomManager.publishRoomLinks()
+        savedToast.show(qsTr("Link \"%1\" saved").arg(savedName))
     }
 
     /// Moves a link up or down by a number of listed cards
@@ -647,4 +649,7 @@ Rectangle {
             }
         }
     }
+
+    // "Saved" after a save, over the page's bottom
+    NxSavedToast { id: savedToast }
 }

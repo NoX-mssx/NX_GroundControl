@@ -71,8 +71,9 @@ Rectangle {
         const profile = Object.assign({}, _parsed.settings, { name: _edit.name ?? "" })
         _message = WireGuardTunnel.saveProfile(_originalName, profile)
         if (_message === "") {
-            _selectProfile(_edit.name.trim())
-            _message = qsTr("Saved. The tunnel is registered with Windows.")
+            const savedName = profile.name.trim()
+            _selectProfile(savedName)
+            savedToast.show(qsTr("Tunnel \"%1\" saved and registered with Windows").arg(savedName))
             // Room vehicles using the tunnel get the change
             RoomManager.publishRoomLinks()
         }
@@ -422,4 +423,7 @@ Rectangle {
             }
         }
     }
+
+    // "Saved" after a save, over the page's bottom
+    NxSavedToast { id: savedToast }
 }

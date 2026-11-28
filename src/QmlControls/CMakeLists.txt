@@ -122,6 +122,7 @@ qt_add_qml_module(QGroundControlControlsModule
         MissionCommandDialog.qml
         MvPanelPage.qml
         NxConfirmDialog.qml
+        NxSavedToast.qml
         OfflineMapButton.qml
         ParameterDiffDialog.qml
         ParameterEditor.qml

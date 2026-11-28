@@ -14689,6 +14689,11 @@ Do you wish to proceed?</source>
     <name>NxLinksSettings</name>
     <message>
       <location filename="../src/AppSettings/NxLinksSettings.qml" line="1" />
+      <source>Link "%1" saved</source>
+      <translation>Лінк «%1» збережено</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/NxLinksSettings.qml" line="1" />
       <source>Admin Tunnel</source>
       <translation>Адмін тунель</translation>
     </message>
@@ -23278,6 +23283,11 @@ If a vehicle still has this key configured, you will no longer be able to commun
     <name>VehicleModelsSettings</name>
     <message>
       <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
+      <source>Model "%1" saved</source>
+      <translation>Модель «%1» збережено</translation>
+    </message>
+    <message>
+      <location filename="../src/AppSettings/VehicleModelsSettings.qml" line="1" />
       <source>Local HotRC remote (SBUS into the flight controller)</source>
       <translation>Місцевий пульт HotRC (SBUS у польотник)</translation>
     </message>
@@ -24087,6 +24097,11 @@ If a vehicle still has this key configured, you will no longer be able to commun
   </context>
   <context>
     <name>WireGuardSettings</name>
+    <message>
+      <location filename="../src/AppSettings/WireGuardSettings.qml" line="1" />
+      <source>Tunnel "%1" saved and registered with Windows</source>
+      <translation>Тунель «%1» збережено й зареєстровано в Windows</translation>
+    </message>
     <message>
       <location filename="../src/AppSettings/WireGuardSettings.qml" line="1" />
       <source>The text lacks: %1.</source>
@@ -27083,6 +27098,14 @@ Send this file together with the AppLog.log file from the Logs folder.</source>
       <location filename="../src/Rooms/AdminWatch.cc" line="1" />
       <source>Admin view of %1 closed: a vehicle connected</source>
       <translation>Режим адміна для %1 закрито: підключився борт</translation>
+    </message>
+  </context>
+  <context>
+    <name>NxSavedToast</name>
+    <message>
+      <location filename="../src/QmlControls/NxSavedToast.qml" line="1" />
+      <source>Saved</source>
+      <translation>Збережено</translation>
     </message>
   </context>
 </TS>

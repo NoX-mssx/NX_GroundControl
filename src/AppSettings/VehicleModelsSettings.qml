@@ -92,6 +92,7 @@ Rectangle {
             _selectModel(_originalName)
             // Room vehicles using the model get the change
             RoomManager.publishRoomLinks()
+            savedToast.show(qsTr("Model \"%1\" saved").arg(_originalName))
         }
     }
 
@@ -1396,4 +1397,7 @@ Rectangle {
             }
         }
     }
+
+    // "Saved" after a save, over the page's bottom
+    NxSavedToast { id: savedToast }
 }
